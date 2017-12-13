@@ -1,7 +1,7 @@
 @startuml
 'skinparam classAttributeIconSize 0
 'left to right direction
-'skinparam linetype ortho
+skinparam linetype ortho
 
 
 package BL {
@@ -61,7 +61,7 @@ package BL {
 			+property : String
 			+ruleValue : double
 			+prefixType : RelationType
-			+relationValue : doule
+			+relationValue : double
 			+prefix : Prefix
 		}
 
@@ -178,7 +178,7 @@ package BL {
 
 		}
 
-		Note "One per <algorithm, data set>" as ColletorCommNote
+		Note "One per <algorithm, data set>" as CollectorCommNote
 
 		class StatisticsHandler {
 
@@ -207,7 +207,7 @@ package BL {
 		DataCollectionCommunicatorBehaviour --o DataCollectionCommunicator
 		DataCollector --> StatisticsHandler
 
-		DataCollectionCommunicator .. ColletorCommNote
+		DataCollectionCommunicator .. CollectorCommNote
 
 		SmartHomeAgent o-- AgentIterationData
 		AlgorithmProblemResult o-- IterationAvgPrice
