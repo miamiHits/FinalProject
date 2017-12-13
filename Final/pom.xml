@@ -11,26 +11,26 @@
   <url>http://maven.apache.org</url>
 
 
-  <repositories>
-    <repository>
-      <id>tilab</id>
-      <url>http://jade.tilab.com/maven/</url>
-    </repository>
-  </repositories>
+  <!--<repositories>-->
+    <!--<repository>-->
+      <!--<id>tilab</id>-->
+      <!--<url>http://jade.tilab.com/maven/</url>-->
+    <!--</repository>-->
+  <!--</repositories>-->
 
   <dependencies>
-    <dependency>
-      <groupId>com.tilab.jade</groupId>
-      <artifactId>jade</artifactId>
-      <version>4.5.0</version>
-    </dependency>
+    <!--<dependency>-->
+      <!--<groupId>com.tilab.jade</groupId>-->
+      <!--<artifactId>jade</artifactId>-->
+      <!--<version>4.5.0</version>-->
+    <!--</dependency>-->
 
-    <!--TODO: Jade test suite, maybe don't need-->
-    <dependency>
-      <groupId>com.tilab.jade</groupId>
-      <artifactId>jade-test-suite</artifactId>
-      <version>1.13.0</version>
-    </dependency>
+    <!--&lt;!&ndash;TODO: Jade test suite, maybe don't need&ndash;&gt;-->
+    <!--<dependency>-->
+      <!--<groupId>com.tilab.jade</groupId>-->
+      <!--<artifactId>jade-test-suite</artifactId>-->
+      <!--<version>1.13.0</version>-->
+    <!--</dependency>-->
 
     <dependency>
       <groupId>junit</groupId>
