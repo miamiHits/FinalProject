@@ -23,13 +23,13 @@ package BL {
 
 		class Sensor {
 			+currState : double
-			+sensingProperties : String
+			+sensingProperties : List<String>
 			+change(double) : void
 		}
 
 		class Actuator {
 			+actions : List<Action>
-			+act(Sensor) : void
+			+act(Sensors, Action) : void
 		}
 
 		class Effect {
@@ -98,6 +98,7 @@ package BL {
 
 		Prefix <-- Rule
 		RelationType <-- Rule
+		Rule o-- Device
 	}
 
 	package Agents {
