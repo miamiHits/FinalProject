@@ -1,9 +1,13 @@
 package FinalProject.BL.Problems;
 
-public abstract class Device {
+import com.google.gson.annotations.SerializedName;
+
+public class Device {
 
     protected String name;
+    @SerializedName("subtype")
     protected String subtype;
+    @SerializedName("location")
     protected String location;
 
     public Device(String name, String subtype, String location)

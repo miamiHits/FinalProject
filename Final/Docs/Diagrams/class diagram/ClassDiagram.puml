@@ -264,7 +264,7 @@ package DAL {
 	}
 
 	class JsonsLoader {
-		+loadDevices(String) : List<Device>
+		+loadDevices(String) : Map<int, Device>
 		+loadProblem(String) : Problem
 	}
 

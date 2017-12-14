@@ -1,5 +1,6 @@
 package FinalProject.DAL;
 
+import FinalProject.BL.Problems.Device;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -7,6 +8,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class JsonLoaderTest {
 
@@ -44,7 +46,11 @@ public class JsonLoaderTest {
     @Test
     public void getAllDevices() throws Exception
     {
-
+        //TODO: improve this
+        Map<Integer, List<Device>> map = loader.loadDevices();
+        Assert.assertEquals(map.size(), 3);
+        Assert.assertEquals(map.get(0).size(), map.get(1).size());
+        Assert.assertEquals(map.get(0).size(), map.get(2).size());
     }
 
 }
