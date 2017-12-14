@@ -1,5 +1,6 @@
 package FinalProject.BL.Problems;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class AgentData {
@@ -93,5 +94,74 @@ public class AgentData {
     public void setSensors(List<Sensor> sensors)
     {
         this.sensors = sensors;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "AgentData{" +
+                "name='" + name + '\'' +
+                ", neighbors=" + neighbors +
+                ", backgroundLoad=" + Arrays.toString(backgroundLoad) +
+                ", houseType=" + houseType +
+                ", rules=" + rules +
+                ", actuators=" + actuators +
+                ", sensors=" + sensors +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        AgentData agentData = (AgentData) o;
+
+        if (getHouseType() != agentData.getHouseType())
+        {
+            return false;
+        }
+        if (!getName().equals(agentData.getName()))
+        {
+            return false;
+        }
+        if (!getNeighbors().equals(agentData.getNeighbors()))
+        {
+            return false;
+        }
+        if (!Arrays.equals(getBackgroundLoad(), agentData.getBackgroundLoad()))
+        {
+            return false;
+        }
+        if (!getRules().equals(agentData.getRules()))
+        {
+            return false;
+        }
+        if (!getActuators().equals(agentData.getActuators()))
+        {
+            return false;
+        }
+        return getSensors().equals(agentData.getSensors());
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = getName().hashCode();
+        result = 31 * result + getNeighbors().hashCode();
+        result = 31 * result + Arrays.hashCode(getBackgroundLoad());
+        result = 31 * result + getHouseType();
+        result = 31 * result + getRules().hashCode();
+        result = 31 * result + getActuators().hashCode();
+        result = 31 * result + getSensors().hashCode();
+        return result;
     }
 }

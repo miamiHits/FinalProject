@@ -1,6 +1,6 @@
 package FinalProject.BL.Problems;
 
-public class Device {
+public abstract class Device {
 
     protected String name;
     protected String subtype;

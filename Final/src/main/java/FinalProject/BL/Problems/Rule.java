@@ -96,4 +96,77 @@ public class Rule {
     {
         this.relationValue = relationValue;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Rule{" +
+                "isActive=" + isActive +
+                ", device=" + device +
+                ", property='" + property + '\'' +
+                ", ruleValue=" + ruleValue +
+                ", prefixType=" + prefixType +
+                ", prefix=" + prefix +
+                ", relationValue=" + relationValue +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        Rule rule = (Rule) o;
+
+        if (isActive() != rule.isActive())
+        {
+            return false;
+        }
+        if (Double.compare(rule.getRuleValue(), getRuleValue()) != 0)
+        {
+            return false;
+        }
+        if (Double.compare(rule.getRelationValue(), getRelationValue()) != 0)
+        {
+            return false;
+        }
+        if (!getDevice().equals(rule.getDevice()))
+        {
+            return false;
+        }
+        if (!getProperty().equals(rule.getProperty()))
+        {
+            return false;
+        }
+        if (getPrefixType() != rule.getPrefixType())
+        {
+            return false;
+        }
+        return getPrefix() == rule.getPrefix();
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result;
+        long temp;
+        result = (isActive() ? 1 : 0);
+        result = 31 * result + getDevice().hashCode();
+        result = 31 * result + getProperty().hashCode();
+        temp = Double.doubleToLongBits(getRuleValue());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + getPrefixType().hashCode();
+        result = 31 * result + getPrefix().hashCode();
+        temp = Double.doubleToLongBits(getRelationValue());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }

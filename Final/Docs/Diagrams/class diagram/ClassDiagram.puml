@@ -81,7 +81,7 @@ package BL {
 			allHomes : List<AgentData>
 			horizon : int
 			granularity : int
-			priceScheme : int[horizon]
+			priceScheme : double[horizon]
 		}
 
 		Device <|-- Sensor

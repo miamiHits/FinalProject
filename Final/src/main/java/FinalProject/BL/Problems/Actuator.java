@@ -50,4 +50,36 @@ public class Actuator extends Device {
             }
         });
     }
+
+    @Override
+    public String toString()
+    {
+        return "Actuator{" +
+                "actions=" + actions +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        Actuator actuator = (Actuator) o;
+
+        return getActions() != null ? getActions().equals(actuator.getActions()) : actuator.getActions() == null;
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return getActions() != null ? getActions().hashCode() : 0;
+    }
 }

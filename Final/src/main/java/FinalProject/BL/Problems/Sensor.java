@@ -40,4 +40,46 @@ public class Sensor extends Device {
     {
         currentState += value;
     }
+
+    @Override
+    public String toString()
+    {
+        return "Sensor{" +
+                "currentState=" + currentState +
+                ", sensingProperties=" + sensingProperties +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        Sensor sensor = (Sensor) o;
+
+        if (Double.compare(sensor.getCurrentState(), getCurrentState()) != 0)
+        {
+            return false;
+        }
+        return getSensingProperties() != null ? getSensingProperties().equals(sensor.getSensingProperties()) : sensor.getSensingProperties() == null;
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(getCurrentState());
+        result = (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (getSensingProperties() != null ? getSensingProperties().hashCode() : 0);
+        return result;
+    }
 }
