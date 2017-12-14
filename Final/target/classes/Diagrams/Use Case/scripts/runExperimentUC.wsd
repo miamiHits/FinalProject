@@ -1,0 +1,45 @@
+@startuml
+
+skinparam packageStyle rectangle
+
+actor user
+actor system <<system>>
+
+
+rectangle "run experiment" {
+
+	(run experiment) as (main)
+	(execute experiment) as (execute)
+  (display experiment screen) as (display screen)
+	(display result screen) as (display result)
+  (experiment done) as (done)
+
+	(cancel experiment) as (cancel)
+  (max number or iterations reached) as (maxIter)
+  (no algorithm selected) as (no algorithms)
+  (no data set selected) as (no data)
+	(invalid number of iterations) as (invalidIter)
+  (runtime error in selected algorithm) as (algoErr)
+
+	user - (main) : selects
+  (main) .> (display screen) : include
+	(main) .right.> (execute) : include
+  (main) .> (done) : include
+  (done) .down.> (display result) : include
+  (maxIter) .down.> (done) : include
+  (display screen) - system
+  (execute) - system : executes
+  user - (cancel) : selects
+
+
+  (cancel) .up.> (execute) : extendes
+  (no data) .up.> (main) : extendes
+  (invalidIter) .up.> (main) : extendes
+  (algoErr) .up.> (execute) : extendes
+  (maxIter) .up.> (execute) : extendes
+  (no algorithms) .up.> (main) : extendes
+
+  user . (display result)
+  (display result) - system
+}
+@enduml
