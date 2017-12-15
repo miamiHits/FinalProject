@@ -175,6 +175,11 @@ public class JsonLoader implements JsonLoaderInterface {
     @Override
     public List<String> getAllProblemNames()
     {
+        if (jsonsDir == null)
+        {
+            logger.error("jsonsDir is null!");
+            return null;
+        }
         List<File> allInFolder = Arrays.asList(jsonsDir.listFiles());
         return allInFolder.stream()
                 .map(File::getName)
