@@ -9,6 +9,7 @@ import java.util.Map;
 public class Problem {
 
     private String id;
+
     private Map<Integer, List<Device>> allDevices;
 //    @SerializedName("agents")
     private List<AgentData> allHomes;
@@ -129,9 +130,12 @@ public class Problem {
         {
             return false;
         }
-        if (!getAllDevices().equals(problem.getAllDevices()))
+        for (int houseType : getAllDevices().keySet())
         {
-            return false;
+            if (!problem.getAllDevices().get(houseType).equals(getAllDevices().get(houseType)))
+            {
+                return false;
+            }
         }
         if (!getAllHomes().equals(problem.getAllHomes()))
         {

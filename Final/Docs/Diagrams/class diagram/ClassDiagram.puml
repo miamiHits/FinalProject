@@ -47,6 +47,8 @@ package BL {
 			EQ
 			GEQ
 			LEQ
+			GT
+			LT
 		}
 
 		enum Prefix {

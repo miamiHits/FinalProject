@@ -2,6 +2,7 @@ package FinalProject.BL.Problems;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AgentData {
 
@@ -26,7 +27,10 @@ public class AgentData {
         this.sensors = sensors;
     }
 
-    //Used only for Json parsing!
+    /**
+     * Used only for Json parsing!
+     * @param name
+     */
     public AgentData(String name)
     {
         this.name = name;
@@ -102,21 +106,6 @@ public class AgentData {
         this.sensors = sensors;
     }
 
-    //TODO: fix
-//    @Override
-//    public String toString()
-//    {
-//        return "AgentData{" +
-//                "name='" + name + '\'' +
-//                ", neighbors=" + neighbors +
-//                ", backgroundLoad=" + Arrays.toString(backgroundLoad) +
-//                ", houseType=" + houseType +
-//                ", rules=" + rules +
-//                ", actuators=" + actuators +
-//                ", sensors=" + sensors +
-//                '}';
-//    }
-
     @Override
     public boolean equals(Object o)
     {
@@ -139,10 +128,21 @@ public class AgentData {
         {
             return false;
         }
-        if (!getNeighbors().equals(agentData.getNeighbors()))
+
+        List<String> otherNeighbors = agentData.getNeighbors().stream()
+                .map(AgentData::getName).collect(Collectors.toList());
+        for(AgentData neighbor : neighbors)
+        {
+            if (!otherNeighbors.contains(neighbor.getName()))
+            {
+                return false;
+            }
+        }
+        if (otherNeighbors.size() != neighbors.size())
         {
             return false;
         }
+
         if (!Arrays.equals(getBackgroundLoad(), agentData.getBackgroundLoad()))
         {
             return false;
@@ -170,5 +170,22 @@ public class AgentData {
         result = 31 * result + getActuators().hashCode();
         result = 31 * result + getSensors().hashCode();
         return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        List<String> neighborsNames = neighbors.stream()
+                .map(AgentData::getName).collect(Collectors.toList());
+
+        return "AgentData{" +
+                "name='" + name + '\'' +
+                ", neighbors=" + neighborsNames +
+                ", backgroundLoad=" + Arrays.toString(backgroundLoad) +
+                ", houseType=" + houseType +
+                ", rules=" + rules +
+                ", actuators=" + actuators +
+                ", sensors=" + sensors +
+                '}';
     }
 }

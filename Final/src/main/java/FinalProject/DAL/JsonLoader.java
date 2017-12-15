@@ -34,9 +34,23 @@ public class JsonLoader implements JsonLoaderInterface {
         }
     }
 
+    public Map<Integer, List<Device>> getDeviceDict()
+    {
+        if (deviceDict == null)
+        {
+            loadDevices();
+        }
+        return deviceDict;
+    }
+
     public File getJsonsDir()
     {
         return jsonsDir;
+    }
+
+    public void setJsonsDir(File jsonsDir)
+    {
+        this.jsonsDir = jsonsDir;
     }
 
     @Override
@@ -59,36 +73,45 @@ public class JsonLoader implements JsonLoaderInterface {
             problem = gson.fromJson(fullJsonObj, Problem.class);
             problem.setId(problemName);
 
-            loadDevices(); //make sure deviceDict != null
+            getDeviceDict(); //make sure deviceDict != null
             problem.setAllDevices(new HashMap<>(deviceDict));
 
             JsonObject agentsObj = fullJsonObj.get("agents").getAsJsonObject();
-            List<TempAgentData> tempList = new ArrayList<>(agentsObj.size());
-            List<AgentData> agents = new ArrayList<>(agentsObj.size());
-            agentsObj.entrySet().forEach(entry -> {
-
-                TempAgentData temp = gson.fromJson(entry.getValue(), TempAgentData.class);
-                temp.name = entry.getKey();
-                tempList.add(temp);
-                agents.add(new AgentData(temp.name));
-            });
-
-            for (int i = 0; i < tempList.size(); i++)
-            {
-                TempAgentData temp = tempList.get(i);
-                AgentData agent = agents.get(i);
-
-                temp.copyFieldsToAgentData(agent, deviceDict.get(temp.houseType), agents);
-            }
+            List<AgentData> agents = parseAgentDataObjects(agentsObj);
             problem.setAllHomes(agents);
         } catch (UnsupportedEncodingException e)
         {
-            e.printStackTrace();
+            logger.warn("Problem " + problemName + FILE_TYPE + "'s encoding caused a problem", e);
         } catch (IOException e)
         {
-            e.printStackTrace();
+            logger.warn("IOException while parsing Problem " + problemName + FILE_TYPE, e);
         }
         return problem;
+    }
+
+    private List<AgentData> parseAgentDataObjects(JsonObject agentsObj)
+    {
+        List<TempAgentData> tempList = new ArrayList<>(agentsObj.size());
+        List<AgentData> agents = new ArrayList<>(agentsObj.size());
+
+        //create TempAgentData objects from json
+        agentsObj.entrySet().forEach(entry -> {
+
+            TempAgentData temp = gson.fromJson(entry.getValue(), TempAgentData.class);
+            temp.name = entry.getKey();
+            tempList.add(temp);
+            agents.add(new AgentData(temp.name));
+        });
+
+        //copy and parse fields into AgentData objects
+        for (int i = 0; i < tempList.size(); i++)
+        {
+            TempAgentData temp = tempList.get(i);
+            AgentData agent = agents.get(i);
+
+            temp.copyFieldsToAgentData(agent, deviceDict.get(temp.houseType), agents);
+        }
+        return agents;
     }
 
     @Override
@@ -111,7 +134,7 @@ public class JsonLoader implements JsonLoaderInterface {
         }
 
         deviceDict = new HashMap<>(3);
-        String deviceDictPath = jsonsDir.getPath() + "\\DeviceDictionary" + FILE_TYPE;
+        String deviceDictPath = jsonsDir.getPath() + "\\" + DEVICE_DICT_FILE_NAME + FILE_TYPE;
 
         try(Reader reader = new BufferedReader(new FileReader(deviceDictPath)))
         {
