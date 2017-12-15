@@ -1,6 +1,6 @@
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 
-class BehaviourToCompile extends SmartHomeAgentBehaviour {
+public class BehaviourToCompile extends SmartHomeAgentBehaviour {
 
     @Override
     protected void doIteration()
@@ -12,5 +12,18 @@ class BehaviourToCompile extends SmartHomeAgentBehaviour {
     protected void sendIterationToCollector()
     {
         //nothing here
+    }
+
+
+    @Override
+    public void action()
+    {
+
+    }
+
+    @Override
+    public boolean done()
+    {
+        return false;
     }
 }

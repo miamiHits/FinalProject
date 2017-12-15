@@ -1,8 +1,13 @@
-class SomeClassToCompile{
+public class SomeClassToCompile{
 
     private int intField;
     private double doubleField;
     private SomeClassToCompile objField;
+
+    public SomeClassToCompile()
+    {
+
+    }
 
     public SomeClassToCompile(int intField, double doubleField, SomeClassToCompile objField)
     {

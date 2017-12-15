@@ -5,7 +5,10 @@ import com.sun.org.apache.xalan.internal.xsltc.compiler.CompilerException;
 import jade.core.behaviours.Behaviour;
 import org.apache.log4j.Logger;
 
-import javax.tools.*;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -78,7 +81,15 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
             throw new IOException("Could not compile class " + fileName);
         }
 
-        verifyClassIsAlgorithm(fileName);
+        if (!verifyClassIsAlgorithm(fileName))
+        {
+            File file = new File(compiledDir.getPath() + "\\" + fileName + COMPILED_FILE_TYPE);
+
+            if(!file.delete())
+            {
+                System.err.println("could not delete file " + fileName);
+            }
+        }
     }
 
     private boolean verifyClassIsAlgorithm(String fileName)
@@ -86,7 +97,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     {
         try
         {
-            Class compiledClass = loadClassFromFile(compiledDir.getPath(), fileName + COMPILED_FILE_TYPE);
+            Class compiledClass = loadClassFromFile(compiledDir.getPath(), fileName);
             return  compiledClass.newInstance() instanceof SmartHomeAgentBehaviour;
 
         } catch (ClassNotFoundException e)
@@ -121,14 +132,15 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         return toReturn;
     }
 
-    private boolean compile(String pathStr) throws IOException
+    //TODO: make this private
+    public boolean compile(String pathStr) throws IOException
     {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<>();
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticsCollector, null, null);
+        //DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<>();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null/*diagnosticsCollector*/, null, null);
         Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Collections.singletonList(pathStr));
         List<String> options = Arrays.asList("-d", compiledDir.getPath());
-        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, options, null, compilationUnits);
+        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null/*diagnosticsCollector*/, options, null, compilationUnits);
         boolean success = task.call();
         fileManager.close();
         return success;

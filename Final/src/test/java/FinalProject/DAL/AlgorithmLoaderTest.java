@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,6 +19,7 @@ public class AlgorithmLoaderTest {
     @Before
     public void setUp() throws Exception
     {
+        org.apache.log4j.BasicConfigurator.configure();
         loader = new AlgorithmLoader(compiledDirPath);
         classesToDelete = new ArrayList<>();
     }
@@ -61,9 +63,25 @@ public class AlgorithmLoaderTest {
     }
 
     @Test
-    public void addAlgoToSystem() throws Exception
+    public void addAlgoToSystemGood() throws Exception
     {
-        
+        String fileName = "BehaviourToCompile";
+        loader.addAlgoToSystem(uncompiledDirPath, fileName + ".java");
+
+        File classFile = new File(compiledDirPath + "\\" + fileName + ".class");
+        Assert.assertTrue(classFile.exists());
+
+        classesToDelete.add(fileName);
+    }
+
+    @Test
+    public void addAlgoToSystemNotBehaviourBad() throws Exception
+    {
+        String fileName = "SomeClassToCompile";
+        loader.addAlgoToSystem(uncompiledDirPath, fileName + ".java");
+
+        File classFile = new File(compiledDirPath + "\\" + fileName + ".class");
+        Assert.assertFalse(classFile.exists());
     }
 
 }
