@@ -265,9 +265,16 @@ package DAL {
 
 	}
 
+    interface JsonLoaderInterface {
+        +loadDevices(String) : Map<int, Device>
+        +loadProblem(String) : Problem
+        +getAllProblemNames() : List<String>
+    }
+
 	class JsonsLoader {
 		+loadDevices(String) : Map<int, Device>
 		+loadProblem(String) : Problem
+		+getAllProblemNames() : List<String>
 	}
 
 	class AlgorithmLoader {
@@ -283,6 +290,8 @@ package DAL {
 	DataAccessController --> AlgorithmLoader
 	DataAccessController --> JsonsLoader
 	DataAccessController --> ExcelHandler
+
+	JsonLoaderInterface <|-- JsonsLoader
 }
 
 
