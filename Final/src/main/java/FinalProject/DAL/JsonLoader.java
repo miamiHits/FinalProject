@@ -64,7 +64,7 @@ public class JsonLoader implements JsonLoaderInterface {
             List<Problem> result = new ArrayList<>(problemNames.size());
 
             //load file and add to list if not null
-            problemNames.forEach(name -> {
+            problemNames.parallelStream().forEach(name -> {
                 final Problem problem = loadSingleProblem(name);
                 if (problem != null)
                 {
