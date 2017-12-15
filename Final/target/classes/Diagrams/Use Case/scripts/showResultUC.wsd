@@ -1,0 +1,30 @@
+@startuml
+
+'left to right direction
+skinparam packageStyle rectangle
+
+actor user
+actor system <<system>>
+
+rectangle "show experiment result" {
+
+	(show experiment result) as (main)
+	(display result screen) as (displayScreen)
+	(save experiment result) as (save)
+	(display main screen) as (displayMain)
+
+  (displayMain) ..> (main) : extends
+  system - (main)
+  (main) .> (displayScreen) : include
+  system - (displayScreen)
+  user - (save) : selects
+  (save) - system
+  user -down- (displayMain) : selects
+  user . (displayScreen)
+  user -- (main)
+  (save) ..> (main) : extends
+
+
+}
+
+@enduml

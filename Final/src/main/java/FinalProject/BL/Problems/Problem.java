@@ -1,18 +1,26 @@
 package FinalProject.BL.Problems;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class Problem {
 
     private String id;
-    private List<Device> allDevices;
+
+    private Map<Integer, List<Device>> allDevices;
+//    @SerializedName("agents")
     private List<AgentData> allHomes;
+    @SerializedName("horizon")
     private int horizon;
+    @SerializedName("priceSchema")
     private double[] priceScheme;
+    @SerializedName("granularity")
     private int granularity;
 
-    public Problem(String id, List<Device> allDevices, List<AgentData> allHomes, int horizon, int granularity,
+    public Problem(String id,Map<Integer, List<Device>> allDevices, List<AgentData> allHomes, int horizon, int granularity,
                    double[] priceScheme)
     {
         this.id = id;
@@ -33,12 +41,12 @@ public class Problem {
         this.id = id;
     }
 
-    public List<Device> getAllDevices()
+    public Map<Integer, List<Device>> getAllDevices()
     {
         return allDevices;
     }
 
-    public void setAllDevices(List<Device> allDevices)
+    public void setAllDevices(Map<Integer, List<Device>> allDevices)
     {
         this.allDevices = allDevices;
     }
@@ -122,9 +130,12 @@ public class Problem {
         {
             return false;
         }
-        if (!getAllDevices().equals(problem.getAllDevices()))
+        for (int houseType : getAllDevices().keySet())
         {
-            return false;
+            if (!problem.getAllDevices().get(houseType).equals(getAllDevices().get(houseType)))
+            {
+                return false;
+            }
         }
         if (!getAllHomes().equals(problem.getAllHomes()))
         {

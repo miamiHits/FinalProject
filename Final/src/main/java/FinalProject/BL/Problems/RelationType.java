@@ -4,5 +4,7 @@ public enum RelationType
 {
     EQ,
     GEQ,
-    LEQ
+    LEQ,
+    GT,
+    LT
 }

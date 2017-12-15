@@ -82,4 +82,5 @@ public class Actuator extends Device {
     {
         return getActions() != null ? getActions().hashCode() : 0;
     }
+
 }

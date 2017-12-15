@@ -47,6 +47,8 @@ package BL {
 			EQ
 			GEQ
 			LEQ
+			GT
+			LT
 		}
 
 		enum Prefix {
@@ -77,7 +79,7 @@ package BL {
 
 		class Problem {
 			id : String
-			allDevices : List<Device>
+			allDevices : Map<Integer, List<Device>>
 			allHomes : List<AgentData>
 			horizon : int
 			granularity : int
@@ -263,9 +265,16 @@ package DAL {
 
 	}
 
+    interface JsonLoaderInterface {
+        +loadDevices(String) : Map<int, Device>
+        +loadProblem(String) : Problem
+        +getAllProblemNames() : List<String>
+    }
+
 	class JsonsLoader {
-		+loadDevices(String) : List<Device>
+		+loadDevices(String) : Map<int, Device>
 		+loadProblem(String) : Problem
+		+getAllProblemNames() : List<String>
 	}
 
 	class AlgorithmLoader {
@@ -281,6 +290,8 @@ package DAL {
 	DataAccessController --> AlgorithmLoader
 	DataAccessController --> JsonsLoader
 	DataAccessController --> ExcelHandler
+
+	JsonLoaderInterface <|-- JsonsLoader
 }
 
 

@@ -1,10 +1,14 @@
 package FinalProject.BL.Problems;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class Sensor extends Device {
 
+    @SerializedName("current_state")
     private double currentState;
+    @SerializedName("sensing_properties")
     private List<String> sensingProperties;
 
     public Sensor(String name, String subtype, String location,

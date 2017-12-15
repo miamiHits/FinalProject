@@ -1,11 +1,16 @@
 package FinalProject.BL.Problems;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class Action {
 
+
     private String name;
+    @SerializedName("power_consumed")
     private double powerConsumption;
+    @SerializedName("effects")
     private List<Effect> effects;
 
     public Action(String name, double powerConsumption, List<Effect> effects)

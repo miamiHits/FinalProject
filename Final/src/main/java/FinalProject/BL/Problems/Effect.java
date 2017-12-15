@@ -1,8 +1,12 @@
 package FinalProject.BL.Problems;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Effect {
 
+    @SerializedName("property")
     private String property;
+    @SerializedName("delta")
     private double delta;
     public Effect(String property, double delta)
     {
