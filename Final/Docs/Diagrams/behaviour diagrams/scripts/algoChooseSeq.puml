@@ -1,0 +1,56 @@
+@startuml
+actor User as u
+participant DataAccessController as DAC
+
+activate u
+activate Service
+activate UiHandler
+
+u --> UiHandler : select algorithms
+UiHandler --> Service : getAvailableAlgorithms()
+Service --> DAC : getAvailableAlgorithms()
+
+activate DAC
+DAC --> Service : [List<AlgorithmName : String>]
+
+alt There are available algorithms in the system
+
+    Service --> UiHandler : [List<AlgorithmName : String>]
+    UiHandler --> u : [opens an algorithm selection dialog]
+    u --> UiHandler : [selectedAlgorithms]
+    note left
+        user selects the desired
+        algorithms from the dialog
+    end note
+
+    UiHandler --> Service : getAlgorithms(List<algorithmNames: String>)
+
+    Service --> DAC : getAlgorithms(List<algorithmNames: String>)
+
+    loop for each Algorithm name
+        activate AlgorithmLoader
+        DAC --> AlgorithmLoader : loadAlgorithm(String algorithmName)
+        AlgorithmLoader --> DAC : [SmartHomeAgentBehaviour]
+    end
+
+    DAC --> Service : [List<SmartHomeAgentBehaviour>]
+    Service --> UiHandler : [success]
+    UiHandler --> u : [shows a success message]
+    Service --> u : [opens an iteration count form]
+    u --> Service : inputs the desired iteration number
+    opt input is not a number or input <= 0
+        Service --> u : [shows a validation error message]
+        note left
+            dialog will not clear
+            until the user submits
+            a valid input
+        end note
+    end
+    Service --> UiHandler : [success]
+    UiHandler --> u : [shows a success message]
+
+else There are no available algorithms in the system
+    Service --> UiHandler : showErrorMessage(msg: String)
+    UiHandler --> u : [shows a descriptive error message]
+end
+@enduml

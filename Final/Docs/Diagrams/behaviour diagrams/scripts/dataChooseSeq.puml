@@ -1,0 +1,59 @@
+@startuml
+actor User as u
+participant DataAccessController as DAC
+
+activate u
+activate UiHandler
+activate Service
+
+
+u --> UiHandler : select problems
+alt Json files are available in the system
+    UiHandler --> u : [opens a file selection dialog]
+    note left
+        user selects the Json
+        files from the dialog
+    end note
+    u --> UiHandler : [selectedProblems]
+    UiHandler --> Service : loadProblems(List<problemNames: String>)
+
+
+    activate DAC
+    Service --> DAC : getProblems(List<problemNames: String>)
+
+    loop for each problem name
+        activate JsonLoader
+        DAC --> JsonLoader : loadProblem(String problemName)
+        JsonLoader --> JsonLoader : verifyJson(String problemName)
+        JsonLoader --> DAC : [Problem]
+    end
+
+    DAC -->Service : [List<Problem>]
+    Service --> UiHandler : [success]
+    UiHandler --> u : [shows a success message]
+
+else no available Json files in the system
+    Service --> UiHandler : showErrorMessage(msg: String)
+    UiHandler --> u : [shows a descriptive error message]
+
+else one or more of the Json files is not a valid problem
+    Service --> u : [opens a file selection dialog]
+        u --> Service : selectedProblems
+
+        note left
+            user selects the Json
+            files from the dialog
+        end note
+
+        Service --> DAC : getProblems(List<String problemNames>)
+
+        DAC --> JsonLoader : loadProblem(String problemName)
+        JsonLoader --> JsonLoader : verifyJson(String problemName)
+        JsonLoader --> Service : [ParseException]
+        Service --> UiHandler : showErrorMessage(msg: String)
+        UiHandler --> u : [shows a descriptive error message]
+end
+
+
+
+@enduml
