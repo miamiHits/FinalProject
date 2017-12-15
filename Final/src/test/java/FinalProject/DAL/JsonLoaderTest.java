@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.Problems.Device;
+import FinalProject.BL.Problems.Problem;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,7 +32,9 @@ public class JsonLoaderTest {
     @Test
     public void loadProblems() throws Exception
     {
-
+        List<String> lst = Arrays.asList("dm_7_1_2");
+        List<Problem> probs = loader.loadProblems(lst);
+        System.out.println(probs);
     }
 
     @Test

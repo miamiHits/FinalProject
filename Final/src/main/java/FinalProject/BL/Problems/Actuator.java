@@ -5,12 +5,9 @@ import org.apache.log4j.Logger;
 import java.util.List;
 import java.util.Optional;
 
-//@JsonAdapter(Actuator.ActuatorJsonAdapter.class)
 public class Actuator extends Device {
 
     private final static Logger logger = Logger.getLogger(Actuator.class);
-
-//    @SerializedName("actions")
     private List<Action> actions;
 
     public Actuator(String name, String subtype, String location,
@@ -86,29 +83,4 @@ public class Actuator extends Device {
         return getActions() != null ? getActions().hashCode() : 0;
     }
 
-//    public class ActuatorJsonAdapter extends TypeAdapter<Actuator>
-//    {
-//
-//        @Override
-//        public void write(JsonWriter jsonWriter, Actuator actuator) throws IOException
-//        {
-//            //TODO
-//        }
-//
-//        @Override
-//        public Actuator read(JsonReader jsonReader) throws IOException
-//        {
-//            jsonReader.beginObject();
-//            jsonReader.skipValue();
-//            jsonReader.skipValue();
-//            jsonReader.skipValue();
-//            String subtype = jsonReader.nextString();
-//            jsonReader.skipValue();
-//            String location = jsonReader.nextString();
-//            jsonReader.skipValue();
-//            jsonReader.;
-//
-//            return null;
-//        }
-//    }
 }

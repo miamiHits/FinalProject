@@ -1,6 +1,12 @@
 package FinalProject.BL.Problems;
 
+import org.apache.log4j.Logger;
+
+import java.util.List;
+
 public class Rule {
+
+    private static final Logger logger = Logger.getLogger(Rule.class);
 
     private boolean isActive;
     private Device device;
@@ -22,9 +28,59 @@ public class Rule {
         this.relationValue = relationValue;
     }
 
-    public Rule(String ruleAsString)
+    public Rule(String ruleAsString, List<Device> deviceDict)
     {
-        //TODO: parse string
+        String[] split = ruleAsString.split(" ");
+        isActive = split[0].equals("1");
+        device = parseDevice(split[1], deviceDict);
+        property = split[2];
+        prefixType = parseRelationType(split[3]);
+        ruleValue = Double.parseDouble(split[4]);
+
+        if (isActive && split.length >= 7)
+        {
+            prefix = parsePrefix(split[5]);
+            relationValue = Double.parseDouble(split[6]);
+        }
+    }
+
+    private Device parseDevice(String name, List<Device> deviceDict)
+    {
+        for (Device dev : deviceDict)
+        {
+            if (name.equals(dev.getName()))
+            {
+                return dev;
+            }
+        }
+        logger.info("Could not parse device: " + name);
+        return null;
+    }
+
+    private Prefix parsePrefix(String prefixStr)
+    {
+        switch (prefixStr.toLowerCase())
+        {
+            case "before":  return Prefix.BEFORE;
+            case "after":   return Prefix.AFTER;
+            case "at":      return Prefix.AT;
+            default:
+                logger.info("Could not parse prefix from rule: " + prefixStr);
+                return null;
+        }
+    }
+
+    private RelationType parseRelationType(String relationTypeStr)
+    {
+        switch (relationTypeStr.toLowerCase())
+        {
+            case "eq":  return RelationType.EQ;
+            case "geq": return RelationType.GEQ;
+            case "leq": return RelationType.LEQ;
+            default:
+                logger.info("Could not parse relationType from rule: " + relationTypeStr);
+                return null;
+        }
     }
 
     public boolean isActive()

@@ -26,6 +26,12 @@ public class AgentData {
         this.sensors = sensors;
     }
 
+    //Used only for Json parsing!
+    public AgentData(String name)
+    {
+        this.name = name;
+    }
+
     public String getName()
     {
         return name;
@@ -96,19 +102,20 @@ public class AgentData {
         this.sensors = sensors;
     }
 
-    @Override
-    public String toString()
-    {
-        return "AgentData{" +
-                "name='" + name + '\'' +
-                ", neighbors=" + neighbors +
-                ", backgroundLoad=" + Arrays.toString(backgroundLoad) +
-                ", houseType=" + houseType +
-                ", rules=" + rules +
-                ", actuators=" + actuators +
-                ", sensors=" + sensors +
-                '}';
-    }
+    //TODO: fix
+//    @Override
+//    public String toString()
+//    {
+//        return "AgentData{" +
+//                "name='" + name + '\'' +
+//                ", neighbors=" + neighbors +
+//                ", backgroundLoad=" + Arrays.toString(backgroundLoad) +
+//                ", houseType=" + houseType +
+//                ", rules=" + rules +
+//                ", actuators=" + actuators +
+//                ", sensors=" + sensors +
+//                '}';
+//    }
 
     @Override
     public boolean equals(Object o)
