@@ -27,13 +27,70 @@ public class JsonLoaderTest {
     }
 
     @Test
-    public void loadProblems() throws Exception
+    public void loadProblemsDm_7_1_2Good() throws Exception
     {
-        List<String> lst = Arrays.asList("dm_7_1_2");
+        List<String> lst = Collections.singletonList("dm_7_1_2");
         List<Problem> expected = Collections.singletonList(getProblemDm_7_1_2());
         List<Problem> actual = loader.loadProblems(lst);
         Assert.assertEquals(expected, actual);
     }
+
+    @Test
+    public void loadProblemsNullPathBad() throws Exception
+    {
+        List<Problem> actual = loader.loadProblems(null);
+        Assert.assertNull(actual);
+    }
+
+    @Test
+    public void loadProblemsNoFileBad() throws Exception
+    {
+        List<Problem> actual = loader.loadProblems(Collections.singletonList("some\\path\\to\\nowhere"));
+        Assert.assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    public void loadProblemsBadJsonNoHorizon() throws Exception
+    {
+        List<Problem> actual = loader.loadProblems(Collections.singletonList("badJson_noHorizon"));
+        Assert.assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    public void loadProblemsBadJsonNoAgents() throws Exception
+    {
+        List<Problem> actual = loader.loadProblems(Collections.singletonList("badJson_noAgents"));
+        Assert.assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    public void loadProblemsBadJsonNoNeighborsInOneAgent() throws Exception
+    {
+        List<Problem> actual = loader.loadProblems(Collections.singletonList("badJson_noNeighborsInOneAgent"));
+        Assert.assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    public void getAllProblemNames() throws Exception
+    {
+        List<String> expectedFileNames = Arrays.asList("bo_135_1_3", "badJson_noNeighborsInOneAgent", "dm_7_1_2", "dm_7_1_3",
+                                                       "badJson_noAgents", "badJson_noHorizon");
+        List<String> actualFileName = loader.getAllProblemNames();
+        Assert.assertEquals(expectedFileNames.size(), actualFileName.size());
+        Assert.assertTrue(expectedFileNames.containsAll(actualFileName));
+    }
+
+    @Test
+    public void getAllDevices() throws Exception
+    {
+        //TODO: improve this
+        Map<Integer, List<Device>> map = loader.loadDevices();
+        Assert.assertEquals(map.size(), 3);
+        Assert.assertEquals(map.get(0).size(), map.get(1).size());
+        Assert.assertEquals(map.get(0).size(), map.get(2).size());
+    }
+
+    //*********HELPER METHODS**********
 
     private Problem getProblemDm_7_1_2()
     {
@@ -84,8 +141,14 @@ public class JsonLoaderTest {
         };
         int[] htArr = {0, 0, 0, 1, 1, 2, 2};
 
-        List<AgentData> allHomes = new ArrayList<>(backgroundLoadsArr.length);
+        return createAllHomesFromArrays(deviceDict, backgroundLoadsArr, rulesArr, actArr, sensArr, htArr);
+    }
 
+    private List<AgentData> createAllHomesFromArrays(Map<Integer, List<Device>> deviceDict,
+                                                     double[][] backgroundLoadsArr, String[][] rulesArr,
+                                                     String[][] actArr, String[][] sensArr, int[] htArr)
+    {
+        List<AgentData> allHomes = new ArrayList<>(backgroundLoadsArr.length);
         for (int i = 0; i < backgroundLoadsArr.length; i++)
         {
             allHomes.add(new AgentData("h" + (i + 1)));
@@ -162,25 +225,6 @@ public class JsonLoaderTest {
                 }
             }
         }
-    }
-
-    @Test
-    public void getAllProblemNames() throws Exception
-    {
-        List<String> expectedFileNames = Arrays.asList("bo_135_1_3", "bo_474_1_3", "dm_7_1_2", "dm_7_1_3");
-        List<String> actualFileName = loader.getAllProblemNames();
-        Assert.assertEquals(expectedFileNames.size(), actualFileName.size());
-        Assert.assertTrue(expectedFileNames.containsAll(actualFileName));
-    }
-
-    @Test
-    public void getAllDevices() throws Exception
-    {
-        //TODO: improve this
-        Map<Integer, List<Device>> map = loader.loadDevices();
-        Assert.assertEquals(map.size(), 3);
-        Assert.assertEquals(map.get(0).size(), map.get(1).size());
-        Assert.assertEquals(map.get(0).size(), map.get(2).size());
     }
 
 }

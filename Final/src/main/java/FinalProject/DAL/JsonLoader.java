@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class JsonLoader implements JsonLoaderInterface {
 
     private final static Logger logger = Logger.getLogger(JsonLoader.class);
-    private static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+    private static Gson gson;
     private final static String DEVICE_DICT_FILE_NAME = "DeviceDictionary";
     private final static String FILE_TYPE = ".json";
     private final static String DEFAULT_PATH = ""; //TODO
@@ -32,6 +32,9 @@ public class JsonLoader implements JsonLoaderInterface {
             jsonsDir = new File(DEFAULT_PATH);
             logger.warn("cannot find given path. using default path instead");
         }
+        GsonBuilder builder = new GsonBuilder();
+        builder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE);
+        gson = builder.create();
     }
 
     public Map<Integer, List<Device>> getDeviceDict()
@@ -56,9 +59,22 @@ public class JsonLoader implements JsonLoaderInterface {
     @Override
     public List<Problem> loadProblems(List<String> problemNames)
     {
-        List<Problem> result = new ArrayList<>(problemNames.size());
-        problemNames.forEach(name -> result.add(loadSingleProblem(name)));
-        return result;
+        if (problemNames != null)
+        {
+            List<Problem> result = new ArrayList<>(problemNames.size());
+
+            //load file and add to list if not null
+            problemNames.forEach(name -> {
+                final Problem problem = loadSingleProblem(name);
+                if (problem != null)
+                {
+                    result.add(problem);
+                }
+            });
+            return result;
+        }
+        logger.info("loadProblems: problemName was NULL!");
+        return null;
     }
 
     private Problem loadSingleProblem(String problemName)
@@ -68,9 +84,21 @@ public class JsonLoader implements JsonLoaderInterface {
         try(Reader reader = new BufferedReader(new FileReader(filePath)))
         {
             JsonParser parser = new JsonParser();
-            JsonObject fullJsonObj = parser.parse(reader).getAsJsonObject();
-
-            problem = gson.fromJson(fullJsonObj, Problem.class);
+            JsonObject fullJsonObj;
+            try //parse simple fields from json and check the file's schema
+            {
+                fullJsonObj = parser.parse(reader).getAsJsonObject();
+                validateJson(fullJsonObj);
+                problem = gson.fromJson(fullJsonObj, Problem.class);
+            } catch (JsonSyntaxException e)
+            {
+                logger.error("Problem file " + problemName + "'s syntax is wrong.", e);
+                return null;
+            } catch (JsonParseException e)
+            {
+                logger.error("Problem file " + problemName + " is missing a field.", e);
+                return null;
+            }
             problem.setId(problemName);
 
             getDeviceDict(); //make sure deviceDict != null
@@ -87,6 +115,36 @@ public class JsonLoader implements JsonLoaderInterface {
             logger.warn("IOException while parsing Problem " + problemName + FILE_TYPE, e);
         }
         return problem;
+    }
+
+    private void validateJson(JsonObject jsonObject) throws JsonParseException
+    {
+        List<String> requiredProblemFields = Arrays.asList(
+                "horizon", "granularity", "priceSchema", "agents");
+        List<String> requiredAgentFields = Arrays.asList(
+                "neighbors", "backgroundLoad", "houseType", "rules",
+                "actuators", "sensors");
+
+        //validate problem fields
+        for (String fieldName : requiredProblemFields)
+        {
+            if (jsonObject.get(fieldName) == null)
+            {
+                throw new JsonParseException("Required Field Not Found: " + fieldName);
+            }
+        }
+
+        //validate each agent
+        JsonObject agentsObj = jsonObject.get("agents").getAsJsonObject();
+        agentsObj.entrySet().forEach(entry -> {
+            for (String fieldName : requiredAgentFields)
+            {
+                if (entry.getValue().getAsJsonObject().get(fieldName) == null)
+                {
+                    throw new JsonParseException("Required Field Not Found: " + fieldName);
+                }
+            }
+        });
     }
 
     private List<AgentData> parseAgentDataObjects(JsonObject agentsObj)
@@ -196,7 +254,6 @@ public class JsonLoader implements JsonLoaderInterface {
         }
         return actions;
     }
-
 
     private class TempAgentData{
 
