@@ -36,6 +36,28 @@ public class JsonLoaderTest {
     }
 
     @Test
+    public void loadProblemsManyProblemsDm_7_1_2Good() throws Exception
+    {
+        final int NUM_PROBLEMS = 40;
+        List<String> lst = new ArrayList<>();
+        for (int i = 0; i <= NUM_PROBLEMS; i++)
+        {
+            lst.add("dm_7_1_2");
+        }
+        Problem singleResult = getProblemDm_7_1_2();
+        List<Problem> expected = new ArrayList<>();
+        for (int i = 0; i <= NUM_PROBLEMS; i++)
+        {
+            expected.add(singleResult);
+        }
+        long start = Calendar.getInstance().getTime().getTime();
+        List<Problem> actual = loader.loadProblems(lst);
+        long end = Calendar.getInstance().getTime().getTime();
+        System.out.println("time: " + (end - start) + " milliseconds");
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
     public void loadProblemsNullPathBad() throws Exception
     {
         List<Problem> actual = loader.loadProblems(null);
@@ -74,7 +96,7 @@ public class JsonLoaderTest {
     public void getAllProblemNames() throws Exception
     {
         List<String> expectedFileNames = Arrays.asList("bo_135_1_3", "badJson_noNeighborsInOneAgent", "dm_7_1_2", "dm_7_1_3",
-                                                       "badJson_noAgents", "badJson_noHorizon");
+                                                       "badJson_noAgents", "badJson_noHorizon", "bo_474_1_3");
         List<String> actualFileName = loader.getAllProblemNames();
         Assert.assertEquals(expectedFileNames.size(), actualFileName.size());
         Assert.assertTrue(expectedFileNames.containsAll(actualFileName));
