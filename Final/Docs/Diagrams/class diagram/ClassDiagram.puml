@@ -171,6 +171,7 @@ package BL {
 	package DataCollection {
 
 		class DataCollector {
+		    +algorithmRunEnded() : void
 		}
 
 		class DataCollectionCommunicator {
@@ -218,9 +219,11 @@ package BL {
 
 	class Experiment {
 		-dataCollector : DataCollector
-		-Problems : List<Problem>
-		-Algorithms : List<SmartHomeAgentBehaviour>
+		-problems : List<Problem>
+		-algorithms : List<SmartHomeAgentBehaviour>
+		-algorithmProblemRunResults : List<AlgorithmProblemResult>
 		+runExperiment() : void
+		+algorithmRunEnded(AlgorithmProblemResult) : void
 		+stop() : void
 	}
 
@@ -229,7 +232,7 @@ package BL {
 		+runExperimrent() : boolean?
 		+stopExperiment() : boolean?
 		+getExperimentResults() : List<AlgorithmProblemResult>
-
+        +experimentEnded(List<AlgorithmProblemResult>)
 	}
 
 	Service -- Experiment
@@ -237,9 +240,9 @@ package BL {
 	Experiment o-- DataCollector
 	Experiment *-- Problem
 	SmartHomeAgent *- AgentData
-	DataCollector o-- AlgorithmProblemResult
+	DataCollector --> AlgorithmProblemResult : create
 
-	Experiment --> AlgorithmProblemResult : creates
+	Experiment o-- AlgorithmProblemResult
 
 	DataCollectionCommunicator -- SmartHomeAgentBehaviour
 	DataCollectionCommunicator --> AgentIterationData
