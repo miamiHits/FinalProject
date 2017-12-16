@@ -13,7 +13,7 @@ package BL {
 		Behaviour -- Agent
 	}
 
-	package Problems {
+	package DataObjects{
 		
 		class Device {
 			+name : String
@@ -150,7 +150,7 @@ package BL {
 		SmartHomeAgentBehaviour <|-- Algo4
 	}
 
-	package DataObjects {
+	package IterationData {
 
 		class AgentIterationData {
 			+iterNum : int
@@ -260,6 +260,11 @@ package PL {
 
 package DAL {
 
+    interface ExcelHandleInterface {
+    		+createExcel(...)
+    		...
+    	}
+
 	class ExcelHandler {
 		+createExcel(...)
 
@@ -278,29 +283,39 @@ package DAL {
 	}
 
     interface AlgoLoaderInterface {
-		+loadAlgorithm(String) : SmartHomeAgentBehaviour
+		+loadAlgorithms(List<String>) : SmartHomeAgentBehaviour
         +getAllAlgoNames() : List<String>
         +addAlgoToSystem(String, String) : void
     }
 
 	class AlgorithmLoader {
-		+loadAlgorithm(String) : SmartHomeAgentBehaviour
+		+loadAlgorithms(List<String>) : SmartHomeAgentBehaviour
         +getAllAlgoNames() : List<String>
         +addAlgoToSystem(String, String) : void
 	}
 
+    interface DataAccessControllerInterface {
+        +getProblems(List<String>) : List<Problem>
+        +getAvailableAlgorithms() : List<String>
+        +getAlgorithms(List<String>) : List<SmartHomeAgentBehaviour>
+        +addAlgorithmToSystem(String, String) : void
+    }
+
 	class DataAccessController {
 		+getProblems(List<String>) : List<Problem>
+		+getAvailableAlgorithms() : List<String>
 		+getAlgorithms(List<String>) : List<SmartHomeAgentBehaviour>
-		+addAlgorithmToSystem(String) : void
+		+addAlgorithmToSystem(String, String) : void
 	}
 
-	DataAccessController --> AlgorithmLoader
-	DataAccessController --> JsonsLoader
-	DataAccessController --> ExcelHandler
+	DataAccessController --> AlgoLoaderInterface
+	DataAccessController --> JsonLoaderInterface
+	DataAccessController --> ExcelHandleInterface
 
 	JsonLoaderInterface <|-- JsonsLoader
 	AlgoLoaderInterface <|-- AlgorithmLoader
+	DataAccessControllerInterface <|-- DataAccessController
+	ExcelHandleInterface <|-- ExcelHandler
 }
 
 
@@ -312,12 +327,13 @@ class SmartHomeAlgorithm <<Not Implemented>> {
 JsonsLoader --> Device : creates
 JsonsLoader -> Problem : creates
 AlgorithmLoader --> SmartHomeAgentBehaviour
+DataAccessController --> Problem
 
 Experiment -> DataCollector
-Experiment --> DataAccessController
+Experiment --> DataAccessControllerInterface
 
 ExcelHandler -> AlgorithmProblemResult
-Service -right-> DataAccessController
+Service -right-> DataAccessControllerInterface
 
 SmartHomeAlgorithm --|> SmartHomeAgentBehaviour
 
