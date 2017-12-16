@@ -277,8 +277,16 @@ package DAL {
 		+getAllProblemNames() : List<String>
 	}
 
+    interface AlgoLoaderInterface {
+		+loadAlgorithm(String) : SmartHomeAgentBehaviour
+        +getAllAlgoNames() : List<String>
+        +addAlgoToSystem(String, String) : void
+    }
+
 	class AlgorithmLoader {
 		+loadAlgorithm(String) : SmartHomeAgentBehaviour
+        +getAllAlgoNames() : List<String>
+        +addAlgoToSystem(String, String) : void
 	}
 
 	class DataAccessController {
@@ -292,6 +300,7 @@ package DAL {
 	DataAccessController --> ExcelHandler
 
 	JsonLoaderInterface <|-- JsonsLoader
+	AlgoLoaderInterface <|-- AlgorithmLoader
 }
 
 
