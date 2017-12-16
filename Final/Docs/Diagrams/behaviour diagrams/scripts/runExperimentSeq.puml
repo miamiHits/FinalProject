@@ -1,0 +1,108 @@
+@startuml
+actor User as u
+collections Agent
+participant DataAccessController as DAC
+participant DataControllerCommunicatorAgentBehaviour as DCCB
+
+activate u
+activate UiHandler
+activate Service
+
+activate Agent
+activate AgentBehaviour
+u -> UiHandler : create Experiment
+UiHandler -> Service : createExperiment(List<Problem>, List<SmartHomeAgentAgentBehaviour>)
+
+alt user selected a set of algorithm and problems
+
+    Service -> Experiment : <<create>>
+    activate Experiment
+    Service --> UiHandler : true
+    UiHandler --> u : [show success message]
+    u -> UiHandler : run Experiment
+    UiHandler -> Service : runExperiment()
+    Service -> Experiment : runExperiment()
+    Experiment -> DataCollector : <<create>>
+    activate DataCollector
+
+    Service --> UiHandler : true
+    UiHandler --> u : [show message indicating the experiment started]
+
+    alt the user let the experiment run till it ends
+    loop for each Problem
+        loop for each algorithm
+
+            '/////////create the collection mechanism
+            DataCollector -> DataCollectorCommunicator : <<create>>
+            activate DataCollectorCommunicator
+            DataCollector -> DCCB : <<create>>
+            activate DCCB
+            DataCollector -> DataCollectorCommunicator : addAgentBehaviour(DataControllerCommunicatorAgentBehaviour)
+
+            '/////////run agents
+            loop for each agent
+                Experiment -> Agent : addAgentBehaviour(SmartHomeAgentAgentBehaviour algorithm)
+                Experiment -> Agent : start()
+
+                loop until the running algorithm has converged
+                    AgentBehaviour -> AgentBehaviour : doIteration()
+                    opt
+                        AgentBehaviour -> Agent : send(ACLMessage msg)
+                        Agent -> Agent : [algorithm related message]
+                        note left
+                            as part of each
+                            iteration agents
+                            send on another messages
+                        end note
+                    end
+                    AgentBehaviour -> Agent : send(ACLMessage msg)
+                    Agent -> DCCB : [AgentIterationData]
+                    note left
+                        AgentIterationData wrapped
+                        in ACLMessage sent via jade
+                        agent messaging platform
+                    end note
+
+                    break iterationNumber >= max iterations that was set by the user
+                    end
+                end
+                AgentBehaviour -> AgentBehaviour : setDone(true)
+                AgentBehaviour -> Agent : send(ACLMessage msg)
+                note right
+                    ACLMessage indicating the
+                    algorithm run has ended
+                end note
+                Agent -> DCCB : [runEnded]
+            end
+
+            DCCB -> DataCollector : algorithmRunEnded()
+            DataCollector -> Experiment : algorithmRunEnded(AlgorithmProblemResult)
+        end
+    end
+
+    Experiment -> Service : experimentEnded(List<AlgorithmProblemResult>)
+    Service -> UiHandler : displayExperimentResults(List<AlgorithmProblemResult>)
+    UiHandler -> ChartViewer : displayExperimentResults(List<AlgorithmProblemResult>)
+    activate ChartViewer
+
+    else while running the experiment the user stops it, at any point
+
+    u -> Service : stopExperiment()
+    note left
+        this alternative is identical
+        to the one above, only the
+        following actions in the
+        fragment can happen at any point
+    end note
+    Service -> Experiment : stop()
+    loop for each agent
+        Experiment -> Agent : kill()
+    end
+
+else user did not select a set of problems or a set of algorithms
+
+    Service --> UiHandler : showErrorMessage(msg: String)
+    UiHandler --> u : [shows a descriptive error message]
+
+end
+@enduml
