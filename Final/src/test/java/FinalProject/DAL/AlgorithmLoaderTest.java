@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class AlgorithmLoaderTest {
@@ -59,7 +60,9 @@ public class AlgorithmLoaderTest {
     @Test
     public void getAllAlgoNames() throws Exception
     {
-        //TODO
+        List<String> expected = Arrays.asList("App");
+        List<String> actual = loader.getAllAlgoNames();
+        Assert.assertEquals(expected, actual);
     }
 
     @Test
