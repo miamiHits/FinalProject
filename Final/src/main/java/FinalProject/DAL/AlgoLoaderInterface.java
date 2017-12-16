@@ -1,13 +1,13 @@
 package FinalProject.DAL;
 
-import jade.core.behaviours.Behaviour;
+import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 
 import java.io.IOException;
 import java.util.List;
 
 public interface AlgoLoaderInterface {
 
-    List<Behaviour> loadAlgorithms(List<String> algoNames); //TODO change to correct type
+    List<SmartHomeAgentBehaviour> loadAlgorithms(List<String> algoNames);
     List<String> getAllAlgoNames();
     void addAlgoToSystem(String path, String fileName) throws IOException, InstantiationException, IllegalAccessException;
 

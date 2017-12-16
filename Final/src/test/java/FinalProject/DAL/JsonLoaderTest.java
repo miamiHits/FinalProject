@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JsonLoaderTest {
 
@@ -103,13 +104,55 @@ public class JsonLoaderTest {
     }
 
     @Test
-    public void getAllDevices() throws Exception
+    public void getAllDevicesMapSizeGood() throws Exception
     {
-        //TODO: improve this
         Map<Integer, List<Device>> map = loader.loadDevices();
         Assert.assertEquals(map.size(), 3);
+    }
+
+    @Test
+    public void getAllDevicesEachListInMapSizeGood() throws Exception
+    {
+        Map<Integer, List<Device>> map = loader.loadDevices();
         Assert.assertEquals(map.get(0).size(), map.get(1).size());
         Assert.assertEquals(map.get(0).size(), map.get(2).size());
+    }
+
+    @Test
+    public void getAllDevicesSameDeviceNameGood() throws Exception
+    {
+        Map<Integer, List<Device>> map = loader.loadDevices();
+        List<String> ht0DevNames = map.get(0).stream()
+                .map(Device::getName)
+                .collect(Collectors.toList());
+        List<String> ht1DevNames = map.get(1).stream()
+                .map(Device::getName)
+                .collect(Collectors.toList());
+        List<String> ht2DevNames = map.get(2).stream()
+                .map(Device::getName)
+                .collect(Collectors.toList());
+
+        Assert.assertEquals(ht0DevNames, ht1DevNames);
+        Assert.assertEquals(ht0DevNames, ht2DevNames);
+    }
+
+    @Test
+    public void getAllDevicesDistinctDeviceEachListGood() throws Exception
+    {
+        Map<Integer, List<Device>> map = loader.loadDevices();
+        long ht0DistinctDevs = map.get(0).stream()
+                .distinct()
+                .count();
+        long ht1DistinctDevs = map.get(1).stream()
+                .distinct()
+                .count();
+        long ht2DistinctDevs = map.get(2).stream()
+                .distinct()
+                .count();
+
+        Assert.assertEquals(ht0DistinctDevs, map.get(0).size());
+        Assert.assertEquals(ht1DistinctDevs, map.get(1).size());
+        Assert.assertEquals(ht2DistinctDevs, map.get(2).size());
     }
 
     //*********HELPER METHODS**********

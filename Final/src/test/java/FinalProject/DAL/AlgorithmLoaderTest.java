@@ -1,5 +1,6 @@
 package FinalProject.DAL;
 
+import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,9 +53,71 @@ public class AlgorithmLoaderTest {
 //    }
 
     @Test
-    public void loadAlgorithms() throws Exception
+    public void loadAlgorithmsGood() throws Exception
     {
+        loader.addAlgoToSystem(uncompiledDirPath, "BehaviourToCompile");
 
+        List<String> toLoad = Arrays.asList("BehaviourToCompile");
+        List<SmartHomeAgentBehaviour> actual = loader.loadAlgorithms(toLoad);
+
+        Assert.assertEquals(toLoad.size(), actual.size());
+
+        classesToDelete.addAll(toLoad);
+    }
+
+    @Test
+    public void loadAlgorithmsNullAndAlgoInListBad() throws Exception
+    {
+        loader.addAlgoToSystem(uncompiledDirPath, "BehaviourToCompile");
+
+        List<String> toLoad = new ArrayList<>(2);
+        toLoad.add(null);
+        toLoad.add("BehaviourToCompile");
+        List<SmartHomeAgentBehaviour> actual = loader.loadAlgorithms(toLoad);
+
+        Assert.assertEquals(1, actual.size());
+
+        classesToDelete.add("BehaviourToCompile");
+    }
+
+    @Test
+    public void loadAlgorithmsNotAlgoBad() throws Exception
+    {
+        List<String> toLoad = Arrays.asList("App");
+        List<SmartHomeAgentBehaviour> actual = loader.loadAlgorithms(toLoad);
+
+        Assert.assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    public void loadAlgorithmsNotAllAreAlgoBad() throws Exception
+    {
+        loader.addAlgoToSystem(uncompiledDirPath, "BehaviourToCompile");
+
+        List<String> toLoad = Arrays.asList("App", "BehaviourToCompile");
+        List<SmartHomeAgentBehaviour> actual = loader.loadAlgorithms(toLoad);
+
+        Assert.assertEquals(1, actual.size());
+
+        classesToDelete.add("BehaviourToCompile");
+    }
+
+    @Test
+    public void loadAlgorithmsNullNameAlgoBad() throws Exception
+    {
+        List<String> toLoad = new ArrayList<>(1);
+        toLoad.add(null);
+        List<SmartHomeAgentBehaviour> actual = loader.loadAlgorithms(toLoad);
+
+        Assert.assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    public void loadAlgorithmsNullListAlgoBad() throws Exception
+    {
+        List<SmartHomeAgentBehaviour> actual = loader.loadAlgorithms(null);
+
+        Assert.assertTrue(actual.isEmpty());
     }
 
     @Test
