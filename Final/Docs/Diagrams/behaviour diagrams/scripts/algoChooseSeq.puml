@@ -34,7 +34,7 @@ alt There are available algorithms in the system
     end
 
     DAC --> Service : [List<SmartHomeAgentBehaviour>]
-    Service --> UiHandler : [success]
+    Service --> UiHandler : showSuccessMsg(msg: String)
     UiHandler --> u : [shows a success message]
     Service -> u : [opens an iteration count form]
     u -> Service : inputs the desired iteration number
@@ -46,7 +46,7 @@ alt There are available algorithms in the system
             a valid input
         end note
     end
-    Service --> UiHandler : [success]
+    Service --> UiHandler : showSuccessMsg(msg: String)
     UiHandler --> u : [shows a success message]
 
 else There are no available algorithms in the system

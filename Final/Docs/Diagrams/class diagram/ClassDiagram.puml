@@ -296,6 +296,7 @@ package DAL {
 		+loadAlgorithms(List<String>) : SmartHomeAgentBehaviour
         +getAllAlgoNames() : List<String>
         +addAlgoToSystem(String, String) : void
+        -replaceExistingAlgorithm(SmartHomeAgentBehaviour) : void
 	}
 
     interface DataAccessControllerInterface {

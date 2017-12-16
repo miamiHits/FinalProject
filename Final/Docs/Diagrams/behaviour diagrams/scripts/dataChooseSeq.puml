@@ -33,7 +33,7 @@ alt Json files describing problems are available in the system
     JsonLoader --> DAC : [Devices]
 
     DAC -->Service : [List<Problem>]
-    Service --> UiHandler : [success]
+    Service --> UiHandler : showSuccessMsg(msg: String)
     UiHandler --> u : [shows a success message]
 
 else no available Json files describing problems in the system
