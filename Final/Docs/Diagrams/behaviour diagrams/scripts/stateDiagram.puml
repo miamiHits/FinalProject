@@ -1,0 +1,25 @@
+@startuml
+[*] -down-> LandingPage
+LandingPage --> AlgorithmsLoaded : selected algorithms loaded successfully
+LandingPage --> ProblemsLoaded : selected problems loaded successfully
+
+LandingPage -left-> LandingPage : selected problems failed verification
+
+AlgorithmsLoaded --> AlgorithmsProblemsLoaded : selected problems loaded successfully
+AlgorithmsLoaded -> AlgorithmsLoaded : selected problems failed verification
+ProblemsLoaded --> AlgorithmsProblemsLoaded : selected algorithms loaded successfully
+
+AlgorithmsProblemsLoaded -> IterationNumberSelected : validated # of iterations
+
+IterationNumberSelected -> SimulationIsRunning : run simulation
+SimulationIsRunning -> LandingPage : cancel simulation
+
+SimulationIsRunning -> DisplayResults : simulation ended
+
+DisplayResults -> ExportResults : save results
+ExportResults -up-> LandingPage : save completed
+DisplayResults -> LandingPage : discard results
+
+LandingPage -right-> LandingPage : add new algorithm
+
+@enduml
