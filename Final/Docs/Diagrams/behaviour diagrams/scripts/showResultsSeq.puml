@@ -1,0 +1,23 @@
+@startuml
+actor User as u
+participant ChartViewer as cv
+
+activate UiHandler
+activate Service
+activate cv
+
+cv -> u : [shows graph describing the results of the experiment]
+
+opt user chooses to save the experiment results
+    u -> UiHandler : save experiment results
+    UiHandler -> Service : saveExperimentResults()
+    service -> ExcelHandler : createExcel(List<AlgorithmProblemResult>)
+    activate ExcelHandler
+
+    Service -> UiHandler : [success]
+    UiHandler -> u : [shows a success message]
+end
+
+UiHandler -> u : [displays the main screen]
+
+@enduml

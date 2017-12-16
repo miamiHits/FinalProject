@@ -233,6 +233,7 @@ package BL {
 		+stopExperiment() : boolean?
 		+getExperimentResults() : List<AlgorithmProblemResult>
         +experimentEnded(List<AlgorithmProblemResult>)
+        +saveExperimentResults() : void
 	}
 
 	Service -- Experiment
