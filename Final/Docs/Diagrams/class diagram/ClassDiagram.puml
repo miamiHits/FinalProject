@@ -238,7 +238,7 @@ package BL {
 		+stopExperiment() : boolean?
 		+getExperimentResults() : List<AlgorithmProblemResult>
         +experimentEnded(List<AlgorithmProblemResult>)
-        +saveExperimentResults() : void
+        +saveExperimentResults(List<AlgorithmProblemResult>) : void
 	}
 
 	Service -- Experiment
@@ -269,14 +269,12 @@ package PL {
 
 package DAL {
 
-    interface ExcelHandleInterface {
-    		+createExcel(...)
-    		...
-    	}
+    interface FileSaverInterface {
+    	+saveExpirimentResult(List<AlgorithmProblemResult>) : void
+    }
 
 	class ExcelHandler {
-		+createExcel(...)
-
+    	+saveExpirimentResult(List<AlgorithmProblemResult>) : void
 	}
 
     interface JsonLoaderInterface {
@@ -309,6 +307,7 @@ package DAL {
         +getAvailableAlgorithms() : List<String>
         +getAlgorithms(List<String>) : List<SmartHomeAgentBehaviour>
         +addAlgorithmToSystem(String, String) : void
+        +saveExpirimentResult(List<AlgorithmProblemResult>) : void
     }
 
 	class DataAccessController {
@@ -316,16 +315,17 @@ package DAL {
 		+getAvailableAlgorithms() : List<String>
 		+getAlgorithms(List<String>) : List<SmartHomeAgentBehaviour>
 		+addAlgorithmToSystem(String, String) : void
+		+saveExpirimentResult(List<AlgorithmProblemResult>) : void
 	}
 
 	DataAccessController --> AlgoLoaderInterface
 	DataAccessController --> JsonLoaderInterface
-	DataAccessController --> ExcelHandleInterface
+	DataAccessController --> FileSaverInterface
 
 	JsonLoaderInterface <|-- JsonsLoader
 	AlgoLoaderInterface <|-- AlgorithmLoader
 	DataAccessControllerInterface <|-- DataAccessController
-	ExcelHandleInterface <|-- ExcelHandler
+	FileSaverInterface <|-- ExcelHandler
 }
 
 
