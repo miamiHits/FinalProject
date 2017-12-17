@@ -9,8 +9,8 @@ ChartViewer -> u : [shows graph describing the results of the experiment]
 
 opt user chooses to save the experiment results
     u -> UiHandler : save experiment results
-    UiHandler -> Service : saveExperimentResults()
-    service -> ExcelHandler : createExcel(List<AlgorithmProblemResult>)
+    UiHandler -> Service : saveExperimentResult(List<AlgorithmProblemResult>)
+    Service -> ExcelHandler : saveExperimentResult(List<AlgorithmProblemResult>)
     activate ExcelHandler
 
     Service -> UiHandler : showSuccessMsg(msg: String)
