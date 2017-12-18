@@ -14,6 +14,10 @@ public class AgentData {
     private List<Rule> rules;
     private List<Actuator> actuators;
     private List<Sensor> sensors;
+    //TODO: Jorden add, please get the iterations num from where is spoused to be at :)
+    private int iterationNums;
+    private double[] priceScheme;
+
 
     public AgentData(String name, List<AgentData> neighbors, double[] backgroundLoad, int houseType,
                      List<Rule> rules, List<Actuator> actuators, List<Sensor> sensors)
@@ -104,6 +108,22 @@ public class AgentData {
     public void setSensors(List<Sensor> sensors)
     {
         this.sensors = sensors;
+    }
+
+    public int getIterationNums() {
+        return iterationNums;
+    }
+
+    public void setIterationNums(int iterationNums) {
+        this.iterationNums = iterationNums;
+    }
+
+    public double[] getPriceScheme() {
+        return priceScheme;
+    }
+
+    public void setPriceScheme(double[] priceScheme) {
+        this.priceScheme = priceScheme;
     }
 
     @Override
