@@ -55,6 +55,7 @@ package BL {
 			BEFORE
 			AFTER
 			AT
+			BETWEEN
 		}
 
 		class Rule {
@@ -64,6 +65,7 @@ package BL {
 			+ruleValue : double
 			+prefixType : RelationType
 			+relationValue : double
+			+betweenSecondValue : double
 			+prefix : Prefix
 		}
 
@@ -71,6 +73,7 @@ package BL {
 			+name : String
 			+neighbors : List<AgentData>
 			+backgroundLoad : double[Problem.horizon]
+			+priceSchema : double[Problem.horizon]
 			+houseType : int
 			+rules : List<Rule>
 			+actuators : List<Actuator>
@@ -109,6 +112,7 @@ package BL {
 			+agentData : agentData
 			+bestIteration : AgentIterationData
 			+currIteration : AgentIterationData
+			+numOfIterations : int
 		}
 
 		Note "action(){\n\twhile(!stop){\n\t\t...\n\t\tdoIteration();\n\t\tsendIterationToCollector();\n\t\t..\n\t}\n}" as smabNote
@@ -161,7 +165,7 @@ package BL {
 			+agentName : String
 			+price : double
 			+powerConsumption : double
-			+powerConsumptionPerDevice : double[] : *maybe change to map*
+			+powerConsumptionPerTick : double[]
 		}
 
 		class IterationCollectedData {
@@ -187,8 +191,6 @@ package BL {
 			+action() : void
 			+done() : boolean
 		}
-
-		Note "One per <algorithm, data set>" as CollectorCommNote
 
 		class StatisticsHandler {
 
@@ -216,8 +218,6 @@ package BL {
 		DataCollectionCommunicatorBehaviour --|> Behaviour
 		DataCollectionCommunicatorBehaviour --o DataCollectionCommunicator
 		DataCollector --> StatisticsHandler
-
-		DataCollectionCommunicator .. CollectorCommNote
 
 		SmartHomeAgent o-- AgentIterationData
 		AlgorithmProblemResult o-- IterationAvgPrice
