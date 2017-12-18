@@ -55,7 +55,6 @@ package BL {
 			BEFORE
 			AFTER
 			AT
-			BETWEEN
 		}
 
 		class Rule {
@@ -65,7 +64,6 @@ package BL {
 			+ruleValue : double
 			+prefixType : RelationType
 			+relationValue : double
-			+betweenSecondValue : double
 			+prefix : Prefix
 		}
 
