@@ -71,6 +71,7 @@ package BL {
 			+name : String
 			+neighbors : List<AgentData>
 			+backgroundLoad : double[Problem.horizon]
+			+priceSchema : double[Problem.horizon]
 			+houseType : int
 			+rules : List<Rule>
 			+actuators : List<Actuator>
@@ -104,13 +105,15 @@ package BL {
 	}
 
 	package Agents {
+
 		class SmartHomeAgent {
 			+agentData : agentData
 			+bestIteration : AgentIterationData
 			+currIteration : AgentIterationData
+			+numOfIterations : int
 		}
 
-		Note "run(){\n\twhile(!stop){\n\t\t...\n\t\tdoIteration();\n\t\tsendIterationToCollector();\n\t\t..\n\t}\n}" as smabNote
+		Note "action(){\n\twhile(!stop){\n\t\t...\n\t\tdoIteration();\n\t\tsendIterationToCollector();\n\t\t..\n\t}\n}" as smabNote
 
 		abstract class SmartHomeAgentBehaviour <<Abstract>> {
 			+agent : SmartHomeAgent
@@ -160,7 +163,7 @@ package BL {
 			+agentName : String
 			+price : double
 			+powerConsumption : double
-			+powerConsumptionPerDevice : double[] : *maybe change to map*
+			+powerConsumptionPerTick : double[]
 		}
 
 		class IterationCollectedData {
@@ -186,8 +189,6 @@ package BL {
 			+action() : void
 			+done() : boolean
 		}
-
-		Note "One per <algorithm, data set>" as CollectorCommNote
 
 		class StatisticsHandler {
 
@@ -216,8 +217,6 @@ package BL {
 		DataCollectionCommunicatorBehaviour --o DataCollectionCommunicator
 		DataCollector --> StatisticsHandler
 
-		DataCollectionCommunicator .. CollectorCommNote
-
 		SmartHomeAgent o-- AgentIterationData
 		AlgorithmProblemResult o-- IterationAvgPrice
 	}
@@ -241,7 +240,7 @@ package BL {
         +saveExperimentResults(List<AlgorithmProblemResult>) : void
 	}
 
-	Service -- Experiment
+	Service "1"--"1" Experiment
 	Service --> AlgorithmProblemResult
 	Experiment o-- DataCollector
 	Experiment *-- Problem
@@ -250,7 +249,7 @@ package BL {
 
 	Experiment o-- AlgorithmProblemResult
 
-	DataCollectionCommunicator -- SmartHomeAgentBehaviour
+	DataCollectionCommunicator "1"--"1...*" SmartHomeAgentBehaviour
 	DataCollectionCommunicator --> AgentIterationData
 	DataCollector --> AgentIterationData
 }
@@ -334,20 +333,20 @@ class SmartHomeAlgorithm <<Not Implemented>> {
 }
 
 '**********out of package connections:************
-JsonsLoader --> Device : creates
-JsonsLoader -> Problem : creates
-AlgorithmLoader --> SmartHomeAgentBehaviour
+JsonsLoader --> Device : creates >
+JsonsLoader -> Problem : creates >
+AlgorithmLoader --> SmartHomeAgentBehaviour : creates >
 DataAccessController --> Problem
+DataCollectionCommunicator --|> Agent
 
-Experiment -> DataCollector
 Experiment --> DataAccessControllerInterface
 
-ExcelHandler -> AlgorithmProblemResult
+ExcelHandler -> AlgorithmProblemResult : saves
 Service -right-> DataAccessControllerInterface
 
 SmartHomeAlgorithm --|> SmartHomeAgentBehaviour
 
-UiHandler -- Service
+UiHandler "1"--"1" Service
 
 
 @enduml
