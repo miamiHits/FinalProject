@@ -14,7 +14,7 @@ public class AgentData {
     private List<Rule> rules;
     private List<Actuator> actuators;
     private List<Sensor> sensors;
-    //TODO: Jorden add, please get the iterations num from where is spoused to be at :)
+    //TODO: Jorden add, please get the TOTAL iterations num from where is spoused to be at :)
     private int iterationNums;
     private double[] priceScheme;
 

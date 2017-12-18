@@ -6,7 +6,7 @@ public class AgentIterationData {
     private String agentName;
     private double price;
     private double powerConsumption;
-    private double[] powerConsumptionPerDevice;
+    private double[] powerConsumptionPerTick;
 
     public AgentIterationData(int iterNum, String agentName, double price, double powerCons, double [] powerConsPerDevice)
     {
@@ -14,7 +14,7 @@ public class AgentIterationData {
         this.agentName = agentName;
         this.price = price;
         this.powerConsumption = powerCons;
-        this.powerConsumptionPerDevice = powerConsPerDevice;
+        this.powerConsumptionPerTick = powerConsPerDevice;
     }
 
 
