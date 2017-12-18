@@ -60,7 +60,7 @@ public class SmartHomeAgent extends Agent {
         switch (this.behaviorName)
         {
             case DSA:
-                int iterationTotalNumber = agentData.getIterationNums();
+                int iterationTotalNumber = agentData.getNumOfIterations();
                 for(int i=0; i<iterationTotalNumber; i++)
                 {
                     createDSAAgent();

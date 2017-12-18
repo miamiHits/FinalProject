@@ -14,8 +14,7 @@ public class AgentData {
     private List<Rule> rules;
     private List<Actuator> actuators;
     private List<Sensor> sensors;
-    //TODO: Jorden add, please get the iterations num from where is spoused to be at :)
-    private int iterationNums;
+    private int numOfIterations;
     private double[] priceScheme;
 
 
@@ -110,12 +109,12 @@ public class AgentData {
         this.sensors = sensors;
     }
 
-    public int getIterationNums() {
-        return iterationNums;
+    public int getNumOfIterations() {
+        return numOfIterations;
     }
 
-    public void setIterationNums(int iterationNums) {
-        this.iterationNums = iterationNums;
+    public void setNumOfIterations(int numOfIterations) {
+        this.numOfIterations = numOfIterations;
     }
 
     public double[] getPriceScheme() {
