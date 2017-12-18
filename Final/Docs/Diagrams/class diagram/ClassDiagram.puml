@@ -104,13 +104,14 @@ package BL {
 	}
 
 	package Agents {
+
 		class SmartHomeAgent {
 			+agentData : agentData
 			+bestIteration : AgentIterationData
 			+currIteration : AgentIterationData
 		}
 
-		Note "run(){\n\twhile(!stop){\n\t\t...\n\t\tdoIteration();\n\t\tsendIterationToCollector();\n\t\t..\n\t}\n}" as smabNote
+		Note "action(){\n\twhile(!stop){\n\t\t...\n\t\tdoIteration();\n\t\tsendIterationToCollector();\n\t\t..\n\t}\n}" as smabNote
 
 		abstract class SmartHomeAgentBehaviour <<Abstract>> {
 			+agent : SmartHomeAgent
@@ -241,7 +242,7 @@ package BL {
         +saveExperimentResults(List<AlgorithmProblemResult>) : void
 	}
 
-	Service -- Experiment
+	Service "1"--"1" Experiment
 	Service --> AlgorithmProblemResult
 	Experiment o-- DataCollector
 	Experiment *-- Problem
@@ -250,7 +251,7 @@ package BL {
 
 	Experiment o-- AlgorithmProblemResult
 
-	DataCollectionCommunicator -- SmartHomeAgentBehaviour
+	DataCollectionCommunicator "1"--"1...*" SmartHomeAgentBehaviour
 	DataCollectionCommunicator --> AgentIterationData
 	DataCollector --> AgentIterationData
 }
@@ -334,20 +335,20 @@ class SmartHomeAlgorithm <<Not Implemented>> {
 }
 
 '**********out of package connections:************
-JsonsLoader --> Device : creates
-JsonsLoader -> Problem : creates
-AlgorithmLoader --> SmartHomeAgentBehaviour
+JsonsLoader --> Device : creates >
+JsonsLoader -> Problem : creates >
+AlgorithmLoader --> SmartHomeAgentBehaviour : creates >
 DataAccessController --> Problem
+DataCollectionCommunicator --|> Agent
 
-Experiment -> DataCollector
 Experiment --> DataAccessControllerInterface
 
-ExcelHandler -> AlgorithmProblemResult
+ExcelHandler -> AlgorithmProblemResult : saves
 Service -right-> DataAccessControllerInterface
 
 SmartHomeAlgorithm --|> SmartHomeAgentBehaviour
 
-UiHandler -- Service
+UiHandler "1"--"1" Service
 
 
 @enduml
