@@ -8,7 +8,10 @@ package BL {
 
 	package JADE {
 
-		abstract class Agent <<Abstract, JADE>>
+		abstract class Agent <<Abstract, JADE>> {
+		    {abstract} #Setup() : void
+		    addBehaviour(Behaviour b) : void
+		}
 		abstract class Behaviour <<Abstract, JADE>>
 		Behaviour -- Agent
 	}
@@ -111,6 +114,8 @@ package BL {
 			+bestIteration : AgentIterationData
 			+currIteration : AgentIterationData
 			+numOfIterations : int
+			#Setup() : void
+			addBehaviour(Behaviour b) : void
 		}
 
 		Note "action(){\n\twhile(!stop){\n\t\t...\n\t\tdoIteration();\n\t\tsendIterationToCollector();\n\t\t..\n\t}\n}" as smabNote
@@ -162,7 +167,6 @@ package BL {
 			+iterNum : int
 			+agentName : String
 			+price : double
-			+powerConsumption : double
 			+powerConsumptionPerTick : double[]
 		}
 
@@ -178,7 +182,9 @@ package BL {
 	package DataCollection {
 
 		class DataCollector {
+		    +numOfAgentsInProblem : Map<String, int>
 		    +algorithmRunEnded() : void
+		    TODO: add analyzing methods here
 		}
 
 		class DataCollectionCommunicator {
@@ -186,8 +192,8 @@ package BL {
 		}
 
 		class DataCollectionCommunicatorBehaviour {
+		    +agent : DataCollectorCommunicator
 			+action() : void
-			+done() : boolean
 		}
 
 		class StatisticsHandler {
@@ -207,8 +213,8 @@ package BL {
 			+iterationsTillBestPrice : int
 			+lowestCostInBestIteration : double
 			+lowestCostInBestIterationAgentName : String
-			+highestCostInWBestIteration : double
-			+highestCostInWBestIterationAgentName : String
+			+highestCostInBestIteration : double
+			+highestCostInBestIterationAgentName : String
 		}
 
 		DataCollector o-- DataCollectionCommunicator
