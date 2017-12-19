@@ -1,6 +1,7 @@
 package FinalProject.BL.Agents;
 
 import FinalProject.BL.IterationData.AgentIterationData;
+import FinalProject.BL.Problems.Actuator;
 import FinalProject.BL.Problems.AgentData;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -9,7 +10,8 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
+
 public class SmartHomeAgent extends Agent {
     public static final String SERVICE_TYPE = "Algorithms";
     public static final String DSA_SERVICE_NAME = "DSAService";
@@ -17,6 +19,7 @@ public class SmartHomeAgent extends Agent {
     private AgentIterationData bestIteration;
     private AgentIterationData currIteration;
     private AlgorithmName behaviorName;
+    private Map<Integer, List<Actuator>> mySchedule = new HashMap<>();
 
     public enum AlgorithmName
     {
@@ -50,7 +53,13 @@ public class SmartHomeAgent extends Agent {
         return behaviorName;
     }
 
+    public Map<Integer, List<Actuator>> getMySchedule() {
+        return mySchedule;
+    }
 
+    public void setMySchedule(Map<Integer, List<Actuator>> mySchedule) {
+        this.mySchedule = mySchedule;
+    }
     @Override
     protected void setup() {
         super.setup();
@@ -62,7 +71,12 @@ public class SmartHomeAgent extends Agent {
             case DSA:
                 int iterationTotalNumber = agentData.getNumOfIterations();
                 for(int i=0; i<iterationTotalNumber; i++)
-                {
+                {   //reset the schedule
+                    for (int j=1; i<agentData.getBackgroundLoad().length; j++)
+                    {
+                        List<Actuator> actInTick = new ArrayList<Actuator>();
+                        mySchedule.put(j, actInTick);
+                    }
                     createDSAAgent();
                 }
                 break;
@@ -94,11 +108,7 @@ public class SmartHomeAgent extends Agent {
     }
 
     public void buildSchedule() {
-    int[] costPerTik = new int [agentData.getBackgroundLoad().length];
-    for(int i=0; i<costPerTik.length; ++i)
-    {
 
-    }
 
     }
 
