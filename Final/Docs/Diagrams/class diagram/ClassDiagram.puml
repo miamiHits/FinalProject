@@ -6,7 +6,7 @@ skinparam linetype ortho
 
 package BL {
 
-	package JADE {
+	package JADE <<External library>> {
 
 		abstract class Agent <<Abstract, JADE>> {
 		    {abstract} #Setup() : void
