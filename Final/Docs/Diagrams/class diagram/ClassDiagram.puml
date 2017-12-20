@@ -228,6 +228,7 @@ package BL {
 	}
 
 	class Experiment {
+		-service : Service
 		-dataCollector : DataCollector
 		-problems : List<Problem>
 		-algorithms : List<SmartHomeAgentBehaviour>
