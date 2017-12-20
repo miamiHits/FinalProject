@@ -283,15 +283,15 @@ package DAL {
 	}
 
     interface JsonLoaderInterface {
-        +loadDevices(String) : Map<int, Device>
-        +loadProblem(String) : Problem
+        +loadDevices(String) : Map<int, List<Device>>
+        +loadProblems(List<String>) : List<Problem>
         +getAllProblemNames() : List<String>
     }
 
 	class JsonsLoader {
-		+loadDevices(String) : Map<int, Device>
-		+loadProblem(String) : Problem
-		+getAllProblemNames() : List<String>
+		+loadDevices(String) : Map<int, List<Device>>
+        +loadProblems(List<String>) : List<Problem>
+        +getAllProblemNames() : List<String>
 	}
 
     interface AlgoLoaderInterface {
@@ -304,7 +304,6 @@ package DAL {
 		+loadAlgorithms(List<String>) : SmartHomeAgentBehaviour
         +getAllAlgoNames() : List<String>
         +addAlgoToSystem(String, String) : void
-        -replaceExistingAlgorithm(SmartHomeAgentBehaviour) : void
 	}
 
     interface DataAccessControllerInterface {
