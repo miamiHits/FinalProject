@@ -208,7 +208,7 @@ package BL {
 
 		class AlgorithmProblemResult {
 			+problem : Problem
-			+algorithm : SmartHomeAgentBehaviour
+			+algorithm : String
 			+avgPricePerIteration : Map<int, IterationAvgPrice>
 			+iterationsTillBestPrice : int
 			+lowestCostInBestIteration : double
@@ -256,10 +256,15 @@ package PL {
 	}
 
 	class ChartViewer {
-
+		+createPricePerIterChart(Map<int, int>, String) : LineChart
+		+iterTillBestPricePerAlgo(Map<String, int>) : BarChart
+		+lowestCostInBestIteration(Map<String, int) : BarChart
 	}
 
+	Note "createPricePerIterChart(iterToPriceMap, algoName)" as chartNote
+
 	UiHandler --> ChartViewer
+	ChartViewer .. chartNote
 }
 
 package DAL {
