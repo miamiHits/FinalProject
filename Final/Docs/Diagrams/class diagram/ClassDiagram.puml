@@ -235,7 +235,8 @@ package BL {
 		+addNumOfIterations(int) : void
 		+addAlgorithms(List<String>) : void
 		+addProblems(List<String>) : void
-		+create(Service, int) : Experiment
+		+addService(Service) : void
+		+create() : Experiment
 	}
 
 	class Experiment {
