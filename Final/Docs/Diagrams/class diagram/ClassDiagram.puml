@@ -231,6 +231,7 @@ package BL {
 		-numOfIterations : int
 		-problems : List<Problem>
 		-algos : List<SmartHomeAgentBehaviour>
+		-service : Service
 
 		+addNumOfIterations(int) : void
 		+addAlgorithms(List<String>) : void
