@@ -237,17 +237,6 @@ package BL {
 		+stop() : void
 	}
 
-	class Service <<Observable>> {
-		+createExperiment(List<Problem>, List<SmartHomeAgentBehaviour>) : boolean?
-		+runExperimrent() : boolean?
-		+stopExperiment() : boolean?
-		+getExperimentResults() : List<AlgorithmProblemResult>
-        +experimentEnded(List<AlgorithmProblemResult>)
-        +saveExperimentResults(List<AlgorithmProblemResult>) : void
-	}
-
-	Service "1"--"1" Experiment
-	Service --> AlgorithmProblemResult
 	Experiment o-- DataCollector
 	Experiment *-- Problem
 	SmartHomeAgent *- AgentData
@@ -332,12 +321,25 @@ package DAL {
 	FileSaverInterface <|-- ExcelHandler
 }
 
+class Service <<Observable>> {
+		+currExperiment : Experiment
+		+createExperiment(List<Problem>, List<SmartHomeAgentBehaviour>) : void
+		+runExperimrent() : void
+		+stopExperiment() : void
+		+getExperimentResults() : List<AlgorithmProblemResult>
+        +experimentEnded(List<AlgorithmProblemResult>) : void
+        +saveExperimentResults(List<AlgorithmProblemResult>) : void
+	}
+
 
 class SmartHomeAlgorithm <<Not Implemented>> {
 	-doIteration() : void
 }
 
 '**********out of package connections:************
+Service "1"--"1" Experiment
+Service --> AlgorithmProblemResult
+
 JsonsLoader --> Device : creates >
 JsonsLoader -> Problem : creates >
 AlgorithmLoader --> SmartHomeAgentBehaviour : creates >
