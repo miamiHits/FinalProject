@@ -227,17 +227,31 @@ package BL {
 		AlgorithmProblemResult o-- IterationAvgPrice
 	}
 
+	class ExperimentBuilder {
+		-numOfIterations : int
+		-problems : List<Problem>
+		-algos : List<SmartHomeAgentBehaviour>
+
+		+addNumOfIterations(int) : void
+		+addAlgorithms(List<String>) : void
+		+addProblems(List<String>) : void
+		+create(Service, int) : Experiment
+	}
+
 	class Experiment {
+		+numOfIterations : int
 		-service : Service
 		-dataCollector : DataCollector
 		-problems : List<Problem>
 		-algorithms : List<SmartHomeAgentBehaviour>
+
 		-algorithmProblemRunResults : List<AlgorithmProblemResult>
 		+runExperiment() : void
 		+algorithmRunEnded(AlgorithmProblemResult) : void
 		+stop() : void
 	}
 
+	ExperimentBuilder --> Experiment : creates
 	Experiment o-- DataCollector
 	Experiment *-- Problem
 	SmartHomeAgent *- AgentData
@@ -345,6 +359,7 @@ class SmartHomeAlgorithm <<Not Implemented>> {
 '**********out of package connections:************
 Service "1"--"1" Experiment
 Service --> AlgorithmProblemResult
+Service --> ExperimentBuilder
 
 JsonsLoader --> Device : creates >
 JsonsLoader -> Problem : creates >
@@ -352,10 +367,9 @@ AlgorithmLoader --> SmartHomeAgentBehaviour : creates >
 DataAccessController --> Problem
 DataCollectionCommunicator --|> Agent
 
-Experiment --> DataAccessControllerInterface
+ExperimentBuilder --> DataAccessControllerInterface
 
 ExcelHandler -> AlgorithmProblemResult : saves
-Service -right-> DataAccessControllerInterface
 
 SmartHomeAlgorithm --|> SmartHomeAgentBehaviour
 
