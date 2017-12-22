@@ -3,22 +3,25 @@ package FinalProject.BL.DataCollection;
 import FinalProject.BL.IterationData.IterationCollectedData;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DataCollector {
 
     private Map<String, Integer> numOfAgentsInProblem;
-    private Map<ProblemAlgorithm, Map<Integer, AgentPrice>> collection;
+    private Map<ProblemAlgorithm, IterationAgentsPrice> collection;
 
-    public DataCollector(Map<String, Integer> numOfAgentsInProblem) {
+    public DataCollector(Map<String, Integer> numOfAgentsInProblem,
+                         Map<ProblemAlgorithm, IterationAgentsPrice> collection) {
         this.numOfAgentsInProblem = numOfAgentsInProblem;
-        collection = new HashMap<ProblemAlgorithm, Map<Integer, AgentPrice>>();
+        this.collection = collection;
     }
-
 
     public void AddData (IterationCollectedData data){
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
-        if (collection.containsKey())
+        if (collection.containsKey(tempPA)){
+            collection.get(tempPA);//todo
+        }
     }
 
 
