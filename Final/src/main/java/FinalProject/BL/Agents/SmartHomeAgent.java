@@ -20,6 +20,8 @@ public class SmartHomeAgent extends Agent {
     private AgentIterationData currIteration;
     private AlgorithmName behaviorName;
     private Map<Integer, List<Actuator>> mySchedule = new HashMap<>();
+    private boolean isZEROIteration;
+
 
     public enum AlgorithmName
     {
@@ -60,23 +62,28 @@ public class SmartHomeAgent extends Agent {
     public void setMySchedule(Map<Integer, List<Actuator>> mySchedule) {
         this.mySchedule = mySchedule;
     }
+
+    public boolean isZEROIteration() {
+        return isZEROIteration;
+    }
+
+    public void setZEROIteration(boolean ZEROIteration) {
+        isZEROIteration = ZEROIteration;
+    }
+
     @Override
     protected void setup() {
         super.setup();
         //Getting fields in order: Algorithm, agentData
         this.behaviorName = (AlgorithmName) getArguments()[0];
         this.agentData = (AgentData) getArguments()[1];
+        this.isZEROIteration = true;
         switch (this.behaviorName)
         {
             case DSA:
                 int iterationTotalNumber = agentData.getNumOfIterations();
                 for(int i=0; i<iterationTotalNumber; i++)
-                {   //reset the schedule
-                    for (int j=1; i<agentData.getBackgroundLoad().length; j++)
-                    {
-                        List<Actuator> actInTick = new ArrayList<Actuator>();
-                        mySchedule.put(j, actInTick);
-                    }
+                {
                     createDSAAgent();
                 }
                 break;
