@@ -10,6 +10,10 @@ public class AlgorithmProblemResult {
     private double lowestCostInBestIteration;
     private String lowestCostInBestIterationAgentName;
     private double highestCostInBestIteration;
+
+    public AlgorithmProblemResult() {
+    }
+
     private String highestCostInBestIterationAgentName;
 
     public String getProblem() {
