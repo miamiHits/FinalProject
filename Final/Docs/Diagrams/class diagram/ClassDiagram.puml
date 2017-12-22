@@ -181,9 +181,17 @@ package BL {
 
 	package DataCollection {
 
+		class PowerConsumptionUtils <<Static>> {
+			+{static} AE : double
+			+{static} AC : double
+			+{static} calculateCSum(List<double[]>, double[]) : double
+			+{static} calculateEPeak(double, double[], double[], List<double[]>, double[]) : double
+		}
+
 		class DataCollector {
 		    +numOfAgentsInProblem : Map<String, int>
 		    +algorithmRunEnded() : void
+		    +sendCSumToAgents(List<)
 		    TODO: add analyzing methods here
 		}
 
@@ -200,22 +208,19 @@ package BL {
 
 		}
 
-		class IterationAvgPrice {
-			+iter : int
-			+avgPrice : double
-		}
-
-
 		class AlgorithmProblemResult {
-			+problem : Problem
+			+problem : String
 			+algorithm : String
-			+avgPricePerIteration : Map<int, IterationAvgPrice>
+			+avgPricePerIteration : Map<int, double>
 			+iterationsTillBestPrice : int
 			+lowestCostInBestIteration : double
 			+lowestCostInBestIterationAgentName : String
 			+highestCostInBestIteration : double
 			+highestCostInBestIterationAgentName : String
 		}
+
+		Note "calculateCSum(allHomesSchedule, powerScheme) {...}" as UtilsCSumNote
+		Note "calculateEPeak(CSum, newSchedule, oldSchedule, otherSchedules, powerScheme) {...}" as UtilsEPeakNote
 
 		DataCollector o-- DataCollectionCommunicator
 		DataCollector o-- IterationCollectedData
@@ -224,7 +229,10 @@ package BL {
 		DataCollector --> StatisticsHandler
 
 		SmartHomeAgent o-- AgentIterationData
-		AlgorithmProblemResult o-- IterationAvgPrice
+		DataCollector --> PowerConsumptionUtils
+
+		PowerConsumptionUtils .. UtilsEPeakNote
+		PowerConsumptionUtils .. UtilsCSumNote
 	}
 
 	class ExperimentBuilder {
@@ -264,6 +272,8 @@ package BL {
 	DataCollectionCommunicator "1"--"1...*" SmartHomeAgentBehaviour
 	DataCollectionCommunicator --> AgentIterationData
 	DataCollector --> AgentIterationData
+
+	SmartHomeAgentBehaviour --> PowerConsumptionUtils
 }
 
 package PL {
