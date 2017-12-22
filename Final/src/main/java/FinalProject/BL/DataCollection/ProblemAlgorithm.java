@@ -25,4 +25,22 @@ public class ProblemAlgorithm {
         AlgorithmName = algorithmName;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ProblemAlgorithm that = (ProblemAlgorithm) o;
+
+        if (!problemId.equals(that.problemId)) return false;
+        return AlgorithmName.equals(that.AlgorithmName);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = problemId.hashCode();
+        result = 31 * result + AlgorithmName.hashCode();
+        return result;
+    }
+
 }
