@@ -19,6 +19,8 @@ public class PowerConsumptionUtilsTest {
     @Before
     public void setUp() throws Exception
     {
+        org.apache.log4j.BasicConfigurator.configure();
+
         priceScheme = new double[]{0.198, 0.198, 0.198, 0.198, 0.225, 0.225, 0.249, 0.849, 0.849, 0.225, 0.225, 0.198}; //taken from dm_7_1_2
         schedules = new ArrayList<>();
         schedules.add(new double[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
@@ -46,14 +48,28 @@ public class PowerConsumptionUtilsTest {
     }
 
     @Test
-    public void calculateCSum() throws Exception
+    public void calculateCSumGood() throws Exception
     {
         double res = PowerConsumptionUtils.calculateCSum(schedules, priceScheme);
         Assert.assertEquals(cSum, res, 0);
     }
 
     @Test
-    public void calculateEPeak() throws Exception
+    public void calculateCSumNullSchedulesBad() throws Exception
+    {
+        double res = PowerConsumptionUtils.calculateCSum(null, priceScheme);
+        Assert.assertEquals(-1, res, 0);
+    }
+
+    @Test
+    public void calculateCSumNullPriceSchemeBad() throws Exception
+    {
+        double res = PowerConsumptionUtils.calculateCSum(schedules, null);
+        Assert.assertEquals(-1, res, 0);
+    }
+
+    @Test
+    public void calculateEPeakGood() throws Exception
     {
         double[] oldSched = schedules.get(0);
         schedules.remove(0);
@@ -66,7 +82,42 @@ public class PowerConsumptionUtilsTest {
         double res = PowerConsumptionUtils.calculateEPeak(cSum, newSched, oldSched, schedules, priceScheme);
 
         Assert.assertEquals(expected, res, 0);
+    }
 
+    @Test
+    public void calculateEPeakNullOthersBad() throws Exception
+    {
+        double[] oldSched = schedules.get(0);
+        schedules.remove(0);
+        double[] newSched = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
+
+        double res = PowerConsumptionUtils.calculateEPeak(cSum, newSched, oldSched, null, priceScheme);
+
+        Assert.assertEquals(-1, res, 0);
+    }
+
+    @Test
+    public void calculateEPeakNewSchedTooLongBad() throws Exception
+    {
+        double[] oldSched = schedules.get(0);
+        schedules.remove(0);
+        double[] newSched = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1}; //len = 13 > 12 = priceScheme.length
+
+        double res = PowerConsumptionUtils.calculateEPeak(cSum, newSched, oldSched, schedules, priceScheme);
+
+        Assert.assertEquals(-1, res, 0);
+    }
+
+    @Test
+    public void calculateEPeakNewSchedTooShortBad() throws Exception
+    {
+        double[] oldSched = schedules.get(0);
+        schedules.remove(0);
+        double[] newSched = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}; //len = 11 < 12 = priceScheme.length
+
+        double res = PowerConsumptionUtils.calculateEPeak(cSum, newSched, oldSched, schedules, priceScheme);
+
+        Assert.assertEquals(-1, res, 0);
     }
 
 }

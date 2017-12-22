@@ -22,6 +22,14 @@ public class PowerConsumptionUtils {
 
     public static double calculateCSum(List<double[]> schedules, double[] priceScheme)
     {
+        if (schedules == null || schedules.size() == 0 || priceScheme == null ||
+                !allTheSameLength(schedules) || schedules.get(0).length != priceScheme.length)
+        {
+
+            logger.warn("Could not calculate Csum.");
+            return -1;
+        }
+
         double cSum = 0;
         for (int i = 0; i < priceScheme.length; i++)
         {
