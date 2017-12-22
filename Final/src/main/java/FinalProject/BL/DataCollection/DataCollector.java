@@ -11,10 +11,9 @@ public class DataCollector {
     private Map<String, Integer> numOfAgentsInProblem;
     private Map<ProblemAlgorithm, IterationAgentsPrice> collection;
 
-    public DataCollector(Map<String, Integer> numOfAgentsInProblem,
-                         Map<ProblemAlgorithm, IterationAgentsPrice> collection) {
+    public DataCollector(Map<String, Integer> numOfAgentsInProblem) {
         this.numOfAgentsInProblem = numOfAgentsInProblem;
-        this.collection = collection;
+        this.collection = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
     }
 
     public void AddData (IterationCollectedData data){
