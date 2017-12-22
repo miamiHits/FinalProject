@@ -19,7 +19,8 @@ public class DataCollector {
     public void AddData (IterationCollectedData data){
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
         if (collection.containsKey(tempPA)){
-            collection.get(tempPA);//todo
+            IterationAgentsPrice tempIAP = collection.get(tempPA);
+
         }
     }
 
