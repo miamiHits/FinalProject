@@ -22,25 +22,36 @@ public class PowerConsumptionUtils {
         return AE;
     }
 
-    public static double calculateCSum(List<double[]> schedules, double[] powerScheme)
+    public static double calculateCSum(List<double[]> schedules, double[] priceScheme)
     {
-        if (allTheSameLength(schedules) && powerScheme.length == schedules.get(0).length)
+        double cSum = 0;
+        for (int i = 0; i < priceScheme.length; i++)
         {
-            Optional<double[]> summedSchedulesOpt = sumArrListToOpt(schedules);
-
-            if (summedSchedulesOpt.isPresent())
+            for (double[] arr : schedules)
             {
-                double[] summedArr = summedSchedulesOpt.get();
-                for (int i = 0; i < summedArr.length; i++)
-                {
-                    summedArr[i] *= powerScheme[i];
-                }
-
-                return AC * sumArray(summedArr);
+                cSum += arr[i] * priceScheme[i];
             }
         }
-        logger.warn("calculateCSum could not calculate Csum.");
-        return -1;
+
+        return cSum * AC;
+
+//        if (allTheSameLength(schedules) && priceScheme.length == schedules.get(0).length)
+//        {
+//            Optional<double[]> summedSchedulesOpt = sumArrListToOpt(schedules);
+//
+//            if (summedSchedulesOpt.isPresent())
+//            {
+//                double[] summedArr = summedSchedulesOpt.get();
+//                for (int i = 0; i < summedArr.length; i++)
+//                {
+//                    summedArr[i] *= priceScheme[i];
+//                }
+//
+//                return AC * sumArray(summedArr);
+//            }
+//        }
+//        logger.warn("calculateCSum could not calculate Csum.");
+//        return -1;
     }
 
     private static Optional<double[]> sumArrListToOpt(List<double[]> schedules)
