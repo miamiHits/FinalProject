@@ -184,8 +184,8 @@ package BL {
 		class PowerConsumptionUtils <<Static>> {
 			+{static} AE : double
 			+{static} AC : double
-			+{static} calculateCSum(List<double[]>) : double
-			+{static} calculateEPeak(double, double[], double[], List<double[]) : double
+			+{static} calculateCSum(List<double[]>, double[]) : double
+			+{static} calculateEPeak(double, double[], double[], List<double[]>, double[]) : double
 		}
 
 		class DataCollector {
@@ -219,8 +219,8 @@ package BL {
 			+highestCostInBestIterationAgentName : String
 		}
 
-		Note "calculateCSum(allHomesSchedule) {...}" as UtilsCSumNote
-		Note "calculateEPeak(CSum, newSchedule, oldSchedule, otherSchedules) {...}" as UtilsEPeakNote
+		Note "calculateCSum(allHomesSchedule, powerScheme) {...}" as UtilsCSumNote
+		Note "calculateEPeak(CSum, newSchedule, oldSchedule, otherSchedules, powerScheme) {...}" as UtilsEPeakNote
 
 		DataCollector o-- DataCollectionCommunicator
 		DataCollector o-- IterationCollectedData
