@@ -12,14 +12,6 @@ public class IterationAgentsPrice {
         iterationToAgentsPrice = new HashMap<Integer, List<AgentPrice>>();
     }
 
-    public Map<Integer, List<AgentPrice>> getIterationToAgentsPrice() {
-        return iterationToAgentsPrice;
-    }
-
-    public void setIterationToAgentsPrice(Map<Integer, List<AgentPrice>> iterationToAgentsPrice) {
-        this.iterationToAgentsPrice = iterationToAgentsPrice;
-    }
-
     public List<AgentPrice> getAgentsPrices(int iterationNum){
         return iterationToAgentsPrice.get(iterationNum);
     }
@@ -40,4 +32,13 @@ public class IterationAgentsPrice {
             iterationToAgentsPrice.put(iterationNum, agentsPrices);
         }
     }
+
+    public Map<Integer, List<AgentPrice>> getIterationToAgentsPrice() {
+        return iterationToAgentsPrice;
+    }
+
+    public void setIterationToAgentsPrice(Map<Integer, List<AgentPrice>> iterationToAgentsPrice) {
+        this.iterationToAgentsPrice = iterationToAgentsPrice;
+    }
+
 }

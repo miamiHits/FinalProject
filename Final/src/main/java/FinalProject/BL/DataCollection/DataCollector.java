@@ -3,7 +3,6 @@ package FinalProject.BL.DataCollection;
 import FinalProject.BL.IterationData.IterationCollectedData;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class DataCollector {
@@ -16,16 +15,20 @@ public class DataCollector {
         this.collection = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
     }
 
-    public void AddData (IterationCollectedData data){
+    public void addData (IterationCollectedData data){
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
+        IterationAgentsPrice tempIAP;
         if (collection.containsKey(tempPA)){
-            IterationAgentsPrice tempIAP = collection.get(tempPA);
-
+            tempIAP = collection.get(tempPA);
+            tempIAP.addAgentPrice(data.getIterNum(),
+                    new AgentPrice(data.getAgentName(), data.getPrice()));
+        }else{
+            tempIAP = new IterationAgentsPrice();
+            tempIAP.addAgentPrice(data.getIterNum(),
+                    new AgentPrice(data.getAgentName(), data.getPrice()));
+            collection.put(tempPA, tempIAP);
         }
     }
-
-
-
 
     public Map<String, Integer> getNumOfAgentsInProblem() {
         return numOfAgentsInProblem;
