@@ -1,7 +1,9 @@
 Final/.idea/
 
-\.idea/compiler\.xml
+\.idea/compiler/.xml
 
 \.idea/dictionaries/ychen\.xml
 
 \.idea/
+
+*.class

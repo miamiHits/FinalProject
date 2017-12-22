@@ -18,8 +18,8 @@ public class AgentData {
     private double[] priceScheme;
 
 
-    public AgentData(String name, List<AgentData> neighbors, double[] backgroundLoad, int houseType,
-                     List<Rule> rules, List<Actuator> actuators, List<Sensor> sensors)
+    public AgentData(String name, List<AgentData> neighbors, double[] backgroundLoad, int houseType, List<Rule> rules,
+                     List<Actuator> actuators, List<Sensor> sensors, int numOfIterations, double[] priceScheme)
     {
         this.name = name;
         this.neighbors = neighbors;
@@ -28,6 +28,8 @@ public class AgentData {
         this.rules = rules;
         this.actuators = actuators;
         this.sensors = sensors;
+        this.numOfIterations = numOfIterations;
+        this.priceScheme = priceScheme;
     }
 
     /**

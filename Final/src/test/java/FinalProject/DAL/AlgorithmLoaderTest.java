@@ -43,15 +43,6 @@ public class AlgorithmLoaderTest {
         classesToDelete = null;
     }
 
-//    @Test
-//    public void compileTest() throws Exception
-//    {
-//        String fileName = "SomeClassToCompile";
-//        String pathToCompile = uncompiledDirPath + "\\" + fileName + ".java";
-////        classesToDelete.add(fileName);
-//        loader.compile(pathToCompile);
-//    }
-
     @Test
     public void loadAlgorithmsGood() throws Exception
     {
