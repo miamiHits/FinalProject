@@ -2,9 +2,7 @@ package FinalProject.BL.DataCollection;
 
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class PowerConsumptionUtils {
 
@@ -34,36 +32,6 @@ public class PowerConsumptionUtils {
         }
 
         return cSum * AC;
-
-//        if (allTheSameLength(schedules) && priceScheme.length == schedules.get(0).length)
-//        {
-//            Optional<double[]> summedSchedulesOpt = sumArrListToOpt(schedules);
-//
-//            if (summedSchedulesOpt.isPresent())
-//            {
-//                double[] summedArr = summedSchedulesOpt.get();
-//                for (int i = 0; i < summedArr.length; i++)
-//                {
-//                    summedArr[i] *= priceScheme[i];
-//                }
-//
-//                return AC * sumArray(summedArr);
-//            }
-//        }
-//        logger.warn("calculateCSum could not calculate Csum.");
-//        return -1;
-    }
-
-    private static Optional<double[]> sumArrListToOpt(List<double[]> schedules)
-    {
-        return schedules.stream()
-                .reduce((sched1, sched2) -> {
-                    for (int i = 0; i < sched1.length; i++)
-                    {
-                        sched1[i] += sched2[i];
-                    }
-                    return sched1;
-                });
     }
 
     public static double calculateEPeak(double cSum, double[] newSchedule, double[] oldSchedule,
@@ -75,19 +43,16 @@ public class PowerConsumptionUtils {
             cSum = replaceInCSum(cSum, newSchedule, oldSchedule, priceScheme);
 
             otherSchedules.add(newSchedule);
+            double eSqrSum = 0;
             for (double[] sched : otherSchedules)
             {
-                for (int i = 0; i < sched.length; i++)
+                for (double aSched : sched)
                 {
-                    sched[i] = Math.pow(sched[i], 2);
+                    eSqrSum += Math.pow(aSched, 2);
                 }
             }
-            Optional<double[]> consumptionSqrsOpt = sumArrListToOpt(otherSchedules);
-            if (consumptionSqrsOpt.isPresent())
-            {
-                double ePeak = sumArray(consumptionSqrsOpt.get()) * AE;
-                return cSum + ePeak;
-            }
+            double ePeak = eSqrSum * AE;
+            return cSum + ePeak;
         }
         logger.warn("Could not calculate EPeak.");
         return -1;
@@ -101,18 +66,14 @@ public class PowerConsumptionUtils {
         return cSum - (oldSchedPrice * AC) + (newSchedPrice * AC);
     }
 
-    private static double sumArray(double[] summedArr)
-    {
-        return Arrays.stream(summedArr).reduce(0, Double::sum);
-    }
-
     private static double getSchedPrice(double[] sched, double[] priceScheme)
     {
+        double sum = 0;
         for (int i = 0; i < sched.length; i++)
         {
-            sched[i] *= priceScheme[i];
+            sum += sched[i] * priceScheme[i];
         }
-        return sumArray(sched);
+        return sum;
     }
 
     private static boolean allTheSameLength(List<double[]> arrays)

@@ -21,9 +21,9 @@ public class PowerConsumptionUtilsTest {
     {
         priceScheme = new double[]{0.198, 0.198, 0.198, 0.198, 0.225, 0.225, 0.249, 0.849, 0.849, 0.225, 0.225, 0.198}; //taken from dm_7_1_2
         schedules = new ArrayList<>();
-        schedules.add(new double[] {5.3, 12.1, 1, 0, 6.85, 0.58, 6.84, 10, 2, 3, 1, 1});
         schedules.add(new double[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
         schedules.add(new double[] {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2});
+        schedules.add(new double[] {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4});
 
         cSum = 0;
         for (int i = 0; i < priceScheme.length; i++)
@@ -49,13 +49,24 @@ public class PowerConsumptionUtilsTest {
     public void calculateCSum() throws Exception
     {
         double res = PowerConsumptionUtils.calculateCSum(schedules, priceScheme);
-        Assert.assertEquals(cSum, res, 0.000000001);
+        Assert.assertEquals(cSum, res, 0);
     }
 
     @Test
     public void calculateEPeak() throws Exception
     {
-        
+        double[] oldSched = schedules.get(0);
+        schedules.remove(0);
+        double[] newSched = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
+
+        //3.837 = oldSched sum * priceScheme, 11.511 = newSched sum * priceScheme
+        double replacedCSum = (cSum - 3.837 * AC + 11.511 * AC);
+        double newEPeak = (AE * 12 * (4 + 9 + 16));
+        double expected = replacedCSum + newEPeak;
+        double res = PowerConsumptionUtils.calculateEPeak(cSum, newSched, oldSched, schedules, priceScheme);
+
+        Assert.assertEquals(expected, res, 0);
+
     }
 
 }
