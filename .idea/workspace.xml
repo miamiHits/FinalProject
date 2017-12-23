@@ -22,16 +22,17 @@
               <folding>
                 <element signature="e#538#539#0" expanded="true" />
                 <element signature="e#568#569#0" expanded="true" />
-                <element signature="e#614#615#0" expanded="true" />
                 <element signature="e#652#653#0" expanded="true" />
-                <element signature="e#688#689#0" expanded="true" />
-                <element signature="e#720#721#0" expanded="true" />
-                <element signature="e#770#771#0" expanded="true" />
                 <element signature="e#812#813#0" expanded="true" />
-                <element signature="e#873#874#0" expanded="true" />
                 <element signature="e#916#917#0" expanded="true" />
-                <element signature="e#1113#1114#0" expanded="true" />
-                <element signature="e#1159#1160#0" expanded="true" />
+                <marker date="1514030103165" expanded="true" signature="613:624" ph=" { " />
+                <marker date="1514030103165" expanded="true" signature="687:698" ph=" { " />
+                <marker date="1514030103165" expanded="true" signature="715:721" ph=" }" />
+                <marker date="1514030103165" expanded="true" signature="769:780" ph=" { " />
+                <marker date="1514030103165" expanded="true" signature="872:883" ph=" { " />
+                <marker date="1514030103165" expanded="true" signature="1002:1067" ph="{...}" />
+                <marker date="1514030103165" expanded="true" signature="1112:1123" ph=" { " />
+                <marker date="1514030103165" expanded="true" signature="1154:1160" ph=" }" />
               </folding>
             </state>
           </provider>
@@ -40,42 +41,130 @@
       <file leaf-file-name="DataCollector.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/DataCollector.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="118">
-              <caret line="47" column="80" lean-forward="false" selection-start-line="47" selection-start-column="55" selection-end-line="47" selection-end-column="80" />
+            <state relative-caret-position="66">
+              <caret line="56" column="1" lean-forward="false" selection-start-line="56" selection-start-column="1" selection-end-line="56" selection-end-column="1" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DSA.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/Agents/DSA.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1123">
+              <caret line="60" column="30" lean-forward="false" selection-start-line="60" selection-start-column="30" selection-end-line="60" selection-end-column="30" />
               <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#1525#1526#0" expanded="true" />
-                <element signature="e#1569#1570#0" expanded="true" />
-                <element signature="e#1809#1810#0" expanded="true" />
-                <element signature="e#1854#1855#0" expanded="true" />
+                <marker date="1514030175781" expanded="true" signature="3080:3086" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DataCollectorTest.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Final/src/test/java/FinalProject/BL/DataCollection/DataCollectorTest.java">
+      <file leaf-file-name="SmartHomeAgent.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/Agents/SmartHomeAgent.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="21" column="39" lean-forward="false" selection-start-line="21" selection-start-column="39" selection-end-line="21" selection-end-column="39" />
+            <state relative-caret-position="264">
+              <caret line="66" column="47" lean-forward="false" selection-start-line="66" selection-start-column="47" selection-end-line="66" selection-end-column="47" />
               <folding>
-                <element signature="e#577#594#0" expanded="true" />
+                <marker date="1514030175789" expanded="true" signature="2575:2744" ph="{...}" />
+                <marker date="1514030175789" expanded="true" signature="2780:3378" ph="{...}" />
+                <marker date="1514030175789" expanded="true" signature="3412:3421" ph="{}" />
+                <marker date="1514030175789" expanded="true" signature="3468:3798" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="IterationAgentsPrice.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/IterationAgentsPrice.java">
+      <file leaf-file-name="AgentData.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/Problems/AgentData.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="127">
-              <caret line="14" column="28" lean-forward="false" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
+            <state relative-caret-position="220">
+              <caret line="10" column="18" lean-forward="false" selection-start-line="10" selection-start-column="18" selection-end-line="10" selection-end-column="18" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#425#426#0" expanded="true" />
-                <element signature="e#488#489#0" expanded="true" />
-                <element signature="e#1039#1051#0" expanded="true" />
+                <marker date="1514030175809" expanded="true" signature="891:956" ph="/**...*/" />
+                <marker date="1514030175809" expanded="false" signature="990:1005" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1022:1028" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1057:1072" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1084:1090" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1128:1143" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1160:1166" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1209:1224" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1241:1247" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1304:1319" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1346:1352" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1393:1408" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1430:1436" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1496:1511" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1548:1554" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1585:1600" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1617:1623" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1668:1683" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1710:1716" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1750:1765" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1778:1784" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1828:1843" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1862:1868" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="1910:1925" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="1942:1948" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="2004:2019" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="2046:2052" ph=" }" />
+                <marker date="1514030175809" expanded="true" signature="2090:2105" ph=" { " />
+                <marker date="1514030175809" expanded="true" signature="2120:2126" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="2176:2191" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="2214:2220" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="2257:2268" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="2291:2297" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="2354:2365" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="2404:2410" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="2448:2459" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="2478:2484" ph=" }" />
+                <marker date="1514030175809" expanded="false" signature="2538:2549" ph=" { " />
+                <marker date="1514030175809" expanded="false" signature="2580:2586" ph=" }" />
+                <marker date="1514030175809" expanded="true" signature="2642:3888" ph="{...}" />
+                <marker date="1514030175809" expanded="true" signature="3934:4349" ph="{...}" />
+                <marker date="1514030175809" expanded="true" signature="4398:4916" ph="{...}" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AlgoLoaderInterface.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/DAL/AlgoLoaderInterface.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="88">
+              <caret line="7" column="17" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AlgorithmLoader.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/DAL/AlgorithmLoader.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="250">
+              <caret line="53" column="11" lean-forward="false" selection-start-line="53" selection-start-column="11" selection-end-line="53" selection-end-column="11" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AgentPriceTest.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Final/src/test/java/FinalProject/BL/DataCollection/AgentPriceTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Sensor.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/Problems/Sensor.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="9" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -233,15 +322,6 @@
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="FinalProject" type="462c0819:PsiDirectoryNode" />
               <item name="DataCollection" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="FinalProject" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Final" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="FinalProject" type="462c0819:PsiDirectoryNode" />
-              <item name="DAL" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -628,7 +708,7 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32894737" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -639,7 +719,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13161875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18986385" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32894737" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -671,6 +751,7 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32894737" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
     </layout>
@@ -714,119 +795,11 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/AlgorithmProblemResult.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="142">
-          <caret line="28" column="5" lean-forward="true" selection-start-line="28" selection-start-column="5" selection-end-line="28" selection-end-column="5" />
-          <folding>
-            <element signature="e#538#539#0" expanded="true" />
-            <element signature="e#568#569#0" expanded="true" />
-            <element signature="e#614#615#0" expanded="true" />
-            <element signature="e#652#653#0" expanded="true" />
-            <element signature="e#688#689#0" expanded="true" />
-            <element signature="e#720#721#0" expanded="true" />
-            <element signature="e#770#771#0" expanded="true" />
-            <element signature="e#812#813#0" expanded="true" />
-            <element signature="e#873#874#0" expanded="true" />
-            <element signature="e#916#917#0" expanded="true" />
-            <element signature="e#1113#1114#0" expanded="true" />
-            <element signature="e#1159#1160#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="399">
-          <caret line="19" column="23" lean-forward="true" selection-start-line="19" selection-start-column="23" selection-end-line="19" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/AlgorithmProblemResult.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="142">
-          <caret line="28" column="5" lean-forward="false" selection-start-line="28" selection-start-column="5" selection-end-line="28" selection-end-column="5" />
-          <folding>
-            <element signature="e#538#539#0" expanded="true" />
-            <element signature="e#568#569#0" expanded="true" />
-            <element signature="e#614#615#0" expanded="true" />
-            <element signature="e#652#653#0" expanded="true" />
-            <element signature="e#688#689#0" expanded="true" />
-            <element signature="e#720#721#0" expanded="true" />
-            <element signature="e#770#771#0" expanded="true" />
-            <element signature="e#812#813#0" expanded="true" />
-            <element signature="e#873#874#0" expanded="true" />
-            <element signature="e#916#917#0" expanded="true" />
-            <element signature="e#1113#1114#0" expanded="true" />
-            <element signature="e#1159#1160#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/IterationData/IterationCollectedData.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/ProblemAlgorithm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#323#324#0" expanded="false" />
-            <element signature="e#355#356#0" expanded="false" />
-            <element signature="e#405#406#0" expanded="false" />
-            <element signature="e#447#448#0" expanded="false" />
-            <element signature="e#487#488#0" expanded="false" />
-            <element signature="e#523#524#0" expanded="false" />
-            <element signature="e#581#582#0" expanded="false" />
-            <element signature="e#626#627#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/IterationAgentsPrice.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="12" column="5" lean-forward="false" selection-start-line="12" selection-start-column="5" selection-end-line="12" selection-end-column="5" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/AgentPrice.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#284#285#0" expanded="false" />
-            <element signature="e#316#317#0" expanded="false" />
-            <element signature="e#366#367#0" expanded="false" />
-            <element signature="e#408#409#0" expanded="false" />
-            <element signature="e#440#441#0" expanded="false" />
-            <element signature="e#468#469#0" expanded="false" />
-            <element signature="e#510#511#0" expanded="false" />
-            <element signature="e#544#545#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/DataCollector.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="242">
           <caret line="13" column="11" lean-forward="false" selection-start-line="13" selection-start-column="11" selection-end-line="13" selection-end-column="11" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1525#1526#0" expanded="true" />
-            <element signature="e#1569#1570#0" expanded="true" />
-            <element signature="e#1809#1810#0" expanded="true" />
-            <element signature="e#1854#1855#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -845,16 +818,17 @@
           <folding>
             <element signature="e#538#539#0" expanded="true" />
             <element signature="e#568#569#0" expanded="true" />
-            <element signature="e#614#615#0" expanded="true" />
             <element signature="e#652#653#0" expanded="true" />
-            <element signature="e#688#689#0" expanded="true" />
-            <element signature="e#720#721#0" expanded="true" />
-            <element signature="e#770#771#0" expanded="true" />
             <element signature="e#812#813#0" expanded="true" />
-            <element signature="e#873#874#0" expanded="true" />
             <element signature="e#916#917#0" expanded="true" />
-            <element signature="e#1113#1114#0" expanded="true" />
-            <element signature="e#1159#1160#0" expanded="true" />
+            <marker date="1514030103165" expanded="true" signature="613:624" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="687:698" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="715:721" ph=" }" />
+            <marker date="1514030103165" expanded="true" signature="769:780" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="872:883" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1002:1067" ph="{...}" />
+            <marker date="1514030103165" expanded="true" signature="1112:1123" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1154:1160" ph=" }" />
           </folding>
         </state>
       </provider>
@@ -874,16 +848,17 @@
           <folding>
             <element signature="e#538#539#0" expanded="true" />
             <element signature="e#568#569#0" expanded="true" />
-            <element signature="e#614#615#0" expanded="true" />
             <element signature="e#652#653#0" expanded="true" />
-            <element signature="e#688#689#0" expanded="true" />
-            <element signature="e#720#721#0" expanded="true" />
-            <element signature="e#770#771#0" expanded="true" />
             <element signature="e#812#813#0" expanded="true" />
-            <element signature="e#873#874#0" expanded="true" />
             <element signature="e#916#917#0" expanded="true" />
-            <element signature="e#1113#1114#0" expanded="true" />
-            <element signature="e#1159#1160#0" expanded="true" />
+            <marker date="1514030103165" expanded="true" signature="613:624" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="687:698" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="715:721" ph=" }" />
+            <marker date="1514030103165" expanded="true" signature="769:780" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="872:883" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1002:1067" ph="{...}" />
+            <marker date="1514030103165" expanded="true" signature="1112:1123" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1154:1160" ph=" }" />
           </folding>
         </state>
       </provider>
@@ -892,7 +867,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="88">
           <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -935,21 +909,313 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/IterationAvgPrice.java">
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/IterationAvgPrice.java" />
+    <entry file="file://$PROJECT_DIR$/Final/src/test/java/FinalProject/BL/DataCollection/IterationAgentsPriceTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="44">
-          <caret line="2" column="13" lean-forward="false" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+        <state relative-caret-position="162">
+          <caret line="18" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#471#483#0" expanded="true" />
+            <element signature="e#531#543#0" expanded="true" />
+            <element signature="e#636#648#0" expanded="true" />
+            <element signature="e#786#798#0" expanded="true" />
+            <element signature="e#858#885#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/IterationData/IterationCollectedData.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="149">
+          <caret line="24" column="63" lean-forward="true" selection-start-line="23" selection-start-column="34" selection-end-line="24" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/internal/runners/model/ReflectiveCallable.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="113">
+          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/runners/ParentRunner.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="203" column="0" lean-forward="false" selection-start-line="203" selection-start-column="0" selection-end-line="203" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/internal/runners/model/EachTestNotifier.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="113">
+          <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_25/src.zip!/java/lang/String.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="157">
+          <caret line="1453" column="15" lean-forward="false" selection-start-line="1453" selection-start-column="15" selection-end-line="1453" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/Assert.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="245">
+          <caret line="33" column="0" lean-forward="false" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+          <folding>
+            <element signature="e#594#595#0" expanded="true" />
+            <element signature="e#645#646#0" expanded="true" />
+            <element signature="e#874#875#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/DataCollector.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="66">
+          <caret line="56" column="1" lean-forward="false" selection-start-line="56" selection-start-column="1" selection-end-line="56" selection-end-column="1" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/ProblemAlgorithm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="42" column="0" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/IterationAgentsPrice.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="127">
+          <caret line="14" column="28" lean-forward="false" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#425#426#0" expanded="true" />
+            <element signature="e#488#489#0" expanded="true" />
+            <element signature="e#1039#1051#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/test/java/FinalProject/BL/DataCollection/DataCollectorTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="21" column="39" lean-forward="false" selection-start-line="21" selection-start-column="39" selection-end-line="21" selection-end-column="39" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Final/src/test/java/FinalProject/BL/DataCollection/AgentPriceTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="96">
-          <caret line="11" column="13" lean-forward="true" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+        <state relative-caret-position="220">
+          <caret line="11" column="8" lean-forward="false" selection-start-line="11" selection-start-column="8" selection-end-line="11" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/AlgorithmProblemResult.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="142">
+          <caret line="28" column="5" lean-forward="true" selection-start-line="28" selection-start-column="5" selection-end-line="28" selection-end-column="5" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#538#539#0" expanded="true" />
+            <element signature="e#568#569#0" expanded="true" />
+            <element signature="e#652#653#0" expanded="true" />
+            <element signature="e#812#813#0" expanded="true" />
+            <element signature="e#916#917#0" expanded="true" />
+            <marker date="1514030103165" expanded="true" signature="613:624" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="687:698" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="715:721" ph=" }" />
+            <marker date="1514030103165" expanded="true" signature="769:780" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="872:883" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1002:1067" ph="{...}" />
+            <marker date="1514030103165" expanded="true" signature="1112:1123" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1154:1160" ph=" }" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="19" column="23" lean-forward="true" selection-start-line="19" selection-start-column="23" selection-end-line="19" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/AlgorithmProblemResult.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="142">
+          <caret line="28" column="5" lean-forward="false" selection-start-line="28" selection-start-column="5" selection-end-line="28" selection-end-column="5" />
+          <folding>
+            <element signature="e#538#539#0" expanded="true" />
+            <element signature="e#568#569#0" expanded="true" />
+            <element signature="e#652#653#0" expanded="true" />
+            <element signature="e#812#813#0" expanded="true" />
+            <element signature="e#916#917#0" expanded="true" />
+            <marker date="1514030103165" expanded="true" signature="613:624" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="687:698" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="715:721" ph=" }" />
+            <marker date="1514030103165" expanded="true" signature="769:780" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="872:883" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1002:1067" ph="{...}" />
+            <marker date="1514030103165" expanded="true" signature="1112:1123" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1154:1160" ph=" }" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/IterationData/IterationCollectedData.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/ProblemAlgorithm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/IterationAgentsPrice.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="264">
+          <caret line="12" column="5" lean-forward="false" selection-start-line="12" selection-start-column="5" selection-end-line="12" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/AgentPrice.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/DataCollector.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="242">
+          <caret line="13" column="11" lean-forward="false" selection-start-line="13" selection-start-column="11" selection-end-line="13" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="19" column="23" lean-forward="true" selection-start-line="19" selection-start-column="23" selection-end-line="19" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/AlgorithmProblemResult.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="142">
+          <caret line="28" column="5" lean-forward="true" selection-start-line="28" selection-start-column="5" selection-end-line="28" selection-end-column="5" />
+          <folding>
+            <element signature="e#538#539#0" expanded="true" />
+            <element signature="e#568#569#0" expanded="true" />
+            <element signature="e#652#653#0" expanded="true" />
+            <element signature="e#812#813#0" expanded="true" />
+            <element signature="e#916#917#0" expanded="true" />
+            <marker date="1514030103165" expanded="true" signature="613:624" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="687:698" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="715:721" ph=" }" />
+            <marker date="1514030103165" expanded="true" signature="769:780" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="872:883" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1002:1067" ph="{...}" />
+            <marker date="1514030103165" expanded="true" signature="1112:1123" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1154:1160" ph=" }" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="19" column="23" lean-forward="true" selection-start-line="19" selection-start-column="23" selection-end-line="19" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/AlgorithmProblemResult.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="142">
+          <caret line="28" column="5" lean-forward="false" selection-start-line="28" selection-start-column="5" selection-end-line="28" selection-end-column="5" />
+          <folding>
+            <element signature="e#538#539#0" expanded="true" />
+            <element signature="e#568#569#0" expanded="true" />
+            <element signature="e#652#653#0" expanded="true" />
+            <element signature="e#812#813#0" expanded="true" />
+            <element signature="e#916#917#0" expanded="true" />
+            <marker date="1514030103165" expanded="true" signature="613:624" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="687:698" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="715:721" ph=" }" />
+            <marker date="1514030103165" expanded="true" signature="769:780" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="872:883" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1002:1067" ph="{...}" />
+            <marker date="1514030103165" expanded="true" signature="1112:1123" ph=" { " />
+            <marker date="1514030103165" expanded="true" signature="1154:1160" ph=" }" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/Problems/Actuator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="88">
+          <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/test/java/FinalProject/DAL/AlgorithmLoaderTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="154">
+          <caret line="7" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/IterationData/AgentIterationData.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="110">
+          <caret line="5" column="29" lean-forward="true" selection-start-line="5" selection-start-column="29" selection-end-line="5" selection-end-column="29" />
+          <folding>
+            <element signature="e#232#233#0" expanded="true" />
+            <element signature="e#262#263#0" expanded="true" />
+            <element signature="e#305#306#0" expanded="true" />
+            <element signature="e#343#344#0" expanded="true" />
+            <element signature="e#379#380#0" expanded="true" />
+            <element signature="e#411#412#0" expanded="true" />
+            <element signature="e#461#462#0" expanded="true" />
+            <element signature="e#503#504#0" expanded="true" />
+            <element signature="e#535#536#0" expanded="true" />
+            <element signature="e#563#564#0" expanded="true" />
+            <element signature="e#605#606#0" expanded="true" />
+            <element signature="e#639#640#0" expanded="true" />
+            <element signature="e#691#692#0" expanded="true" />
+            <element signature="e#737#738#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/AgentPrice.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="9" column="5" lean-forward="true" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/IterationAvgPrice.java" />
+    <entry file="file://$PROJECT_DIR$/Final/src/test/java/FinalProject/BL/DataCollection/AgentPriceTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -972,7 +1238,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="149">
           <caret line="24" column="63" lean-forward="true" selection-start-line="23" selection-start-column="34" selection-end-line="24" selection-end-column="63" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -980,7 +1245,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="113">
           <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -988,7 +1252,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
           <caret line="203" column="0" lean-forward="false" selection-start-line="203" selection-start-column="0" selection-end-line="203" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -996,7 +1259,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="113">
           <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1004,7 +1266,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="157">
           <caret line="1453" column="15" lean-forward="false" selection-start-line="1453" selection-start-column="15" selection-end-line="1453" selection-end-column="15" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1022,15 +1283,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Final/src/main/java/FinalProject/BL/DataCollection/DataCollector.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="118">
-          <caret line="47" column="80" lean-forward="false" selection-start-line="47" selection-start-column="55" selection-end-line="47" selection-end-column="80" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1525#1526#0" expanded="true" />
-            <element signature="e#1569#1570#0" expanded="true" />
-            <element signature="e#1809#1810#0" expanded="true" />
-            <element signature="e#1854#1855#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="66">
+          <caret line="56" column="1" lean-forward="false" selection-start-line="56" selection-start-column="1" selection-end-line="56" selection-end-column="1" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1038,7 +1293,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="140">
           <caret line="42" column="0" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1046,12 +1300,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="127">
           <caret line="14" column="28" lean-forward="false" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#425#426#0" expanded="true" />
-            <element signature="e#488#489#0" expanded="true" />
-            <element signature="e#1039#1051#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1059,9 +1307,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
           <caret line="21" column="39" lean-forward="false" selection-start-line="21" selection-start-column="39" selection-end-line="21" selection-end-column="39" />
-          <folding>
-            <element signature="e#577#594#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
