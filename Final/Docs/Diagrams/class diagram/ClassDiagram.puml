@@ -205,7 +205,8 @@ package BL {
 		}
 
 		class StatisticsHandler {
-
+			calculateAvg(List<double>) : double
+			getStatisticalSignificance(...) : double
 		}
 
 		class AlgorithmProblemResult {
