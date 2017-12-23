@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class DSA extends SmartHomeAgentBehaviour {
 
-    private static MessageTemplate expectedMessagesTemplate = MessageTemplate.MatchContent("ping");
+    private static MessageTemplate expectedMessagesTemplate = MessageTemplate.MatchContent("DSA");
     private boolean finished = false;
     private int currentNumberOfIter;
     public static final int START_TICK = 0;
