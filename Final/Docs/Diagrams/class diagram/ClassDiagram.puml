@@ -189,7 +189,7 @@ package BL {
 		}
 
 		class DataCollector {
-		    +numOfAgentsInProblem : Map<String, int>
+		    +numOfAgentsInProblems : Map<String, int>
 		    +algorithmRunEnded() : void
 		    +sendCSumToAgents(List<)
 		    TODO: add analyzing methods here
