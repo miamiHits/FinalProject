@@ -8,10 +8,11 @@ public class AgentPriceTest {
 
     @Test
     public void equals(){
-        AgentPrice a1 = new AgentPrice("a1", 22.33);
-        AgentPrice a2 = new AgentPrice("a2", 22.33);
-        AgentPrice a3 = new AgentPrice("a1", 22.331);
-        AgentPrice a4 = new AgentPrice("a1", 22.33);
+        double[] consumptionPerTick = {22,2 ,23.2};
+        AgentPrice a1 = new AgentPrice("a1", 22.33, consumptionPerTick);
+        AgentPrice a2 = new AgentPrice("a2", 22.33, consumptionPerTick);
+        AgentPrice a3 = new AgentPrice("a1", 22.331, consumptionPerTick);
+        AgentPrice a4 = new AgentPrice("a1", 22.33, consumptionPerTick);
 
         Assert.assertFalse(a1.equals(a2));
         Assert.assertFalse(a1.equals(a3));

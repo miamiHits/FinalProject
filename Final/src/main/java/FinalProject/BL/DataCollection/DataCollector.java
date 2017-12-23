@@ -3,6 +3,7 @@ package FinalProject.BL.DataCollection;
 import FinalProject.BL.IterationData.IterationCollectedData;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DataCollector {
@@ -23,19 +24,29 @@ public class DataCollector {
         if (probAlgoToItAgentPrice.containsKey(tempPA)){
             tempIAP = probAlgoToItAgentPrice.get(tempPA);
             tempIAP.addAgentPrice(data.getIterNum(),
-                    new AgentPrice(data.getAgentName(), data.getPrice()));
+                    new AgentPrice(data.getAgentName(), data.getPrice(),
+                            data.getPowerConsumptionPerTick()));
         }else{
             tempIAP = new IterationAgentsPrice();
             tempIAP.addAgentPrice(data.getIterNum(),
-                    new AgentPrice(data.getAgentName(), data.getPrice()));
+                    new AgentPrice(data.getAgentName(), data.getPrice(),
+                            data.getPowerConsumptionPerTick()));
             probAlgoToItAgentPrice.put(tempPA, tempIAP);
         }
-        isIterationFinished(data);
+        isIterationFinished(tempPA, tempIAP, data);
     }
 
-    private void isIterationFinished(IterationCollectedData data) {
-        
+    private void isIterationFinished(ProblemAlgorithm tempPA, IterationAgentsPrice tempIAP,
+                                     IterationCollectedData data) {
+        List<AgentPrice> prices = tempIAP.getAgentsPrices(data.getIterNum());
+        if (prices.size() == numOfAgentsInProblems.get(tempPA.getProblemId())){
+            //todo: finish func
+            if (probAlgoToResult.containsKey(tempPA)){
+
+            }
+        }
     }
+
 
     public int getNumOfAgentsInProblem(String problemName){
         if (numOfAgentsInProblems.containsKey(problemName)){
