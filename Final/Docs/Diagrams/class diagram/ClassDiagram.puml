@@ -190,7 +190,7 @@ package BL {
 		}
 
 		class DataCollector {
-		    +numOfAgentsInProblem : Map<String, int>
+		    +numOfAgentsInProblems : Map<String, int>
 		    +algorithmRunEnded() : void
 		    +sendCSumToAgents(List<)
 		    +addData(IterationCollectedData) : void

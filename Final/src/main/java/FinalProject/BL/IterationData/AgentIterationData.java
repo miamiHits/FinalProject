@@ -7,6 +7,39 @@ public class AgentIterationData {
     private double price;
     private double[] powerConsumptionPerTick;
 
+
+    public int getIterNum() {
+        return iterNum;
+    }
+
+    public void setIterNum(int iterNum) {
+        this.iterNum = iterNum;
+    }
+
+    public String getAgentName() {
+        return agentName;
+    }
+
+    public void setAgentName(String agentName) {
+        this.agentName = agentName;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public double[] getPowerConsumptionPerTick() {
+        return powerConsumptionPerTick;
+    }
+
+    public void setPowerConsumptionPerTick(double[] powerConsumptionPerTick) {
+        this.powerConsumptionPerTick = powerConsumptionPerTick;
+    }
+
     public AgentIterationData(int iterNum, String agentName, double price, double[] powerConsPerDevice)
     {
         this.iterNum = iterNum;
