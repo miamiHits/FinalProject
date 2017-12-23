@@ -11,7 +11,9 @@ public class AlgorithmProblemResult {
     private String lowestCostInBestIterationAgentName;
     private double highestCostInBestIteration;
 
-    public AlgorithmProblemResult() {
+    public AlgorithmProblemResult(ProblemAlgorithm probAlgo) {
+        problem = probAlgo.getProblemId();
+        algorithm = probAlgo.getAlgorithmName();
     }
 
     private String highestCostInBestIterationAgentName;

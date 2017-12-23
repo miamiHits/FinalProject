@@ -9,10 +9,12 @@ public class DataCollector {
 
     private Map<String, Integer> numOfAgentsInProblems;
     private Map<ProblemAlgorithm, IterationAgentsPrice> probAlgoToItAgentPrice;
+    private Map<ProblemAlgorithm, AlgorithmProblemResult> probAlgoToResult;
 
     public DataCollector(Map<String, Integer> numOfAgentsInProblems) {
         this.numOfAgentsInProblems = numOfAgentsInProblems;
         this.probAlgoToItAgentPrice = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
+        this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
     }
 
     public void addData (IterationCollectedData data){
@@ -28,6 +30,11 @@ public class DataCollector {
                     new AgentPrice(data.getAgentName(), data.getPrice()));
             probAlgoToItAgentPrice.put(tempPA, tempIAP);
         }
+        isIterationFinished(data);
+    }
+
+    private void isIterationFinished(IterationCollectedData data) {
+        
     }
 
     public int getNumOfAgentsInProblem(String problemName){
@@ -52,6 +59,5 @@ public class DataCollector {
     public void setProbAlgoToItAgentPrice(Map<ProblemAlgorithm, IterationAgentsPrice> probAlgoToItAgentPrice) {
         this.probAlgoToItAgentPrice = probAlgoToItAgentPrice;
     }
-
 
 }
