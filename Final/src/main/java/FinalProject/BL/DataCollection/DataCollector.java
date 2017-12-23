@@ -8,25 +8,25 @@ import java.util.Map;
 public class DataCollector {
 
     private Map<String, Integer> numOfAgentsInProblems;
-    private Map<ProblemAlgorithm, IterationAgentsPrice> collection;
+    private Map<ProblemAlgorithm, IterationAgentsPrice> probAlgoToItAgentPrice;
 
     public DataCollector(Map<String, Integer> numOfAgentsInProblems) {
         this.numOfAgentsInProblems = numOfAgentsInProblems;
-        this.collection = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
+        this.probAlgoToItAgentPrice = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
     }
 
     public void addData (IterationCollectedData data){
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
         IterationAgentsPrice tempIAP;
-        if (collection.containsKey(tempPA)){
-            tempIAP = collection.get(tempPA);
+        if (probAlgoToItAgentPrice.containsKey(tempPA)){
+            tempIAP = probAlgoToItAgentPrice.get(tempPA);
             tempIAP.addAgentPrice(data.getIterNum(),
                     new AgentPrice(data.getAgentName(), data.getPrice()));
         }else{
             tempIAP = new IterationAgentsPrice();
             tempIAP.addAgentPrice(data.getIterNum(),
                     new AgentPrice(data.getAgentName(), data.getPrice()));
-            collection.put(tempPA, tempIAP);
+            probAlgoToItAgentPrice.put(tempPA, tempIAP);
         }
     }
 
@@ -45,6 +45,13 @@ public class DataCollector {
         this.numOfAgentsInProblems = numOfAgentsInProblems;
     }
 
+    public Map<ProblemAlgorithm, IterationAgentsPrice> getProbAlgoToItAgentPrice() {
+        return probAlgoToItAgentPrice;
+    }
+
+    public void setProbAlgoToItAgentPrice(Map<ProblemAlgorithm, IterationAgentsPrice> probAlgoToItAgentPrice) {
+        this.probAlgoToItAgentPrice = probAlgoToItAgentPrice;
+    }
 
 
 }
