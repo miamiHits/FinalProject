@@ -79,7 +79,7 @@ public class PowerConsumptionUtilsTest {
         double replacedCSum = (cSum - 3.837 * AC + 11.511 * AC);
         double newEPeak = (AE * 12 * (4 + 9 + 16));
         double expected = replacedCSum + newEPeak;
-        double res = PowerConsumptionUtils.calculateEPeak(cSum, newSched, oldSched, schedules, priceScheme);
+        double res = PowerConsumptionUtils.calculateTotalConsumptionWithPenalty(cSum, newSched, oldSched, schedules, priceScheme);
 
         Assert.assertEquals(expected, res, 0);
     }
@@ -91,7 +91,7 @@ public class PowerConsumptionUtilsTest {
         schedules.remove(0);
         double[] newSched = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
 
-        double res = PowerConsumptionUtils.calculateEPeak(cSum, newSched, oldSched, null, priceScheme);
+        double res = PowerConsumptionUtils.calculateTotalConsumptionWithPenalty(cSum, newSched, oldSched, null, priceScheme);
 
         Assert.assertEquals(-1, res, 0);
     }
@@ -103,7 +103,7 @@ public class PowerConsumptionUtilsTest {
         schedules.remove(0);
         double[] newSched = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1}; //len = 13 > 12 = priceScheme.length
 
-        double res = PowerConsumptionUtils.calculateEPeak(cSum, newSched, oldSched, schedules, priceScheme);
+        double res = PowerConsumptionUtils.calculateTotalConsumptionWithPenalty(cSum, newSched, oldSched, schedules, priceScheme);
 
         Assert.assertEquals(-1, res, 0);
     }
@@ -115,7 +115,7 @@ public class PowerConsumptionUtilsTest {
         schedules.remove(0);
         double[] newSched = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}; //len = 11 < 12 = priceScheme.length
 
-        double res = PowerConsumptionUtils.calculateEPeak(cSum, newSched, oldSched, schedules, priceScheme);
+        double res = PowerConsumptionUtils.calculateTotalConsumptionWithPenalty(cSum, newSched, oldSched, schedules, priceScheme);
 
         Assert.assertEquals(-1, res, 0);
     }

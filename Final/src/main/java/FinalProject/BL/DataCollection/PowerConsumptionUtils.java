@@ -42,8 +42,8 @@ public class PowerConsumptionUtils {
         return cSum * AC;
     }
 
-    public static double calculateEPeak(double cSum, double[] newSchedule, double[] oldSchedule,
-                                        List<double[]> otherSchedules, double[] priceScheme)
+    public static double calculateTotalConsumptionWithPenalty(double cSum, double[] newSchedule, double[] oldSchedule,
+                                                              List<double[]> otherSchedules, double[] priceScheme)
     {
         if (newSchedule.length == oldSchedule.length && newSchedule.length == priceScheme.length
                 && allTheSameLength(otherSchedules))

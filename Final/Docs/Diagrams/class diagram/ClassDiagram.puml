@@ -185,7 +185,7 @@ package BL {
 			+{static} AE : double
 			+{static} AC : double
 			+{static} calculateCSum(List<double[]>, double[]) : double
-			+{static} calculateEPeak(double, double[], double[], List<double[]>, double[]) : double
+			+{static} calculateTotalConsumptionWithPenalty(double, double[], double[], List<double[]>, double[]) : double
 		}
 
 		class DataCollector {
