@@ -283,22 +283,21 @@ package PL {
 	class UiHandler <<Observer>> {
 		chartsCreator : ChartViewer
 		service : Service
-		showMainScreen() : void
-		showResultsScreen() : void
-		notifyExperimentEnded(List<AlgorithmProblemResult>) : void *maybe change!*
+		-showMainScreen() : void
+		-showResultsScreen() : void
+		+notifyExperimentEnded(List<AlgorithmProblemResult>) : void
 
 	}
 
 	class ChartViewer {
-		+createPricePerIterChart(Map<int, int>, String) : LineChart
-		+iterTillBestPricePerAlgo(Map<String, int>) : BarChart
-		+lowestCostInBestIteration(Map<String, int) : BarChart
+		+createPricePerIterChart(Map<int, double>, String) : LineChart
+		+nameToNumBarChart(Map<String, int>) : BarChart
 	}
 
 	Note "createPricePerIterChart(iterToPriceMap, algoName)" as chartNote
 
 	UiHandler --> ChartViewer
-	ChartViewer .. chartNote
+	ChartViewer . chartNote
 }
 
 package DAL {
@@ -362,15 +361,21 @@ package DAL {
 }
 
 class Service <<Observable>> {
-		+currExperiment : Experiment
-		+createExperiment(List<Problem>, List<SmartHomeAgentBehaviour>) : void
-		+runExperimrent() : void
-		+stopExperiment() : void
-		+getExperimentResults() : List<AlgorithmProblemResult>
-        +experimentEnded(List<AlgorithmProblemResult>) : void
-        +saveExperimentResults(List<AlgorithmProblemResult>) : void
-	}
+	-experimentBuilder : ExperimentBuilder
+	-dalController : DataAccessControllerInterface
+	+currExperiment : Experiment
+	+addAlgorithmsToExperiment(List<String>, int) : void
+	+addProblemsToExperiment(List<String>) : void
+	+runExperimrent() : void
+	+stopExperiment() : void
+	+getExperimentResults() : List<AlgorithmProblemResult>
+    +experimentEnded(List<AlgorithmProblemResult>) : void
+    +saveExperimentResults(List<AlgorithmProblemResult>) : void
+}
 
+Note "addAlgorithmsToExperiment(algoNames, numOfIterations){\n\t...\n\texperimentBuilder.addAlgorithms(algoNames);\n\ttexperimentBuilder.addNumOfIterations(numOfIterations);\n\t...\n}" as ServiceAddAlgoNote
+
+Service .. ServiceAddAlgoNote
 
 class SmartHomeAlgorithm <<Not Implemented>> {
 	-doIteration() : void
