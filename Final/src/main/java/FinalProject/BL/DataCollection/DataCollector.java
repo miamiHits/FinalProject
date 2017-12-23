@@ -7,11 +7,11 @@ import java.util.Map;
 
 public class DataCollector {
 
-    private Map<String, Integer> numOfAgentsInProblem;
+    private Map<String, Integer> numOfAgentsInProblems;
     private Map<ProblemAlgorithm, IterationAgentsPrice> collection;
 
-    public DataCollector(Map<String, Integer> numOfAgentsInProblem) {
-        this.numOfAgentsInProblem = numOfAgentsInProblem;
+    public DataCollector(Map<String, Integer> numOfAgentsInProblems) {
+        this.numOfAgentsInProblems = numOfAgentsInProblems;
         this.collection = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
     }
 
@@ -30,12 +30,19 @@ public class DataCollector {
         }
     }
 
-    public Map<String, Integer> getNumOfAgentsInProblem() {
-        return numOfAgentsInProblem;
+    public int getNumOfAgentsInProblem(String problemName){
+        if (numOfAgentsInProblems.containsKey(problemName)){
+            return numOfAgentsInProblems.get(problemName);
+        }
+        return 0;
     }
 
-    public void setNumOfAgentsInProblem(Map<String, Integer> numOfAgentsInProblem) {
-        this.numOfAgentsInProblem = numOfAgentsInProblem;
+    public Map<String, Integer> getNumOfAgentsInProblems() {
+        return numOfAgentsInProblems;
+    }
+
+    public void setNumOfAgentsInProblems(Map<String, Integer> numOfAgentsInProblems) {
+        this.numOfAgentsInProblems = numOfAgentsInProblems;
     }
 
 
