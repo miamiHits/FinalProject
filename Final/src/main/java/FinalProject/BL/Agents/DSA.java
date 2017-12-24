@@ -38,7 +38,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
         else
         {
-            List<ACLMessage> messageList 
+            List<ACLMessage> messageList ;
             tryBuildSchedule();
         }
 
