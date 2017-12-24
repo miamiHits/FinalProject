@@ -23,9 +23,8 @@ public class DSA extends SmartHomeAgentBehaviour {
     private static AgentIterationData agentIterationData;
 
 
-    public DSA(String agentName, SmartHomeAgent agent)
+    public DSA(SmartHomeAgent agent)
     {
-        this.agentName = agentName;
         this.agent = agent;
         this.currentNumberOfIter =0;
     }

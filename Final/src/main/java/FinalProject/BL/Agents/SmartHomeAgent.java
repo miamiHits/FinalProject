@@ -85,7 +85,7 @@ public class SmartHomeAgent extends Agent {
     }
 
     private void createDSAAgent() {
-        addBehaviour(new DSA(this.agentData.getName(), this));
+        addBehaviour(new DSA(this));
         // register to the services.
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());

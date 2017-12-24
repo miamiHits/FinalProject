@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 public class AgentData {
 
     private String name;
-
     private List<AgentData> neighbors;
     private double[] backgroundLoad;
     private int houseType;
