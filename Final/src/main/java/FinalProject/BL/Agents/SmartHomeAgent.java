@@ -19,8 +19,8 @@ public class SmartHomeAgent extends Agent {
     private AgentIterationData bestIteration;
     private AgentIterationData currIteration;
     private AlgorithmName behaviorName;
-    private Map<Integer, List<Actuator>> mySchedule = new HashMap<>();
     private boolean isZEROIteration;
+    private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
 
 
     public enum AlgorithmName
@@ -53,14 +53,6 @@ public class SmartHomeAgent extends Agent {
 
     public AlgorithmName getBehaviorName() {
         return behaviorName;
-    }
-
-    public Map<Integer, List<Actuator>> getMySchedule() {
-        return mySchedule;
-    }
-
-    public void setMySchedule(Map<Integer, List<Actuator>> mySchedule) {
-        this.mySchedule = mySchedule;
     }
 
     public boolean isZEROIteration() {
@@ -114,10 +106,6 @@ public class SmartHomeAgent extends Agent {
         this.printLog("start working on my DSA");
     }
 
-    public void buildSchedule() {
-
-
-    }
 
     public void printLog(String message)
     {

@@ -1,20 +1,26 @@
 package FinalProject.BL.Agents;
+import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.Problems.*;
-import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.ACLMessage;
+import jade.core.AID;
+
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class DSA extends SmartHomeAgentBehaviour {
 
-    private static MessageTemplate expectedMessagesTemplate = MessageTemplate.MatchContent("DSA");
     private boolean finished = false;
     private int currentNumberOfIter;
     public static final int START_TICK = 0;
     public final int FINAL_TICK = agent.getAgentData().getBackgroundLoad().length;
     private List<PropertyWithData> allProperties = new ArrayList<>();
+    private  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
+    private static AgentIterationData agentIterationData;
 
 
     public DSA(String agentName, SmartHomeAgent agent)
@@ -32,12 +38,13 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
         else
         {
-            tryBuildSceduale();
+            List<ACLMessage> messageList 
+            tryBuildSchedule();
         }
 
     }
 
-    private void tryBuildSceduale() {
+    private void tryBuildSchedule() {
     }
 
     private void buildScheduleFromScratch() {
@@ -56,7 +63,23 @@ public class DSA extends SmartHomeAgentBehaviour {
         activeRules.forEach(pRule -> buildPropObj(pRule, false));
 
         SetActuatorsAndSensors();
-        Map<PropertyWithData,Integer[]> PropToRange = checkHowLongDeviceNeedToWork();
+        double[] powerConsumption = checkHowLongDeviceNeedToWork();
+        double price = calcPrice (powerConsumption);
+        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, powerConsumption);
+        agent.setCurrIteration(agentIterationData);
+
+        //TODO: Update the best iteration.
+    }
+
+    private double calcPrice(double[] powerConsumption) {
+        double res = 0 ;
+        double [] backgroundLoad = agent.getAgentData().getBackgroundLoad();
+        double [] priceScheme = agent.getAgentData().getPriceScheme();
+        for (int i=0 ; i<backgroundLoad.length; ++i)
+        {
+           Double.sum(res, Double.sum(backgroundLoad[i], Double.sum(powerConsumption[i], priceScheme[i])));
+        }
+        return res;
     }
 
     private void SetActuatorsAndSensors()
@@ -72,7 +95,7 @@ public class DSA extends SmartHomeAgentBehaviour {
                 {
                     //get the relevant prop object.
                     PropertyWithData prop = allProperties.stream()
-                            .filter(x->x.getName().equals(rule.getProperty()))
+                            .filter(x->x.name.equals(rule.getProperty()))
                             .findFirst().get();
 
                     //update the actuator
@@ -137,7 +160,7 @@ public class DSA extends SmartHomeAgentBehaviour {
                 }
                 else
                 {
-                    prop.relatedSensorsWhenWorkOffline.put(effect.getProperty(),effect.getDelta());
+                    prop.relatedSensorsWhenWorkOfflineDelta.put(effect.getProperty(),effect.getDelta());
                 }
             }
             else
@@ -145,7 +168,7 @@ public class DSA extends SmartHomeAgentBehaviour {
                 if (effect.getProperty().equals(prop.name)) {
                     prop.deltaWhenWork = effect.getDelta();
                 } else {
-                    prop.relatedSensors.put(effect.getProperty(), effect.getDelta());
+                    prop.relatedSensorsDelta.put(effect.getProperty(), effect.getDelta());
                 }
             }
         }
@@ -162,88 +185,153 @@ public class DSA extends SmartHomeAgentBehaviour {
             prop.name = rule.getProperty();
             allProperties.add(prop);
         }
+
         if (isPassive)
         {
+            prop.isPassiveOnly = true;
             switch (rule.getPrefixType())
             {
                 case EQ:
-                    prop.min = rule.getRelationValue();
+                    prop.min = rule.getRuleValue();
                     break;
                 case GEQ:
-                    prop.max = rule.getRelationValue();
+                    prop.max = rule.getRuleValue();
                     break;
                 case LEQ:
-                    prop.min = rule.getRelationValue();
+                    prop.min = rule.getRuleValue();
                     break;
                 case GT:
-                    prop.max = rule.getRelationValue();
+                    prop.max = rule.getRuleValue();
                     break;
                 case LT:
-                    prop.min = rule.getRelationValue();
+                    prop.min = rule.getRuleValue();
                     break;
             }
         }
         else
         {
-            switch (rule.getPrefixType())
-            {
-
-                case EQ:
-                    prop.targetValue = rule.getRelationValue() + "=";
-                    break;
-                case GEQ:
-                    prop.targetValue = rule.getRelationValue() + "+=";
-                    break;
-                case LEQ:
-                    prop.targetValue = rule.getRelationValue() + "-=";
-                    break;
-                case GT:
-                    prop.targetValue = rule.getRelationValue() + "+";
-                    break;
-                case LT:
-                    prop.targetValue = rule.getRelationValue() + "-";
-                    break;
-            }
+            prop.prefix = rule.getPrefix();
+            prop.rt = rule.getPrefixType();
+            prop.targetTick = rule.getRelationValue();
+            prop.targetValue = rule.getRuleValue();
         }
     }
 
-
-    private Map<PropertyWithData,Integer[]> checkHowLongDeviceNeedToWork()
+    private double[] checkHowLongDeviceNeedToWork()
     {
-        Map<PropertyWithData,Integer[]> PropToRanges = new HashMap<>();
+        double[] powerConsumption = new double[FINAL_TICK];
         for(PropertyWithData prop : allProperties.stream()
                 .filter(p->p.isPassiveOnly==false)
                 .collect(Collectors.toList()))
         {
-            //TODO build range
+            // first we'll get the target value and till when needed to be happened.
+            double currentState = prop.sensor.getCurrentState();
+            double ticksToWork=0;
+            switch (prop.rt)
+            {
+                case EQ:
+                case GEQ: //want to take here the lower bound, to work less that I can
+                    ticksToWork = Math.ceil((prop.targetValue - currentState) / prop.deltaWhenWork);
+                    break;
+                case GT:
+                    ticksToWork = Math.ceil((prop.targetValue+1 - currentState) / prop.deltaWhenWork);
+                case LT:
+                case LEQ:
+                    ticksToWork = Math.ceil((prop.targetValue-1 - currentState) / prop.deltaWhenWork);
+                    break;
+            }
+            prop.powerConsumption = ticksToWork * prop.deltaWhenWork;
+            //draw ticks to work
+            List<Integer> myTicks = new ArrayList<>();
+            boolean flag = false;
+
+            while (flag)
+            {   //new iteration, flag starting with false as everything is okay.
+                flag= false;
+                int randomNum=0;
+                for(int i=0; i<ticksToWork; ++i)
+                {
+                    switch (prop.prefix)
+                    {
+                        case BEFORE:    // +1 is from the formula.
+                            randomNum = ThreadLocalRandom.current().nextInt(START_TICK, (int) (prop.targetTick + 1));
+                            break;
+                        case AFTER:
+                            randomNum = ThreadLocalRandom.current().nextInt((int) (prop.targetTick), FINAL_TICK +1);
+                            break;
+                        case AT:
+                            randomNum = (int) prop.targetTick;
+                            break;
+                    }
+
+                    if (!myTicks.contains(randomNum))
+                    {
+                        myTicks.add(randomNum);
+                    }
+                }
+
+                //there are sensors that reflect from this work! check if there is a problem with that.
+                if (!prop.relatedSensorsDelta.isEmpty())
+                {
+                    for (String propName : prop.relatedSensorsDelta.keySet())
+                    {
+                        PropertyWithData relatedSensor = allProperties.stream()
+                                .filter(x->x.name.equals(propName)).findFirst().get();
+                        if (!relatedSensor.canBeModified(prop.relatedSensorsDelta.get(propName)))
+                        {
+                            //there is a problem with working at that hour, lets draw new tick.
+                            flag = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            List<Sensor> relevantSensors = new ArrayList<>();
+            //adding to power consumption array, update the relevant sensors.
+            for (int tick : myTicks)
+            {
+                powerConsumption[tick] += prop.deltaWhenWork;
+                relevantSensors.add(prop.sensor);
+                prop.relatedSensorsDelta.forEach((key, value) ->
+                        Double.sum(powerConsumption[tick], value));
+            }
+            //update the state of the sensors
+            prop.actuator.act(relevantSensors);
+            // for debug propuse.
+            DeviceToTicks.put(prop.actuator, myTicks);
         }
 
 
-        return PropToRanges;
+        return powerConsumption;
     }
 
     @Override
     protected void sendIterationToCollector() {
-
-    }
-
-    @Override
-    public void action() {
-        this.agent.printLog("Starting work on Iteration: " + this.currentNumberOfIter);
-        this.agent.buildSchedule();
-        doIteration();
-        this.currentNumberOfIter ++;
+        ACLMessage aclmsg = new ACLMessage(ACLMessage.REQUEST);
+        agent.getAgentData().getNeighbors().stream()
+                .map(neighbor -> new AID(neighbor.getName(), AID.ISLOCALNAME)).forEach(aclmsg::addReceiver);
 
         try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
+            aclmsg.setContentObject(agentIterationData);
+            agent.send(aclmsg);
+        } catch (IOException e) {
             agent.printLog(e.getMessage());
         }
     }
 
     @Override
+    public void action() {
+        this.agent.printLog("Starting work on Iteration: " + this.currentNumberOfIter);
+        doIteration();
+        sendIterationToCollector();
+        this.currentNumberOfIter ++;
+
+    }
+
+    @Override
     public boolean done() {
-        return currentNumberOfIter+1 == agent.getAgentData().getNumOfIterations() ? true : false;
+        return finished;
     }
 
     public static <T> Predicate<T> distinctByKey(Function<? super T,Object> keyExtractor) {
@@ -256,90 +344,32 @@ public class DSA extends SmartHomeAgentBehaviour {
         private String name;
         private double min;
         private double max;
-        private String targetValue;
+        private double targetValue;
         private Actuator actuator;
         private Sensor sensor;
-        private boolean isPassiveOnly;
+        private boolean isPassiveOnly = false;
+        private Prefix prefix;
+        private RelationType rt;
+        private double targetTick;
         private double deltaWhenWork;
         private double deltaWhenWorkOffline;
+        private double powerConsumption;
         private boolean isLoaction = true;
-        private  Map<String,Double> relatedSensors = new HashMap<>();
-        private  Map<String,Double> relatedSensorsWhenWorkOffline = new HashMap<>();
+        private  Map<String,Double> relatedSensorsDelta = new HashMap<>();
+        private  Map<String,Double> relatedSensorsWhenWorkOfflineDelta = new HashMap<>();
 
 
         public PropertyWithData () {}
 
-        public String getName() {
-            return name;
+        public boolean canBeModified (double amountOfChange)
+        {
+            double newState = sensor.getCurrentState() + amountOfChange;
+            if (!Double.isNaN(max) && newState > max || (!Double.isNaN(min) && newState > min))
+                return false;
+
+            return true;
         }
 
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public double getMin() {
-            return min;
-        }
-
-        public void setMin(double min) {
-            this.min = min;
-        }
-
-        public double getMax() {
-            return max;
-        }
-
-        public void setMax(double max) {
-            this.max = max;
-        }
-
-        public String getTargetValue() {
-            return targetValue;
-        }
-
-        public void setTargetValue(String targetValue) {
-            this.targetValue = targetValue;
-        }
-
-        public Actuator getActuator() {
-            return actuator;
-        }
-
-        public void setActuator(Actuator actuator) {
-            this.actuator = actuator;
-        }
-
-        public Sensor getSensor() {
-            return sensor;
-        }
-
-        public void setSensor(Sensor sensor) {
-            this.sensor = sensor;
-        }
-
-        public boolean isPassiveOnly() {
-            return isPassiveOnly;
-        }
-
-        public void setPassiveOnly(boolean passiveOnly) {
-            isPassiveOnly = passiveOnly;
-        }
-
-        public double getDeltaWhenWork() {
-            return deltaWhenWork;
-        }
-
-        public void setDeltaWhenWork(double deltaWhenWork) {
-            this.deltaWhenWork = deltaWhenWork;
-        }
-
-        public Map<String, Double> getRelatedSensors() {
-            return relatedSensors;
-        }
-
-        public void setRelatedSensors(Map<String, Double> relatedSensors) {
-            this.relatedSensors = relatedSensors;
-        }
 
     }
 }
