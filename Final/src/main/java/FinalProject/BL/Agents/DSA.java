@@ -3,8 +3,10 @@ import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.Problems.*;
 import jade.lang.acl.ACLMessage;
 import jade.core.AID;
+import jade.lang.acl.UnreadableException;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -21,6 +23,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     private List<PropertyWithData> allProperties = new ArrayList<>();
     private  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
     private static AgentIterationData agentIterationData;
+    private double totalPriceConsumption=0;
 
 
     public DSA(SmartHomeAgent agent)
@@ -45,7 +48,16 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     private void parseMessages(List<ACLMessage> messageList) {
-
+        //TODO: Recognized Aviv message.
+        List<Serializable> neighbors = new ArrayList<>();
+        for (int i=0; i< messageList.size(); ++i)
+        {
+            try {
+                neighbors.add(messageList.get(i).getContentObject());
+            } catch (UnreadableException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     //a blocking method that waits far receiving messages(without filtration) from all neighbours and data collector
@@ -63,6 +75,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     private void tryBuildSchedule() {
+
     }
 
     private void buildScheduleFromScratch() {

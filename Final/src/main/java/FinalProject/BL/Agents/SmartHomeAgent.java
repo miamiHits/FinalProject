@@ -63,6 +63,14 @@ public class SmartHomeAgent extends Agent {
         isZEROIteration = ZEROIteration;
     }
 
+    public List<AgentIterationData> getMyNeighborsShed() {
+        return myNeighborsShed;
+    }
+
+    public void setMyNeighborsShed(List<AgentIterationData> myNeighborsShed) {
+        this.myNeighborsShed = myNeighborsShed;
+    }
+
     @Override
     protected void setup() {
         super.setup();
