@@ -1,5 +1,3 @@
-package java.FinalProject;
-
 /**
  * Hello world!
  *
