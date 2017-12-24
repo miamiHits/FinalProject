@@ -221,14 +221,12 @@ public class DSA extends SmartHomeAgentBehaviour {
             prop = allProperties.stream().filter(p -> p.name.equals(rule.getProperty()))
                     .findFirst().orElse(null);
         }
-
         if (prop == null)
         {
             prop = new PropertyWithData();
             prop.name = rule.getProperty();
             allProperties.add(prop);
         }
-
         if (isPassive)
         {
             switch (rule.getPrefixType())
@@ -285,7 +283,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             prop.powerConsumption = ticksToWork * prop.deltaWhenWork;
             //draw ticks to work
             List<Integer> myTicks = new ArrayList<>();
-            boolean flag = false;
+            boolean flag = true;
 
             while (flag)
             {   //new iteration, flag starting with false as everything is okay.

@@ -44,9 +44,9 @@ public class DSATest {
     }
     @Before
     public void createRules() {
-        Rule r1 =new Rule( true, actuatorList.get(0), null, "water_temp", 57,  RelationType.GEQ, null, 0);
+        Rule r1 =new Rule( true, actuatorList.get(0), null, "water_temp", 57,  RelationType.GEQ, Prefix.AFTER, 8);
         Rule r2 =new Rule( false, actuatorList.get(0), null, "water_temp", 37,  RelationType.GEQ, null, 0);
-        Rule r3 =new Rule( false, actuatorList.get(0), null, "water_temp", 78,  RelationType.LEQ, Prefix.AFTER, 8);
+        Rule r3 =new Rule( false, actuatorList.get(0), null, "water_temp", 78,  RelationType.LEQ, null, 0);
         Rule r4 =new Rule( true, actuatorList.get(1), null, "charge", 70,  RelationType.LT, Prefix.AFTER, 2);
         Rule r5 =new Rule( false, actuatorList.get(1), null, "charge", 78,  RelationType.GEQ, null, 0);
         Rule r6 =new Rule( false, actuatorList.get(1), null, "charge", 78,  RelationType.LEQ, null, 0);
@@ -63,7 +63,7 @@ public class DSATest {
     public void createSensors() {
         List<String> sp = new ArrayList<>();
         sp.add("water_temp");
-        Sensor sensor1 = new Sensor("water_heat_sensor", "", "", 0, sp);
+        Sensor sensor1 = new Sensor("water_heat_sensor", "", "", 50, sp);
         List<String> sp2 = new ArrayList<>();
         sp2.add("charge");
         Sensor sensor2 = new Sensor("Tesla_S_battery", "", "", 30, sp2);
@@ -108,7 +108,7 @@ public class DSATest {
     }
 
     @Test
-    public void buildScheduleFromScratch() {
+    public void SimpleTest() {
         dsa.buildScheduleFromScratch();
         Assert.assertTrue(dsa.allProperties.size()==2);
     }
