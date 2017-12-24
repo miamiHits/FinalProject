@@ -19,10 +19,10 @@ public class DSA extends SmartHomeAgentBehaviour {
     private boolean finished = false;
     private int currentNumberOfIter;
     public static final int START_TICK = 0;
-    public final int FINAL_TICK = agent.getAgentData().getBackgroundLoad().length;
-    private List<PropertyWithData> allProperties = new ArrayList<>();
-    private  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
-    private static AgentIterationData agentIterationData;
+    public int FINAL_TICK;
+    public List<PropertyWithData> allProperties = new ArrayList<>();
+    public  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
+    public static AgentIterationData agentIterationData;
     private double totalPriceConsumption=0;
 
 
@@ -30,6 +30,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     {
         this.agent = agent;
         this.currentNumberOfIter =0;
+        this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length;
     }
     @Override
     protected void doIteration() {
@@ -78,7 +79,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     }
 
-    private void buildScheduleFromScratch() {
+    public boolean buildScheduleFromScratch() {
         //classifying the rules by activitness, start creating the prop object
         List <Rule> passiveRules = new ArrayList<>();
         List <Rule> activeRules = new ArrayList<>();
@@ -100,6 +101,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         agent.setCurrIteration(agentIterationData);
 
         //TODO: Update the best iteration.
+        return true;
     }
 
     private double calcPrice(double[] powerConsumption) {
@@ -115,36 +117,40 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void SetActuatorsAndSensors()
     {
-        //add to the prop Objects their related actuators and sensors
-        List<Actuator> notFound = new ArrayList<>();
-        for(Actuator actuator : agent.getAgentData().getActuators())
+        Map <String, Actuator> map = new HashMap<String, Actuator>();
+        //iterate over the rules list.
+        //Check if the device was found in the rules
+           agent.getAgentData().getRules().forEach(r -> {
+            agent.getAgentData().getActuators().stream()
+                    .filter(a -> r.getDevice().getName().equals(a.getName()))
+                    .forEach(a -> map.put(r.getProperty(), a));
+        });
+
+
+
+        for(Map.Entry<String, Actuator> entry : map.entrySet())
         {
-            for(Rule rule : agent.getAgentData().getRules())
-            {
-                //device was found in the rule
-                if (rule.getDevice().getName().equals(actuator.getName()))
-                {
-                    //get the relevant prop object.
-                    PropertyWithData prop = allProperties.stream()
-                            .filter(x->x.name.equals(rule.getProperty()))
+            //get the relevant prop object.
+            PropertyWithData prop = allProperties.stream()
+                            .filter(x->x.name.equals(entry.getKey()))
                             .findFirst().get();
 
-                    //update the actuator
-                    prop.actuator = actuator;
-                    prop.isLoaction = false;
+            //update the actuator
+            prop.actuator = entry.getValue();
+            prop.isLoaction = false;
 
-                    //update the deltot and sensors.
-                    for(Action act : actuator.getActions())
-                    {
-                        matchSensors(act, prop, act.getName().equals("off")? true : false);
-                    }
-                }
-                else
-                {
-                    notFound.add(actuator);
-                }
+            //update the deltot and sensors.
+            for(Action act : entry.getValue().getActions())
+            {
+                matchSensors(act, prop, act.getName().equals("off")? true : false);
             }
         }
+
+        //Added all the Actuators that we did npt found in the rules (cause they are locations)
+        List<Actuator> notFound = agent.getAgentData().getActuators().stream()
+                .filter(a -> !map.containsValue(a)).collect(Collectors.toList());
+
+
         //interleave between the left actuators and the location
         for (Actuator actuator : notFound)
         {
@@ -154,6 +160,7 @@ public class DSA extends SmartHomeAgentBehaviour {
                                                 .filter(p->p.isLoaction==true)
                                                 .collect(Collectors.toList()))
                 {
+                    prop.isPassiveOnly = true;
                     if (act.getEffects().stream()
                             .anyMatch(e->e.getProperty().equals(prop.name)))
                     {
@@ -208,8 +215,13 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     private void buildPropObj(Rule rule, boolean isPassive) {
-        PropertyWithData prop = allProperties.stream()
-                .filter(x->x.name.equals(rule.getProperty())).findFirst().get();
+        PropertyWithData prop= null;
+        if (allProperties.size() > 0)
+        {
+            prop = allProperties.stream().filter(p -> p.name.equals(rule.getProperty()))
+                    .findFirst().orElse(null);
+        }
+
         if (prop == null)
         {
             prop = new PropertyWithData();
@@ -219,23 +231,22 @@ public class DSA extends SmartHomeAgentBehaviour {
 
         if (isPassive)
         {
-            prop.isPassiveOnly = true;
             switch (rule.getPrefixType())
             {
                 case EQ:
                     prop.min = rule.getRuleValue();
                     break;
                 case GEQ:
-                    prop.max = rule.getRuleValue();
+                    prop.min = rule.getRuleValue();
                     break;
                 case LEQ:
-                    prop.min = rule.getRuleValue();
-                    break;
-                case GT:
                     prop.max = rule.getRuleValue();
                     break;
-                case LT:
+                case GT:
                     prop.min = rule.getRuleValue();
+                    break;
+                case LT:
+                    prop.max = rule.getRuleValue();
                     break;
             }
         }
