@@ -20,7 +20,7 @@ public class DSATest {
         SmartHomeAgent shg = new SmartHomeAgent();
         shg.setAgentData(ad);
         shg.setZEROIteration(true);
-        DSA dsa = new DSA("YC", shg);
+        DSA dsa = new DSA(shg);
     }
     @Before
     private void createData(AgentData ad) {
