@@ -38,10 +38,23 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
         else
         {
-            List<ACLMessage> messageList ;
+            List<ACLMessage> messageList = waitForNeighbourMessages();
             tryBuildSchedule();
         }
 
+    }
+
+//    a blocking method that waits far receiving messages(without filtration) from all neighbours and data collector
+    private List<ACLMessage> waitForNeighbourMessages() {
+        List<ACLMessage> messages = new ArrayList<>();
+        ACLMessage receivedMessage;
+        int neighbourCount = this.agent.getAgentData().getNeighbors().size();
+        while (messages.size() <= neighbourCount + 1)//the additional one is for the data collector's message
+        {
+            receivedMessage = this.agent.blockingReceive();
+            messages.add(receivedMessage);
+        }
+        return messages;
     }
 
     private void tryBuildSchedule() {
