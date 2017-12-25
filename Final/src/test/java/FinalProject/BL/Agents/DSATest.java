@@ -20,13 +20,17 @@ public class DSATest {
     public List<Sensor> sensorListList = new ArrayList<>();
     public List<Rule> ruleList = new ArrayList<>();
     public DSA dsa;
+    public AlgorithmDataHelper dh;
 
     @Before
     public void setUp() throws Exception {
+
+        dsa.setHelper(dh);
         createData();
         shg.setAgentData(ad);
         shg.setZEROIteration(true);
         dsa = new DSA(shg);
+        dh = new AlgorithmDataHelper(dsa.agent);
     }
     @Before
     public void createData() {
@@ -118,7 +122,7 @@ public class DSATest {
     @Test
     public void SimpleTest() {
         dsa.buildScheduleFromScratch();
-        Assert.assertTrue(dsa.allProperties.size()==2);
+        Assert.assertTrue(dsa.getHelper().allProperties.size()==2);
     }
 
     @Test
