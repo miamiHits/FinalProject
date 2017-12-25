@@ -352,15 +352,6 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     @Override
-    protected void sendIterationToCollector() {
-
-    }
-
-    @Override
-    public void action() {
-    }
-
-    @Override
     public boolean done() {
         return finished;
     }

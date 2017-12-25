@@ -19,6 +19,7 @@ public class SmartHomeAgent extends Agent {
     private boolean isZEROIteration;
     private int IterationNum = 0;
     private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
+    private boolean stop = false;
 
     public AgentData getAgentData() {
         return agentData;
@@ -64,8 +65,9 @@ public class SmartHomeAgent extends Agent {
         return IterationNum;
     }
 
-    public void setIterationNum(int iterationNum) {
-        IterationNum = iterationNum;
+    public boolean getStop() {return this.stop;}
+    public void setStop(boolean stop) {
+        this.stop = stop;
     }
     @Override
     protected void setup() {

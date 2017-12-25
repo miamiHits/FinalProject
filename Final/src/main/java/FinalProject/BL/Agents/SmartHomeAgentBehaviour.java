@@ -15,12 +15,19 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
     public SmartHomeAgent agent;
     private final static Logger logger = Logger.getLogger(AlgorithmLoader.class);
 
-    protected void doIteration()
-    {
-       logger.trace("Starting work on Iteration: " + agent.getIterationNum());
-        doIteration();
-        sendIterationToCollector();
+    protected abstract void doIteration();
+
+    @Override
+    public void action() {
+        while (!agent.getStop())
+        {
+            logger.trace("Starting work on Iteration: " + agent.getIterationNum());
+            doIteration();
+            sendIterationToCollector();
+            sendIterationToNeibors();
+        }
     }
+
     protected void sendIterationToCollector()
     {
         //TODO: Send
