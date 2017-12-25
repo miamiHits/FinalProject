@@ -30,7 +30,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     {
         this.agent = agent;
         this.currentNumberOfIter =0;
-        this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length;
+        this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length -1;
     }
     @Override
     protected void doIteration() {
@@ -110,7 +110,10 @@ public class DSA extends SmartHomeAgentBehaviour {
         double [] priceScheme = agent.getAgentData().getPriceScheme();
         for (int i=0 ; i<backgroundLoad.length; ++i)
         {
-           Double.sum(res, Double.sum(backgroundLoad[i], Double.sum(powerConsumption[i], priceScheme[i])));
+           double temp =  Double.sum(powerConsumption[i], priceScheme[i]);
+           double temp2 = Double.sum(temp,backgroundLoad[i] );
+           res = Double.sum(temp2, res);
+          // Double.sum(res, Double.sum(backgroundLoad[i], Double.sum(powerConsumption[i], priceScheme[i])));
         }
         return res;
     }
@@ -120,13 +123,13 @@ public class DSA extends SmartHomeAgentBehaviour {
         Map <String, Actuator> map = new HashMap<String, Actuator>();
         //iterate over the rules list.
         //Check if the device was found in the rules
-           agent.getAgentData().getRules().forEach(r -> {
-            agent.getAgentData().getActuators().stream()
-                    .filter(a -> r.getDevice().getName().equals(a.getName()))
-                    .forEach(a -> map.put(r.getProperty(), a));
-        });
-
-
+        List<Actuator> actuators = agent.getAgentData().getActuators();
+        for (int i = 0, actuatorsSize = actuators.size(); i < actuatorsSize; i++) {
+            Actuator a = actuators.get(i);
+            agent.getAgentData().getRules().stream().filter(r -> r.getDevice() != null)
+                    .filter(r -> r.getDevice().getName().equals(a.getName()))
+                    .findFirst().ifPresent(r -> map.put(r.getProperty(), a));
+        }
 
         for(Map.Entry<String, Actuator> entry : map.entrySet())
         {
@@ -160,11 +163,11 @@ public class DSA extends SmartHomeAgentBehaviour {
                                                 .filter(p->p.isLoaction==true)
                                                 .collect(Collectors.toList()))
                 {
-                    prop.isPassiveOnly = true;
                     if (act.getEffects().stream()
                             .anyMatch(e->e.getProperty().equals(prop.name)))
                     {
                         prop.actuator = actuator;
+                        break;
                     }
                 }
 
@@ -259,7 +262,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private double[] checkHowLongDeviceNeedToWork()
     {
-        double[] powerConsumption = new double[FINAL_TICK];
+        double[] powerConsumption = new double[FINAL_TICK+1];
         for(PropertyWithData prop : allProperties.stream()
                 .filter(p->p.isPassiveOnly==false)
                 .collect(Collectors.toList()))
@@ -293,11 +296,11 @@ public class DSA extends SmartHomeAgentBehaviour {
                 {
                     switch (prop.prefix)
                     {
-                        case BEFORE:    // +1 is from the formula.
-                            randomNum = ThreadLocalRandom.current().nextInt(START_TICK, (int) (prop.targetTick + 1));
+                        case BEFORE:    // Min + (int)(Math.random() * ((Max - Min) + 1))
+                            randomNum = START_TICK + (int)(Math.random() * ((prop.targetTick - START_TICK) + 1));
                             break;
                         case AFTER:
-                            randomNum = ThreadLocalRandom.current().nextInt((int) (prop.targetTick), FINAL_TICK +1);
+                            randomNum = (int) (prop.targetTick + (int)(Math.random() * ((FINAL_TICK -  prop.targetTick) + 1)));
                             break;
                         case AT:
                             randomNum = (int) prop.targetTick;
@@ -307,6 +310,9 @@ public class DSA extends SmartHomeAgentBehaviour {
                     if (!myTicks.contains(randomNum))
                     {
                         myTicks.add(randomNum);
+                    }
+                    else{
+                        --i;
                     }
                 }
 
@@ -332,7 +338,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             for (int tick : myTicks)
             {
                 powerConsumption[tick] += prop.deltaWhenWork;
-                relevantSensors.add(prop.sensor);
+                if (!relevantSensors.contains(prop.sensor)) relevantSensors.add(prop.sensor);
                 prop.relatedSensorsDelta.forEach((key, value) ->
                         Double.sum(powerConsumption[tick], value));
             }

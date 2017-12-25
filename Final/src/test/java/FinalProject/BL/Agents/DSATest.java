@@ -44,13 +44,21 @@ public class DSATest {
     }
     @Before
     public void createRules() {
-        Rule r1 =new Rule( true, actuatorList.get(0), null, "water_temp", 57,  RelationType.GEQ, Prefix.AFTER, 8);
-        Rule r2 =new Rule( false, actuatorList.get(0), null, "water_temp", 37,  RelationType.GEQ, null, 0);
-        Rule r3 =new Rule( false, actuatorList.get(0), null, "water_temp", 78,  RelationType.LEQ, null, 0);
+        Rule r = new Rule();
+        r.setActive(true);
+        r.setLocation("water_tank");
+        r.setPrefixType(RelationType.GEQ);
+        r.setRuleValue(57);
+        r.setProperty("water_temp");
+        r.setPrefix(Prefix.AFTER);
+        r.setRelationValue(8);
+      //  Rule r1 =new Rule( true, actuatorList.get(0), null, "water_temp", 57,  RelationType.GEQ, Prefix.AFTER, 8);
+        Rule r2 =new Rule( false, null, "water_tank", "water_temp", 37,  RelationType.GEQ, null, 0);
+        Rule r3 =new Rule( false, null, "water_tank", "water_temp", 78,  RelationType.LEQ, null, 0);
         Rule r4 =new Rule( true, actuatorList.get(1), null, "charge", 70,  RelationType.LT, Prefix.AFTER, 2);
         Rule r5 =new Rule( false, actuatorList.get(1), null, "charge", 78,  RelationType.GEQ, null, 0);
         Rule r6 =new Rule( false, actuatorList.get(1), null, "charge", 78,  RelationType.LEQ, null, 0);
-        ruleList.add(r1);
+        ruleList.add(r);
         ruleList.add(r2);
         ruleList.add(r3);
         ruleList.add(r4);

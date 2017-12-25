@@ -47,6 +47,8 @@ public class Rule {
         }
     }
 
+    public Rule (){}
+
     private Device parseDevice(String name, List<Device> deviceDict)
     {
         for (Device dev : deviceDict)
