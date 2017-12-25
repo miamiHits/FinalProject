@@ -13,7 +13,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
 
     public  String agentName;
     public SmartHomeAgent agent;
-    private final static Logger logger = Logger.getLogger(AlgorithmLoader.class);
+    private final static Logger logger = Logger.getLogger(SmartHomeAgentBehaviour.class);
 
     protected abstract void doIteration();
 
@@ -21,10 +21,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
     public void action() {
         while (!agent.getStop())
         {
-            logger.trace("Starting work on Iteration: " + agent.getIterationNum());
+            logger.info("Starting work on Iteration: " + agent.getIterationNum());
             doIteration();
             sendIterationToCollector();
-            sendIterationToNeibors();
+            sendIterationToNeighbors();
         }
     }
 
@@ -33,7 +33,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
         //TODO: Send
     }
 
-    protected void sendIterationToNeibors()
+    protected void sendIterationToNeighbors()
     {
         ACLMessage aclmsg = new ACLMessage(ACLMessage.REQUEST);
         agent.getAgentData().getNeighbors().stream()
