@@ -1,32 +1,25 @@
 package FinalProject.BL.Agents;
 
 import FinalProject.BL.IterationData.AgentIterationData;
-import FinalProject.BL.Problems.Actuator;
 import FinalProject.BL.Problems.AgentData;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import java.text.SimpleDateFormat;
+
 import java.util.*;
 
 public class SmartHomeAgent extends Agent {
     public static final String SERVICE_TYPE = "Algorithms";
-    public static final String DSA_SERVICE_NAME = "DSAService";
     private AgentData agentData;
     private AgentIterationData bestIteration;
     private AgentIterationData currIteration;
-    private AlgorithmName behaviorName;
+    private SmartHomeAgentBehaviour algorithm;
     private boolean isZEROIteration;
+    private int IterationNum = 0;
     private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
 
-
-    public enum AlgorithmName
-    {
-        DSA
-    }
     public AgentData getAgentData() {
         return agentData;
     }
@@ -51,10 +44,6 @@ public class SmartHomeAgent extends Agent {
         this.currIteration = currIteration;
     }
 
-    public AlgorithmName getBehaviorName() {
-        return behaviorName;
-    }
-
     public boolean isZEROIteration() {
         return isZEROIteration;
     }
@@ -71,35 +60,37 @@ public class SmartHomeAgent extends Agent {
         this.myNeighborsShed = myNeighborsShed;
     }
 
+    public int getIterationNum() {
+        return IterationNum;
+    }
+
+    public void setIterationNum(int iterationNum) {
+        IterationNum = iterationNum;
+    }
     @Override
     protected void setup() {
         super.setup();
         //Getting fields in order: Algorithm, agentData
-        this.behaviorName = (AlgorithmName) getArguments()[0];
+        this.algorithm = (SmartHomeAgentBehaviour) getArguments()[0];
         this.agentData = (AgentData) getArguments()[1];
         this.isZEROIteration = true;
-        switch (this.behaviorName)
+
+        int iterationTotalNumber = agentData.getNumOfIterations();
+        for(int i=0; i<iterationTotalNumber; i++)
         {
-            case DSA:
-                int iterationTotalNumber = agentData.getNumOfIterations();
-                for(int i=0; i<iterationTotalNumber; i++)
-                {
-                    createDSAAgent();
-                }
-                break;
-            default:
-                throw new NotImplementedException();
+            createAlgorithmAgent();
+            this.IterationNum++;
         }
+
     }
 
-    private void createDSAAgent() {
-        addBehaviour(new DSA(this));
+    private void createAlgorithmAgent() {
+        addBehaviour(this.algorithm);
         // register to the services.
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
         sd.setType(SmartHomeAgent.SERVICE_TYPE);
-        sd.setName(SmartHomeAgent.DSA_SERVICE_NAME);
         dfd.addServices(sd);
         try
         {
@@ -111,15 +102,5 @@ public class SmartHomeAgent extends Agent {
             e.printStackTrace();
         }
 
-        this.printLog("start working on my DSA");
-    }
-
-
-    public void printLog(String message)
-    {
-        String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-        String agentName = new String(this.getAID().getName().toString());
-        agentName = agentName.substring(0, agentName.indexOf('@'));
-        System.out.println(String.format("%s - %s: %S", timeStamp, agentName, message));
     }
 }

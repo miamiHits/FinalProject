@@ -1,15 +1,13 @@
 package FinalProject.BL.Agents;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.Problems.*;
+import FinalProject.DAL.AlgorithmLoader;
 import jade.lang.acl.ACLMessage;
-import jade.core.AID;
 import jade.lang.acl.UnreadableException;
-
-import java.io.IOException;
+import org.apache.log4j.Logger;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -24,6 +22,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     public  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
     public static AgentIterationData agentIterationData;
     private double totalPriceConsumption=0;
+    private final static Logger logger = Logger.getLogger(AlgorithmLoader.class);
 
 
     public DSA(SmartHomeAgent agent)
@@ -354,25 +353,11 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     @Override
     protected void sendIterationToCollector() {
-        ACLMessage aclmsg = new ACLMessage(ACLMessage.REQUEST);
-        agent.getAgentData().getNeighbors().stream()
-                .map(neighbor -> new AID(neighbor.getName(), AID.ISLOCALNAME)).forEach(aclmsg::addReceiver);
 
-        try {
-            aclmsg.setContentObject(agentIterationData);
-            agent.send(aclmsg);
-        } catch (IOException e) {
-            agent.printLog(e.getMessage());
-        }
     }
 
     @Override
     public void action() {
-        this.agent.printLog("Starting work on Iteration: " + this.currentNumberOfIter);
-        doIteration();
-        sendIterationToCollector();
-        this.currentNumberOfIter ++;
-
     }
 
     @Override
