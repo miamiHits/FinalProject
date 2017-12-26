@@ -36,12 +36,17 @@ public class DataCollector {
         isIterationFinished(tempPA, tempIAP, data);
     }
 
-    private void isIterationFinished(ProblemAlgorithm tempPA, IterationAgentsPrice tempIAP,
+    private void isIterationFinished(ProblemAlgorithm PA, IterationAgentsPrice IAP,
                                      IterationCollectedData data) {
-        List<AgentPrice> prices = tempIAP.getAgentsPrices(data.getIterNum());
-        if (prices.size() == numOfAgentsInProblems.get(tempPA.getProblemId())){
-            //todo: finish func
-            if (probAlgoToResult.containsKey(tempPA)){
+        List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
+        Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
+        if (prices != null && numOfAgents != null &&
+                prices.size() == numOfAgents){ //iteration is over
+            if (probAlgoToResult.containsKey(PA)){ //already got probResult
+
+            }
+            else{ //no prob result yet
+                AlgorithmProblemResult result = new AlgorithmProblemResult(PA);
 
             }
         }
