@@ -7,6 +7,7 @@ public class AlgorithmProblemResult {
     private String algorithm;
     private Map<Integer, Double> avgPricePerIteration;
     private int iterationsTillBestPrice;
+    private double lowestCost;
     private double lowestCostInBestIteration;
     private String lowestCostInBestIterationAgentName;
     private double highestCostInBestIteration;
@@ -83,5 +84,12 @@ public class AlgorithmProblemResult {
         this.highestCostInBestIterationAgentName = highestCostInBestIterationAgentName;
     }
 
+    public double getLowestCost() {
+        return lowestCost;
+    }
+
+    public void setLowestCost(double lowestCost) {
+        this.lowestCost = lowestCost;
+    }
 
 }

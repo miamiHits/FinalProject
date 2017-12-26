@@ -36,7 +36,12 @@ public class DataCollector {
             probAlgoToItAgentPrice.put(tempPA, tempIAP);
         }
         if (isIterationFinished(tempPA, tempIAP, data)){
+            //@TODO: how should I calculate the total price?
             double newPrice = calculateTotalPrice(tempPA, data.getIterNum());
+            AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
+            if (newPrice < result.getLowestCost()){
+                
+            }
         }
     }
 
