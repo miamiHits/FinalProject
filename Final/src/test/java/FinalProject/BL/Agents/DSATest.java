@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 
 public class DSATest {
 
-    public AgentData ad = new AgentData("YC");;
+    public AgentData ad = new AgentData("YC");
     public SmartHomeAgent shg = new SmartHomeAgent();
     public List<Actuator> actuatorList = new ArrayList<>();
     public List<Sensor> sensorListList = new ArrayList<>();
@@ -122,27 +122,8 @@ public class DSATest {
     @Test
     public void SimpleTest() {
         dsa.buildScheduleFromScratch();
-        Assert.assertTrue(dsa.getHelper().allProperties.size()==2);
-    }
-
-    @Test
-    public void doIteration() {
-        AgentIterationData ag = new AgentIterationData(0, "YC", 0 , new double[12]);
-        Assert.assertTrue(dsa.agentIterationData.equals(ag));
+        Assert.assertTrue(dsa.getHelper().getAllProperties().size()==2);
     }
 
 
-
-    @Test
-    public void sendIterationToCollector() {
-    }
-
-    @Test
-    public void action() {
-
-    }
-
-    @Test
-    public void done() {
-    }
 }

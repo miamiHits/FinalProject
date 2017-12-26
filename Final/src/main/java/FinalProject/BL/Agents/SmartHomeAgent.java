@@ -19,8 +19,10 @@ public class SmartHomeAgent extends Agent {
     private SmartHomeAgentBehaviour algorithm;
     private boolean isZEROIteration;
     private int IterationNum = 0;
-    private List<Serializable> myNeighborsShed = new ArrayList<>();
+    private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
     private boolean stop = false;
+    private double cSum;
+    private double totalHousesPrice;
 
     public AgentData getAgentData() {
         return agentData;
@@ -54,11 +56,11 @@ public class SmartHomeAgent extends Agent {
         isZEROIteration = ZEROIteration;
     }
 
-    public List<Serializable> getMyNeighborsShed() {
+    public List<AgentIterationData> getMyNeighborsShed() {
         return myNeighborsShed;
     }
 
-    public void setMyNeighborsShed(List<Serializable> myNeighborsShed) {
+    public void setMyNeighborsShed(List<AgentIterationData> myNeighborsShed) {
         this.myNeighborsShed = myNeighborsShed;
     }
 
@@ -67,6 +69,22 @@ public class SmartHomeAgent extends Agent {
     }
 
     public boolean getStop() {return this.stop;}
+
+    public double getcSum() {
+        return cSum;
+    }
+
+    public void setcSum(double cSum) {
+        this.cSum = cSum;
+    }
+
+    public double getTotalHousesPrice() {
+        return totalHousesPrice;
+    }
+
+    public void setTotalHousesPrice(double totalHousesPrice) {
+        this.totalHousesPrice = totalHousesPrice;
+    }
 
     public void setStop(boolean stop) {
         this.stop = stop;

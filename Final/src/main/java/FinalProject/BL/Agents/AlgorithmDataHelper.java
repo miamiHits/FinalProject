@@ -1,19 +1,29 @@
 package FinalProject.BL.Agents;
 
+import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.Problems.*;
+import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
 
 public class AlgorithmDataHelper
 {
     public double totalPriceConsumption=0;
-    public  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
-    public List<PropertyWithData> allProperties;
+    private  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
+    private List<PropertyWithData> allProperties;
     private SmartHomeAgent agent;
+    private double[] neighboursTotals = new double[agent.getAgentData().getBackgroundLoad().length];
+    private List<double[]> neighboursPriceConsumption = new ArrayList<>();
+    private List<Integer> rushTicks = new ArrayList<>();
+    private double averageConsumption;
+    private final static Logger logger = Logger.getLogger(AlgorithmDataHelper.class);
 
     public AlgorithmDataHelper (SmartHomeAgent agent)
     {
@@ -26,9 +36,8 @@ public class AlgorithmDataHelper
         return  new PropertyWithData();
     }
 
-
-    public void buildPropObj(Rule rule, boolean isPassive) {
-        AlgorithmDataHelper.PropertyWithData prop= null;
+    public void buildNewPropertyData(Rule rule, boolean isPassive) {
+        PropertyWithData prop= null;
         if (allProperties.size() > 0)
         {
             prop = allProperties.stream().filter(p -> p.getName().equals(rule.getProperty()))
@@ -86,7 +95,7 @@ public class AlgorithmDataHelper
         for(Map.Entry<String, Actuator> entry : map.entrySet())
         {
             //get the relevant prop object.
-            AlgorithmDataHelper.PropertyWithData prop = allProperties.stream()
+            PropertyWithData prop = allProperties.stream()
                     .filter(x->x.getName().equals(entry.getKey()))
                     .findFirst().get();
 
@@ -111,7 +120,7 @@ public class AlgorithmDataHelper
         {
             for(Action act : actuator.getActions())
             {
-                for(AlgorithmDataHelper.PropertyWithData prop : allProperties.stream()
+                for(PropertyWithData prop : allProperties.stream()
                         .filter(p->p.isLoaction()==true)
                         .collect(Collectors.toList()))
                 {
@@ -126,7 +135,7 @@ public class AlgorithmDataHelper
             }
         }
         //fill the sensors.
-        for(AlgorithmDataHelper.PropertyWithData prop : allProperties.stream()
+        for(PropertyWithData prop : allProperties.stream()
                 .filter(p->p.isLoaction()==true)
                 .collect(Collectors.toList()))
         {
@@ -137,7 +146,7 @@ public class AlgorithmDataHelper
         }
     }
 
-    private void matchSensors(Action act, AlgorithmDataHelper.PropertyWithData prop, boolean isOffline)
+    private void matchSensors(Action act, PropertyWithData prop, boolean isOffline)
     {
         List<Sensor> sensors = agent.getAgentData().getSensors();
         for(Effect effect : act.getEffects())
@@ -169,185 +178,121 @@ public class AlgorithmDataHelper
 
     }
 
-    public double calcPrice(double[] powerConsumption) {
-        double res = 0 ;
-        double [] backgroundLoad = agent.getAgentData().getBackgroundLoad();
-        double [] priceScheme = agent.getAgentData().getPriceScheme();
-        for (int i=0 ; i<backgroundLoad.length; ++i)
+
+
+    public void solve(int[] a, int k, int i, List<List<Integer>> subsets) {
+        if (i == a.length) {
+            return;
+        } else {
+            // loop over all subsets and try to put a[i] in
+            for (int j = 0; j < subsets.size(); j++) {
+                if (subsets.get(j).size() < k) {
+                    // subset j not full
+                    subsets.get(j).add(a[i]);
+                    solve(a, k, i+1, subsets); // do recursion
+                    subsets.get(j).remove((Integer)a[i]);
+
+                    if (subsets.get(j).size() == 0) {
+                        // Not skipping empty subsets, so I won't get duplicates
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T,Object> keyExtractor) {
+        Map<Object,String> seen = new ConcurrentHashMap<>();
+        return t -> seen.put(keyExtractor.apply(t), "") == null;
+    }
+
+    public void calcPriceSchemeForAllNeighbours() {
+        List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
+        //first sum all the neighbours.
+        for (AgentIterationData agentData : myNeighborsShed)
         {
-            double temp =  Double.sum(powerConsumption[i], priceScheme[i]);
-            double temp2 = Double.sum(temp,backgroundLoad[i] );
-            res = Double.sum(temp2, res);
-            // Double.sum(res, Double.sum(backgroundLoad[i], Double.sum(powerConsumption[i], priceScheme[i])));
+            double [] neighbourConsumption = agentData.getPowerConsumptionPerTick();
+            neighboursPriceConsumption.add(neighbourConsumption);
+            IntStream.range(0, neighbourConsumption.length)
+                    .forEachOrdered(i -> neighboursTotals[i] += neighbourConsumption[i]);
         }
-        return res;
+
+        //calc the average
+        double sum = Arrays.stream(neighboursTotals, 0, neighboursTotals.length).sum();
+        averageConsumption = sum / agent.getAgentData().getNeighbors().size();
+
+        //sign the "rush" ticks.
+        IntStream.range(0, neighboursTotals.length).
+                filter(i -> neighboursTotals[i] > averageConsumption).forEachOrdered(i -> rushTicks.add(i));
     }
 
-    public int drawCoin() {
-        int[] notRandomNumbers = new int [] {0,0,0,0,1,1,1,1,1,1};
-        double idx = Math.floor(Math.random() * notRandomNumbers.length);
-        return notRandomNumbers[(int) idx];
-    }
-
-    public List<Integer> calcNewTicks(Actuator actuator){
-        List<Integer> currTicks = DeviceToTicks.get(actuator);
-
-
-        return null;
-    }
-
-    public class PropertyWithData
-    {
-        private String name;
-        private double min;
-        private double max;
-        private double targetValue;
-        private Actuator actuator;
-        private Sensor sensor;
-        private boolean isPassiveOnly = false;
-        private Prefix prefix;
-        private RelationType rt;
-        private double targetTick;
-        private double deltaWhenWork;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public double getMin() {
-            return min;
-        }
-
-        public void setMin(double min) {
-            this.min = min;
-        }
-
-        public double getMax() {
-            return max;
-        }
-
-        public void setMax(double max) {
-            this.max = max;
-        }
-
-        public double getTargetValue() {
-            return targetValue;
-        }
-
-        public void setTargetValue(double targetValue) {
-            this.targetValue = targetValue;
-        }
-
-        public Actuator getActuator() {
-            return actuator;
-        }
-
-        public void setActuator(Actuator actuator) {
-            this.actuator = actuator;
-        }
-
-        public Sensor getSensor() {
-            return sensor;
-        }
-
-        public void setSensor(Sensor sensor) {
-            this.sensor = sensor;
-        }
-
-        public boolean isPassiveOnly() {
-            return isPassiveOnly;
-        }
-
-        public void setPassiveOnly(boolean passiveOnly) {
-            isPassiveOnly = passiveOnly;
-        }
-
-        public Prefix getPrefix() {
-            return prefix;
-        }
-
-        public void setPrefix(Prefix prefix) {
-            this.prefix = prefix;
-        }
-
-        public RelationType getRt() {
-            return rt;
-        }
-
-        public void setRt(RelationType rt) {
-            this.rt = rt;
-        }
-
-        public double getTargetTick() {
-            return targetTick;
-        }
-
-        public void setTargetTick(double targetTick) {
-            this.targetTick = targetTick;
-        }
-
-        public double getDeltaWhenWork() {
-            return deltaWhenWork;
-        }
-
-        public void setDeltaWhenWork(double deltaWhenWork) {
-            this.deltaWhenWork = deltaWhenWork;
-        }
-
-        public double getDeltaWhenWorkOffline() {
-            return deltaWhenWorkOffline;
-        }
-
-        public void setDeltaWhenWorkOffline(double deltaWhenWorkOffline) {
-            this.deltaWhenWorkOffline = deltaWhenWorkOffline;
-        }
-
-        public double getPowerConsumption() {
-            return powerConsumption;
-        }
-
-        public void setPowerConsumption(double powerConsumption) {
-            this.powerConsumption = powerConsumption;
-        }
-
-        public boolean isLoaction() {
-            return isLoaction;
-        }
-
-        public void setLoaction(boolean loaction) {
-            isLoaction = loaction;
-        }
-
-        public Map<String, Double> getRelatedSensorsDelta() {
-            return relatedSensorsDelta;
-        }
-
-        public Map<String, Double> getRelatedSensorsWhenWorkOfflineDelta() {
-            return relatedSensorsWhenWorkOfflineDelta;
-        }
-
-        private double deltaWhenWorkOffline;
-        private double powerConsumption;
-        private boolean isLoaction = true;
-        public  Map<String,Double> relatedSensorsDelta = new HashMap<>();
-        public  Map<String,Double> relatedSensorsWhenWorkOfflineDelta = new HashMap<>();
-
-
-        public PropertyWithData () {}
-
-        public boolean canBeModified (double amountOfChange)
+    public double calcHowLongDeviceNeedToWork(PropertyWithData prop) {
+        double ticksToWork =0;
+        // first we'll get the target value and till when needed to be happened.
+        double currentState = prop.getSensor().getCurrentState();
+        switch (prop.getRt())
         {
-            double newState = sensor.getCurrentState() + amountOfChange;
-            if (!Double.isNaN(max) && newState > max || (!Double.isNaN(min) && newState > min))
-                return false;
-
-            return true;
+            case EQ:
+            case GEQ: //want to take here the lower bound, to work less that I can
+                ticksToWork = Math.ceil((prop.getTargetValue() - currentState) / prop.getDeltaWhenWork());
+                break;
+            case GT:
+                ticksToWork = Math.ceil((prop.getTargetValue()+1 - currentState) / prop.getDeltaWhenWork());
+            case LT:
+            case LEQ:
+                ticksToWork = Math.ceil((prop.getTargetValue()-1 - currentState) / prop.getDeltaWhenWork());
+                break;
         }
+        prop.setPowerConsumption(ticksToWork * prop.getDeltaWhenWork());
 
+        return ticksToWork;
+    }
 
+    public void updateConsumption(PropertyWithData prop, List<Integer> myTicks, double[] powerConsumption) {
+        List<Sensor> relevantSensors = new ArrayList<>();
+        //adding to power consumption array, update the relevant sensors.
+        for (int tick : myTicks)
+        {
+            powerConsumption[tick] += prop.getDeltaWhenWork();
+            if (!relevantSensors.contains(prop.getSensor())) relevantSensors.add(prop.getSensor());
+            prop.relatedSensorsDelta.forEach((key, value) ->
+                    Double.sum(powerConsumption[tick], value));
+        }
+        //update the state of the sensors
+        prop.getActuator().act(relevantSensors);
+        // for debug propuse.
+        DeviceToTicks.put(prop.getActuator(), myTicks);
+    }
+
+    public List<PropertyWithData> getAllProperties() {
+        return allProperties;
+    }
+
+    public void setAllProperties(List<PropertyWithData> allProperties) {
+        this.allProperties = allProperties;
+    }
+
+    public List<Integer> getRushTicks() {
+        return rushTicks;
+    }
+
+    public void setRushTicks(List<Integer> rushTicks) {
+        this.rushTicks = rushTicks;
+    }
+
+    public Map<Actuator, List<Integer>> getDeviceToTicks() {
+        return DeviceToTicks;
+    }
+
+    public void setDeviceToTicks(Map<Actuator, List<Integer>> deviceToTicks) {
+        DeviceToTicks = deviceToTicks;
+    }
+
+    public List<double[]> getNeighboursPriceConsumption() {
+        return neighboursPriceConsumption;
+    }
+
+    public void setNeighboursPriceConsumption(List<double[]> neighboursPriceConsumption) {
+        this.neighboursPriceConsumption = neighboursPriceConsumption;
     }
 }
