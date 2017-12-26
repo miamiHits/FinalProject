@@ -3,10 +3,12 @@ package FinalProject.BL.DataCollection;
 public class AgentPrice {
     private String agentName;
     private double price;
+    private double[] schedule;
 
-    public AgentPrice(String agentName, double price) {
+    public AgentPrice(String agentName, double price, double[] schedule) {
         this.agentName = agentName;
         this.price = price;
+        this.schedule = schedule;
     }
 
     public String getAgentName() {
@@ -23,6 +25,14 @@ public class AgentPrice {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public double[] getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(double[] schedule) {
+        this.schedule = schedule;
     }
 
     @Override
