@@ -25,12 +25,13 @@ public class DSATest {
     @Before
     public void setUp() throws Exception {
 
-        dsa.setHelper(dh);
         createData();
         shg.setAgentData(ad);
         shg.setZEROIteration(true);
         dsa = new DSA(shg);
-        dh = new AlgorithmDataHelper(dsa.agent);
+       // dh = new AlgorithmDataHelper(shg);
+        dh = dsa.getHelper();
+
     }
     @Before
     public void createData() {
@@ -60,14 +61,20 @@ public class DSATest {
         Rule r2 =new Rule( false, null, "water_tank", "water_temp", 37,  RelationType.GEQ, null, 0);
         Rule r3 =new Rule( false, null, "water_tank", "water_temp", 78,  RelationType.LEQ, null, 0);
         Rule r4 =new Rule( true, actuatorList.get(1), null, "charge", 70,  RelationType.LT, Prefix.AFTER, 2);
-        Rule r5 =new Rule( false, actuatorList.get(1), null, "charge", 78,  RelationType.GEQ, null, 0);
-        Rule r6 =new Rule( false, actuatorList.get(1), null, "charge", 78,  RelationType.LEQ, null, 0);
+        Rule r5 =new Rule( false, actuatorList.get(1), null, "charge", 0,  RelationType.GEQ, null, 0);
+        Rule r6 =new Rule( false, actuatorList.get(1), null, "charge", 100,  RelationType.LEQ, null, 0);
         ruleList.add(r);
         ruleList.add(r2);
         ruleList.add(r3);
         ruleList.add(r4);
         ruleList.add(r5);
         ruleList.add(r6);
+        Rule r7 =new Rule( true, null, "room", "temperature_heat", 19,  RelationType.GT, Prefix.AFTER, 5);
+        Rule r8 =new Rule( false,null, "room", "temperature_heat", 8,  RelationType.GEQ, null, 0);
+        Rule r9 =new Rule( false, null, "room", "temperature_heat", 35,  RelationType.LEQ, null, 0);
+        ruleList.add(r7);
+        ruleList.add(r8);
+        ruleList.add(r9);
         ad.setRules(ruleList);
 
     }
@@ -79,8 +86,12 @@ public class DSATest {
         List<String> sp2 = new ArrayList<>();
         sp2.add("charge");
         Sensor sensor2 = new Sensor("Tesla_S_battery", "", "", 30, sp2);
+        List<String> sp3 = new ArrayList<>();
+        sp3.add("temperature_heat");
+        Sensor sensor3 = new Sensor("thermostat_heat", "", "", 18, sp3);
         sensorListList.add(sensor1);
         sensorListList.add(sensor2);
+        sensorListList.add(sensor3);
 
     }
     @Before
@@ -92,7 +103,7 @@ public class DSATest {
         effectsList1.add(new Effect("water_temp", -7.1));
         actionList.add(new Action("off", 0.0, effectsList1));
         effectsList2.add(new Effect("water_temp", 12.88));
-        actionList.add(new Action("heat", 0.0, effectsList2));
+        actionList.add(new Action("heat", 5.52, effectsList2));
         Actuator a = new Actuator("Rheem_XE40M12ST45U1", "", "", actionList);
         actuatorList.add(a);
     }
@@ -105,7 +116,7 @@ public class DSATest {
         effectsList1.add(new Effect("charge", 0.0));
         actionList.add(new Action("off", 0.0, effectsList1));
         effectsList2.add(new Effect("charge", 13.56));
-        actionList.add(new Action("charge_48a", 0.0, effectsList2));
+        actionList.add(new Action("charge_48a", 11.52, effectsList2));
         Actuator a = new Actuator("Tesla_S", "", "", actionList);
         actuatorList.add(a);
     }
@@ -120,9 +131,43 @@ public class DSATest {
     }
 
     @Test
-    public void SimpleTest() {
+    public void SimpleTestIter0() {
         dsa.buildScheduleFromScratch();
         Assert.assertTrue(dsa.getHelper().getAllProperties().size()==2);
+        Assert.assertTrue(dsa.getHelper().getAllProperties().get(0).getName().equals("water_temp"));
+        Assert.assertTrue(dsa.getHelper().getAllProperties().get(0).getMin()==37);
+
+        Assert.assertTrue(dsa.getHelper().getAllProperties().get(0).getActuator().getName().equals("Rheem_XE40M12ST45U1"));
+        Assert.assertTrue(dsa.getHelper().getAllProperties().get(0).getSensor().getName().equals("water_heat_sensor"));
+    }
+
+    @Test
+    public void ModerateTestIter0()
+    {
+        BuildDevice3();
+        sensorListList = new ArrayList<>();
+        createSensors();
+        ad.setSensors(sensorListList);
+        dsa.buildScheduleFromScratch();
+        Assert.assertTrue(dsa.getHelper().getAllProperties().size()==3);
+        Assert.assertTrue(dsa.getHelper().getAllProperties().get(3).getSensor().getName().equals("thermostat_heat"));
+        Assert.assertTrue(dsa.getHelper().getAllProperties().get(3).getActuator().getName().equals("Dyson_AM09"));
+
+
+
+    }
+
+    public void BuildDevice3() {
+        List<Action> actionList = new ArrayList<>();
+        List<Effect> effectsList1 = new ArrayList<>();
+        List<Effect> effectsList2 = new ArrayList<>();
+
+        effectsList1.add(new Effect("temperature_heat", -1.64));
+        actionList.add(new Action("off", 0.0, effectsList1));
+        effectsList2.add(new Effect("temperature_heat", 2.53));
+        actionList.add(new Action("heat", 1.5, effectsList2));
+        Actuator a = new Actuator("Dyson_AM09", "", "", actionList);
+        actuatorList.add(a);
     }
 
 

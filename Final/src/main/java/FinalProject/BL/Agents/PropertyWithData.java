@@ -20,6 +20,11 @@ public class PropertyWithData {
     private RelationType rt;
     private double targetTick;
     private double deltaWhenWork;
+    private double powerConsumedInWork;
+    private double deltaWhenWorkOffline;
+    private boolean isLoaction = true;
+    public  Map<String,Double> relatedSensorsDelta = new HashMap<>();
+    public  Map<String,Double> relatedSensorsWhenWorkOfflineDelta = new HashMap<>();
 
     public String getName() {
         return name;
@@ -117,14 +122,6 @@ public class PropertyWithData {
         this.deltaWhenWorkOffline = deltaWhenWorkOffline;
     }
 
-    public double getPowerConsumption() {
-        return powerConsumption;
-    }
-
-    public void setPowerConsumption(double powerConsumption) {
-        this.powerConsumption = powerConsumption;
-    }
-
     public boolean isLoaction() {
         return isLoaction;
     }
@@ -141,11 +138,14 @@ public class PropertyWithData {
         return relatedSensorsWhenWorkOfflineDelta;
     }
 
-    private double deltaWhenWorkOffline;
-    private double powerConsumption;
-    private boolean isLoaction = true;
-    public  Map<String,Double> relatedSensorsDelta = new HashMap<>();
-    public  Map<String,Double> relatedSensorsWhenWorkOfflineDelta = new HashMap<>();
+    public double getPowerConsumedInWork() {
+        return powerConsumedInWork;
+    }
+
+    public void setPowerConsumedInWork(double powerConsumedInWork) {
+        this.powerConsumedInWork = powerConsumedInWork;
+    }
+
 
 
     public PropertyWithData () {}

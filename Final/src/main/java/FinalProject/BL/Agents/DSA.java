@@ -17,6 +17,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     public AgentIterationData agentIterationData;
     private final static Logger logger = Logger.getLogger(DSA.class);
     private AlgorithmDataHelper helper;
+    //  TODO : Create Local power consumption
 
     public DSA()
     {
@@ -177,7 +178,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     public boolean buildScheduleFromScratch() {
-        //classifying the rules by activitness, start creating the prop object
+        //classifying the rules by activeness, start creating the prop object
         List <Rule> passiveRules = new ArrayList<>();
         List <Rule> activeRules = new ArrayList<>();
         for (Rule rule : agent.getAgentData().getRules())
@@ -209,7 +210,6 @@ public class DSA extends SmartHomeAgentBehaviour {
                 .filter(p->p.isPassiveOnly()==false)
                 .collect(Collectors.toList()))
         {
-
             double ticksToWork=helper.calcHowLongDeviceNeedToWork(prop);
             //draw ticks to work
             List<Integer> myTicks = new ArrayList<>();

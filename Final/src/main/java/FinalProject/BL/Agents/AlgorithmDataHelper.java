@@ -11,15 +11,13 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
-
 public class AlgorithmDataHelper
 {
     public double totalPriceConsumption=0;
     private  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
     private List<PropertyWithData> allProperties;
     private SmartHomeAgent agent;
-    private double[] neighboursTotals = new double[agent.getAgentData().getBackgroundLoad().length];
+    private double[] neighboursTotals;
     private List<double[]> neighboursPriceConsumption = new ArrayList<>();
     private List<Integer> rushTicks = new ArrayList<>();
     private double averageConsumption;
@@ -29,6 +27,7 @@ public class AlgorithmDataHelper
     {
         this.agent = agent;
         allProperties = new ArrayList<>();
+        neighboursTotals = new double[agent.getAgentData().getBackgroundLoad().length];
     }
 
     public PropertyWithData createNewProp()
@@ -81,7 +80,7 @@ public class AlgorithmDataHelper
 
     public void SetActuatorsAndSensors()
     {
-        Map <String, Actuator> map = new HashMap<String, Actuator>();
+        Map <String, Actuator> map = new HashMap<>();
         //iterate over the rules list.
         //Check if the device was found in the rules
         List<Actuator> actuators = agent.getAgentData().getActuators();
@@ -116,17 +115,13 @@ public class AlgorithmDataHelper
 
 
         //interleave between the left actuators and the location
-        for (Actuator actuator : notFound)
-        {
-            for(Action act : actuator.getActions())
-            {
-                for(PropertyWithData prop : allProperties.stream()
-                        .filter(p->p.isLoaction()==true)
-                        .collect(Collectors.toList()))
-                {
+        for (Actuator actuator : notFound) {
+            for (Action act : actuator.getActions()) {
+                for (PropertyWithData prop : allProperties.stream()
+                        .filter(p -> p.isLoaction() == true)
+                        .collect(Collectors.toList())) {
                     if (act.getEffects().stream()
-                            .anyMatch(e->e.getProperty().equals(prop.getName())))
-                    {
+                            .anyMatch(e -> e.getProperty().equals(prop.getName()))) {
                         prop.setActuator(actuator);
                         break;
                     }
@@ -137,11 +132,12 @@ public class AlgorithmDataHelper
         //fill the sensors.
         for(PropertyWithData prop : allProperties.stream()
                 .filter(p->p.isLoaction()==true)
-                .collect(Collectors.toList()))
-        {
-            for(Action act : prop.getActuator().getActions())
-            {
-                matchSensors(act, prop, act.getName().equals("off")? true : false);
+                .collect(Collectors.toList())) {
+            for (Action act : prop.getActuator().getActions()) {
+                matchSensors(act, prop, act.getName().equals("off") ? true : false);
+                if (!act.getName().equals("off")) {
+                    prop.setPowerConsumedInWork(act.getPowerConsumption());
+                }
             }
         }
     }
@@ -156,9 +152,12 @@ public class AlgorithmDataHelper
                 if (effect.getProperty().equals(prop.getName()))
                 {
                     prop.setDeltaWhenWorkOffline(effect.getDelta());
-                    prop.setSensor(sensors.stream()
+
+                   prop.setSensor(sensors.stream()
                             .filter(x->x.getSensingProperties().contains(prop.getName()))
-                            .findFirst().get());
+                           .findFirst().get());
+
+
                 }
                 else
                 {
@@ -174,11 +173,7 @@ public class AlgorithmDataHelper
                 }
             }
         }
-
-
     }
-
-
 
     public void solve(int[] a, int k, int i, List<List<Integer>> subsets) {
         if (i == a.length) {
@@ -238,12 +233,18 @@ public class AlgorithmDataHelper
                 break;
             case GT:
                 ticksToWork = Math.ceil((prop.getTargetValue()+1 - currentState) / prop.getDeltaWhenWork());
+                break;
             case LT:
+                ticksToWork = Math.ceil((prop.getTargetValue()-1 - currentState) / prop.getDeltaWhenWork());
+                if ((ticksToWork *  prop.getDeltaWhenWork()) + currentState >= prop.getTargetValue())
+                {
+                    ticksToWork--;
+                }
+                break;
             case LEQ:
                 ticksToWork = Math.ceil((prop.getTargetValue()-1 - currentState) / prop.getDeltaWhenWork());
                 break;
         }
-        prop.setPowerConsumption(ticksToWork * prop.getDeltaWhenWork());
 
         return ticksToWork;
     }
@@ -253,10 +254,8 @@ public class AlgorithmDataHelper
         //adding to power consumption array, update the relevant sensors.
         for (int tick : myTicks)
         {
-            powerConsumption[tick] += prop.getDeltaWhenWork();
-            if (!relevantSensors.contains(prop.getSensor())) relevantSensors.add(prop.getSensor());
-            prop.relatedSensorsDelta.forEach((key, value) ->
-                    Double.sum(powerConsumption[tick], value));
+           Double.sum(powerConsumption[tick],prop.getPowerConsumedInWork());
+
         }
         //update the state of the sensors
         prop.getActuator().act(relevantSensors);
