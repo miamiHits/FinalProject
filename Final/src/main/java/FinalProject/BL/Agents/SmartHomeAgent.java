@@ -8,6 +8,7 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class SmartHomeAgent extends Agent {
@@ -18,7 +19,7 @@ public class SmartHomeAgent extends Agent {
     private SmartHomeAgentBehaviour algorithm;
     private boolean isZEROIteration;
     private int IterationNum = 0;
-    private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
+    private List<Serializable> myNeighborsShed = new ArrayList<>();
     private boolean stop = false;
 
     public AgentData getAgentData() {
@@ -53,11 +54,11 @@ public class SmartHomeAgent extends Agent {
         isZEROIteration = ZEROIteration;
     }
 
-    public List<AgentIterationData> getMyNeighborsShed() {
+    public List<Serializable> getMyNeighborsShed() {
         return myNeighborsShed;
     }
 
-    public void setMyNeighborsShed(List<AgentIterationData> myNeighborsShed) {
+    public void setMyNeighborsShed(List<Serializable> myNeighborsShed) {
         this.myNeighborsShed = myNeighborsShed;
     }
 
@@ -66,6 +67,7 @@ public class SmartHomeAgent extends Agent {
     }
 
     public boolean getStop() {return this.stop;}
+
     public void setStop(boolean stop) {
         this.stop = stop;
     }
