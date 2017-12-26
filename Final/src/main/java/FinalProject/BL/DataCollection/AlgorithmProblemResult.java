@@ -15,6 +15,8 @@ public class AlgorithmProblemResult {
     public AlgorithmProblemResult(ProblemAlgorithm probAlgo) {
         problem = probAlgo.getProblemId();
         algorithm = probAlgo.getAlgorithmName();
+        iterationsTillBestPrice = 0;
+        lowestCostInBestIteration = Double.MAX_VALUE;
     }
 
     public String getProblem() {

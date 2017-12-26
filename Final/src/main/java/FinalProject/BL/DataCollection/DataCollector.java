@@ -11,11 +11,13 @@ public class DataCollector {
     private Map<String, Integer> numOfAgentsInProblems;
     private Map<ProblemAlgorithm, IterationAgentsPrice> probAlgoToItAgentPrice;
     private Map<ProblemAlgorithm, AlgorithmProblemResult> probAlgoToResult;
+    private StatisticsHandler statistics;
 
     public DataCollector(Map<String, Integer> numOfAgentsInProblems) {
         this.numOfAgentsInProblems = numOfAgentsInProblems;
         this.probAlgoToItAgentPrice = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
         this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
+        this.statistics = new StatisticsHandler();
     }
 
     public void addData (IterationCollectedData data){
@@ -33,22 +35,31 @@ public class DataCollector {
                             data.getPowerConsumptionPerTick()));
             probAlgoToItAgentPrice.put(tempPA, tempIAP);
         }
-        isIterationFinished(tempPA, tempIAP, data);
+        if (isIterationFinished(tempPA, tempIAP, data)){
+            double newPrice = calculateTotalPrice(tempPA, data.getIterNum());
+        }
     }
 
-    private void isIterationFinished(ProblemAlgorithm PA, IterationAgentsPrice IAP,
+    //if first then create new probResult
+    private boolean isIterationFinished(ProblemAlgorithm PA, IterationAgentsPrice IAP,
                                      IterationCollectedData data) {
         List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
         Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
         if (prices != null && numOfAgents != null &&
                 prices.size() == numOfAgents){ //iteration is over
-            if (probAlgoToResult.containsKey(PA)){ //already got probResult
-
-            }
-            else{ //no prob result yet
+            if (!probAlgoToResult.containsKey(PA)){ //no prob result yet
                 AlgorithmProblemResult result = new AlgorithmProblemResult(PA);
-
+                result.setIterationsTillBestPrice(data.getIterNum());
+                probAlgoToResult.put(PA, result);
             }
+            return true;
+        }
+        return false;
+    }
+
+    private void populateAlgoProbResult(AlgorithmProblemResult result, int iterNum) {
+        if (statistics.calculateAndPupAveragePriceHighestAndLowest(result, iterNum)){//change best
+
         }
     }
 
