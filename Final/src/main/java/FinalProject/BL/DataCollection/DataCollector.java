@@ -11,13 +11,11 @@ public class DataCollector {
     private Map<String, Integer> numOfAgentsInProblems;
     private Map<ProblemAlgorithm, IterationAgentsPrice> probAlgoToItAgentPrice;
     private Map<ProblemAlgorithm, AlgorithmProblemResult> probAlgoToResult;
-    private StatisticsHandler statistics;
 
     public DataCollector(Map<String, Integer> numOfAgentsInProblems) {
         this.numOfAgentsInProblems = numOfAgentsInProblems;
         this.probAlgoToItAgentPrice = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
         this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
-        this.statistics = new StatisticsHandler();
     }
 
     public void addData (IterationCollectedData data){
@@ -115,6 +113,11 @@ public class DataCollector {
             return true;
         }
         return false;
+    }
+
+    public AlgorithmProblemResult getAlgoProblemResult(String problemID, String algoName){
+        ProblemAlgorithm PA = new ProblemAlgorithm(problemID, algoName);
+        return probAlgoToResult.get(PA);
     }
 
     public int getNumOfAgentsInProblem(String problemName){
