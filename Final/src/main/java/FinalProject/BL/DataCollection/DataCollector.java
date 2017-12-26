@@ -40,9 +40,45 @@ public class DataCollector {
             double newPrice = calculateTotalPrice(tempPA, data.getIterNum());
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
             if (newPrice < result.getLowestCost()){
-                
+                result.setLowestCost(newPrice);
+                result.setIterationsTillBestPrice(data.getIterNum());
+                setLowestHighestInBestIter(tempPA, result);
             }
         }
+    }
+
+    private void setLowestHighestInBestIter(ProblemAlgorithm tempPA, AlgorithmProblemResult result) {
+        double avg = 0;
+        double min = Double.MAX_VALUE;
+        double max = 0;
+        double price = 0;
+        List<AgentPrice> prices;
+        IterationAgentsPrice iter = probAlgoToItAgentPrice.get(tempPA);
+
+        if (iter != null){
+            prices = iter.getAgentsPrices(result.getIterationsTillBestPrice());
+            for (AgentPrice ag: prices) {
+                price = ag.getPrice();
+                avg += price;
+                min = Double.min(min, price);
+                max = Double.max(max, price);
+                if (price == min){ //changed min
+                    result.setLowestCostInBestIteration(price);
+                    result.setLowestCostInBestIterationAgentName(ag.getAgentName());
+                }
+                if (price == max){ //changed max
+                    result.setHighestCostInBestIteration(price);
+                    result.setHighestCostInBestIterationAgentName(ag.getAgentName());
+                }
+            }
+            result.getAvgPricePerIteration().put(
+                    result.getIterationsTillBestPrice(), avg/prices.size());
+        }
+    }
+
+    //@todo
+    private double calculateTotalPrice(ProblemAlgorithm tempPA, int iterNum) {
+        return 157.12;
     }
 
     //if first then create new probResult
@@ -61,13 +97,6 @@ public class DataCollector {
         }
         return false;
     }
-
-    private void populateAlgoProbResult(AlgorithmProblemResult result, int iterNum) {
-        if (statistics.calculateAndPupAveragePriceHighestAndLowest(result, iterNum)){//change best
-
-        }
-    }
-
 
     public int getNumOfAgentsInProblem(String problemName){
         if (numOfAgentsInProblems.containsKey(problemName)){
