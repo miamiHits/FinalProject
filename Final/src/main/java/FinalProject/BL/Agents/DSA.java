@@ -61,6 +61,8 @@ public class DSA extends SmartHomeAgentBehaviour {
                 e.printStackTrace();
             }
         }
+
+        agent.setMyNeighborsShed(neighbors);
     }
 
     //a blocking method that waits far receiving messages(without filtration) from all neighbours and data collector
@@ -79,6 +81,34 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void tryBuildSchedule() {
 
+        boolean buildNewSched = helper.drawCoin() == 1 ? true : false;
+        if (buildNewSched)
+        {
+            for (Actuator act : helper.DeviceToTicks.keySet())
+            {
+                List<Integer> newProposeTicks = helper.calcNewTicks(act);
+                helper.DeviceToTicks.put(act, newProposeTicks);
+                double[] powerConsumption = buildNewScheduleAccordingToNewTicks();
+                double price = helper.calcPrice(powerConsumption);
+                helper.totalPriceConsumption = price;
+                agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, powerConsumption);
+                agent.setCurrIteration(agentIterationData);
+
+                //TODO: Update the best iteration.
+            }
+        }
+        else{
+            return;
+        }
+
+    }
+
+    private double[] buildNewScheduleAccordingToNewTicks() {
+        double[] powerConsumption = new double[FINAL_TICK+1];
+
+
+
+        return powerConsumption;
     }
 
     public boolean buildScheduleFromScratch() {
@@ -97,7 +127,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         activeRules.forEach(pRule -> helper.buildPropObj(pRule, false));
 
         helper.SetActuatorsAndSensors();
-        double[] powerConsumption = checkHowLongDeviceNeedToWork();
+        double[] powerConsumption = tryBuildScheduleIterationZero();
         double price = helper.calcPrice (powerConsumption);
         helper.totalPriceConsumption = price;
         agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, powerConsumption);
@@ -107,7 +137,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         return true;
     }
 
-    private double[] checkHowLongDeviceNeedToWork()
+    private double[] tryBuildScheduleIterationZero()
     {
         double[] powerConsumption = new double[FINAL_TICK+1];
         for(AlgorithmDataHelper.PropertyWithData prop : helper.allProperties.stream()

@@ -183,6 +183,18 @@ public class AlgorithmDataHelper
         return res;
     }
 
+    public int drawCoin() {
+        int[] notRandomNumbers = new int [] {0,0,0,0,1,1,1,1,1,1};
+        double idx = Math.floor(Math.random() * notRandomNumbers.length);
+        return notRandomNumbers[(int) idx];
+    }
+
+    public List<Integer> calcNewTicks(Actuator actuator){
+        List<Integer> currTicks = DeviceToTicks.get(actuator);
+
+
+        return null;
+    }
 
     public class PropertyWithData
     {
