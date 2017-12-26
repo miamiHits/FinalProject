@@ -17,9 +17,14 @@ public class DSA extends SmartHomeAgentBehaviour {
     private int currentNumberOfIter;
     public static final int START_TICK = 0;
     public int FINAL_TICK;
-    public static AgentIterationData agentIterationData;
+    public AgentIterationData agentIterationData;
     private final static Logger logger = Logger.getLogger(DSA.class);
     private AlgorithmDataHelper helper;
+
+    public DSA()
+    {
+        super();//invoke the Behaviour default constructor
+    }
 
     public DSA(SmartHomeAgent agent)
     {
@@ -210,5 +215,15 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     public AlgorithmDataHelper getHelper() {
         return helper;
+    }
+
+    @Override
+    public DSA cloneBehaviour() {
+        DSA newInstance = new DSA();
+        newInstance.finished = this.finished;
+        newInstance.currentNumberOfIter = this.currentNumberOfIter;
+        newInstance.FINAL_TICK = this.FINAL_TICK;
+        newInstance.agentIterationData = null;//will be created as part of the behaviour run(see buildScheduleFromScratch)
+        return newInstance;
     }
 }

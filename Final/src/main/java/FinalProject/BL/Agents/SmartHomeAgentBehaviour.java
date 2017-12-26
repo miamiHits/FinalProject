@@ -47,4 +47,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
         }
     }
 
+    public abstract SmartHomeAgentBehaviour cloneBehaviour();
+
 }
