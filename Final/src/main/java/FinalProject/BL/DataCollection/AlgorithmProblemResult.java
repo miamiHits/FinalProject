@@ -1,5 +1,6 @@
 package FinalProject.BL.DataCollection;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class AlgorithmProblemResult {
@@ -16,6 +17,7 @@ public class AlgorithmProblemResult {
     public AlgorithmProblemResult(ProblemAlgorithm probAlgo) {
         problem = probAlgo.getProblemId();
         algorithm = probAlgo.getAlgorithmName();
+        avgPricePerIteration = new HashMap<Integer, Double>();
         iterationsTillBestPrice = 0;
         lowestCost = Double.MAX_VALUE;
     }
