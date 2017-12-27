@@ -23,6 +23,7 @@ public class DataCollectorTest {
         numOfAgentsInProblems.put("p1", 1);
         numOfAgentsInProblems.put("p2", 2);
         numOfAgentsInProblems.put("p3", 3);
+        numOfAgentsInProblems.put("p4", 3);
         dataCollector = new DataCollector(numOfAgentsInProblems);
         double[] powerConsPerDevice = new double[]{22.1, 22.3, 55.77};
         ICD1 = new IterationCollectedData(0,"a0",
