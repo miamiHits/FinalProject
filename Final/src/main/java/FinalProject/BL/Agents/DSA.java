@@ -139,7 +139,8 @@ public class DSA extends SmartHomeAgentBehaviour {
 
         for(List<Integer> ticks : subsets)
         {
-            helper.updateConsumption(prop, ticks, refactoredPowerConsumption);
+            //TODO: fix here
+            //helper.updateConsumption(prop, ticks, refactoredPowerConsumption);
             double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), refactoredPowerConsumption, agent.getCurrIteration().getPowerConsumptionPerTick()
                     ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
 
@@ -190,19 +191,18 @@ public class DSA extends SmartHomeAgentBehaviour {
         activeRules.forEach(pRule -> helper.buildNewPropertyData(pRule, false));
 
         helper.SetActuatorsAndSensors();
-        double[] powerConsumption = tryBuildScheduleIterationZero();
-        double price = calcPrice (powerConsumption);
+        tryBuildScheduleIterationZero();
+        double price = calcPrice (helper.getPowerConsumption());
         helper.totalPriceConsumption = price;
-        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, powerConsumption);
+        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, helper.getPowerConsumption());
         agent.setCurrIteration(agentIterationData);
 
         //TODO: Update the best iteration.
         return true;
     }
 
-    private double[] tryBuildScheduleIterationZero()
+    private void tryBuildScheduleIterationZero()
     {
-        double[] powerConsumption = new double[FINAL_TICK+1];
         for(PropertyWithData prop : helper.getAllProperties().stream()
                 .filter(p->p.isPassiveOnly()==false)
                 .collect(Collectors.toList()))
@@ -257,10 +257,9 @@ public class DSA extends SmartHomeAgentBehaviour {
                 }
             }
 
-            helper.updateConsumption(prop, myTicks, powerConsumption);
+            helper.updateConsumption(prop, myTicks);
         }
 
-        return powerConsumption;
     }
 
     @Override

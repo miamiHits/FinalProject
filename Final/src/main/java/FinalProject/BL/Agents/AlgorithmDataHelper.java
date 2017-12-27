@@ -22,12 +22,14 @@ public class AlgorithmDataHelper
     private List<Integer> rushTicks = new ArrayList<>();
     private double averageConsumption;
     private final static Logger logger = Logger.getLogger(AlgorithmDataHelper.class);
+    private double [] powerConsumption;
 
     public AlgorithmDataHelper (SmartHomeAgent agent)
     {
         this.agent = agent;
         allProperties = new ArrayList<>();
         neighboursTotals = new double[agent.getAgentData().getBackgroundLoad().length];
+        powerConsumption = new double[agent.getAgentData().getBackgroundLoad().length];
     }
 
     public PropertyWithData createNewProp()
@@ -106,6 +108,9 @@ public class AlgorithmDataHelper
             for(Action act : entry.getValue().getActions())
             {
                 matchSensors(act, prop, act.getName().equals("off")? true : false);
+                if (!act.getName().equals("off")) {
+                    prop.setPowerConsumedInWork(act.getPowerConsumption());
+                }
             }
         }
 
@@ -249,18 +254,21 @@ public class AlgorithmDataHelper
         return ticksToWork;
     }
 
-    public void updateConsumption(PropertyWithData prop, List<Integer> myTicks, double[] powerConsumption) {
+    public void updateConsumption(PropertyWithData prop, List<Integer> myTicks) {
         List<Sensor> relevantSensors = new ArrayList<>();
         //adding to power consumption array, update the relevant sensors.
         for (int tick : myTicks)
         {
-           Double.sum(powerConsumption[tick],prop.getPowerConsumedInWork());
+            //TODO
+            double res = Double.sum(prop.getPowerConsumedInWork(), this.powerConsumption[tick]);
+            this.powerConsumption[tick] = res;
 
         }
         //update the state of the sensors
         prop.getActuator().act(relevantSensors);
         // for debug propuse.
         DeviceToTicks.put(prop.getActuator(), myTicks);
+
     }
 
     public List<PropertyWithData> getAllProperties() {
@@ -293,5 +301,13 @@ public class AlgorithmDataHelper
 
     public void setNeighboursPriceConsumption(List<double[]> neighboursPriceConsumption) {
         this.neighboursPriceConsumption = neighboursPriceConsumption;
+    }
+
+    public double[] getPowerConsumption() {
+        return powerConsumption;
+    }
+
+    public void setPowerConsumption(double[] powerConsumption) {
+        this.powerConsumption = powerConsumption;
     }
 }

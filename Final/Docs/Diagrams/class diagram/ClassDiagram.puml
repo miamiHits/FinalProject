@@ -100,7 +100,7 @@ package BL {
 		Problem *-- AgentData
 		AgentData o-- Sensor
 		AgentData o-- Actuator
-		AgentData o- AgentData
+		AgentData o-down- AgentData
 		AgentData o-- Rule
 
 		Prefix <-- Rule
@@ -120,6 +120,12 @@ package BL {
 		}
 
 		Note "action(){\n\twhile(!stop){\n\t\t...\n\t\tdoIteration();\n\t\tsendIterationToCollector();\n\t\t..\n\t}\n}" as smabNote
+
+		class AlgorithmDataHelper {
+			+totalPriceConnsumption : double
+			+deviceToTicks : Map<Actuator, List<int>>
+			***TODO: finish this!***
+		}
 
 		abstract class SmartHomeAgentBehaviour <<Abstract>> {
 			+agent : SmartHomeAgent
@@ -149,10 +155,10 @@ package BL {
 
 
 		Agent <|-- SmartHomeAgent
-		Behaviour <|-- SmartHomeAgentBehaviour
+		SmartHomeAgentBehaviour --|> Behaviour
 		SmartHomeAgent -- SmartHomeAgentBehaviour
 
-		SmartHomeAgentBehaviour .. smabNote
+		SmartHomeAgentBehaviour . smabNote
 
 		Problem *-- Device
 
@@ -160,6 +166,8 @@ package BL {
 		SmartHomeAgentBehaviour <|-- DSA
 		SmartHomeAgentBehaviour <|-- Algo3
 		SmartHomeAgentBehaviour <|-- Algo4
+
+		DSA --> AlgorithmDataHelper
 	}
 
 	package IterationData {
@@ -217,25 +225,33 @@ package BL {
 			+avgPricePerIteration : Map<int, double>
 			+iterationsTillBestPrice : int
 			+lowestCostInBestIteration : double
-			+lowestCostInBestIterationAgentName : String
-			+highestCostInBestIteration : double
-			+highestCostInBestIterationAgentName : String
+			+lowestCostForAgentInBestIteration : double
+			+lowestCostForAgentInBestIterationAgentName : String
+			+highestCostForAgentInBestIteration : double
+			+highestCostInForAgentBestIterationAgentName : String
 		}
 
 		Note "calculateCSum(allHomesSchedule, powerScheme) {...}" as UtilsCSumNote
 		Note "calculateEPeak(CSum, newSchedule, oldSchedule, otherSchedules, powerScheme) {...}" as UtilsEPeakNote
 
-		DataCollector o-- DataCollectionCommunicator
+		DataCollector --o DataCollectionCommunicator
 		DataCollector o-- IterationCollectedData
 		DataCollectionCommunicatorBehaviour --|> Behaviour
 		DataCollectionCommunicatorBehaviour --o DataCollectionCommunicator
 		DataCollector --> StatisticsHandler
-
-		SmartHomeAgent o-- AgentIterationData
+		
 		DataCollector --> PowerConsumptionUtils
 
 		PowerConsumptionUtils .. UtilsEPeakNote
 		PowerConsumptionUtils .. UtilsCSumNote
+	}
+
+	interface ExperimentBuilderInterface {
+		+addNumOfIterations(int) : void
+		+addAlgorithms(List<String>) : void
+		+addProblems(List<String>) : void
+		+addService(Service) : void
+		+create() : Experiment
 	}
 
 	class ExperimentBuilder {
@@ -248,6 +264,12 @@ package BL {
 		+addAlgorithms(List<String>) : void
 		+addProblems(List<String>) : void
 		+createExperiment() : Experiment
+	}
+
+	interface ExperimentInterface {
+		+runExperiment() : void
+		+algorithmRunEnded(AlgorithmProblemResult) : void
+		+stop() : void
 	}
 
 	class Experiment {
@@ -263,11 +285,15 @@ package BL {
 		+stopExperiment() : void
 	}
 
+	ExperimentInterface <|-- Experiment
+	ExperimentBuilderInterface <|-- ExperimentBuilder
+
 	ExperimentBuilder --> Experiment : creates
-	Experiment o-- DataCollector
+	Experiment o-- DataCollectorCommunicator
 	Experiment *-- Problem
 	SmartHomeAgent *- AgentData
 	DataCollector --> AlgorithmProblemResult : create
+	DataCollectionCommunicator --> Experiment
 
 	Experiment o-- AlgorithmProblemResult
 
@@ -275,10 +301,16 @@ package BL {
 	DataCollectionCommunicator --> AgentIterationData
 	DataCollector --> AgentIterationData
 
-	SmartHomeAgentBehaviour --> PowerConsumptionUtils
+	SmartHomeAgentBehaviour -> PowerConsumptionUtils
+	SmartHomeAgent o- AgentIterationData
 }
 
 package PL {
+
+	interface UiHandlerInterface {
+		+notifyExperimentEnded(List<AlgorithmProblemResult>) : void
+	}
+
 	class UiHandler <<Observer>> {
 		chartsCreator : ChartViewer
 		service : Service
@@ -296,6 +328,7 @@ package PL {
 	Note "createPricePerIterChart(iterToPriceMap, algoName)" as chartNote
 
 	UiHandler --> ChartViewer
+	UiHandlerInterface <|-- UiHandler
 	ChartViewer . chartNote
 }
 
@@ -359,6 +392,17 @@ package DAL {
 	FileSaverInterface <|-- ExcelHandler
 }
 
+interface ServiceInterface {
+	+currExperiment : Experiment
+	+addAlgorithmsToExperiment(List<String>, int) : void
+	+addProblemsToExperiment(List<String>) : void
+	+runExperimrent() : void
+	+stopExperiment() : void
+	+getExperimentResults() : List<AlgorithmProblemResult>
+    +experimentEnded(List<AlgorithmProblemResult>) : void
+    +saveExperimentResults(List<AlgorithmProblemResult>) : void
+}
+
 class Service <<Observable>> {
 	-experimentBuilder : ExperimentBuilder
 	-dalController : DataAccessControllerInterface
@@ -374,6 +418,7 @@ class Service <<Observable>> {
 
 Note "addAlgorithmsToExperiment(algoNames, numOfIterations){\n\t...\n\texperimentBuilder.addAlgorithms(algoNames);\n\ttexperimentBuilder.addNumOfIterations(numOfIterations);\n\t...\n}" as ServiceAddAlgoNote
 
+ServiceInterface <|-- Service
 Service .. ServiceAddAlgoNote
 
 class SmartHomeAlgorithm <<Not Implemented>> {
@@ -381,9 +426,10 @@ class SmartHomeAlgorithm <<Not Implemented>> {
 }
 
 '**********out of package connections:************
-Service "1"--"1" Experiment
+Service --> ExperimentInterface
+Experiment --> Service
 Service --> AlgorithmProblemResult
-Service --> ExperimentBuilder
+Service --> ExperimentBuilderInterface
 
 JsonsLoader --> Device : creates >
 JsonsLoader -> Problem : creates >
@@ -397,7 +443,8 @@ ExcelHandler -> AlgorithmProblemResult : saves
 
 SmartHomeAlgorithm --|> SmartHomeAgentBehaviour
 
-UiHandler "1"--"1" Service
+UiHandler --> ServiceInterface
+UiHandlerInterface <-- Service
 
 
 @enduml
