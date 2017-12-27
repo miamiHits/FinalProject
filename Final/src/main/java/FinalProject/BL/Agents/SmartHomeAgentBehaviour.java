@@ -3,6 +3,7 @@ package FinalProject.BL.Agents;
 
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.DAL.AlgorithmLoader;
+import FinalProject.Utils;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
@@ -18,6 +19,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
 
     public  String agentName;
     public SmartHomeAgent agent;
+    protected int currentNumberOfIter;
+    protected int FINAL_TICK;
+    protected AlgorithmDataHelper helper;
+
     private final static Logger logger = Logger.getLogger(SmartHomeAgentBehaviour.class);
 
     protected abstract void doIteration();
@@ -40,9 +45,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
 
     protected void sendIterationToNeighbors()
     {
+        logger.debug(String.format("%s sends its iteration to its neighbours", this.agent.getAgentData().getName()));
+
         ACLMessage aclmsg = new ACLMessage(ACLMessage.REQUEST);
         agent.getAgentData().getNeighbors().stream()
-                .map(neighbor -> new AID(neighbor.getName(), AID.ISLOCALNAME)).forEach(aclmsg::addReceiver);
+                .map(neighbor -> new AID(neighbor.getName(), AID.ISLOCALNAME))
+                .forEach(aclmsg::addReceiver);
 
         try {
             aclmsg.setContentObject(agent.getCurrIteration());
@@ -60,9 +68,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
         ACLMessage receivedMessage;
         int neighbourCount = this.agent.getAgentData().getNeighbors().size();
         //TODO wait also for DATA COLLECTOR Message
-        while (messages.size() <= neighbourCount + 1)//the additional one is for the data collector's message
+//        while (messages.size() < neighbourCount + 1)//the additional one is for the data collector's message
+        while (messages.size() < neighbourCount)
         {
             receivedMessage = this.agent.blockingReceive();
+            logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
             messages.add(receivedMessage);
         }
         return messages;
@@ -95,5 +105,14 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
             // Double.sum(res, Double.sum(backgroundLoad[i], Double.sum(powerConsumption[i], priceScheme[i])));
         }
         return res;
+    }
+
+    // used by the agent instance to complete the initialization of the behaviour
+    protected void initializeBehaviourWithAgent(SmartHomeAgent agent)
+    {
+        this.agent = agent;
+        this.currentNumberOfIter =0;
+        this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length -1;
+        this.helper = new AlgorithmDataHelper(agent);
     }
 }
