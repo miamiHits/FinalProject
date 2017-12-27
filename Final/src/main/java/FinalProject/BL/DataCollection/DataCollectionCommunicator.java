@@ -20,6 +20,9 @@ public class DataCollectionCommunicator extends Agent {
 
     @Override
     protected void setup() {
+        //add the cyclic behaviour
+        addBehaviour(new DataCollectionCommunicatorBehaviour());
+
         // Register the book-selling service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
@@ -33,16 +36,16 @@ public class DataCollectionCommunicator extends Agent {
         catch (FIPAException fe) {
             fe.printStackTrace();
         }
-
         System.out.println("Agent " + getLocalName() + ": waiting for REQUEST message...");
-        ACLMessage msg = blockingReceive(MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
+
+        /*ACLMessage msg = blockingReceive(MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
         System.out.println("Agent " + getLocalName() + ": REQUEST message received. Reply and exit.");
         ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
         reply.addReceiver(msg.getSender());
         msg.setOntology("XXXXX");
         reply.setContent("exiting");
         send(reply);
-        doDelete();
+        doDelete();*/
     }
 
     protected void takeDown() {
