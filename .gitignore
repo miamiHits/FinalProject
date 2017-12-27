@@ -7,3 +7,7 @@ Final/.idea/
 \.idea/
 
 *.class
+
+Final/target/
+target/maven-archiver/pom.properties
+*.iml

@@ -3,10 +3,23 @@ package FinalProject.BL.DataCollection;
 public class ProblemAlgorithm {
     private String problemId;
     private String AlgorithmName;
+    private int bestIteration;
+    private double costInBestIteration;
 
     public ProblemAlgorithm(String problemId, String algorithmName) {
         this.problemId = problemId;
         AlgorithmName = algorithmName;
+        bestIteration = 0;
+        costInBestIteration = 0;
+    }
+
+    public boolean isBestIteration(int iterationNum, double cost){
+        if (cost < costInBestIteration){
+            costInBestIteration = cost;
+            bestIteration = iterationNum;
+            return true;
+        }
+        return false;
     }
 
     public String getProblemId() {
@@ -23,6 +36,22 @@ public class ProblemAlgorithm {
 
     public void setAlgorithmName(String algorithmName) {
         AlgorithmName = algorithmName;
+    }
+
+    public int getBestIteration() {
+        return bestIteration;
+    }
+
+    public void setBestIteration(int bestIteration) {
+        this.bestIteration = bestIteration;
+    }
+
+    public double getCostInBestIteration() {
+        return costInBestIteration;
+    }
+
+    public void setCostInBestIteration(double costInBestIteration) {
+        this.costInBestIteration = costInBestIteration;
     }
 
     @Override
