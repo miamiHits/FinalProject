@@ -5,9 +5,13 @@ import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class DataCollectionCommunicator extends Agent {
+import java.util.Map;
 
-    public DataCollectionCommunicator() {
+public class DataCollectionCommunicator extends Agent {
+    DataCollector collector;
+
+    public DataCollectionCommunicator(Map<String, Integer> numOfAgentsInProblems, Map<String, double[]> prices) {
+        collector = new DataCollector(numOfAgentsInProblems, prices);
     }
 
     @Override
@@ -18,6 +22,7 @@ public class DataCollectionCommunicator extends Agent {
             System.out.println("Agent " + getLocalName() + ": REQUEST message received. Reply and exit.");
             ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
             reply.addReceiver(msg.getSender());
+            msg.setOntology("XXXXX");
             reply.setContent("exiting");
             send(reply);
             doDelete();

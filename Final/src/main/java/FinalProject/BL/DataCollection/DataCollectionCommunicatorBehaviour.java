@@ -1,16 +1,22 @@
 package FinalProject.BL.DataCollection;
 
-import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.CyclicBehaviour;
+import jade.lang.acl.ACLMessage;
 
-public class DataCollectionCommunicatorBehaviour extends Behaviour {
+public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
 
     @Override
     public void action() {
-
-    }
-
-    @Override
-    public boolean done() {
-        return false;
+        ACLMessage msg = myAgent.receive();
+        if (msg != null) {
+            // Message received. Process it
+            String title = msg.getContent();
+            ACLMessage reply = msg.createReply();
+            //reply.setPerformative(ACLMessage.PROPOSE);
+            //reply.setContent(String.valueOf(price.intValue()));
+            myAgent.send(reply);
+        }else{
+            block();
+        }
     }
 }
