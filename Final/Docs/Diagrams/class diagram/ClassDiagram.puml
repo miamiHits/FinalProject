@@ -232,14 +232,18 @@ package BL {
 
 		class DataCollector {
 		    +numOfAgentsInProblems : Map<String, int>
+		    +probAlgoToItAgentPrice : Map<ProblemAlgorithm, IterationAgentsPrice>
+		    +probAlgoToResult : Map<ProblemAlgorithm, AlgorithmProblemResult>
+		    +probToPriceScheme : Map<String, double[]>
+
 		    +algorithmRunEnded() : void
 		    +sendCSumToAgents(List<)
-		    +addData(IterationCollectedData) : void
-		    TODO: add analyzing methods here
+		    +addData(IterationCollectedData) : void    
 		}
 
 		class DataCollectionCommunicator {
-
+			-dataCollector : DataCollector
+			#setup() : void
 		}
 
 		class DataCollectionCommunicatorBehaviour {
