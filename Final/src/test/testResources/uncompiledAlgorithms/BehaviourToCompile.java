@@ -14,6 +14,11 @@ public class BehaviourToCompile extends SmartHomeAgentBehaviour {
         //nothing here
     }
 
+    @Override
+    public SmartHomeAgentBehaviour cloneBehaviour() {
+        return null;
+    }
+
 
     @Override
     public void action()
@@ -27,9 +32,4 @@ public class BehaviourToCompile extends SmartHomeAgentBehaviour {
         return false;
     }
 
-    @Override
-    public SmartHomeAgentBehaviour cloneBehaviour()
-    {
-        return null;
-    }
 }

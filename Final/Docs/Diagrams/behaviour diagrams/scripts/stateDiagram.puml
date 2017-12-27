@@ -9,16 +9,13 @@ AlgorithmsLoaded --> AlgorithmsProblemsLoaded : selected problems loaded success
 AlgorithmsLoaded -> AlgorithmsLoaded : selected problems failed verification
 ProblemsLoaded --> AlgorithmsProblemsLoaded : selected algorithms loaded successfully
 
-AlgorithmsProblemsLoaded -> IterationNumberSelected : validated # of iterations
-
-IterationNumberSelected -> SimulationIsRunning : run simulation
+AlgorithmsProblemsLoaded -> SimulationIsRunning : run simulation
 SimulationIsRunning -> LandingPage : cancel simulation
 
 SimulationIsRunning -> DisplayResults : simulation ended
 
-DisplayResults -> ExportResults : save results
-ExportResults -up-> LandingPage : save completed
 DisplayResults -> LandingPage : discard results
+DisplayResults -> LandingPage : save results
 
 LandingPage -right-> LandingPage : add new algorithm
 

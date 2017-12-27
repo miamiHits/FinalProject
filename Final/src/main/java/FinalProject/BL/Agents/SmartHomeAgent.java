@@ -97,22 +97,24 @@ public class SmartHomeAgent extends Agent {
         this.agentData = (AgentData) getArguments()[1];
         this.isZEROIteration = true;
 
-        int iterationTotalNumber = agentData.getNumOfIterations();
-        for(int i=0; i<iterationTotalNumber; i++)
-        {
+//        int iterationTotalNumber = agentData.getNumOfIterations();
+//        for(int i=0; i<iterationTotalNumber; i++)
+//        {
             createAlgorithmAgent();
-            this.IterationNum++;
-        }
+//            this.IterationNum++;
+//        }
 
     }
 
     private void createAlgorithmAgent() {
+        this.algorithm.initializeBehaviourWithAgent(this);
         addBehaviour(this.algorithm);
         // register to the services.
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
         sd.setType(SmartHomeAgent.SERVICE_TYPE);
+        sd.setName("stam");
         dfd.addServices(sd);
         try
         {

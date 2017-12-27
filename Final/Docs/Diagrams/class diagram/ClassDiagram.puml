@@ -293,11 +293,10 @@ package BL {
 		-algos : List<SmartHomeAgentBehaviour>
 		-service : Service
 
-		+addNumOfIterations(int) : void
+		+setNumOfIterations(int) : void
 		+addAlgorithms(List<String>) : void
 		+addProblems(List<String>) : void
-		+addService(Service) : void
-		+create() : Experiment
+		+createExperiment() : Experiment
 	}
 
 	interface ExperimentInterface {
@@ -316,7 +315,7 @@ package BL {
 		-algorithmProblemRunResults : List<AlgorithmProblemResult>
 		+runExperiment() : void
 		+algorithmRunEnded(AlgorithmProblemResult) : void
-		+stop() : void
+		+stopExperiment() : void
 	}
 
 	ExperimentInterface <|-- Experiment
@@ -448,8 +447,8 @@ class Service <<Observable>> {
 	-experimentBuilder : ExperimentBuilder
 	-dalController : DataAccessControllerInterface
 	+currExperiment : Experiment
-	+addAlgorithmsToExperiment(List<String>, int) : void
-	+addProblemsToExperiment(List<String>) : void
+	+addAlgorithmsToExperiment(List<SmartHomeAgentBehaviour>, int) : void
+	+addProblemsToExperiment(List<Problem>) : void
 	+runExperimrent() : void
 	+stopExperiment() : void
 	+getExperimentResults() : List<AlgorithmProblemResult>
