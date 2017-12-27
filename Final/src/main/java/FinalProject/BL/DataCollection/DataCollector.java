@@ -5,15 +5,18 @@ import FinalProject.BL.IterationData.IterationCollectedData;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DataCollector {
 
     private Map<String, Integer> numOfAgentsInProblems;
     private Map<ProblemAlgorithm, IterationAgentsPrice> probAlgoToItAgentPrice;
     private Map<ProblemAlgorithm, AlgorithmProblemResult> probAlgoToResult;
+    private Map<String, double[]> probToPriceScheme;
 
-    public DataCollector(Map<String, Integer> numOfAgentsInProblems) {
+    public DataCollector(Map<String, Integer> numOfAgentsInProblems, Map<String, double[]> prices) {
         this.numOfAgentsInProblems = numOfAgentsInProblems;
+        this.probToPriceScheme = prices;
         this.probAlgoToItAgentPrice = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
         this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
     }
@@ -37,8 +40,8 @@ public class DataCollector {
             //@TODO: how should I calculate the total price?
             double newPrice = calculateTotalPrice(tempPA, data.getIterNum());
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
-            if (newPrice < result.getLowestCost()){
-                result.setLowestCost(newPrice);
+            if (newPrice < result.getLowestCostInBestIteration()){
+                result.setLowestCostInBestIteration(newPrice);
                 result.setIterationsTillBestPrice(data.getIterNum());
                 setLowestHighestInBestIter(tempPA, result);
             }else{ //not the best iter
@@ -80,12 +83,12 @@ public class DataCollector {
                 min = Double.min(min, price);
                 max = Double.max(max, price);
                 if (price == min){ //changed min
-                    result.setLowestCostInBestIteration(price);
-                    result.setLowestCostInBestIterationAgentName(ag.getAgentName());
+                    result.setLowestCostForInBestIteration(price);
+                    result.setLowestCostForInBestIterationAgentName(ag.getAgentName());
                 }
                 if (price == max){ //changed max
-                    result.setHighestCostInBestIteration(price);
-                    result.setHighestCostInBestIterationAgentName(ag.getAgentName());
+                    result.setHighestCostForInBestIteration(price);
+                    result.setHighestCostForInBestIterationAgentName(ag.getAgentName());
                 }
             }
             result.getAvgPricePerIteration().put(
@@ -95,7 +98,11 @@ public class DataCollector {
 
     //@todo
     private double calculateTotalPrice(ProblemAlgorithm tempPA, int iterNum) {
-        return 157.12;
+        IterationAgentsPrice IAP = probAlgoToItAgentPrice.get(tempPA);
+        List<AgentPrice> prices = IAP.getAgentsPrices(iterNum);
+        List<double[]> agentPrices = prices.stream().map(a -> a.getSchedule()).collect(Collectors.toList());
+        double[] priceScheme = probToPriceScheme.get(tempPA.getProblemId());
+        return PowerConsumptionUtils.calculateCSum(agentPrices, priceScheme);
     }
 
     //if first then create new probResult
