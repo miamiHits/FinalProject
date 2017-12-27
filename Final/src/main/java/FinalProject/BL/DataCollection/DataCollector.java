@@ -37,8 +37,7 @@ public class DataCollector {
             probAlgoToItAgentPrice.put(tempPA, tempIAP);
         }
         if (isIterationFinished(tempPA, tempIAP, data)){
-            //@TODO: how should I calculate the total price?
-            double newPrice = calculateTotalPrice(tempPA, data.getIterNum());
+            double newPrice = calculateTotalPrice(tempPA, tempIAP, data.getIterNum());
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
             if (newPrice < result.getLowestCostInBestIteration()){
                 result.setLowestCostInBestIteration(newPrice);
@@ -96,9 +95,7 @@ public class DataCollector {
         }
     }
 
-    //@todo
-    private double calculateTotalPrice(ProblemAlgorithm tempPA, int iterNum) {
-        IterationAgentsPrice IAP = probAlgoToItAgentPrice.get(tempPA);
+    private double calculateTotalPrice(ProblemAlgorithm tempPA, IterationAgentsPrice IAP, int iterNum) {
         List<AgentPrice> prices = IAP.getAgentsPrices(iterNum);
         List<double[]> agentPrices = prices.stream().map(a -> a.getSchedule()).collect(Collectors.toList());
         double[] priceScheme = probToPriceScheme.get(tempPA.getProblemId());
