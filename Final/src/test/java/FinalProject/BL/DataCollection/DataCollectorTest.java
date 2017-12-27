@@ -24,16 +24,24 @@ public class DataCollectorTest {
         numOfAgentsInProblems.put("p2", 2);
         numOfAgentsInProblems.put("p3", 3);
         numOfAgentsInProblems.put("p4", 3);
-        dataCollector = new DataCollector(numOfAgentsInProblems);
-        double[] powerConsPerDevice = new double[]{22.1, 22.3, 55.77};
+        Map<String, double[]> prices = new HashMap<String, double[]>();
+        double[] pricePerTick1 = {12.2, 15.5, 44.3, 3, 7 , 77, 12, 5, 78, 11, 12, 23.2};
+        double[] pricePerTick2 = {12.2, 15.5, 44.3, 3, 7 , 77, 12, 5, 78, 11, 12, 23.2};
+        prices.put("p0", pricePerTick1);
+        prices.put("p1", pricePerTick2);
+        prices.put("p2", pricePerTick1);
+        prices.put("p3", pricePerTick2);
+        prices.put("p4", pricePerTick1);
+        dataCollector = new DataCollector(numOfAgentsInProblems, prices);
+        double[] powerConsPerTick = new double[]{22.1, 22.3, 55.77, 12.2, 15.5, 44.3, 3, 7 , 77, 12, 5, 78};
         ICD1 = new IterationCollectedData(0,"a0",
-            22.33, 222.1, powerConsPerDevice,
+            22.33, 222.1, powerConsPerTick,
         "p4", "algo0");
         ICD2 = new IterationCollectedData(0,"a0",
-                22.33, 222.1, powerConsPerDevice,
+                22.33, 222.1, powerConsPerTick,
                 "p1", "algo0");
         ICD3 = new IterationCollectedData(0,"a1",
-                22.33, 222.1, powerConsPerDevice,
+                22.33, 222.1, powerConsPerTick,
                 "p1", "algo0");
 
     }
