@@ -26,4 +26,10 @@ public class BehaviourToCompile extends SmartHomeAgentBehaviour {
     {
         return false;
     }
+
+    @Override
+    public SmartHomeAgentBehaviour cloneBehaviour()
+    {
+        return null;
+    }
 }
