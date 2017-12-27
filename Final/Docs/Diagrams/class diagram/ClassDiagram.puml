@@ -110,6 +110,39 @@ package BL {
 
 	package Agents {
 
+		class AlgorithmDataHelper {
+			totalPriceConsumption : double
+			+createNewProp() : PropertyWithData
+			+buildNewPropertyData(Rule, boolean) : void
+			+SetActuatorsAndSensors() : void
+			+matchSensors(Action, PropertyWithData, boolean) : void
+			+solve(int[], int, int, List<List<int>>) : void
+			+{static} distinctByKey(Function) : Predicate
+			+calcPriceSchemeForAllNeighbours() : void
+			+calcHowLongDeviceNeedToWork(PropertyWithData) : double
+			+updateConsumption(PropertyWithData, List<int>) : void
+		}
+
+		class PropertyWithData {
+			+name : String
+			+min : double
+			+max : double
+			+targetValue : double
+			+actuator : Actuator
+			+sensor : Sensor
+			+isPassiveOnly : boolean
+			+prefix : Prefix
+			+rt : RelationType
+			+targetTick : double
+			+deltaWhenWork : double
+			+powerConsumedInWork : double
+			+deltaWhenWorkOffline : double
+			+isLocation : boolean
+			+relatedSensorsDelta : Map<String,Double>
+			+relatedSensorsWhenWorkOfflineDelta : Map<String,Double>
+			+canBeModified(double) : boolean
+		}
+
 		class SmartHomeAgent {
 			+agentData : agentData
 			+bestIteration : AgentIterationData
@@ -120,12 +153,6 @@ package BL {
 		}
 
 		Note "action(){\n\twhile(!stop){\n\t\t...\n\t\tdoIteration();\n\t\tsendIterationToCollector();\n\t\t..\n\t}\n}" as smabNote
-
-		class AlgorithmDataHelper {
-			+totalPriceConnsumption : double
-			+deviceToTicks : Map<Actuator, List<int>>
-			***TODO: finish this!***
-		}
 
 		abstract class SmartHomeAgentBehaviour <<Abstract>> {
 			+agent : SmartHomeAgent
@@ -168,6 +195,12 @@ package BL {
 		SmartHomeAgentBehaviour <|-- Algo4
 
 		DSA --> AlgorithmDataHelper
+		DSA --> PropertyWithData
+
+		AlgorithmDataHelper --> PropertyWithData
+		AlgorithmDataHelper --> SmartHomeAgent
+
+
 	}
 
 	package IterationData {
@@ -298,12 +331,19 @@ package BL {
 
 	Experiment o-- AlgorithmProblemResult
 
-	DataCollectionCommunicator "1"--"1...*" SmartHomeAgentBehaviour
+	DataCollectionCommunicator "1" -- "1...*" SmartHomeAgentBehaviour
 	DataCollectionCommunicator --> AgentIterationData
 	DataCollector --> AgentIterationData
 
 	SmartHomeAgentBehaviour -> PowerConsumptionUtils
 	SmartHomeAgent o- AgentIterationData
+
+	PropertyWithData --> Actuator
+	PropertyWithData --> Sensor
+	PropertyWithData --> Prefix
+	PropertyWithData --> RelationType
+	AlgorithmDataHelper --> Actuator
+	AlgorithmDataHelper --> Sensor
 }
 
 package PL {
