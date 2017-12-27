@@ -91,6 +91,11 @@ public class Problem {
         this.priceScheme = priceScheme;
     }
 
+    public List<AgentData> getAgentsData()
+    {
+        return this.allHomes;
+    }
+
     @Override
     public String toString()
     {
