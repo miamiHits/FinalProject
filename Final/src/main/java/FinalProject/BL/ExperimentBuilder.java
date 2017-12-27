@@ -39,7 +39,7 @@ public class ExperimentBuilder {
     {
         //TODO gal
         Experiment newlyCreatedExperiment = new Experiment(this.service, this.problems, this.algos);
-        newlyCreatedExperiment.numOfIterations = this.numOfIterations;
+        Experiment.maximumIterations = this.numOfIterations;
         return newlyCreatedExperiment;
     }
 

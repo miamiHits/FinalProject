@@ -29,13 +29,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
 
     @Override
     public void action() {
-        while (!agent.getStop())
-        {
-            logger.info("Starting work on Iteration: " + agent.getIterationNum());
-            doIteration();
-            sendIterationToCollector();
-            sendIterationToNeighbors();
-        }
+        logger.info("Starting work on Iteration: " + agent.getIterationNum());
+        doIteration();
+        sendIterationToCollector();
+        sendIterationToNeighbors();
     }
 
     protected void sendIterationToCollector()

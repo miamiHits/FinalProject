@@ -1,6 +1,8 @@
 package FinalProject.BL.Agents;
+import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.Problems.*;
+import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
 import java.util.*;
@@ -264,7 +266,13 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     @Override
     public boolean done() {
-        return finished;
+        boolean agentFinishedExperiment = (this.currentNumberOfIter > Experiment.maximumIterations);
+        if (agentFinishedExperiment)
+        {
+            logger.info(Utils.parseAgentName(this.agent) + " ended its final iteration");
+            this.agent.doDelete();
+        }
+        return agentFinishedExperiment;
     }
 
     public void setHelper(AlgorithmDataHelper helper) {

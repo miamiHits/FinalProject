@@ -11,19 +11,24 @@ import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.*;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 public class Experiment extends Thread{
-    public int numOfIterations = 0;
+    public static int maximumIterations = 0;
     private Service service;
     private DataCollector dataCollector;
     private List<Problem> problems;
     private List<SmartHomeAgentBehaviour> algorithms;
     private List<AlgorithmProblemResult> algorithmProblemResults;
 
-    private boolean experimentCPmpleted = false;
+    private boolean experimentCompleted = false;
+
+    private static Logger logger = Logger.getLogger(Experiment.class);
 
     private Thread experimentThread;
 
@@ -65,7 +70,10 @@ public class Experiment extends Thread{
     private class ExperimentRunnable implements Runnable, PlatformController.Listener
     {
         private AgentContainer mainContainer;
-        List<AgentController> agentControllers;
+        private List<AgentController> agentControllers;
+        private int aliveAgents = 0;
+        private CyclicBarrier waitingBarrier;// used by the experiment thread to wait for the current configuration to end before starting a new one
+        private boolean experimentConfigurationRunning = false;
 
 
         @Override
@@ -73,13 +81,13 @@ public class Experiment extends Thread{
             //TODO gal
             try
             {
-                inititializeContainer();
+                initialize();
 
                 for (Problem currentProblem : problems)
                 {
                     for (SmartHomeAgentBehaviour currentAlgorithmBehaviour : algorithms)
                     {
-                        AlgorithmProblemResult result = new AlgorithmProblemResult();
+                        AlgorithmProblemResult result = null;
                         for (AgentData agentData : currentProblem.getAgentsData())
                         {
                             Object[] agentInitializationArgs = new Object[2];
@@ -91,15 +99,21 @@ public class Experiment extends Thread{
                             this.agentControllers.add(agentController);
                         }
 
+                        this.aliveAgents = this.agentControllers.size();
+                        this.experimentConfigurationRunning = true;
                         for (AgentController controller : this.agentControllers)
                         {//start all agents
                             controller.start();
                         }
 
                         try {
-                            Thread.sleep(100000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+//                                Thread.sleep(4000);
+                            this.waitingBarrier.await();
+                        } catch (InterruptedException | BrokenBarrierException e) {
+                            logger.error("an exception was thrown while experiment was waiting for current configuration run to end", e);
+                            this.experimentConfigurationRunning = false;
+                            killAllAgents();
+                            this.waitingBarrier.reset();
                         }
                         algorithmRunEnded(result);
                     }
@@ -113,7 +127,7 @@ public class Experiment extends Thread{
             }
         }
 
-        private void inititializeContainer() throws ControllerException {
+        private void initialize() throws ControllerException {
             // Get a hold on JADE runtime
             Runtime rt = Runtime.instance();
 
@@ -127,6 +141,8 @@ public class Experiment extends Thread{
             this.mainContainer = rt.createMainContainer(profile);
             this.mainContainer.addPlatformListener(this);
             this.agentControllers = new ArrayList<>();
+
+            this.waitingBarrier = new CyclicBarrier(2);
         }
 
         private void stopRun()
@@ -143,6 +159,12 @@ public class Experiment extends Thread{
             //not used for now since container.kill might be a better choice
             // TODO gal remove when surely not needed
             /*
+            killAllAgents();
+            */
+        }
+
+        private void killAllAgents()
+        {
             for (AgentController controller : this.agentControllers)
             {
                 try
@@ -154,7 +176,6 @@ public class Experiment extends Thread{
                     //ignore the exception
                 }
             }
-            */
         }
 
 
@@ -167,6 +188,20 @@ public class Experiment extends Thread{
         @Override
         public void deadAgent(PlatformEvent platformEvent) {
             System.out.println(platformEvent.getAgentGUID() + " dead");
+
+            this.aliveAgents--;
+            if (this.experimentConfigurationRunning == true &&
+                    this.aliveAgents == 0)
+            {//all agents are dead(completed their run)
+                try
+                {
+                    this.waitingBarrier.await();
+                }
+                catch (InterruptedException | BrokenBarrierException e) {
+                    logger.error("failed waking the experiment thread for another run of algorithm-problem configuration",
+                            e);
+                }
+            }
         }
 
         @Override
@@ -193,7 +228,7 @@ public class Experiment extends Thread{
 
     public boolean experimentCompleted()
     {
-        return this.experimentCPmpleted;
+        return this.experimentCompleted;
     }
 
 
