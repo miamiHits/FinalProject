@@ -25,6 +25,7 @@ public class Service {
 
     public Service(DataAccessControllerInterface dalController)
     {
+        logger.info("initialized");
         this.experimentBuilder = new ExperimentBuilder(this);
         this.dalController = dalController;
     }
@@ -32,6 +33,7 @@ public class Service {
     public void addAlgorithmsToExperiment(List<String> algorithmNames, int iterationNumber)
     {
         //TODO gal
+        logger.info("algorithms added: " + algorithmNames.toString());
         List<SmartHomeAgentBehaviour> loadedAlgorithms = this.dalController.getAlgorithms(algorithmNames);
         this.experimentBuilder.addAlgorithms(loadedAlgorithms);
         this.experimentBuilder.setNumOfIterations(iterationNumber);
@@ -40,6 +42,7 @@ public class Service {
     public void addProblemsToExperiment(List<String> problemNames)
     {
         //TODO gal
+        logger.info("problems added: " + problemNames.toString());
         List<Problem> loadedProblems = this.dalController.getProblems(problemNames);
         this.experimentBuilder.addProblems(loadedProblems);
     }
@@ -54,6 +57,7 @@ public class Service {
     public void stopExperiment()
     {
         //TODO gal
+        logger.info("experiment was stopped");
         this.currExperiment.stopExperiment();
     }
 
