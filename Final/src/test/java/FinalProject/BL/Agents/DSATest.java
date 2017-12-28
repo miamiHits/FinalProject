@@ -86,6 +86,19 @@ public class DSATest {
         List<String> sp2 = new ArrayList<>();
         sp2.add("charge");
         Sensor sensor2 = new Sensor("Tesla_S_battery", "", "", 30, sp2);
+        sensorListList.add(sensor1);
+        sensorListList.add(sensor2);
+
+    }
+
+    @Before
+    public void createSensors2() {
+        List<String> sp = new ArrayList<>();
+        sp.add("water_temp");
+        Sensor sensor1 = new Sensor("water_heat_sensor", "", "", 50, sp);
+        List<String> sp2 = new ArrayList<>();
+        sp2.add("charge");
+        Sensor sensor2 = new Sensor("Tesla_S_battery", "", "", 30, sp2);
         List<String> sp3 = new ArrayList<>();
         sp3.add("temperature_heat");
         Sensor sensor3 = new Sensor("thermostat_heat", "", "", 18, sp3);

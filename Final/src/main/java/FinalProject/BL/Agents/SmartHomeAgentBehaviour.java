@@ -12,6 +12,7 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
@@ -26,7 +27,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
     protected int currentNumberOfIter;
     protected int FINAL_TICK;
     protected AlgorithmDataHelper helper;
-    protected double cSum;
     protected AgentIterationData agentIterationData;
     protected IterationCollectedData agentIteraionCollected;
 
@@ -64,8 +64,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
                 {
                     message.addReceiver(foundAID.getName());
                 }
-
-
                 message.setContentObject(agentIteraionCollected);
                 agent.send(message);
             }
@@ -105,13 +103,24 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
         ACLMessage receivedMessage;
         int neighbourCount = this.agent.getAgentData().getNeighbors().size();
         //TODO wait also for DATA COLLECTOR Message
-//        while (messages.size() < neighbourCount + 1)//the additional one is for the data collector's message
-        while (messages.size() < neighbourCount)
+        while (messages.size() < neighbourCount)//the additional one is for the data collector's message
+//        while (messages.size() < neighbourCount)
         {
-            receivedMessage = this.agent.blockingReceive();
+            receivedMessage = this.agent.blockingReceive(MessageTemplate.not(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR));
             logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
             messages.add(receivedMessage);
         }
+        // wait for the message from the collector
+        receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR);
+        logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
+        try
+        {
+            this.agent.setcSum((Double)receivedMessage.getContentObject());
+        } catch (UnreadableException e)
+        {
+            logger.error("could not parse cSum sent from the data collector", e);
+        }
+
         return messages;
     }
 

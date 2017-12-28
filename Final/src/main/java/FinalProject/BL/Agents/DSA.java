@@ -44,9 +44,9 @@ public class DSA extends SmartHomeAgentBehaviour {
             this.currentNumberOfIter ++;
             List<ACLMessage> messageList = waitForNeighbourMessages();
             parseMessages(messageList);
-            helper.calcTotalPowerConsumption(cSum);
+            helper.calcTotalPowerConsumption(agent.getcSum());
             tryBuildSchedule();
-            beforIterationIsDone();
+            beforeIterationIsDone();
         }
 
     }
@@ -71,7 +71,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
     }
 
-    private void beforIterationIsDone()
+    private void beforeIterationIsDone()
     {
         addBackgroundLoadToPriceScheme(helper.getPowerConsumption());
         double price = calcPrice(helper.getPowerConsumption());
@@ -152,7 +152,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), refactoredPowerConsumption, agent.getCurrIteration().getPowerConsumptionPerTick()
                     ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
 
-            if (res >= agent.getTotalHousesPrice() && res >= bestPrice)
+            if (res >= agent.getcSum() && res >= bestPrice)
             {
                 bestPrice = res;
                 newTicks = ticks;
@@ -200,7 +200,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
         helper.SetActuatorsAndSensors();
         tryBuildScheduleIterationZero();
-        beforIterationIsDone();
+        beforeIterationIsDone();
 
         return true;
     }
@@ -249,6 +249,7 @@ public class DSA extends SmartHomeAgentBehaviour {
                 {
                     for (String propName : prop.relatedSensorsDelta.keySet())
                     {
+                        //TODO, Check if there is an element there at all!!!!
                         PropertyWithData relatedSensor = helper.getAllProperties().stream()
                                 .filter(x->x.getName().equals(propName)).findFirst().get();
                         if (!relatedSensor.canBeModified(prop.relatedSensorsDelta.get(propName)))

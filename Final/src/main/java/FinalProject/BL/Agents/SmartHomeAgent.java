@@ -1,12 +1,15 @@
 package FinalProject.BL.Agents;
 
+import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.Problems.AgentData;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.lang.acl.MessageTemplate;
 
 import java.io.Serializable;
 import java.util.*;
@@ -14,6 +17,7 @@ import java.util.*;
 public class SmartHomeAgent extends Agent {
     public static final String SERVICE_TYPE = "ACCESS_FOR_ALL_AGENTS";
     public static final String SERVICE_NAME = "AGENT";//TODO gal consider this one to be the agent's name(not static)
+    public  static final MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));
     private AgentData agentData;
     private AgentIterationData bestIteration;
     private AgentIterationData currIteration;
@@ -23,25 +27,7 @@ public class SmartHomeAgent extends Agent {
     private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
     private boolean stop = false;
     private double cSum;
-    private double totalHousesPrice;
     private String problemId;
-
-    public String getProblemId() {
-        return problemId;
-    }
-
-    public void setProblemId(String problemId) {
-        this.problemId = problemId;
-    }
-
-    public String getAlgoId() {
-        return algoId;
-    }
-
-    public void setAlgoId(String algoId) {
-        this.algoId = algoId;
-    }
-
     private String algoId;
 
 
@@ -99,16 +85,24 @@ public class SmartHomeAgent extends Agent {
         this.cSum = cSum;
     }
 
-    public double getTotalHousesPrice() {
-        return totalHousesPrice;
-    }
-
-    public void setTotalHousesPrice(double totalHousesPrice) {
-        this.totalHousesPrice = totalHousesPrice;
-    }
-
     public void setStop(boolean stop) {
         this.stop = stop;
+    }
+
+    public String getProblemId() {
+        return problemId;
+    }
+
+    public void setProblemId(String problemId) {
+        this.problemId = problemId;
+    }
+
+    public String getAlgoId() {
+        return algoId;
+    }
+
+    public void setAlgoId(String algoId) {
+        this.algoId = algoId;
     }
     @Override
     protected void setup() {
@@ -116,6 +110,8 @@ public class SmartHomeAgent extends Agent {
         //Getting fields in order: Algorithm, agentData
         this.algorithm = (SmartHomeAgentBehaviour) getArguments()[0];
         this.agentData = (AgentData) getArguments()[1];
+        this.algoId = (String)getArguments()[2];
+        this.problemId = (String)getArguments()[3];
         this.isZEROIteration = true;
 
 //        int iterationTotalNumber = agentData.getNumOfIterations();
