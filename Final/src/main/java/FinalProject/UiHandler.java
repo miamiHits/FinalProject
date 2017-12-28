@@ -55,15 +55,18 @@ public class UiHandler{
 
     public void showExperimentRunningScreen() {
         System.out.println("Experiment it running");
-//        try
-//        {
-//            EXPERIMENT_RUN_WAITER.wait();
-//
-//            showResultScreen();
-//        } catch (InterruptedException e)
-//        {
-//            e.printStackTrace();
-//        }
+        try
+        {
+            synchronized (EXPERIMENT_RUN_WAITER)
+            {
+                EXPERIMENT_RUN_WAITER.wait();
+            }
+
+            showResultScreen();
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public void showResultScreen() {
@@ -79,6 +82,9 @@ public class UiHandler{
     public void notifyExperimentEnded(List<AlgorithmProblemResult> results) {
         System.out.println("Experiment Ended!");
         experimentResults = results;
-        EXPERIMENT_RUN_WAITER.notifyAll();
+        synchronized (EXPERIMENT_RUN_WAITER)
+        {
+            EXPERIMENT_RUN_WAITER.notifyAll();
+        }
     }
 }
