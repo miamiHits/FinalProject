@@ -12,7 +12,6 @@ public class ExperimentBuilder {
     private List<SmartHomeAgentBehaviour> algos;
     private Service service;
 
-
     public ExperimentBuilder(Service service)
     {
         this.service = service;
@@ -43,5 +42,18 @@ public class ExperimentBuilder {
         return newlyCreatedExperiment;
     }
 
+    public int getNumOfIterations()
+    {
+        return numOfIterations;
+    }
 
+    public List<Problem> getProblems()
+    {
+        return problems;
+    }
+
+    public List<SmartHomeAgentBehaviour> getAlgos()
+    {
+        return algos;
+    }
 }

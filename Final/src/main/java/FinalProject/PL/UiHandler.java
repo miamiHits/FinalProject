@@ -68,7 +68,7 @@ public class UiHandler implements UiHandlerInterface {
         }
         System.out.println('\n');
 
-        showMainScreen();
+//        showMainScreen();
     }
 
     @Override
