@@ -97,7 +97,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     public List<Integer> calcNewTicks(Actuator actuator){
-        double bestPrice=0;
+        double bestPrice=helper.totalPriceConsumption;
         List<Integer> newTicks = new ArrayList<>();
         //get the related prop
         PropertyWithData prop =null;
@@ -150,21 +150,26 @@ public class DSA extends SmartHomeAgentBehaviour {
         //remove them from the array
         for (Integer tick : prevTicks)
         {
-            refactoredPowerConsumption[tick] -= prop.getDeltaWhenWork() ;
+            refactoredPowerConsumption[tick] -= prop.getPowerConsumedInWork() ;
         }
 
+        boolean improved = false;
         for(List<Integer> ticks : subsets)
         {
-            //TODO: fix here
-            //helper.updateConsumption(prop, ticks, refactoredPowerConsumption);
             double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), refactoredPowerConsumption, agent.getCurrIteration().getPowerConsumptionPerTick()
                     ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
 
-            if (res >= agent.getcSum() && res >= bestPrice)
+            if (res <= helper.totalPriceConsumption && res <= bestPrice)
             {
                 bestPrice = res;
                 newTicks = ticks;
+                improved = true;
             }
+        }
+
+        if(!improved)
+        {
+            newTicks = helper.getDeviceToTicks().get(actuator);
         }
         return newTicks;
     }
