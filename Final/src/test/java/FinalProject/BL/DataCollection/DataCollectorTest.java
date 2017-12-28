@@ -57,9 +57,8 @@ public class DataCollectorTest {
         ProblemAlgorithm tempPA = new ProblemAlgorithm(ICD2.getProblemId(), ICD2.getAlgorithm());
         Assert.assertFalse(dataCollector.getProbAlgoToItAgentPrice().containsKey(tempPA));
         dataCollector.addData(ICD2);
-        Assert.assertTrue(dataCollector.getProbAlgoToItAgentPrice().containsKey(tempPA));
-        Assert.assertTrue(dataCollector.getProbAlgoToItAgentPrice().get(tempPA)
-                .getAgentsPrices(0).size() == 1);
+        Assert.assertTrue(dataCollector.getProbAlgoToItAgentPrice().containsKey(tempPA)
+        && dataCollector.getProbAlgoToItAgentPrice().get(tempPA).getAgentsPrices(0).size() == 1);
         dataCollector.addData(ICD3);
         Assert.assertTrue(dataCollector.getProbAlgoToItAgentPrice().containsKey(tempPA));
         Assert.assertTrue(dataCollector.getProbAlgoToItAgentPrice().get(tempPA)
