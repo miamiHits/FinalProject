@@ -189,7 +189,7 @@ public class Experiment {
                 numOfAgentsInProblems.put(problem.getId(), problem.getAgentsData().size());
                 prices.put(problem.getId(), problem.getPriceScheme());
             }
-            Object[] collectorInitializationArgs = new Object[2];
+            Object[] collectorInitializationArgs = new Object[3];
             collectorInitializationArgs[0] = numOfAgentsInProblems;
             collectorInitializationArgs[1] = prices;
             collectorInitializationArgs[2] = this;
