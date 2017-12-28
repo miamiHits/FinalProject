@@ -1,6 +1,7 @@
 package FinalProject.BL.Agents;
 import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
+import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.BL.Problems.*;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
@@ -14,7 +15,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private boolean finished = false;
     public static final int START_TICK = 0;
-    public AgentIterationData agentIterationData;
+
     private final static Logger logger = Logger.getLogger(DSA.class);
     //  TODO : Create Local power consumption
 
@@ -43,7 +44,9 @@ public class DSA extends SmartHomeAgentBehaviour {
             this.currentNumberOfIter ++;
             List<ACLMessage> messageList = waitForNeighbourMessages();
             parseMessages(messageList);
+            helper.calcTotalPowerConsumption(cSum);
             tryBuildSchedule();
+            beforIterationIsDone();
         }
 
     }
@@ -60,17 +63,21 @@ public class DSA extends SmartHomeAgentBehaviour {
                 helper.getDeviceToTicks().put(act, newProposeTicks);
             }
             double[] powerConsumption = buildNewScheduleAccordingToNewTicks();
-            double price = calcPrice(powerConsumption);
-            agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, powerConsumption);
-            agent.setCurrIteration(agentIterationData);
-
-            //TODO: Update the best iteration.
+            helper.setPowerConsumption(powerConsumption);
         }
         else{
 
             return;
         }
+    }
 
+    private void beforIterationIsDone()
+    {
+        addBackgroundLoadToPriceScheme(helper.getPowerConsumption());
+        double price = calcPrice(helper.getPowerConsumption());
+        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, helper.getPowerConsumption());
+        agent.setCurrIteration(agentIterationData);
+        agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, helper.getPowerConsumption(), agent.getProblemId(), agent.getAlgoId());
     }
 
     public int drawCoin() {
@@ -193,11 +200,8 @@ public class DSA extends SmartHomeAgentBehaviour {
 
         helper.SetActuatorsAndSensors();
         tryBuildScheduleIterationZero();
-        double price = calcPrice (helper.getPowerConsumption());
-        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, helper.getPowerConsumption());
-        agent.setCurrIteration(agentIterationData);
+        beforIterationIsDone();
 
-        //TODO: Update the best iteration.
         return true;
     }
 
