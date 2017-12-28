@@ -114,7 +114,7 @@ public class DSA extends SmartHomeAgentBehaviour {
                 }
                 break;
             case AFTER: // Hour and above (not included)
-                for (int i= (int) prop.getTargetTick()+1 ; i<= agent.getAgentData().getBackgroundLoad().length ; ++i)
+                for (int i= (int) prop.getTargetTick()+1 ; i< agent.getAgentData().getBackgroundLoad().length ; ++i)
                 {
                     rangeForWork.add(i);
                 }
@@ -125,9 +125,9 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
 
         //remove the "rush" ticks
-        helper.getRushTicks().forEach(rT -> {
-            rangeForWork.stream().filter(mT -> rT == mT).forEach(rangeForWork::remove);
-        });
+     //   helper.getRushTicks().forEach(rT -> {
+      //      rangeForWork.stream().filter(mT -> rT == mT).forEach(rangeForWork::remove);
+      //  });
 
         List<List<Integer>> subsets = new ArrayList<>();
         for (int i = 0; i <Math.ceil(rangeForWork.size() / ticksToWork); i++)
