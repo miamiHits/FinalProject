@@ -227,6 +227,7 @@ public class AlgorithmDataHelper
     }
 
     public void calcPriceSchemeForAllNeighbours() {
+        logger.info("Saving all my neighbors sched - stage 1");
         List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
         //first sum all the neighbours.
         for (AgentIterationData agentData : myNeighborsShed)
@@ -265,7 +266,7 @@ public class AlgorithmDataHelper
                 break;
             case LT:
                 ticksToWork = Math.ceil((prop.getTargetValue()-1 - currentState) / prop.getDeltaWhenWork());
-                if ((ticksToWork *  prop.getDeltaWhenWork()) + currentState >= prop.getTargetValue())
+                if (((ticksToWork *  prop.getDeltaWhenWork()) + currentState >= prop.getTargetValue()) && ticksToWork>1)
                 {
                     ticksToWork--;
                 }
@@ -336,6 +337,8 @@ public class AlgorithmDataHelper
     }
 
     public void calcTotalPowerConsumption(double cSum) {
+        logger.info("Calculating total power consumption - stage 2");
+
         List<double[]> toCalc = this.neighboursPriceConsumption;
         toCalc.add(this.powerConsumption);
         this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, toCalc);

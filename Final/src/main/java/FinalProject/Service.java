@@ -10,8 +10,9 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
-public class Service {
+public class Service extends Observable {
 
     private ExperimentBuilder experimentBuilder;
     private DataAccessControllerInterface dalController;
@@ -70,7 +71,7 @@ public class Service {
 
     public void experimentEnded(List<AlgorithmProblemResult> results)
     {
-        //TODO gal
+        notifyObservers(results);
     }
 
     public void experimentEndedWithError(Exception e)
@@ -83,5 +84,4 @@ public class Service {
     {
         //TODO
     }
-
 }

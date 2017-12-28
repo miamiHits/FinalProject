@@ -1,15 +1,17 @@
-package FinalProject;
+package FinalProject.PL;
 
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
+import FinalProject.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
-public class UiHandler{
+public class UiHandler implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     private Service service;
@@ -19,8 +21,10 @@ public class UiHandler{
     public UiHandler(Service service)
     {
         this.service = service;
+        service.addObserver(this);
     }
 
+    @Override
     public void showMainScreen() {
 
         System.out.println("Showing main screen!");
@@ -53,6 +57,7 @@ public class UiHandler{
         showExperimentRunningScreen();
     }
 
+    @Override
     public void showExperimentRunningScreen() {
         System.out.println("Experiment it running");
         try
@@ -69,6 +74,7 @@ public class UiHandler{
         }
     }
 
+    @Override
     public void showResultScreen() {
         for (AlgorithmProblemResult res : experimentResults)
         {
@@ -79,9 +85,11 @@ public class UiHandler{
         showMainScreen();
     }
 
-    public void notifyExperimentEnded(List<AlgorithmProblemResult> results) {
+    @Override
+    public void update(Observable o, Object arg)
+    {
         System.out.println("Experiment Ended!");
-        experimentResults = results;
+        experimentResults = (List<AlgorithmProblemResult>) arg;
         synchronized (EXPERIMENT_RUN_WAITER)
         {
             EXPERIMENT_RUN_WAITER.notifyAll();

@@ -84,12 +84,12 @@ public class DataCollector {
                 min = Double.min(min, price);
                 max = Double.max(max, price);
                 if (price == min){ //changed min
-                    result.setLowestCostForInBestIteration(price);
-                    result.setLowestCostForInBestIterationAgentName(ag.getAgentName());
+                    result.setLowestCostForAgentInBestIteration(price);
+                    result.setLowestCostForAgentInBestIterationAgentName(ag.getAgentName());
                 }
                 if (price == max){ //changed max
-                    result.setHighestCostForInBestIteration(price);
-                    result.setHighestCostForInBestIterationAgentName(ag.getAgentName());
+                    result.setHighestCostForAgentInBestIteration(price);
+                    result.setHighestCostForAgentInBestIterationAgentName(ag.getAgentName());
                 }
             }
             result.getAvgPricePerIteration().put(

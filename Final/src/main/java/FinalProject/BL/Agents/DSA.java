@@ -35,14 +35,18 @@ public class DSA extends SmartHomeAgentBehaviour {
     protected void doIteration() {
         if (agent.isZEROIteration())
         {
+            logger.info("Starting work on Iteration: 0");
             logger.info("Starting build schedule");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
         }
         else
         {
+            logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
+
             List<ACLMessage> messageList = waitForNeighbourMessages();
             parseMessages(messageList);
+
             helper.calcPriceSchemeForAllNeighbours();
             helper.calcTotalPowerConsumption(agent.getcSum());
 
@@ -55,8 +59,12 @@ public class DSA extends SmartHomeAgentBehaviour {
     private void tryBuildSchedule() {
 
         boolean buildNewShed = drawCoin() == 1 ? true : false;
+        logger.info("Draw a cube got " + buildNewShed  +" - stage 3");
+
         if (buildNewShed)
         {
+            logger.info("Proposing new ticks for all the devices - stage 4");
+
             for (Actuator act : helper.getDeviceToTicks().keySet())
             {
                 List<Integer> newProposeTicks = calcNewTicks(act);
@@ -73,6 +81,8 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void beforeIterationIsDone()
     {
+        logger.info("calculating price, and created the objects to sending - stage 6");
+
         addBackgroundLoadToPriceScheme(helper.getPowerConsumption());
         double price = calcPrice(helper.getPowerConsumption());
         agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, helper.getPowerConsumption());
@@ -87,7 +97,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     public List<Integer> calcNewTicks(Actuator actuator){
-        double bestPrice=0;
+        double bestPrice=helper.totalPriceConsumption;
         List<Integer> newTicks = new ArrayList<>();
         //get the related prop
         PropertyWithData prop =null;
@@ -97,9 +107,6 @@ public class DSA extends SmartHomeAgentBehaviour {
             {
                 prop = p;
                 break;
-            }
-            else{
-                logger.error("Cannot find property with this actuator" + actuator.getName());
             }
         }
 
@@ -143,26 +150,33 @@ public class DSA extends SmartHomeAgentBehaviour {
         //remove them from the array
         for (Integer tick : prevTicks)
         {
-            refactoredPowerConsumption[tick] -= prop.getDeltaWhenWork() ;
+            refactoredPowerConsumption[tick] -= prop.getPowerConsumedInWork() ;
         }
 
+        boolean improved = false;
         for(List<Integer> ticks : subsets)
         {
-            //TODO: fix here
-            //helper.updateConsumption(prop, ticks, refactoredPowerConsumption);
             double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), refactoredPowerConsumption, agent.getCurrIteration().getPowerConsumptionPerTick()
                     ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
 
-            if (res >= agent.getcSum() && res >= bestPrice)
+            if (res <= helper.totalPriceConsumption && res <= bestPrice)
             {
                 bestPrice = res;
                 newTicks = ticks;
+                improved = true;
             }
+        }
+
+        if(!improved)
+        {
+            newTicks = helper.getDeviceToTicks().get(actuator);
         }
         return newTicks;
     }
 
     private double[] buildNewScheduleAccordingToNewTicks() {
+        logger.info("Building new power consumption array - stage 5");
+
         double[] powerConsumption = new double[FINAL_TICK+1];
         PropertyWithData prop = null;
         double delta = 0;
