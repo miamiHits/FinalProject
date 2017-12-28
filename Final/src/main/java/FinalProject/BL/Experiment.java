@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-public class Experiment extends Thread{
+public class Experiment {
     public static int maximumIterations = 0;
     private Service service;
     private DataCollector dataCollector;
@@ -57,18 +57,17 @@ public class Experiment extends Thread{
     // gal: this one should be invoked by the data collection agent notifying all data
     // resulted from the algorithm-problem configuration run was fully processed
     // IMPORTANT - the method is blocking and should be invoked when the data collector has done all that is needed for the current configuration
-    public void algorithmRunEnded(AlgorithmProblemResult result)
+    public void algorithmRunEnded(String problemName, String algorithmName)
     {
         //TODO gal
         logger.info(String.format("data collector completed processing configuration:\n" +
                 "algorithm - %s\n" +
                 "problem - $s"
-        , result.getAlgorithm()
-        , result.getProblem()));
-        algorithmProblemResults.add(result);
+        , algorithmName
+        , problemName));
         try
         {
-            this.waitingBarrier.await();// TODO gal consider applying this one with a new thread
+            this.waitingBarrier.await();// TODO gal make it non-blocking
         }
         catch (InterruptedException | BrokenBarrierException e)
         {
@@ -193,6 +192,7 @@ public class Experiment extends Thread{
             Object[] collectorInitializationArgs = new Object[2];
             collectorInitializationArgs[0] = numOfAgentsInProblems;
             collectorInitializationArgs[1] = prices;
+            collectorInitializationArgs[2] = this;
             this.dataCollectorController = this.mainContainer.createNewAgent(DataCollectionCommunicator.SERVICE_NAME,
                     DataCollectionCommunicator.class.getName(),
                     collectorInitializationArgs);

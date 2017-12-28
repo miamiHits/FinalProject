@@ -21,8 +21,6 @@ public class Service {
 
     private final static Logger logger = Logger.getLogger(Service.class);
 
-    private static Service instance = null;
-
     public Service(DataAccessControllerInterface dalController)
     {
         logger.info("initialized");
