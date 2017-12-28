@@ -42,6 +42,7 @@ public class DataCollectionCommunicator extends Agent {
             numOfAgentsInProblems = (Map<String, Integer>) args[0];
             prices = (Map<String, double[]>) args[1];
             experiment = (Experiment) args[2];
+            collector = new DataCollector(numOfAgentsInProblems, prices);
         }
         // Register the book-selling service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
