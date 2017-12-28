@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Experiment {
     public static int maximumIterations = 0;
@@ -31,6 +32,11 @@ public class Experiment {
 
     private boolean experimentCompleted = false;
     private CyclicBarrier waitingBarrier;// used by the experiment thread to wait for the current configuration to end before starting a new one
+    private static final int WAITING_BARRIER_PARTIES_COUNT = 2;//TODO gal change to 3
+
+    private AtomicBoolean experimentConfigurationRunning = new AtomicBoolean(false);
+    private AtomicBoolean experimentRunStoppedByUser = new AtomicBoolean(false);
+    private AtomicBoolean experimentRunStoppedWithError = new AtomicBoolean(false);
 
     private static Logger logger = Logger.getLogger(Experiment.class);
 
@@ -61,33 +67,41 @@ public class Experiment {
     {
         //TODO gal
         logger.info(String.format("data collector completed processing configuration:\n" +
-                "algorithm - %s\n" +
-                "problem - $s"
-        , algorithmName
-        , problemName));
-        try
+                        "algorithm - %s\n" +
+                        "problem - $s"
+                , algorithmName
+                , problemName));
+        (new Thread(() ->
         {
-            this.waitingBarrier.await();// TODO gal make it non-blocking
-        }
-        catch (InterruptedException | BrokenBarrierException e)
-        {
-            logger.error("failed waking the experiment thread for another run of algorithm-problem configuration",
-                    e);
-            this.waitingBarrier.reset();// wake the other blocked threads
-        }
+            try
+            {
+                this.waitingBarrier.await();// TODO gal make it non-blocking
+            }
+            catch (InterruptedException e)
+            {
+                logger.error("got exception while waiting on algorithmRunEnded",
+                        e);
+                this.experimentRunStoppedWithError.set(true);
+                this.waitingBarrier.reset();// wake the other blocked threads
+            }
+            catch (BrokenBarrierException e)
+            {
+                logger.warn("got BrokenBarrierException while waiting on algorithmRunEnded",
+                        e);
+                //TODO gal is there anything to do here?
+                if (!experimentRunStoppedWithError.get() &&
+                        !experimentRunStoppedByUser.get())
+                {
+                    logger.error("exception was thrown while !experimentRunStoppedWithError && !experimentRunStoppedByUser", e);
+                }
+            }
+        })).start();
     }
 
     public void stopExperiment()
     {
-        //TODO gal verify the influence of the interrupt upon all threads in use
-        try
-        {
-            this.experimentThread.interrupt();
-        }
-        finally
-        {
-            //ignore a possible SecurityException
-        }
+        experimentRunStoppedByUser.set(true);
+        this.waitingBarrier.reset();
     }
 
     private Experiment getCurrentInstance()
@@ -105,7 +119,7 @@ public class Experiment {
         private List<AgentController> agentControllers;
         private AgentController dataCollectorController;
         private int aliveAgents = 0;
-        private boolean experimentConfigurationRunning = false;
+
 
 
         @Override
@@ -116,44 +130,65 @@ public class Experiment {
                 initialize();
 
                 for (Problem currentProblem : problems)
-                {
-                    for (SmartHomeAgentBehaviour currentAlgorithmBehaviour : algorithms)
-                    {
-                        logger.info(String.format("starting new problem-algorithm configuration:\n" +
-                                "algorithm: %s\n" +
-                                "problem: %s",
-                                currentAlgorithmBehaviour.getBehaviourName(),
-                                currentProblem.getId()));
-                        for (AgentData agentData : currentProblem.getAgentsData())
-                        {
-                            Object[] agentInitializationArgs = new Object[4];
-                            agentInitializationArgs[0] = currentAlgorithmBehaviour.cloneBehaviour();
-                            agentInitializationArgs[1] = agentData;
-                            agentInitializationArgs[2] = currentAlgorithmBehaviour.getBehaviourName();
-                            agentInitializationArgs[3] = currentProblem.getId();
-                            AgentController agentController = this.mainContainer.createNewAgent(agentData.getName(),
-                                    SmartHomeAgent.class.getName(),
-                                    agentInitializationArgs);
-                            this.agentControllers.add(agentController);
-                        }
+                    problemLoop:{
+                        for (SmartHomeAgentBehaviour currentAlgorithmBehaviour : algorithms)
+                            algorithmLoop:{
+                                logger.info(String.format("starting new problem-algorithm configuration:\n" +
+                                                "algorithm: %s\n" +
+                                                "problem: %s",
+                                        currentAlgorithmBehaviour.getBehaviourName(),
+                                        currentProblem.getId()));
+                                for (AgentData agentData : currentProblem.getAgentsData())
+                                {
+                                    Object[] agentInitializationArgs = new Object[4];
+                                    agentInitializationArgs[0] = currentAlgorithmBehaviour.cloneBehaviour();
+                                    agentInitializationArgs[1] = agentData;
+                                    agentInitializationArgs[2] = currentAlgorithmBehaviour.getBehaviourName();
+                                    agentInitializationArgs[3] = currentProblem.getId();
+                                    AgentController agentController = this.mainContainer.createNewAgent(agentData.getName(),
+                                            SmartHomeAgent.class.getName(),
+                                            agentInitializationArgs);
+                                    this.agentControllers.add(agentController);
+                                }
 
-                        this.aliveAgents = this.agentControllers.size();
-                        this.experimentConfigurationRunning = true;
-                        for (AgentController controller : this.agentControllers)
-                        {//start all agents
-                            controller.start();
-                        }
-
-                        try {
-                            waitingBarrier.await();
-                        } catch (InterruptedException | BrokenBarrierException e) {
-                            logger.error("an exception was thrown while experiment was waiting for current configuration run to end", e);
-                            this.experimentConfigurationRunning = false;
-                            killAllAgents();
-                            waitingBarrier.reset();
-                        }
+                                this.aliveAgents = this.agentControllers.size();
+                                if (waitingBarrier.isBroken())
+                                {//barrier was broken in the previous run. restart the barrier
+                                    waitingBarrier.reset();
+                                    waitingBarrier = new CyclicBarrier(Experiment.WAITING_BARRIER_PARTIES_COUNT);
+                                }
+                                experimentConfigurationRunning.set(true);
+                                for (AgentController controller : this.agentControllers)
+                                {//start all agents
+                                    controller.start();
+                                }
+                                try
+                                {
+                                    waitingBarrier.await();
+                                }
+                                catch (InterruptedException e)
+                                {//error
+                                    logger.error("experiment thread got exception while waiting on for iteration to end",
+                                            e);
+                                    experimentRunStoppedWithError.set(true);
+                                    waitingBarrier.reset();// wake the other blocked threads
+                                }
+                                catch (BrokenBarrierException e)
+                                {
+                                    logger.warn("experiment thread got BrokenBarrierException while waiting for algo-problem run to end",
+                                            e);
+                                }
+                                finally
+                                {
+                                    experimentConfigurationRunning.set(false);
+                                    if (experimentRunStoppedByUser.get() || experimentRunStoppedWithError.get())
+                                    {
+                                        logger.info("recognized experiment ended");
+                                        break problemLoop;
+                                    }
+                                }
+                            }
                     }
-                }
 
                 logger.info("experiment runner finished running");
             }
@@ -162,6 +197,14 @@ public class Experiment {
                 // end the experiment
                 stopRun();
                 service.experimentEndedWithError(e);
+            }
+            if (experimentRunStoppedByUser.get())
+            {
+                //TODO gal discard results
+            }
+            else if (experimentRunStoppedWithError.get())
+            {
+                //TODO gal display error message
             }
         }
 
@@ -181,8 +224,7 @@ public class Experiment {
             this.mainContainer.addPlatformListener(this);
             this.agentControllers = new ArrayList<>();
 
-//            this.waitingBarrier = new CyclicBarrier(3); //TODO gal set to 3 once integrated with the data collecting agent
-            waitingBarrier = new CyclicBarrier(2);
+            waitingBarrier = new CyclicBarrier(Experiment.WAITING_BARRIER_PARTIES_COUNT);
 
             initializeDataCollector();
         }
@@ -254,7 +296,7 @@ public class Experiment {
             logger.debug(platformEvent.getAgentGUID() + " agent died");
 
             this.aliveAgents--;
-            if (this.experimentConfigurationRunning == true &&
+            if (experimentConfigurationRunning.get() &&
                     this.aliveAgents == 0)
             {//all agents are dead(completed their run)
                 logger.info("all agents died, will start running next problem-algorithm configuration once data collector sends results");
@@ -263,9 +305,22 @@ public class Experiment {
                     {
                         waitingBarrier.await();
                     }
-                    catch (InterruptedException | BrokenBarrierException e) {
-                        logger.error("failed waking the experiment thread for another run of algorithm-problem configuration",
+                    catch (InterruptedException e)
+                    {//error
+                        logger.error("experiment listener thread got exception while waiting on for iteration to end",
                                 e);
+                        experimentRunStoppedWithError.set(true);
+                        waitingBarrier.reset();// wake the other blocked threads
+                    }
+                    catch (BrokenBarrierException e)
+                    {
+                        logger.info("got BrokenBarrierException while waiting on algorithmRunEnded",
+                                e);
+                        if (!experimentRunStoppedWithError.get() &&
+                                !experimentRunStoppedByUser.get())
+                        {
+                            logger.error("exception was thrown while !experimentRunStoppedWithError && !experimentRunStoppedByUser", e);
+                        }
                     }
                 })).start();
             }
