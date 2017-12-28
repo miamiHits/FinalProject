@@ -63,14 +63,14 @@ public class Experiment {
     // gal: this one should be invoked by the data collection agent notifying all data
     // resulted from the algorithm-problem configuration run was fully processed
     // IMPORTANT - the method is blocking and should be invoked when the data collector has done all that is needed for the current configuration
-    public void algorithmRunEnded(String problemName, String algorithmName)
+    public void algorithmRunEnded(AlgorithmProblemResult result)
     {
         //TODO gal
         logger.info(String.format("data collector completed processing configuration:\n" +
                         "algorithm - %s\n" +
                         "problem - %s"
-                , algorithmName
-                , problemName));
+                , result.getAlgorithm()
+                , result.getProblem()));
         (new Thread(() ->
         {
             try

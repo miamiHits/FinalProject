@@ -32,7 +32,8 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
                 if (cSumReturned != 0){ //iteration finished
                     sendCsumToEveryone(msg, cSumReturned);
                     if (ICD.getIterNum() == iterationNum){ //last iteration finished (algo&prob finished)
-                        agent.getExperiment().algorithmRunEnded(ICD.getProblemId(), ICD.getAlgorithm());
+                        agent.getExperiment().algorithmRunEnded(
+                                agent.getCollector().getAlgoProblemResult(ICD.getProblemId(), ICD.getAlgorithm()));
                     }
                 }
             }catch(UnreadableException e){
