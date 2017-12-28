@@ -12,10 +12,11 @@ import org.apache.log4j.Logger;
 public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
     private DataCollectionCommunicator agent;
 
-    private final static Logger logger = org.apache.log4j.Logger.getLogger(SmartHomeAgentBehaviour.class);
+    private final static Logger logger = org.apache.log4j.Logger.getLogger(DataCollectionCommunicatorBehaviour.class);
 
     @Override
     public void action() {
+        agent = ((DataCollectionCommunicator)myAgent);
         ACLMessage msg = myAgent.receive();
         if (msg != null) {
             logger.debug("received a message from: " + msg.getSender().getName());
@@ -24,7 +25,7 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
             ACLMessage reply = msg.createReply();
             try{
                IterationCollectedData ICD = (IterationCollectedData)msg.getContentObject();
-               agent.collector.addData(ICD);
+                agent.getCollector().addData(ICD);
             }catch(UnreadableException e){
                 //todo
             }
