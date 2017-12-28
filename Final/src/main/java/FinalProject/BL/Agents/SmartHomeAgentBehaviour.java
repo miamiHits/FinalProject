@@ -26,7 +26,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
     protected int currentNumberOfIter;
     protected int FINAL_TICK;
     protected AlgorithmDataHelper helper;
-    protected double cSum;
     protected AgentIterationData agentIterationData;
     protected IterationCollectedData agentIteraionCollected;
 
@@ -64,8 +63,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
                 {
                     message.addReceiver(foundAID.getName());
                 }
-
-
                 message.setContentObject(agentIteraionCollected);
                 agent.send(message);
             }

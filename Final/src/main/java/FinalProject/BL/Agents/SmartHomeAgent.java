@@ -23,25 +23,7 @@ public class SmartHomeAgent extends Agent {
     private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
     private boolean stop = false;
     private double cSum;
-    private double totalHousesPrice;
     private String problemId;
-
-    public String getProblemId() {
-        return problemId;
-    }
-
-    public void setProblemId(String problemId) {
-        this.problemId = problemId;
-    }
-
-    public String getAlgoId() {
-        return algoId;
-    }
-
-    public void setAlgoId(String algoId) {
-        this.algoId = algoId;
-    }
-
     private String algoId;
 
 
@@ -99,16 +81,24 @@ public class SmartHomeAgent extends Agent {
         this.cSum = cSum;
     }
 
-    public double getTotalHousesPrice() {
-        return totalHousesPrice;
-    }
-
-    public void setTotalHousesPrice(double totalHousesPrice) {
-        this.totalHousesPrice = totalHousesPrice;
-    }
-
     public void setStop(boolean stop) {
         this.stop = stop;
+    }
+
+    public String getProblemId() {
+        return problemId;
+    }
+
+    public void setProblemId(String problemId) {
+        this.problemId = problemId;
+    }
+
+    public String getAlgoId() {
+        return algoId;
+    }
+
+    public void setAlgoId(String algoId) {
+        this.algoId = algoId;
     }
     @Override
     protected void setup() {
