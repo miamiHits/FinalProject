@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class DSATest {
 
     public AgentData ad = new AgentData("YC");
-    public SmartHomeAgent shg = new SmartHomeAgent();
+    public SmartHomeAgent shg= new SmartHomeAgent();
     public List<Actuator> actuatorList = new ArrayList<>();
     public List<Sensor> sensorListList = new ArrayList<>();
     public List<Rule> ruleList = new ArrayList<>();
@@ -69,12 +69,6 @@ public class DSATest {
         ruleList.add(r4);
         ruleList.add(r5);
         ruleList.add(r6);
-        Rule r7 =new Rule( true, null, "room", "temperature_heat", 19,  RelationType.GT, Prefix.AFTER, 5);
-        Rule r8 =new Rule( false,null, "room", "temperature_heat", 8,  RelationType.GEQ, null, 0);
-        Rule r9 =new Rule( false, null, "room", "temperature_heat", 35,  RelationType.LEQ, null, 0);
-        ruleList.add(r7);
-        ruleList.add(r8);
-        ruleList.add(r9);
         ad.setRules(ruleList);
 
     }
@@ -91,7 +85,6 @@ public class DSATest {
 
     }
 
-    @Before
     public void createSensors2() {
         List<String> sp = new ArrayList<>();
         sp.add("water_temp");
@@ -164,12 +157,12 @@ public class DSATest {
     {
         BuildDevice3();
         sensorListList = new ArrayList<>();
-        createSensors();
+        ruleList = new ArrayList<>();
+        createSensors2();
+        createRules2();
         ad.setSensors(sensorListList);
         dsa.buildScheduleFromScratch();
         Assert.assertTrue(dsa.getHelper().getAllProperties().size()==3);
-        Assert.assertTrue(dsa.getHelper().getAllProperties().get(3).getSensor().getName().equals("thermostat_heat"));
-        Assert.assertTrue(dsa.getHelper().getAllProperties().get(3).getActuator().getName().equals("Dyson_AM09"));
 
 
 
@@ -189,4 +182,34 @@ public class DSATest {
     }
 
 
+    public void createRules2() {
+        Rule r = new Rule();
+        r.setActive(true);
+        r.setLocation("water_tank");
+        r.setPrefixType(RelationType.GEQ);
+        r.setRuleValue(57);
+        r.setProperty("water_temp");
+        r.setPrefix(Prefix.AFTER);
+        r.setRelationValue(8);
+        //  Rule r1 =new Rule( true, actuatorList.get(0), null, "water_temp", 57,  RelationType.GEQ, Prefix.AFTER, 8);
+        Rule r2 =new Rule( false, null, "water_tank", "water_temp", 37,  RelationType.GEQ, null, 0);
+        Rule r3 =new Rule( false, null, "water_tank", "water_temp", 78,  RelationType.LEQ, null, 0);
+        Rule r4 =new Rule( true, actuatorList.get(1), null, "charge", 70,  RelationType.LT, Prefix.AFTER, 2);
+        Rule r5 =new Rule( false, actuatorList.get(1), null, "charge", 0,  RelationType.GEQ, null, 0);
+        Rule r6 =new Rule( false, actuatorList.get(1), null, "charge", 100,  RelationType.LEQ, null, 0);
+        ruleList.add(r);
+        ruleList.add(r2);
+        ruleList.add(r3);
+        ruleList.add(r4);
+        ruleList.add(r5);
+        ruleList.add(r6);
+        Rule r7 =new Rule( true, null, "room", "temperature_heat", 19,  RelationType.GT, Prefix.AFTER, 5);
+        Rule r8 =new Rule( false,null, "room", "temperature_heat", 8,  RelationType.GEQ, null, 0);
+        Rule r9 =new Rule( false, null, "room", "temperature_heat", 35,  RelationType.LEQ, null, 0);
+        ruleList.add(r7);
+        ruleList.add(r8);
+        ruleList.add(r9);
+        ad.setRules(ruleList);
+
+    }
 }
