@@ -9,10 +9,10 @@ public class AlgorithmProblemResult {
     private Map<Integer, Double> avgPricePerIteration;
     private int iterationsTillBestPrice;
     private double lowestCostInBestIteration;
-    private double lowestCostForInBestIteration;
-    private String lowestCostForInBestIterationAgentName;
-    private double highestCostForInBestIteration;
-    private String highestCostForInBestIterationAgentName;
+    private double lowestCostForAgentInBestIteration;
+    private String lowestCostForAgentInBestIterationAgentName;
+    private double highestCostForAgentInBestIteration;
+    private String highestCostForAgentInBestIterationAgentName;
 
     public AlgorithmProblemResult(ProblemAlgorithm probAlgo) {
         problem = probAlgo.getProblemId();
@@ -54,36 +54,36 @@ public class AlgorithmProblemResult {
         this.iterationsTillBestPrice = iterationsTillBestPrice;
     }
 
-    public double getLowestCostForInBestIteration() {
-        return lowestCostForInBestIteration;
+    public double getLowestCostForAgentInBestIteration() {
+        return lowestCostForAgentInBestIteration;
     }
 
-    public void setLowestCostForInBestIteration(double lowestCostForInBestIteration) {
-        this.lowestCostForInBestIteration = lowestCostForInBestIteration;
+    public void setLowestCostForAgentInBestIteration(double lowestCostForAgentInBestIteration) {
+        this.lowestCostForAgentInBestIteration = lowestCostForAgentInBestIteration;
     }
 
-    public String getLowestCostForInBestIterationAgentName() {
-        return lowestCostForInBestIterationAgentName;
+    public String getLowestCostForAgentInBestIterationAgentName() {
+        return lowestCostForAgentInBestIterationAgentName;
     }
 
-    public void setLowestCostForInBestIterationAgentName(String lowestCostForInBestIterationAgentName) {
-        this.lowestCostForInBestIterationAgentName = lowestCostForInBestIterationAgentName;
+    public void setLowestCostForAgentInBestIterationAgentName(String lowestCostForAgentInBestIterationAgentName) {
+        this.lowestCostForAgentInBestIterationAgentName = lowestCostForAgentInBestIterationAgentName;
     }
 
-    public double getHighestCostForInBestIteration() {
-        return highestCostForInBestIteration;
+    public double getHighestCostForAgentInBestIteration() {
+        return highestCostForAgentInBestIteration;
     }
 
-    public void setHighestCostForInBestIteration(double highestCostForInBestIteration) {
-        this.highestCostForInBestIteration = highestCostForInBestIteration;
+    public void setHighestCostForAgentInBestIteration(double highestCostForAgentInBestIteration) {
+        this.highestCostForAgentInBestIteration = highestCostForAgentInBestIteration;
     }
 
-    public String getHighestCostForInBestIterationAgentName() {
-        return highestCostForInBestIterationAgentName;
+    public String getHighestCostForAgentInBestIterationAgentName() {
+        return highestCostForAgentInBestIterationAgentName;
     }
 
-    public void setHighestCostForInBestIterationAgentName(String highestCostForInBestIterationAgentName) {
-        this.highestCostForInBestIterationAgentName = highestCostForInBestIterationAgentName;
+    public void setHighestCostForAgentInBestIterationAgentName(String highestCostForAgentInBestIterationAgentName) {
+        this.highestCostForAgentInBestIterationAgentName = highestCostForAgentInBestIterationAgentName;
     }
 
     public double getLowestCostInBestIteration() {
@@ -98,15 +98,15 @@ public class AlgorithmProblemResult {
     public String toString()
     {
         return "AlgorithmProblemResult{" +
-                "problem='" + problem + '\'' +
-                ", algorithm='" + algorithm + '\'' +
-                ", avgPricePerIteration=" + avgPricePerIteration +
-                ", iterationsTillBestPrice=" + iterationsTillBestPrice +
-                ", lowestCostInBestIteration=" + lowestCostInBestIteration +
-                ", lowestCostForInBestIteration=" + lowestCostForInBestIteration +
-                ", lowestCostForInBestIterationAgentName='" + lowestCostForInBestIterationAgentName + '\'' +
-                ", highestCostForInBestIteration=" + highestCostForInBestIteration +
-                ", highestCostForInBestIterationAgentName='" + highestCostForInBestIterationAgentName + '\'' +
+                "problem='" + problem + '\'' + "\n" +
+                ", algorithm='" + algorithm + '\'' + "\n" +
+                ", avgPricePerIteration=" + avgPricePerIteration + "\n" +
+                ", iterationsTillBestPrice=" + iterationsTillBestPrice + "\n" +
+                ", lowestCostInBestIteration=" + lowestCostInBestIteration + "\n" +
+                ", lowestCostForAgentInBestIteration=" + lowestCostForAgentInBestIteration + "\n" +
+                ", lowestCostForAgentInBestIterationAgentName='" + lowestCostForAgentInBestIterationAgentName + '\'' + "\n" +
+                ", highestCostForAgentInBestIteration=" + highestCostForAgentInBestIteration + "\n" +
+                ", highestCostForAgentInBestIterationAgentName='" + highestCostForAgentInBestIterationAgentName + '\'' +"\n" +
                 '}';
     }
 }

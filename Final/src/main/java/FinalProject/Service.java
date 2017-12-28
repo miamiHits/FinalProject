@@ -71,7 +71,8 @@ public class Service extends Observable {
 
     public void experimentEnded(List<AlgorithmProblemResult> results)
     {
-        //TODO gal
+        setChanged();
+        notifyObservers(results);
     }
 
     public void experimentEndedWithError(Exception e)

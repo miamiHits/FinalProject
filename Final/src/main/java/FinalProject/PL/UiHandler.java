@@ -1,7 +1,8 @@
-package FinalProject;
+package FinalProject.PL;
 
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
+import FinalProject.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,20 +10,19 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
-import java.util.Observer;
 
-public class UiHandler implements Observer{
+public class UiHandler implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     private Service service;
-    private final Object EXPERIMENT_RUN_WAITER = new Object();
-    private List<AlgorithmProblemResult> experimentResults = null;
 
     public UiHandler(Service service)
     {
         this.service = service;
+        service.addObserver(this);
     }
 
+    @Override
     public void showMainScreen() {
 
         System.out.println("Showing main screen!");
@@ -55,23 +55,13 @@ public class UiHandler implements Observer{
         showExperimentRunningScreen();
     }
 
+    @Override
     public void showExperimentRunningScreen() {
         System.out.println("Experiment it running");
-        try
-        {
-            synchronized (EXPERIMENT_RUN_WAITER)
-            {
-                EXPERIMENT_RUN_WAITER.wait();
-            }
-
-            showResultScreen();
-        } catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
     }
 
-    public void showResultScreen() {
+    @Override
+    public void showResultScreen(List<AlgorithmProblemResult> experimentResults) {
         for (AlgorithmProblemResult res : experimentResults)
         {
             System.out.println(res.toString());
@@ -85,10 +75,6 @@ public class UiHandler implements Observer{
     public void update(Observable o, Object arg)
     {
         System.out.println("Experiment Ended!");
-        experimentResults = (List<AlgorithmProblemResult>) arg;
-        synchronized (EXPERIMENT_RUN_WAITER)
-        {
-            EXPERIMENT_RUN_WAITER.notifyAll();
-        }
+        showResultScreen((List<AlgorithmProblemResult>) arg);
     }
 }

@@ -1,6 +1,6 @@
 import FinalProject.DAL.*;
 import FinalProject.Service;
-import FinalProject.UiHandler;
+import FinalProject.PL.UiHandler;
 
 public class App
 {
