@@ -3,6 +3,7 @@ import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.BL.Problems.*;
+import FinalProject.DAL.AlgorithmLoader;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
@@ -15,9 +16,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private boolean finished = false;
     public static final int START_TICK = 0;
-
     private final static Logger logger = Logger.getLogger(DSA.class);
-    //  TODO : Create Local power consumption
 
     public DSA()
     {
@@ -245,24 +244,32 @@ public class DSA extends SmartHomeAgentBehaviour {
                 }
 
                 //there are sensors that reflect from this work! check if there is a problem with that.
-                if (!prop.relatedSensorsDelta.isEmpty())
+                try
                 {
-                    for (String propName : prop.relatedSensorsDelta.keySet())
+                    if (!prop.relatedSensorsDelta.isEmpty())
                     {
-                        if (helper.getAllProperties().stream()
-                                .filter(x->x.getName().equals(propName)).findFirst()!= null)
+                        for (String propName : prop.relatedSensorsDelta.keySet())
                         {
-                            PropertyWithData relatedSensor = helper.getAllProperties().stream()
-                                    .filter(x->x.getName().equals(propName)).findFirst().get();
-                            if (!relatedSensor.canBeModified(prop.relatedSensorsDelta.get(propName)))
+                            if (helper.getAllProperties().stream()
+                                    .filter(x->x.getName().equals(propName)).findFirst()!= null)
                             {
-                                //there is a problem with working at that hour, lets draw new tick.
-                                flag = true;
-                                break;
+                                PropertyWithData relatedSensor = helper.getAllProperties().stream()
+                                        .filter(x->x.getName().equals(propName)).findFirst().get();
+                                if (!relatedSensor.canBeModified(prop.relatedSensorsDelta.get(propName)))
+                                {
+                                    //there is a problem with working at that hour, lets draw new tick.
+                                    flag = true;
+                                    break;
+                                }
                             }
                         }
                     }
-                }
+                  }
+                  catch (Exception e)
+                  {
+                      logger.warn("Try to look for the related sensros , but not found like this");
+                  }
+
             }
 
             helper.updateConsumption(prop, myTicks);
