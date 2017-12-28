@@ -29,13 +29,11 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
         if (msg != null) {
             logger.debug("received a message from: " + msg.getSender().getName());
             // Message received. Process it
-            String title = msg.getContent();
-            ACLMessage reply = msg.createReply();
             try{
                IterationCollectedData ICD = (IterationCollectedData)msg.getContentObject();
                 cSumReturned = agent.getCollector().addData(ICD);
                 if (cSumReturned != 0){ //iteration finished
-                    sendCsumToEveryone(cSumReturned);
+                    sendCsumToEveryone(msg, cSumReturned);
                     if (ICD.getIterNum() == iterationNum){ //last iteration finished (algo&prob finished)
                         agent.getExperiment().algorithmRunEnded(ICD.getProblemId(), ICD.getAlgorithm());
                     }
@@ -51,22 +49,29 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
 
         //reply.setPerformative(ACLMessage.PROPOSE);
             //reply.setContent(String.valueOf(price.intValue()));
-            myAgent.send(reply);
         }else{
             block();
         }
     }
 
-    private void sendCsumToEveryone(double cSumReturned) {
-
+    private void sendCsumToEveryone(ACLMessage msg, double cSumReturned) {
+        DFAgentDescription[] agents = findAgents(msg.getSender());
+        ACLMessage replay;
+        for (DFAgentDescription dfa: agents) {
+            replay = new ACLMessage(ACLMessage.INFORM);
+            replay.addReceiver(dfa.getName());
+            replay.setContent(String.valueOf(cSumReturned));
+            agent.send(replay);
+        }
     }
 
-    public DFAgentDescription[] findAgents()
+    public DFAgentDescription[] findAgents(AID sender)
     {
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
-        sd.setType("ACCESS_FOR_ALL_AGENTS");
+        sd.setType("ACCESS_FOR_ALL_AGENTS"); //todo: need to change
         template.addServices(sd);
+
         try {
             return DFService.search(agent, template);
         }
