@@ -38,7 +38,6 @@ public class DSA extends SmartHomeAgentBehaviour {
             logger.info("Starting build schedule");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
-
         }
         else
         {

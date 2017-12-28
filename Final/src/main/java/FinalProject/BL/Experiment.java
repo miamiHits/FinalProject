@@ -68,7 +68,7 @@ public class Experiment {
         //TODO gal
         logger.info(String.format("data collector completed processing configuration:\n" +
                         "algorithm - %s\n" +
-                        "problem - $s"
+                        "problem - %s"
                 , algorithmName
                 , problemName));
         (new Thread(() ->
