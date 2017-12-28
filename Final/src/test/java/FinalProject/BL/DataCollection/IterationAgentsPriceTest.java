@@ -51,5 +51,4 @@ public class IterationAgentsPriceTest {
                 consumptionPerTick));
         Assert.assertTrue(IAP.getAgentsPrices(3).size() == 2);
     }
-
 }
