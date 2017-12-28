@@ -87,13 +87,6 @@ public class ServiceTest {
     }
 
     @Test
-    public void runExperiment() throws Exception
-    {
-        service.runExperiment();
-        Assert.assertNotNull(service.currExperiment);
-    }
-
-    @Test
     public void stopExperiment() throws Exception
     {
 
