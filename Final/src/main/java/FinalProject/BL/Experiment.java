@@ -32,7 +32,7 @@ public class Experiment {
 
     private boolean experimentCompleted = false;
     private CyclicBarrier waitingBarrier;// used by the experiment thread to wait for the current configuration to end before starting a new one
-    private static final int WAITING_BARRIER_PARTIES_COUNT = 2;//TODO gal change to 3
+    private static final int WAITING_BARRIER_PARTIES_COUNT = 3;
 
     private AtomicBoolean experimentConfigurationRunning = new AtomicBoolean(false);
     private AtomicBoolean experimentRunStoppedByUser = new AtomicBoolean(false);
