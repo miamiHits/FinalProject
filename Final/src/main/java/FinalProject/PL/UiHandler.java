@@ -1,7 +1,8 @@
-package FinalProject;
+package FinalProject.PL;
 
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
+import FinalProject.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,9 +10,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
-import java.util.Observer;
 
-public class UiHandler implements Observer{
+public class UiHandler implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     private Service service;
@@ -21,8 +21,10 @@ public class UiHandler implements Observer{
     public UiHandler(Service service)
     {
         this.service = service;
+        service.addObserver(this);
     }
 
+    @Override
     public void showMainScreen() {
 
         System.out.println("Showing main screen!");
@@ -55,6 +57,7 @@ public class UiHandler implements Observer{
         showExperimentRunningScreen();
     }
 
+    @Override
     public void showExperimentRunningScreen() {
         System.out.println("Experiment it running");
         try
@@ -71,6 +74,7 @@ public class UiHandler implements Observer{
         }
     }
 
+    @Override
     public void showResultScreen() {
         for (AlgorithmProblemResult res : experimentResults)
         {

@@ -4,7 +4,6 @@ import FinalProject.BL.Agents.SmartHomeAgent;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.DataCollectionCommunicator;
-import FinalProject.BL.DataCollection.DataCollector;
 import FinalProject.BL.Problems.AgentData;
 import FinalProject.BL.Problems.Problem;
 import FinalProject.Service;
@@ -22,10 +21,9 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Experiment {
+public class Experiment implements ExperimentInterface {
     public static int maximumIterations = 0;
     private Service service;
-    private DataCollector dataCollector;
     private List<Problem> problems;
     private List<SmartHomeAgentBehaviour> algorithms;
     private List<AlgorithmProblemResult> algorithmProblemResults;
@@ -53,6 +51,7 @@ public class Experiment {
         experimentThread = new Thread(new ExperimentRunnable());
     }
 
+    @Override
     public void runExperiment()
     {
         //TODO gal
@@ -63,6 +62,7 @@ public class Experiment {
     // gal: this one should be invoked by the data collection agent notifying all data
     // resulted from the algorithm-problem configuration run was fully processed
     // IMPORTANT - the method is blocking and should be invoked when the data collector has done all that is needed for the current configuration
+    @Override
     public void algorithmRunEnded(AlgorithmProblemResult result)
     {
         //TODO gal
@@ -101,6 +101,7 @@ public class Experiment {
         })).start();
     }
 
+    @Override
     public void stopExperiment()
     {
         experimentRunStoppedByUser.set(true);
@@ -357,6 +358,7 @@ public class Experiment {
     }
 
     //TODO gal consider removing this one
+    @Override
     public boolean experimentCompleted()
     {
         return this.experimentCompleted;
