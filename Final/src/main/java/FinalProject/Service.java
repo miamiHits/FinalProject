@@ -6,16 +6,17 @@ import FinalProject.BL.Experiment;
 import FinalProject.BL.ExperimentBuilder;
 import FinalProject.BL.Problems.Problem;
 import FinalProject.DAL.DataAccessControllerInterface;
+import FinalProject.PL.UiHandlerInterface;
 import org.apache.log4j.Logger;
 
 import java.util.List;
-import java.util.Observable;
 
-public class Service extends Observable {
+public class Service {
 
     private ExperimentBuilder experimentBuilder;
     private DataAccessControllerInterface dalController;
     public Experiment currExperiment;
+    private UiHandlerInterface observer;
 
     private final static Logger logger = Logger.getLogger(Service.class);
 
@@ -24,6 +25,11 @@ public class Service extends Observable {
         logger.info("initialized");
         this.experimentBuilder = new ExperimentBuilder(this);
         this.dalController = dalController;
+    }
+
+    public void setObserver(UiHandlerInterface ui)
+    {
+        observer = ui;
     }
 
     public ExperimentBuilder getExperimentBuilder()
@@ -51,8 +57,14 @@ public class Service extends Observable {
     public void runExperiment()
     {
         //TODO gal
-        this.currExperiment = this.experimentBuilder.createExperiment();
-        this.currExperiment.runExperiment();
+        try
+        {
+            this.currExperiment = this.experimentBuilder.createExperiment();
+            this.currExperiment.runExperiment();
+        } catch (RuntimeException e)
+        {
+            observer.notifyError(e.getMessage());
+        }
     }
 
     public void stopExperiment()
@@ -64,8 +76,7 @@ public class Service extends Observable {
 
     public void experimentEnded(List<AlgorithmProblemResult> results)
     {
-        setChanged();
-        notifyObservers(results);
+        observer.notifyExperimentEnded(results);
     }
 
     public void experimentEndedWithError(Exception e)
@@ -78,4 +89,5 @@ public class Service extends Observable {
     {
         //TODO
     }
+
 }

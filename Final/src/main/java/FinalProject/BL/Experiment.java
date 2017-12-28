@@ -119,8 +119,43 @@ public class Experiment implements ExperimentInterface {
         return this;
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
 
-///////////////////////////////////////////////
+        Experiment that = (Experiment) o;
+
+        if (!service.equals(that.service))
+        {
+            return false;
+        }
+        if (!problems.equals(that.problems))
+        {
+            return false;
+        }
+        return algorithms.equals(that.algorithms);
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = service.hashCode();
+        result = 31 * result + problems.hashCode();
+        result = 31 * result + algorithms.hashCode();
+        return result;
+    }
+
+
+    ///////////////////////////////////////////////
 //ExperimentRunnable
 ///////////////////////////////////////////////
     private class ExperimentRunnable implements Runnable, PlatformController.Listener
