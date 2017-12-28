@@ -1,17 +1,20 @@
 package FinalProject.BL.Agents;
 
 
+import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.IterationData.AgentIterationData;
-import FinalProject.DAL.AlgorithmLoader;
 import FinalProject.Utils;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +40,38 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
 
     protected void sendIterationToCollector()
     {
-        //TODO: Send
+        logger.debug(String.format("%s sends its iteration to the data collector", this.agent.getAgentData().getName()));
+
+        AID foundAgentAID = null;
+        DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType(DataCollectionCommunicator.SERVICE_TYPE);
+        template.addServices(sd);
+        try {
+            DFAgentDescription[] result = DFService.search(this.agent, template);
+            if (result.length > 0)
+            {
+                logger.debug(String.format("found %d %s agents, this first one's AID is %s",
+                        result.length,
+                        DataCollectionCommunicator.SERVICE_TYPE,
+                        result[0].getName().toString()));
+                ACLMessage message = new ACLMessage(ACLMessage.REQUEST);//TODO gal reconsider the type
+                for (DFAgentDescription foundAID : result)
+                {
+                    message.addReceiver(foundAID.getName());
+                }
+                message.setContentObject(agent.getCurrIteration());
+                agent.send(message);
+            }
+            else
+            {
+                logger.error("could not find the data communicator");//TODO gal decide how to handle such scenario);
+            }
+        }
+        catch (FIPAException | IOException | NullPointerException e) {
+            logger.error(e);
+        }
+
     }
 
     protected void sendIterationToNeighbors()

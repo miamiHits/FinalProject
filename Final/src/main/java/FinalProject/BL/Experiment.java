@@ -3,6 +3,7 @@ package FinalProject.BL;
 import FinalProject.BL.Agents.SmartHomeAgent;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
+import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.DataCollection.DataCollector;
 import FinalProject.BL.Problems.AgentData;
 import FinalProject.BL.Problems.Problem;
@@ -14,7 +15,9 @@ import jade.wrapper.*;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
@@ -88,12 +91,6 @@ public class Experiment extends Thread{
         }
     }
 
-///////////////////////////////////////////////
-//service observable
-///////////////////////////////////////////////
-
-
-
 
 ///////////////////////////////////////////////
 //ExperimentRunnable
@@ -102,6 +99,7 @@ public class Experiment extends Thread{
     {
         private AgentContainer mainContainer;
         private List<AgentController> agentControllers;
+        private AgentController dataCollectorController;
         private int aliveAgents = 0;
         private boolean experimentConfigurationRunning = false;
 
@@ -179,6 +177,27 @@ public class Experiment extends Thread{
 
 //            this.waitingBarrier = new CyclicBarrier(3); //TODO gal set to 3 once integrated with the data collecting agent
             waitingBarrier = new CyclicBarrier(2);
+
+            initializeDataCollector();
+        }
+
+        private void initializeDataCollector() throws StaleProxyException
+        {
+            Map<String, Integer> numOfAgentsInProblems = new HashMap<>();// problem name -> count of agents in the problem
+            Map<String, double[]> prices = new HashMap<>();//problem name -> price schema
+            for (Problem problem : problems)
+            {
+                numOfAgentsInProblems.put(problem.getId(), problem.getAgentsData().size());
+                prices.put(problem.getId(), problem.getPriceScheme());
+            }
+            Object[] collectorInitializationArgs = new Object[2];
+            collectorInitializationArgs[0] = numOfAgentsInProblems;
+            collectorInitializationArgs[1] = prices;
+            this.dataCollectorController = this.mainContainer.createNewAgent(DataCollectionCommunicator.SERVICE_NAME,
+                    DataCollectionCommunicator.class.getName(),
+                    collectorInitializationArgs);
+            this.dataCollectorController.start();
+            logger.info("started data collector agent");
         }
 
         private void stopRun()

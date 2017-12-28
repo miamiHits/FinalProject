@@ -12,7 +12,8 @@ import java.io.Serializable;
 import java.util.*;
 
 public class SmartHomeAgent extends Agent {
-    public static final String SERVICE_TYPE = "Algorithms";
+    public static final String SERVICE_TYPE = "ACCESS_FOR_ALL_AGENTS";
+    public static final String SERVICE_NAME = "AGENT";//TODO gal consider this one to be the agent's name(not static)
     private AgentData agentData;
     private AgentIterationData bestIteration;
     private AgentIterationData currIteration;
@@ -114,7 +115,7 @@ public class SmartHomeAgent extends Agent {
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
         sd.setType(SmartHomeAgent.SERVICE_TYPE);
-        sd.setName("stam");
+        sd.setName(SmartHomeAgent.SERVICE_NAME);
         dfd.addServices(sd);
         try
         {
