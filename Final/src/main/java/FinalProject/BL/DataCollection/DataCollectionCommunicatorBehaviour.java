@@ -1,9 +1,6 @@
 package FinalProject.BL.DataCollection;
 
-import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.IterationData.IterationCollectedData;
-import jade.core.AID;
-import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
