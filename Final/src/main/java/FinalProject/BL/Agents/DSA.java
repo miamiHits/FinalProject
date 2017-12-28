@@ -250,17 +250,13 @@ public class DSA extends SmartHomeAgentBehaviour {
                 {
                     for (String propName : prop.relatedSensorsDelta.keySet())
                     {
-                        if (helper.getAllProperties().stream()
-                                .filter(x->x.getName().equals(propName)).findFirst()!= null)
+                        Optional<PropertyWithData> relatedSensorOpt = helper.getAllProperties().stream()
+                                .filter(x->x.getName().equals(propName)).findFirst();
+                        if (relatedSensorOpt.isPresent() && !relatedSensorOpt.get().canBeModified(prop.relatedSensorsDelta.get(propName)))
                         {
-                            PropertyWithData relatedSensor = helper.getAllProperties().stream()
-                                    .filter(x->x.getName().equals(propName)).findFirst().get();
-                            if (!relatedSensor.canBeModified(prop.relatedSensorsDelta.get(propName)))
-                            {
-                                //there is a problem with working at that hour, lets draw new tick.
-                                flag = true;
-                                break;
-                            }
+                            //there is a problem with working at that hour, lets draw new tick.
+                            flag = true;
+                            break;
                         }
                     }
                 }
