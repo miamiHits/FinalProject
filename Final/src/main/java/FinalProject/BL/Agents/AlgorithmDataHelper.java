@@ -336,8 +336,9 @@ public class AlgorithmDataHelper
     }
 
     public void calcTotalPowerConsumption(double cSum) {
-        this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, this.getPowerConsumption(),this.getPowerConsumption()
-                ,this.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
+        List<double[]> toCalc = this.neighboursPriceConsumption;
+        toCalc.add(this.powerConsumption);
+        this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, toCalc);
 
     }
 
