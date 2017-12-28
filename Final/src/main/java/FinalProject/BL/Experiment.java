@@ -189,7 +189,7 @@ public class Experiment {
                                 }
                             }
                     }
-
+                this.dataCollectorController.kill();
                 logger.info("experiment runner finished running");
             }
             catch (ControllerException e)
