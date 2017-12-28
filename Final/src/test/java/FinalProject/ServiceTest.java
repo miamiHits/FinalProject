@@ -17,6 +17,8 @@ public class ServiceTest {
     public void setUp() throws Exception
     {
         accessController = mock(DataAccessController.class);
+
+        service = new Service(accessController);
     }
 
     @After
