@@ -45,6 +45,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             List<ACLMessage> messageList = waitForNeighbourMessages();
             parseMessages(messageList);
             helper.calcTotalPowerConsumption(agent.getcSum());
+
             tryBuildSchedule();
             beforeIterationIsDone();
         }
@@ -197,8 +198,9 @@ public class DSA extends SmartHomeAgentBehaviour {
 
         passiveRules.forEach(pRule -> helper.buildNewPropertyData(pRule, true));
         activeRules.forEach(pRule -> helper.buildNewPropertyData(pRule, false));
-
+        helper.checkForPassiveRules();
         helper.SetActuatorsAndSensors();
+        logger.info(agent.getAgentData().getName() + "Finished build my prop object, start work on my schedule");
         tryBuildScheduleIterationZero();
         beforeIterationIsDone();
 
@@ -268,13 +270,15 @@ public class DSA extends SmartHomeAgentBehaviour {
                   }
                   catch (Exception e)
                   {
-                      logger.warn("Try to look for the related sensros , but not found like this");
+                      logger.warn(agent.getAgentData().getName() + "Try to look for the related sensros , but not found like this");
                   }
 
             }
 
             helper.updateConsumption(prop, myTicks);
         }
+
+        logger.info(agent.getAgentData().getName() + "Finished build sched");
 
     }
 

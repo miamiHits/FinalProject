@@ -169,4 +169,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
         }
         helper.setPowerConsumption(newPowerCons);
     }
+
+    protected void calcBestIteration ()
+    {
+
+    }
 }

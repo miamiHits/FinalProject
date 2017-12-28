@@ -337,4 +337,14 @@ public class AlgorithmDataHelper
                 ,this.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
 
     }
+
+    public void checkForPassiveRules() {
+        for (PropertyWithData prop : allProperties)
+        {
+            if (prop.getRt()==null)
+            {
+                prop.setPassiveOnly(true);
+            }
+        }
+    }
 }
