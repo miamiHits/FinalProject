@@ -200,25 +200,27 @@ public class AlgorithmDataHelper
         }
     }
 
-    public void solve(int[] a, int k, int i, List<List<Integer>> subsets) {
-        if (i == a.length) {
+    private void getSubsets(List<Integer> superSet, int k, int idx, Set<Integer> current,List<Set<Integer>> solution) {
+        //successful stop clause
+        if (current.size() == k) {
+            solution.add(new HashSet<>(current));
             return;
-        } else {
-            // loop over all subsets and try to put a[i] in
-            for (int j = 0; j < subsets.size(); j++) {
-                if (subsets.get(j).size() < k) {
-                    // subset j not full
-                    subsets.get(j).add(a[i]);
-                    solve(a, k, i+1, subsets); // do recursion
-                    subsets.get(j).remove((Integer)a[i]);
-
-                    if (subsets.get(j).size() == 0) {
-                        // Not skipping empty subsets, so I won't get duplicates
-                        break;
-                    }
-                }
-            }
         }
+        //unseccessful stop clause
+        if (idx == superSet.size()) return;
+        Integer x = superSet.get(idx);
+        current.add(x);
+        //"guess" x is in the subset
+        getSubsets(superSet, k, idx+1, current, solution);
+        current.remove(x);
+        //"guess" x is not in the subset
+        getSubsets(superSet, k, idx+1, current, solution);
+    }
+
+    public List<Set<Integer>> getSubsets(List<Integer> superSet, int k) {
+        List<Set<Integer>> res = new ArrayList<>();
+        getSubsets(superSet, k, 0, new HashSet<Integer>(), res);
+        return res;
     }
 
     public static <T> Predicate<T> distinctByKey(Function<? super T,Object> keyExtractor) {
