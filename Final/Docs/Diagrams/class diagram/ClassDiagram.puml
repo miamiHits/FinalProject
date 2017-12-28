@@ -13,8 +13,11 @@ package BL {
 		    {abstract} #Setup() : void
 		    addBehaviour(Behaviour b) : void
 		}
+
 		abstract class Behaviour <<Abstract, JADE>>
 		Behaviour -- Agent
+
+		class ACLMessage
 	}
 
 	package DataObjects{
@@ -157,11 +160,18 @@ package BL {
 		abstract class SmartHomeAgentBehaviour <<Abstract>> {
 			+agent : SmartHomeAgent
 			+name : String
+			#helper : AlgorithmDataHelper
 			#{abstract} doIteration() : void
 			-sendIterationToCollector(AgentIterationData) : void
+			-sendIterationToNeighbors() : void
+			+{abstract} cloneBehaviour() : SmartHomeAgentBehaviour
+			+waitForNeighbourMessages : List<ACLMessage>
+			#parseMessages(List<ACLMessage>) : void
+			#calcPrice(double[]) : double
+			#initializeBehaviourWithAgent(SmartHomeAgent) : void
+			#addBackgroundLoadToPriceScheme(double[]) : void
 			+action() : void
 			+done() : boolean
-
 		}
 
 		class DBA {
