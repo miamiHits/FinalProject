@@ -8,7 +8,6 @@ import FinalProject.BL.Problems.Problem;
 import FinalProject.DAL.DataAccessControllerInterface;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
@@ -25,6 +24,11 @@ public class Service extends Observable {
         logger.info("initialized");
         this.experimentBuilder = new ExperimentBuilder(this);
         this.dalController = dalController;
+    }
+
+    public ExperimentBuilder getExperimentBuilder()
+    {
+        return experimentBuilder;
     }
 
     public void addAlgorithmsToExperiment(List<String> algorithmNames, int iterationNumber)
@@ -56,17 +60,6 @@ public class Service extends Observable {
         //TODO gal
         logger.info("experiment was stopped");
         this.currExperiment.stopExperiment();
-    }
-
-    public List<AlgorithmProblemResult> getExperimentResults()
-    {
-        List<AlgorithmProblemResult> results = new ArrayList<>();
-        if (!this.currExperiment.experimentCompleted())
-        {
-            //decide what to return
-        }
-        //TODO gal
-        return results;
     }
 
     public void experimentEnded(List<AlgorithmProblemResult> results)
