@@ -143,7 +143,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
         double [] priceScheme = agent.getAgentData().getPriceScheme();
         for (int i=0 ; i<priceScheme.length; ++i)
         {
-            double temp =  Double.sum(powerConsumption[i], priceScheme[i]);
+            double temp =  powerConsumption[i] * priceScheme[i];
             res = Double.sum(temp, res);
         }
         return res;
