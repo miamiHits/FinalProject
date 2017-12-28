@@ -57,6 +57,7 @@ public class Experiment {
     {
         //TODO gal
         logger.info("starting experiment thread");
+        assert this.experimentThread != null : "experiment thread must be initiated";
         this.experimentThread.start();
     }
 
@@ -71,6 +72,10 @@ public class Experiment {
                         "problem - %s"
                 , result.getAlgorithm()
                 , result.getProblem()));
+        assert result != null : "algorithmRunEnded must be invoked with a non-null result instance";
+        assert result.getHighestCostForInBestIteration() >= result.getLowestCostForInBestIteration() :
+                "result - in best iteration, the highest cost for an agent must be greater than the lowest one";
+//        resu
         (new Thread(() ->
         {
             try
@@ -94,6 +99,8 @@ public class Experiment {
                 {
                     logger.error("exception was thrown while !experimentRunStoppedWithError && !experimentRunStoppedByUser", e);
                 }
+                boolean assertionCondition = (!experimentRunStoppedWithError.get() && !experimentRunStoppedByUser.get());
+                assert assertionCondition : "BrokenBarrierException was thrown while !experimentRunStoppedWithError && !experimentRunStoppedByUser";
             }
         })).start();
     }
