@@ -1,12 +1,15 @@
 package FinalProject.BL.Agents;
 
+import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.Problems.AgentData;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.lang.acl.MessageTemplate;
 
 import java.io.Serializable;
 import java.util.*;
@@ -14,6 +17,7 @@ import java.util.*;
 public class SmartHomeAgent extends Agent {
     public static final String SERVICE_TYPE = "ACCESS_FOR_ALL_AGENTS";
     public static final String SERVICE_NAME = "AGENT";//TODO gal consider this one to be the agent's name(not static)
+    public  static final MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));
     private AgentData agentData;
     private AgentIterationData bestIteration;
     private AgentIterationData currIteration;

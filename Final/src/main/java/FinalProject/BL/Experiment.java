@@ -121,9 +121,11 @@ public class Experiment {
                                 currentProblem.getId()));
                         for (AgentData agentData : currentProblem.getAgentsData())
                         {
-                            Object[] agentInitializationArgs = new Object[2];
+                            Object[] agentInitializationArgs = new Object[4];
                             agentInitializationArgs[0] = currentAlgorithmBehaviour.cloneBehaviour();
                             agentInitializationArgs[1] = agentData;
+                            agentInitializationArgs[2] = currentAlgorithmBehaviour.getBehaviourName();
+                            agentInitializationArgs[3] = currentProblem.getId();
                             AgentController agentController = this.mainContainer.createNewAgent(agentData.getName(),
                                     SmartHomeAgent.class.getName(),
                                     agentInitializationArgs);
@@ -189,7 +191,7 @@ public class Experiment {
                 numOfAgentsInProblems.put(problem.getId(), problem.getAgentsData().size());
                 prices.put(problem.getId(), problem.getPriceScheme());
             }
-            Object[] collectorInitializationArgs = new Object[2];
+            Object[] collectorInitializationArgs = new Object[3];
             collectorInitializationArgs[0] = numOfAgentsInProblems;
             collectorInitializationArgs[1] = prices;
             collectorInitializationArgs[2] = this;
