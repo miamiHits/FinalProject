@@ -2,8 +2,13 @@ package FinalProject.BL.DataCollection;
 
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.IterationData.IterationCollectedData;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
@@ -49,6 +54,25 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
             myAgent.send(reply);
         }else{
             block();
+        }
+    }
+
+    private void sendCsumToEveryone(double cSumReturned) {
+
+    }
+
+    public DFAgentDescription[] findAgents()
+    {
+        DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("ACCESS_FOR_ALL_AGENTS");
+        template.addServices(sd);
+        try {
+            return DFService.search(agent, template);
+        }
+        catch (FIPAException fe) {
+            fe.printStackTrace();
+            return null;
         }
     }
 }
