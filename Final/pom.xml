@@ -23,28 +23,27 @@
     </plugins>
   </build>
 
-  <repositories>
-    <repository>
-      <id>tilab</id>
-      <url>http://jade.tilab.com/maven/</url>
-    </repository>
-  </repositories>
+  <!--<repositories>-->
+    <!--<repository>-->
+      <!--<id>tilab</id>-->
+      <!--<url>http://jade.tilab.com/maven/</url>-->
+    <!--</repository>-->
+  <!--</repositories>-->
 
   <dependencies>
+
     <dependency>
       <groupId>com.tilab.jade</groupId>
       <artifactId>jade</artifactId>
       <version>4.5.0</version>
     </dependency>
 
-    <!--TODO: Jade test suite, maybe don't need-->
     <dependency>
       <groupId>com.tilab.jade</groupId>
       <artifactId>jade-test-suite</artifactId>
       <version>1.13.0</version>
     </dependency>
 
-      <!--  Gson: Java to Json conversion -->
       <dependency>
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
@@ -59,16 +58,19 @@
       <scope>test</scope>
     </dependency>
 
-    <!--<dependency>-->
-      <!--<groupId>log4j</groupId>-->
-      <!--<artifactId>log4j</artifactId>-->
-      <!--<version>1.2.17</version>-->
-    <!--</dependency>-->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.9.5</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.12</version>
     </dependency>
+
       <dependency>
           <groupId>junit</groupId>
           <artifactId>junit</artifactId>
