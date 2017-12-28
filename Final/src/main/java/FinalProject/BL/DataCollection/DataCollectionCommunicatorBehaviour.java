@@ -23,27 +23,28 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
         double cSumReturned;
 
         ACLMessage msg = myAgent.receive();
-        if (msg != null) {
-            logger.info("received a message from: " + msg.getSender().getName());
-            // Message received. Process it
-            try{
-               IterationCollectedData ICD = (IterationCollectedData)msg.getContentObject();
-                cSumReturned = agent.getCollector().addData(ICD);
-                if (cSumReturned != 0){ //iteration finished
-                    logger.info("iteration number " + ICD.getIterNum() +" finished.");
-                    sendCsumToEveryone(msg, cSumReturned);
-                    if (ICD.getIterNum() == iterationNum){ //last iteration finished (algo&prob finished)
-                        logger.info("Algo: " + ICD.getAlgorithm() + " Problem: " + ICD.getProblemId() +" finished.");
-                        agent.getExperiment().algorithmRunEnded(
-                                agent.getCollector().getAlgoProblemResult(ICD.getProblemId(), ICD.getAlgorithm()));
+        if (msg != null ) {
+            String senderName = msg.getSender().getName();
+            if (!senderName.startsWith("ams")) {
+                logger.info("received a message from: " + msg.getSender().getName());
+                // Message received. Process it
+                try {
+                    IterationCollectedData ICD = (IterationCollectedData) msg.getContentObject();
+                    cSumReturned = agent.getCollector().addData(ICD);
+                    if (cSumReturned != 0) { //iteration finished
+                        logger.info("iteration number " + ICD.getIterNum() + " finished.");
+                        sendCsumToEveryone(msg, cSumReturned);
+                        if (ICD.getIterNum() == iterationNum) { //last iteration finished (algo&prob finished)
+                            logger.info("Algo: " + ICD.getAlgorithm() + " Problem: " + ICD.getProblemId() + " finished.");
+                            agent.getExperiment().algorithmRunEnded(
+                                    agent.getCollector().getAlgoProblemResult(ICD.getProblemId(), ICD.getAlgorithm()));
+                        }
                     }
+                } catch (UnreadableException e) {
+                    logger.error(e);
+                } catch (ClassCastException e) {
+                    logger.error(e);
                 }
-            }catch(UnreadableException e){
-                logger.error(e);
-            }
-            catch(ClassCastException e)
-            {
-                logger.error(e);
             }
         }else{
             block();
