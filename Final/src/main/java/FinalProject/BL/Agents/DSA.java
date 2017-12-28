@@ -42,7 +42,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
         else
         {
-            logger.info("Starting work on Iteration: " + agent.getIterationNum());
+            logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
 
             List<ACLMessage> messageList = waitForNeighbourMessages();
             parseMessages(messageList);
