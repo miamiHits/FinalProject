@@ -90,6 +90,11 @@ public class Experiment {
         }
     }
 
+    private Experiment getCurrentInstance()
+    {
+        return this;
+    }
+
 
 ///////////////////////////////////////////////
 //ExperimentRunnable
@@ -194,7 +199,7 @@ public class Experiment {
             Object[] collectorInitializationArgs = new Object[3];
             collectorInitializationArgs[0] = numOfAgentsInProblems;
             collectorInitializationArgs[1] = prices;
-            collectorInitializationArgs[2] = this;
+            collectorInitializationArgs[2] = getCurrentInstance();
             this.dataCollectorController = this.mainContainer.createNewAgent(DataCollectionCommunicator.SERVICE_NAME,
                     DataCollectionCommunicator.class.getName(),
                     collectorInitializationArgs);
