@@ -78,6 +78,16 @@ public class DataCollectionCommunicator extends Agent {
         this.collector = collector;
     }
 
+    public Experiment getExperiment() {
+        return experiment;
+    }
+
+    public void setExperiment(Experiment experiment) {
+        this.experiment = experiment;
+    }
+
+
+
 
 
 }

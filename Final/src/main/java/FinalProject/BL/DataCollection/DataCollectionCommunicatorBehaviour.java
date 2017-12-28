@@ -11,12 +11,15 @@ import org.apache.log4j.Logger;
 
 public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
     private DataCollectionCommunicator agent;
-
+    private int iterationNum;
     private final static Logger logger = org.apache.log4j.Logger.getLogger(DataCollectionCommunicatorBehaviour.class);
 
     @Override
     public void action() {
         agent = ((DataCollectionCommunicator)myAgent);
+        iterationNum = agent.getExperiment().maximumIterations;
+        double cSumReturned;
+
         ACLMessage msg = myAgent.receive();
         if (msg != null) {
             logger.debug("received a message from: " + msg.getSender().getName());
@@ -25,7 +28,13 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
             ACLMessage reply = msg.createReply();
             try{
                IterationCollectedData ICD = (IterationCollectedData)msg.getContentObject();
-                agent.getCollector().addData(ICD);
+                cSumReturned = agent.getCollector().addData(ICD);
+                if (cSumReturned != 0){ //iteration finished
+                    sendCsumToEveryone(cSumReturned);
+                    if (ICD.getIterNum() == iterationNum){ //last iteration finished (algo&prob finished)
+                        agent.getExperiment().algorithmRunEnded(ICD.getProblemId(), ICD.getAlgorithm());
+                    }
+                }
             }catch(UnreadableException e){
                 //todo
             }
