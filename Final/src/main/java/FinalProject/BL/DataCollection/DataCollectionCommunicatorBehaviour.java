@@ -55,7 +55,7 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
     }
 
     private void sendCsumToEveryone(ACLMessage msg, double cSumReturned) {
-        DFAgentDescription[] agents = findAgents(msg.getSender());
+        DFAgentDescription[] agents = findAgents(msg.getOntology());
         ACLMessage replay;
         for (DFAgentDescription dfa: agents) {
             replay = new ACLMessage(ACLMessage.INFORM);
@@ -65,13 +65,12 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
         }
     }
 
-    public DFAgentDescription[] findAgents(AID sender)
+    public DFAgentDescription[] findAgents(String onotology)
     {
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
-        sd.setType("ACCESS_FOR_ALL_AGENTS"); //todo: need to change
+        sd.addOntologies(onotology);
         template.addServices(sd);
-
         try {
             return DFService.search(agent, template);
         }
