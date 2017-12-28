@@ -227,6 +227,7 @@ public class AlgorithmDataHelper
     }
 
     public void calcPriceSchemeForAllNeighbours() {
+        logger.info("Saving all my neighbors sched - stage 1");
         List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
         //first sum all the neighbours.
         for (AgentIterationData agentData : myNeighborsShed)
@@ -336,6 +337,8 @@ public class AlgorithmDataHelper
     }
 
     public void calcTotalPowerConsumption(double cSum) {
+        logger.info("Calculating total power consumption - stage 2");
+
         List<double[]> toCalc = this.neighboursPriceConsumption;
         toCalc.add(this.powerConsumption);
         this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, toCalc);
