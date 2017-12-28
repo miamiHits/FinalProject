@@ -229,12 +229,17 @@ public class AlgorithmDataHelper
     }
 
     public void calcPriceSchemeForAllNeighbours() {
+        neighboursPriceConsumption.clear();
         logger.info("Saving all my neighbors sched - stage 1");
         List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
         //first sum all the neighbours.
         for (AgentIterationData agentData : myNeighborsShed)
         {
-            double [] neighbourConsumption = agentData.getPowerConsumptionPerTick();
+            double [] neighbourConsumption = new double[agentData.getPowerConsumptionPerTick().length];
+            for(int i=0; i<agentData.getPowerConsumptionPerTick().length; ++i)
+            {
+                neighbourConsumption[i] = agentData.getPowerConsumptionPerTick()[i];
+            }
             neighboursPriceConsumption.add(neighbourConsumption);
             for ( int i=0; i<neighbourConsumption.length; ++i)
             {
@@ -268,7 +273,7 @@ public class AlgorithmDataHelper
                 break;
             case LT:
                 ticksToWork = Math.ceil((prop.getTargetValue()-1 - currentState) / prop.getDeltaWhenWork());
-                if (((ticksToWork *  prop.getDeltaWhenWork()) + currentState >= prop.getTargetValue()) && ticksToWork>1)
+                if (((ticksToWork *  prop.getDeltaWhenWork()) + currentState >= prop.getTargetValue()) )
                 {
                     ticksToWork--;
                 }
@@ -340,9 +345,25 @@ public class AlgorithmDataHelper
 
     public void calcTotalPowerConsumption(double cSum) {
         logger.info("Calculating total power consumption - stage 2");
+        List<double[]> toCalc = new ArrayList<>();
+        for(double[] arr : this.neighboursPriceConsumption)
+        {
+            double [] deepArr = new double[arr.length];
+            for(int i=0; i< arr.length; ++i)
+            {
+                deepArr[i] = arr[i];
+            }
 
-        List<double[]> toCalc = this.neighboursPriceConsumption;
-        toCalc.add(this.powerConsumption);
+            toCalc.add(deepArr);
+        }
+
+        double [] deepArr = new double[this.powerConsumption.length];
+        for(int i=0; i< this.powerConsumption.length; ++i)
+        {
+            deepArr[i] = this.powerConsumption[i];
+        }
+
+        toCalc.add(deepArr);
         this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, toCalc);
 
     }
