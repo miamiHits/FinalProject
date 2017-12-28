@@ -50,7 +50,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
         sd.setType(DataCollectionCommunicator.SERVICE_TYPE);
+
         template.addServices(sd);
+
         try {
             DFAgentDescription[] result = DFService.search(this.agent, template);
             if (result.length > 0)
@@ -60,6 +62,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
                         DataCollectionCommunicator.SERVICE_TYPE,
                         result[0].getName().toString()));
                 ACLMessage message = new ACLMessage(ACLMessage.REQUEST);//TODO gal reconsider the type
+                message.setOntology(agent.getProblemId()+agent.getAlgoId());
                 for (DFAgentDescription foundAID : result)
                 {
                     message.addReceiver(foundAID.getName());
@@ -113,14 +116,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
         // wait for the message from the collector
         receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR);
         logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
-        try
-        {
-            this.agent.setcSum((Double)receivedMessage.getContentObject());
-        } catch (UnreadableException e)
-        {
+        try {
+            this.agent.setcSum(Double.parseDouble(receivedMessage.getContent()));
+        }catch(Exception e){
             logger.error("could not parse cSum sent from the data collector", e);
         }
-
         return messages;
     }
 

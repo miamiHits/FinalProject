@@ -17,7 +17,7 @@ import java.util.*;
 public class SmartHomeAgent extends Agent {
     public static final String SERVICE_TYPE = "ACCESS_FOR_ALL_AGENTS";
     public static final String SERVICE_NAME = "AGENT";//TODO gal consider this one to be the agent's name(not static)
-    public  static final MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));
+    public static final MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));
     private AgentData agentData;
     private AgentIterationData bestIteration;
     private AgentIterationData currIteration;
@@ -132,6 +132,7 @@ public class SmartHomeAgent extends Agent {
         ServiceDescription sd = new ServiceDescription();
         sd.setType(SmartHomeAgent.SERVICE_TYPE);
         sd.setName(SmartHomeAgent.SERVICE_NAME);
+        sd.addOntologies(problemId+algoId);
         dfd.addServices(sd);
         try
         {

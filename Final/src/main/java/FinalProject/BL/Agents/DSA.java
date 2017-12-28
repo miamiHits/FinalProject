@@ -38,10 +38,10 @@ public class DSA extends SmartHomeAgentBehaviour {
             logger.info("Starting build schedule");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
+
         }
         else
         {
-            this.currentNumberOfIter ++;
             List<ACLMessage> messageList = waitForNeighbourMessages();
             parseMessages(messageList);
             helper.calcTotalPowerConsumption(agent.getcSum());
@@ -49,7 +49,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             tryBuildSchedule();
             beforeIterationIsDone();
         }
-
+        this.currentNumberOfIter ++;
     }
 
     private void tryBuildSchedule() {
