@@ -51,8 +51,8 @@ public class DataCollectionCommunicator extends Agent {
         }
         catch (FIPAException fe) {
             fe.printStackTrace();
+            logger.error("Communicator failed to register: " + fe);
         }
-        System.out.println("Agent " + getLocalName() + ": waiting for REQUEST message...");
     }
 
     protected void takeDown() {
@@ -61,10 +61,10 @@ public class DataCollectionCommunicator extends Agent {
             DFService.deregister(this);
         }
         catch (FIPAException fe) {
-            fe.printStackTrace();
+            logger.error("DataCollectionCommunicator failed to terminate: " + fe);
         }
         // Printout a dismissal message
-        System.out.println("DataCollectionCommunicator "+getAID().getName()+" terminating.");
+        logger.info("DataCollectionCommunicator "+getAID().getName()+" terminating.");
     }
     public DataCollector getCollector() {
         return collector;
