@@ -266,7 +266,7 @@ public class AlgorithmDataHelper
                 break;
             case LT:
                 ticksToWork = Math.ceil((prop.getTargetValue()-1 - currentState) / prop.getDeltaWhenWork());
-                if ((ticksToWork *  prop.getDeltaWhenWork()) + currentState >= prop.getTargetValue())
+                if (((ticksToWork *  prop.getDeltaWhenWork()) + currentState >= prop.getTargetValue()) && ticksToWork>1)
                 {
                     ticksToWork--;
                 }
