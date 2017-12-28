@@ -233,8 +233,11 @@ public class AlgorithmDataHelper
         {
             double [] neighbourConsumption = agentData.getPowerConsumptionPerTick();
             neighboursPriceConsumption.add(neighbourConsumption);
-            IntStream.range(0, neighbourConsumption.length)
-                    .forEachOrdered(i -> neighboursTotals[i] += neighbourConsumption[i]);
+            for ( int i=0; i<neighbourConsumption.length; ++i)
+            {
+                this.neighboursTotals[i] = Double.sum(neighboursTotals[i], neighbourConsumption[i]);
+            }
+
         }
 
         //calc the average
@@ -333,7 +336,7 @@ public class AlgorithmDataHelper
     }
 
     public void calcTotalPowerConsumption(double cSum) {
-        this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, this.getPowerConsumption(), agent.getCurrIteration().getPowerConsumptionPerTick()
+        this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, this.getPowerConsumption(),this.getPowerConsumption()
                 ,this.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
 
     }

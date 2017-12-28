@@ -44,6 +44,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         {
             List<ACLMessage> messageList = waitForNeighbourMessages();
             parseMessages(messageList);
+            helper.calcPriceSchemeForAllNeighbours();
             helper.calcTotalPowerConsumption(agent.getcSum());
 
             tryBuildSchedule();
@@ -57,7 +58,6 @@ public class DSA extends SmartHomeAgentBehaviour {
         boolean buildNewShed = drawCoin() == 1 ? true : false;
         if (buildNewShed)
         {
-            helper.calcPriceSchemeForAllNeighbours();
             for (Actuator act : helper.getDeviceToTicks().keySet())
             {
                 List<Integer> newProposeTicks = calcNewTicks(act);
@@ -97,6 +97,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             if (p.getActuator().getName().equals(actuator.getName()))
             {
                 prop = p;
+                break;
             }
             else{
                 logger.error("Cannot find property with this actuator" + actuator.getName());
