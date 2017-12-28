@@ -11,6 +11,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
+
 public class AlgorithmDataHelper
 {
     public double totalPriceConsumption=0;
@@ -310,5 +312,11 @@ public class AlgorithmDataHelper
 
     public void setPowerConsumption(double[] powerConsumption) {
         this.powerConsumption = powerConsumption;
+    }
+
+    public void calcTotalPowerConsumption(double cSum) {
+        this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, this.getPowerConsumption(), agent.getCurrIteration().getPowerConsumptionPerTick()
+                ,this.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
+
     }
 }

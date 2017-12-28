@@ -21,7 +21,7 @@ public class IterationCollectedData extends AgentIterationData {
         this.algorithm = algorithm;
     }
 
-    public IterationCollectedData(int iterNum, String agentName, double price, double powerCons, double[] powerConsPerDevice,
+    public IterationCollectedData(int iterNum, String agentName, double price, double[] powerConsPerDevice,
                                   String problemId, String algo ) {
         super(iterNum, agentName, price, powerConsPerDevice);
         this.problemId = problemId;

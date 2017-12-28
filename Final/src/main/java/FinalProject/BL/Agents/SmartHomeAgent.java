@@ -24,6 +24,26 @@ public class SmartHomeAgent extends Agent {
     private boolean stop = false;
     private double cSum;
     private double totalHousesPrice;
+    private String problemId;
+
+    public String getProblemId() {
+        return problemId;
+    }
+
+    public void setProblemId(String problemId) {
+        this.problemId = problemId;
+    }
+
+    public String getAlgoId() {
+        return algoId;
+    }
+
+    public void setAlgoId(String algoId) {
+        this.algoId = algoId;
+    }
+
+    private String algoId;
+
 
     public AgentData getAgentData() {
         return agentData;
