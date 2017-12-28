@@ -42,6 +42,10 @@ public class PowerConsumptionUtils {
         return cSum * AC;
     }
 
+    public static double calculateTotalConsumptionWithPenalty(double cSum, List<double[]> schedules) {
+        return cSum + calculateEPeak(schedules);
+    }
+
     public static double calculateTotalConsumptionWithPenalty(double cSum, double[] newSchedule, double[] oldSchedule,
                                                               List<double[]> otherSchedules, double[] priceScheme)
     {
@@ -51,19 +55,24 @@ public class PowerConsumptionUtils {
             cSum = replaceInCSum(cSum, newSchedule, oldSchedule, priceScheme);
 
             otherSchedules.add(newSchedule);
-            double eSqrSum = 0;
-            for (double[] sched : otherSchedules)
-            {
-                for (double aSched : sched)
-                {
-                    eSqrSum += Math.pow(aSched, 2);
-                }
-            }
-            double ePeak = eSqrSum * AE;
+            double ePeak = calculateEPeak(otherSchedules);
             return cSum + ePeak;
         }
         logger.warn("Could not calculate EPeak.");
         return -1;
+    }
+
+    private static double calculateEPeak(List<double[]> schedules)
+    {
+        double eSqrSum = 0;
+        for (double[] sched : schedules)
+        {
+            for (double aSched : sched)
+            {
+                eSqrSum += Math.pow(aSched, 2);
+            }
+        }
+        return eSqrSum * AE;
     }
 
     private static double replaceInCSum(double cSum, double[] newSchedule, double[] oldSchedule, double[] priceScheme)

@@ -153,10 +153,10 @@ public class PropertyWithData {
     public boolean canBeModified (double amountOfChange)
     {
         double newState = sensor.getCurrentState() + amountOfChange;
-        if (!Double.isNaN(max) && newState > max || (!Double.isNaN(min) && newState > min))
-            return false;
+        if (((!Double.isNaN(max)) && newState < max) || (((!Double.isNaN(min)) && newState > min)))
+            return true;
 
-        return true;
+        return false;
     }
 
 

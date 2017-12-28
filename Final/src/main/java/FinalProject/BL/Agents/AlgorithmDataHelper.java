@@ -112,6 +112,7 @@ public class AlgorithmDataHelper
                 matchSensors(act, prop, act.getName().equals("off")? true : false);
                 if (!act.getName().equals("off")) {
                     prop.setPowerConsumedInWork(act.getPowerConsumption());
+                    break;
                 }
             }
         }
@@ -136,6 +137,22 @@ public class AlgorithmDataHelper
 
             }
         }
+
+        //There are a props, that another prop got already it's actuator. 5 rules and only 3 Actuators
+        allProperties.stream()
+                .filter(p -> p.getActuator() == null)
+                .collect(Collectors.toList()).forEach(prop -> {
+            actuators.forEach(actuator -> {
+                for (Action act : actuator.getActions()) {
+                    for (Effect effect : act.getEffects()) {
+                        if (effect.getProperty().equals(prop.getName())) {
+                            prop.setActuator(actuator);
+                            break;
+                        }
+                    }
+                }
+            });
+        });
         //fill the sensors.
         for(PropertyWithData prop : allProperties.stream()
                 .filter(p->p.isLoaction()==true)
@@ -222,7 +239,8 @@ public class AlgorithmDataHelper
 
         //calc the average
         double sum = Arrays.stream(neighboursTotals, 0, neighboursTotals.length).sum();
-        averageConsumption = sum / agent.getAgentData().getNeighbors().size();
+
+        averageConsumption = sum / this.powerConsumption.length;
 
         //sign the "rush" ticks.
         IntStream.range(0, neighboursTotals.length).
@@ -318,5 +336,15 @@ public class AlgorithmDataHelper
         this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, this.getPowerConsumption(), agent.getCurrIteration().getPowerConsumptionPerTick()
                 ,this.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
 
+    }
+
+    public void checkForPassiveRules() {
+        for (PropertyWithData prop : allProperties)
+        {
+            if (prop.getRt()==null)
+            {
+                prop.setPassiveOnly(true);
+            }
+        }
     }
 }

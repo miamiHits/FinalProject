@@ -3,6 +3,7 @@ import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.BL.Problems.*;
+import FinalProject.DAL.AlgorithmLoader;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
@@ -15,9 +16,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private boolean finished = false;
     public static final int START_TICK = 0;
-
     private final static Logger logger = Logger.getLogger(DSA.class);
-    //  TODO : Create Local power consumption
 
     public DSA()
     {
@@ -39,17 +38,18 @@ public class DSA extends SmartHomeAgentBehaviour {
             logger.info("Starting build schedule");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
+
         }
         else
         {
-            this.currentNumberOfIter ++;
             List<ACLMessage> messageList = waitForNeighbourMessages();
             parseMessages(messageList);
             helper.calcTotalPowerConsumption(agent.getcSum());
+
             tryBuildSchedule();
             beforeIterationIsDone();
         }
-
+        this.currentNumberOfIter ++;
     }
 
     private void tryBuildSchedule() {
@@ -198,8 +198,9 @@ public class DSA extends SmartHomeAgentBehaviour {
 
         passiveRules.forEach(pRule -> helper.buildNewPropertyData(pRule, true));
         activeRules.forEach(pRule -> helper.buildNewPropertyData(pRule, false));
-
+        helper.checkForPassiveRules();
         helper.SetActuatorsAndSensors();
+        logger.info(agent.getAgentData().getName() + "Finished build my prop object, start work on my schedule");
         tryBuildScheduleIterationZero();
         beforeIterationIsDone();
 
@@ -246,24 +247,38 @@ public class DSA extends SmartHomeAgentBehaviour {
                 }
 
                 //there are sensors that reflect from this work! check if there is a problem with that.
-                if (!prop.relatedSensorsDelta.isEmpty())
+                try
                 {
-                    for (String propName : prop.relatedSensorsDelta.keySet())
+                    if (!prop.relatedSensorsDelta.isEmpty())
                     {
-                        Optional<PropertyWithData> relatedSensorOpt = helper.getAllProperties().stream()
-                                .filter(x->x.getName().equals(propName)).findFirst();
-                        if (relatedSensorOpt.isPresent() && !relatedSensorOpt.get().canBeModified(prop.relatedSensorsDelta.get(propName)))
+                        for (String propName : prop.relatedSensorsDelta.keySet())
                         {
-                            //there is a problem with working at that hour, lets draw new tick.
-                            flag = true;
-                            break;
+                            if (helper.getAllProperties().stream()
+                                    .filter(x->x.getName().equals(propName)).findFirst()!= null)
+                            {
+                                PropertyWithData relatedSensor = helper.getAllProperties().stream()
+                                        .filter(x->x.getName().equals(propName)).findFirst().get();
+                                if (!relatedSensor.canBeModified(prop.relatedSensorsDelta.get(propName)))
+                                {
+                                    //there is a problem with working at that hour, lets draw new tick.
+                                    flag = true;
+                                    break;
+                                }
+                            }
                         }
                     }
-                }
+                  }
+                  catch (Exception e)
+                  {
+                      logger.warn(agent.getAgentData().getName() + "Try to look for the related sensros , but not found like this");
+                  }
+
             }
 
             helper.updateConsumption(prop, myTicks);
         }
+
+        logger.info(agent.getAgentData().getName() + "Finished build sched");
 
     }
 

@@ -1,15 +1,11 @@
 package FinalProject.BL.DataCollection;
 
 import FinalProject.BL.Experiment;
-import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
-import FinalProject.BL.Agents.*;
-import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 import org.apache.log4j.Logger;
 
 import java.util.Map;
@@ -42,8 +38,8 @@ public class DataCollectionCommunicator extends Agent {
             numOfAgentsInProblems = (Map<String, Integer>) args[0];
             prices = (Map<String, double[]>) args[1];
             experiment = (Experiment) args[2];
+            collector = new DataCollector(numOfAgentsInProblems, prices);
         }
-        // Register the book-selling service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
