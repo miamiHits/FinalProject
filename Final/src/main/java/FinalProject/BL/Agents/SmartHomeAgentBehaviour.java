@@ -118,7 +118,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
         logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
         try
         {
-            this.cSum = (Double)receivedMessage.getContentObject();
+            this.agent.setcSum((Double)receivedMessage.getContentObject());
         } catch (UnreadableException e)
         {
             logger.error("could not parse cSum sent from the data collector", e);

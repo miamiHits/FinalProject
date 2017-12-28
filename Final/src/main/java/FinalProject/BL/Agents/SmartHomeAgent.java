@@ -120,6 +120,8 @@ public class SmartHomeAgent extends Agent {
         //Getting fields in order: Algorithm, agentData
         this.algorithm = (SmartHomeAgentBehaviour) getArguments()[0];
         this.agentData = (AgentData) getArguments()[1];
+        this.algoId = (String)getArguments()[2];
+        this.problemId = (String)getArguments()[3];
         this.isZEROIteration = true;
 
 //        int iterationTotalNumber = agentData.getNumOfIterations();
