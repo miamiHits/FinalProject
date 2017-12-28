@@ -176,7 +176,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             for (Integer tick : ticks)
             {
                 double temp = refactoredPowerConsumption[tick];
-                refactoredPowerConsumption[tick] = temp - prop.getPowerConsumedInWork();
+                refactoredPowerConsumption[tick] = Math.abs(temp - prop.getPowerConsumedInWork());
             }
         }
 

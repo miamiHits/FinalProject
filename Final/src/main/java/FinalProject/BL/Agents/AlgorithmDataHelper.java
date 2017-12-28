@@ -192,7 +192,10 @@ public class AlgorithmDataHelper
             else
             {
                 if (effect.getProperty().equals(prop.getName())) {
-                    prop.setDeltaWhenWork(effect.getDelta());
+                    if (effect.getDelta() > 0)
+                    {
+                        prop.setDeltaWhenWork(effect.getDelta());
+                    }
                 } else {
                     prop.relatedSensorsDelta.put(effect.getProperty(), effect.getDelta());
                 }
@@ -340,7 +343,12 @@ public class AlgorithmDataHelper
     }
 
     public void setPowerConsumption(double[] powerConsumption) {
-        this.powerConsumption = powerConsumption;
+        double[] arr = new double[powerConsumption.length];
+        for (int i=0; i<powerConsumption.length; ++i)
+        {
+            arr[i] = powerConsumption[i];
+        }
+        this.powerConsumption =arr;
     }
 
     public void calcTotalPowerConsumption(double cSum) {
