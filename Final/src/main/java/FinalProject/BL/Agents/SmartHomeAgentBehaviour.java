@@ -3,6 +3,7 @@ package FinalProject.BL.Agents;
 
 import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.IterationData.AgentIterationData;
+import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.Utils;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
@@ -27,6 +28,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
     protected int FINAL_TICK;
     protected AlgorithmDataHelper helper;
     protected double cSum;
+    protected AgentIterationData agentIterationData;
+    protected IterationCollectedData agentIteraionCollected;
 
     private final static Logger logger = Logger.getLogger(SmartHomeAgentBehaviour.class);
 
@@ -62,7 +65,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
                 {
                     message.addReceiver(foundAID.getName());
                 }
-                message.setContentObject(agent.getCurrIteration());
+
+
+                message.setContentObject(agentIteraionCollected);
                 agent.send(message);
             }
             else
@@ -139,14 +144,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
 
     protected double calcPrice(double[] powerConsumption) {
         double res = 0 ;
-        double [] backgroundLoad = agent.getAgentData().getBackgroundLoad();
         double [] priceScheme = agent.getAgentData().getPriceScheme();
-        for (int i=0 ; i<backgroundLoad.length; ++i)
+        for (int i=0 ; i<priceScheme.length; ++i)
         {
             double temp =  Double.sum(powerConsumption[i], priceScheme[i]);
-            double temp2 = Double.sum(temp,backgroundLoad[i] );
-            res = Double.sum(temp2, res);
-            // Double.sum(res, Double.sum(backgroundLoad[i], Double.sum(powerConsumption[i], priceScheme[i])));
+            res = Double.sum(temp, res);
         }
         return res;
     }
@@ -158,5 +160,16 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
         this.currentNumberOfIter =0;
         this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length -1;
         this.helper = new AlgorithmDataHelper(agent);
+    }
+
+    protected void addBackgroundLoadToPriceScheme(double[] powerConsumption)
+    {
+        double [] backgroundLoad = agent.getAgentData().getBackgroundLoad();
+        double [] newPowerCons = new double[backgroundLoad.length];
+        for (int i=0 ; i<backgroundLoad.length; ++i)
+        {
+            newPowerCons[i] =  Double.sum(powerConsumption[i], backgroundLoad[i]);
+        }
+        helper.setPowerConsumption(newPowerCons);
     }
 }
