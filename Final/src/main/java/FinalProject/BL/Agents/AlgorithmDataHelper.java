@@ -142,6 +142,7 @@ public class AlgorithmDataHelper
                 matchSensors(act, prop, act.getName().equals("off") ? true : false);
                 if (!act.getName().equals("off")) {
                     prop.setPowerConsumedInWork(act.getPowerConsumption());
+                    break;
                 }
             }
         }
