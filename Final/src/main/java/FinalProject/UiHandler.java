@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-public class UiHandler{
+public class UiHandler implements Observer{
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     private Service service;
@@ -79,9 +81,11 @@ public class UiHandler{
         showMainScreen();
     }
 
-    public void notifyExperimentEnded(List<AlgorithmProblemResult> results) {
+    @Override
+    public void update(Observable o, Object arg)
+    {
         System.out.println("Experiment Ended!");
-        experimentResults = results;
+        experimentResults = (List<AlgorithmProblemResult>) arg;
         synchronized (EXPERIMENT_RUN_WAITER)
         {
             EXPERIMENT_RUN_WAITER.notifyAll();
