@@ -1,5 +1,6 @@
 package FinalProject.BL.DataCollection;
 
+import FinalProject.BL.Experiment;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -17,7 +18,9 @@ public class DataCollectionCommunicator extends Agent {
 
     public static final String SERVICE_TYPE = "dataCollector";
     public static final String SERVICE_NAME = "DataCollectionCommunicator";
-
+    private Map<String, Integer> numOfAgentsInProblems;
+    private Map<String, double[]> prices;
+    private Experiment experiment;
     private static final Logger logger = Logger.getLogger(DataCollectionCommunicator.class);
 
     DataCollector collector;
@@ -34,6 +37,13 @@ public class DataCollectionCommunicator extends Agent {
         logger.info("starting communicator");
         //add the cyclic behaviour
         addBehaviour(new DataCollectionCommunicatorBehaviour());
+        //get args from builder
+        Object[] args = getArguments();
+        if (args != null && args.length > 0) {
+            numOfAgentsInProblems = (Map<String, Integer>) args[0];
+            prices = (Map<String, double[]>) args[1];
+            experiment = (Experiment) args[2];
+        }
 
         // Register the book-selling service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
