@@ -98,15 +98,15 @@ public class AlgorithmProblemResult {
     public String toString()
     {
         return "AlgorithmProblemResult{" +
-                "problem='" + problem + '\'' +
-                ", algorithm='" + algorithm + '\'' +
-                ", avgPricePerIteration=" + avgPricePerIteration +
-                ", iterationsTillBestPrice=" + iterationsTillBestPrice +
-                ", lowestCostInBestIteration=" + lowestCostInBestIteration +
-                ", lowestCostForAgentInBestIteration=" + lowestCostForAgentInBestIteration +
-                ", lowestCostForAgentInBestIterationAgentName='" + lowestCostForAgentInBestIterationAgentName + '\'' +
-                ", highestCostForAgentInBestIteration=" + highestCostForAgentInBestIteration +
-                ", highestCostForAgentInBestIterationAgentName='" + highestCostForAgentInBestIterationAgentName + '\'' +
+                "problem='" + problem + '\'' + "\n" +
+                ", algorithm='" + algorithm + '\'' + "\n" +
+                ", avgPricePerIteration=" + avgPricePerIteration + "\n" +
+                ", iterationsTillBestPrice=" + iterationsTillBestPrice + "\n" +
+                ", lowestCostInBestIteration=" + lowestCostInBestIteration + "\n" +
+                ", lowestCostForAgentInBestIteration=" + lowestCostForAgentInBestIteration + "\n" +
+                ", lowestCostForAgentInBestIterationAgentName='" + lowestCostForAgentInBestIterationAgentName + '\'' + "\n" +
+                ", highestCostForAgentInBestIteration=" + highestCostForAgentInBestIteration + "\n" +
+                ", highestCostForAgentInBestIterationAgentName='" + highestCostForAgentInBestIterationAgentName + '\'' +"\n" +
                 '}';
     }
 }
