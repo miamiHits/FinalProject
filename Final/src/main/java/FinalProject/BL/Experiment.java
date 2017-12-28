@@ -71,6 +71,9 @@ public class Experiment {
                         "problem - %s"
                 , result.getAlgorithm()
                 , result.getProblem()));
+
+        algorithmProblemResults.add(result);
+
         (new Thread(() ->
         {
             try
@@ -119,8 +122,6 @@ public class Experiment {
         private List<AgentController> agentControllers;
         private AgentController dataCollectorController;
         private int aliveAgents = 0;
-
-
 
         @Override
         public void run() {
@@ -200,11 +201,18 @@ public class Experiment {
             }
             if (experimentRunStoppedByUser.get())
             {
+                logger.info("Experiment stopped by user");
                 //TODO gal discard results
             }
             else if (experimentRunStoppedWithError.get())
             {
+                logger.info("Experiment stopped with Error!");
                 //TODO gal display error message
+            }
+            else
+            {
+                logger.info("Experiment ended");
+                service.experimentEnded(algorithmProblemResults);
             }
         }
 
