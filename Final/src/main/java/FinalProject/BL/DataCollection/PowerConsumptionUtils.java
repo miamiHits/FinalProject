@@ -2,6 +2,7 @@ package FinalProject.BL.DataCollection;
 
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PowerConsumptionUtils {
@@ -54,8 +55,10 @@ public class PowerConsumptionUtils {
         {
             cSum = replaceInCSum(cSum, newSchedule, oldSchedule, priceScheme);
 
-            otherSchedules.add(newSchedule);
-            double ePeak = calculateEPeak(otherSchedules);
+            List<double[]> scheds = new ArrayList<>();
+            scheds.addAll(otherSchedules);
+            scheds.add(newSchedule);
+            double ePeak = calculateEPeak(scheds);
             return cSum + ePeak;
         }
         logger.warn("Could not calculate EPeak.");
