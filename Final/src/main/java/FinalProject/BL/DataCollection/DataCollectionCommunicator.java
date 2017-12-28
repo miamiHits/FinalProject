@@ -1,5 +1,6 @@
 package FinalProject.BL.DataCollection;
 
+import FinalProject.BL.Experiment;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -17,10 +18,11 @@ public class DataCollectionCommunicator extends Agent {
 
     public static final String SERVICE_TYPE = "dataCollector";
     public static final String SERVICE_NAME = "DataCollectionCommunicator";
-
+    private Map<String, Integer> numOfAgentsInProblems;
+    private Map<String, double[]> prices;
+    private Experiment experiment;
     private static final Logger logger = Logger.getLogger(DataCollectionCommunicator.class);
-
-    DataCollector collector;
+    private DataCollector collector;
 
     public DataCollectionCommunicator() {
     }
@@ -34,7 +36,14 @@ public class DataCollectionCommunicator extends Agent {
         logger.info("starting communicator");
         //add the cyclic behaviour
         addBehaviour(new DataCollectionCommunicatorBehaviour());
-
+        //get args from builder
+        Object[] args = getArguments();
+        if (args != null && args.length > 0) {
+            numOfAgentsInProblems = (Map<String, Integer>) args[0];
+            prices = (Map<String, double[]>) args[1];
+            experiment = (Experiment) args[2];
+            collector = new DataCollector(numOfAgentsInProblems, prices);
+        }
         // Register the book-selling service in the yellow pages
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
@@ -49,15 +58,6 @@ public class DataCollectionCommunicator extends Agent {
             fe.printStackTrace();
         }
         System.out.println("Agent " + getLocalName() + ": waiting for REQUEST message...");
-
-        /*ACLMessage msg = blockingReceive(MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
-        System.out.println("Agent " + getLocalName() + ": REQUEST message received. Reply and exit.");
-        ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
-        reply.addReceiver(msg.getSender());
-        msg.setOntology("XXXXX");
-        reply.setContent("exiting");
-        send(reply);
-        doDelete();*/
     }
 
     protected void takeDown() {
@@ -71,5 +71,24 @@ public class DataCollectionCommunicator extends Agent {
         // Printout a dismissal message
         System.out.println("DataCollectionCommunicator "+getAID().getName()+" terminating.");
     }
+    public DataCollector getCollector() {
+        return collector;
+    }
+
+    public void setCollector(DataCollector collector) {
+        this.collector = collector;
+    }
+
+    public Experiment getExperiment() {
+        return experiment;
+    }
+
+    public void setExperiment(Experiment experiment) {
+        this.experiment = experiment;
+    }
+
+
+
+
 
 }

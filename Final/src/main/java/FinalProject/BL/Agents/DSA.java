@@ -30,6 +30,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length -1;
         this.helper = new AlgorithmDataHelper(agent);
     }
+
     @Override
     protected void doIteration() {
         if (agent.isZEROIteration())

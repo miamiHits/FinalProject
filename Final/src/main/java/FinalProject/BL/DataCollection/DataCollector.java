@@ -19,9 +19,9 @@ public class DataCollector {
         this.probToPriceScheme = prices;
         this.probAlgoToItAgentPrice = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
         this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
-    }
+}
 
-    public void addData (IterationCollectedData data){
+    public double addData (IterationCollectedData data){
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
         IterationAgentsPrice tempIAP;
         if (probAlgoToItAgentPrice.containsKey(tempPA)){
@@ -46,7 +46,9 @@ public class DataCollector {
             }else{ //not the best iter
                 setAvgPriceInIter(tempPA, result, data.getIterNum());
             }
+            return newPrice;
         }
+        return 0;
     }
 
     private void setAvgPriceInIter(ProblemAlgorithm PA, AlgorithmProblemResult result, int iterNum) {
