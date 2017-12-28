@@ -94,4 +94,19 @@ public class AlgorithmProblemResult {
         this.lowestCostInBestIteration = lowestCostInBestIteration;
     }
 
+    @Override
+    public String toString()
+    {
+        return "AlgorithmProblemResult{" +
+                "problem='" + problem + '\'' +
+                ", algorithm='" + algorithm + '\'' +
+                ", avgPricePerIteration=" + avgPricePerIteration +
+                ", iterationsTillBestPrice=" + iterationsTillBestPrice +
+                ", lowestCostInBestIteration=" + lowestCostInBestIteration +
+                ", lowestCostForInBestIteration=" + lowestCostForInBestIteration +
+                ", lowestCostForInBestIterationAgentName='" + lowestCostForInBestIterationAgentName + '\'' +
+                ", highestCostForInBestIteration=" + highestCostForInBestIteration +
+                ", highestCostForInBestIterationAgentName='" + highestCostForInBestIterationAgentName + '\'' +
+                '}';
+    }
 }
