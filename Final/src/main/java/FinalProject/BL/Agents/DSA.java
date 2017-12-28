@@ -135,13 +135,12 @@ public class DSA extends SmartHomeAgentBehaviour {
      //   helper.getRushTicks().forEach(rT -> {
       //      rangeForWork.stream().filter(mT -> rT == mT).forEach(rangeForWork::remove);
       //  });
+        List<Set<Integer>> subsets = new ArrayList<>();
+        subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
 
-        List<List<Integer>> subsets = new ArrayList<>();
-        for (int i = 0; i <Math.ceil(rangeForWork.size() / ticksToWork); i++)
-        {
-            subsets.add(new ArrayList<>((int) ticksToWork));
-            helper.solve(rangeForWork.stream().mapToInt(j->j).toArray(), (int) ticksToWork, 0, subsets);
-        }
+
+        //helper.printCombination(rangeForWork.stream().mapToInt(j->j).toArray(), n, r);
+
 
         //get the prev powerCon array
         double [] refactoredPowerConsumption = agent.getCurrIteration().getPowerConsumptionPerTick();
@@ -150,21 +149,26 @@ public class DSA extends SmartHomeAgentBehaviour {
         //remove them from the array
         for (Integer tick : prevTicks)
         {
-            refactoredPowerConsumption[tick] -= prop.getPowerConsumedInWork() ;
+            refactoredPowerConsumption[tick] -= (double) refactoredPowerConsumption[tick] -  prop.getPowerConsumedInWork();
         }
 
+
         boolean improved = false;
-        for(List<Integer> ticks : subsets)
+        for(Set<Integer> ticks : subsets)
         {
+            refactoredPowerConsumption = addPowerCons(ticks, refactoredPowerConsumption, prop.getPowerConsumedInWork());
+
             double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), refactoredPowerConsumption, agent.getCurrIteration().getPowerConsumptionPerTick()
                     ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
 
             if (res <= helper.totalPriceConsumption && res <= bestPrice)
             {
                 bestPrice = res;
-                newTicks = ticks;
+                newTicks.addAll(ticks);
                 improved = true;
             }
+
+            refactoredPowerConsumption = removePowerCons(ticks, refactoredPowerConsumption, prop.getPowerConsumedInWork());
         }
 
         if(!improved)
@@ -172,6 +176,27 @@ public class DSA extends SmartHomeAgentBehaviour {
             newTicks = helper.getDeviceToTicks().get(actuator);
         }
         return newTicks;
+    }
+
+    private double[] removePowerCons(Set<Integer> prevTicks, double[] refactoredPowerConsumption, double powerConsumption) {
+        double[] res = refactoredPowerConsumption;
+
+        for (Integer tick : prevTicks)
+        {
+            res[tick] -= (double) refactoredPowerConsumption[tick] -  powerConsumption;
+        }
+
+        return res;
+    }
+
+    private double[] addPowerCons(Set<Integer> ticks, double[] refactoredPowerConsumption, double powerConsumption) {
+        double[] res = refactoredPowerConsumption;
+        for (Integer tick : ticks)
+        {
+            res[tick] = Double.sum(refactoredPowerConsumption[tick], powerConsumption);
+        }
+
+        return res;
     }
 
     private double[] buildNewScheduleAccordingToNewTicks() {
