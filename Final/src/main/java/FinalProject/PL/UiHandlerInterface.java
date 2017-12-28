@@ -1,17 +1,17 @@
 package FinalProject.PL;
 
+import FinalProject.BL.DataCollection.AlgorithmProblemResult;
+
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-/**
- * Created by oded on 12/28/2017.
- */
 public interface UiHandlerInterface extends Observer {
     void showMainScreen();
 
     void showExperimentRunningScreen();
 
-    void showResultScreen();
+    void showResultScreen(List<AlgorithmProblemResult> arg);
 
     @Override
     void update(Observable o, Object arg);

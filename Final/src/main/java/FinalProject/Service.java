@@ -71,6 +71,7 @@ public class Service extends Observable {
 
     public void experimentEnded(List<AlgorithmProblemResult> results)
     {
+        setChanged();
         notifyObservers(results);
     }
 
