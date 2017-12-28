@@ -61,7 +61,6 @@ public class DSA extends SmartHomeAgentBehaviour {
             }
             double[] powerConsumption = buildNewScheduleAccordingToNewTicks();
             double price = calcPrice(powerConsumption);
-            helper.totalPriceConsumption = price;
             agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, powerConsumption);
             agent.setCurrIteration(agentIterationData);
 
@@ -195,7 +194,6 @@ public class DSA extends SmartHomeAgentBehaviour {
         helper.SetActuatorsAndSensors();
         tryBuildScheduleIterationZero();
         double price = calcPrice (helper.getPowerConsumption());
-        helper.totalPriceConsumption = price;
         agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, helper.getPowerConsumption());
         agent.setCurrIteration(agentIterationData);
 

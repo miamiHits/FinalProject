@@ -1,12 +1,12 @@
 package FinalProject.BL.Agents;
 
 import FinalProject.BL.IterationData.AgentIterationData;
+import FinalProject.BL.Problems.Actuator;
 import FinalProject.BL.Problems.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,6 +132,11 @@ public class DSATest {
 
     @Test
     public void SimpleTestIter0() {
+        sensorListList = new ArrayList<>();
+        createSensors();
+        actuatorList = new ArrayList<>();
+        BuildDevice1();
+        BuildDevice2();
         dsa.buildScheduleFromScratch();
         Assert.assertTrue(dsa.getHelper().getAllProperties().size()==2);
         Assert.assertTrue(dsa.getHelper().getAllProperties().get(0).getName().equals("water_temp"));

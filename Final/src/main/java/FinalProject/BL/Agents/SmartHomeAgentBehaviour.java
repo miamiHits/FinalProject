@@ -25,6 +25,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour {
     protected int currentNumberOfIter;
     protected int FINAL_TICK;
     protected AlgorithmDataHelper helper;
+    protected double cSum;
 
     private final static Logger logger = Logger.getLogger(SmartHomeAgentBehaviour.class);
 
