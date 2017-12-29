@@ -43,6 +43,7 @@ public class DataCollector {
                 result.setLowestCostInBestIteration(newPrice);
                 result.setIterationsTillBestPrice(data.getIterNum());
                 setLowestHighestInBestIter(tempPA, result);
+                setAvgPriceInIter(tempPA, result, data.getIterNum());
             }else{ //not the best iter
                 setAvgPriceInIter(tempPA, result, data.getIterNum());
             }
@@ -58,7 +59,7 @@ public class DataCollector {
         double price = 0;
 
         if (iter != null) {
-            prices = iter.getAgentsPrices(result.getIterationsTillBestPrice());
+            prices = iter.getAgentsPrices(iterNum);
             for (AgentPrice ag : prices) {
                 price = ag.getPrice();
                 avg += price;
