@@ -41,7 +41,7 @@ public class ServiceTest {
         accessController = mock(DataAccessController.class);
 
         service = new Service(accessController);
-        service.addObserver(ui);
+        service.setObserver(ui);
     }
 
     @After
@@ -87,13 +87,6 @@ public class ServiceTest {
     }
 
     @Test
-    public void runExperiment() throws Exception
-    {
-        service.runExperiment();
-        Assert.assertNotNull(service.currExperiment);
-    }
-
-    @Test
     public void stopExperiment() throws Exception
     {
 
@@ -104,7 +97,7 @@ public class ServiceTest {
     {
         List<AlgorithmProblemResult> someList = new ArrayList<>();
         service.experimentEnded(someList);
-        verify(ui).update(service, someList);
+        verify(ui).notifyExperimentEnded(someList);
     }
 
     @Test
