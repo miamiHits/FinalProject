@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class Experiment implements ExperimentInterface {
     public static int maximumIterations = 0;
@@ -75,6 +76,8 @@ public class Experiment implements ExperimentInterface {
         assert result != null : "algorithmRunEnded must be invoked with a non-null result instance";
         assert result.getHighestCostForAgentInBestIteration() >= result.getLowestCostForAgentInBestIteration() :
                 "result - in best iteration, the highest cost for an agent must be greater than the lowest one";
+        assert result.getIterationsTillBestPrice() <= Experiment.maximumIterations :
+                "result.getIterationsTillBestPrice() was greater than the maximum iteration caount";
 
         algorithmProblemResults.add(result);
 
@@ -100,9 +103,8 @@ public class Experiment implements ExperimentInterface {
                         !experimentRunStoppedByUser.get())
                 {
                     logger.error("exception was thrown while !experimentRunStoppedWithError && !experimentRunStoppedByUser", e);
+                    assert false : "barrier was broken without the user stopping the experiment or an error occoured";//the system reached a bad state - should fail the assertion test
                 }
-                boolean assertionCondition = (!experimentRunStoppedWithError.get() && !experimentRunStoppedByUser.get());
-                assert assertionCondition : "BrokenBarrierException was thrown while !experimentRunStoppedWithError && !experimentRunStoppedByUser";
             }
         })).start();
     }
@@ -146,8 +148,18 @@ public class Experiment implements ExperimentInterface {
                                                 "problem: %s",
                                         currentAlgorithmBehaviour.getBehaviourName(),
                                         currentProblem.getId()));
+
+                                assert currentProblem.getAgentsData()
+                                        .stream()
+                                        .map(ad -> ad.getName())
+                                        .distinct()
+                                        .collect(Collectors.toList()).size() == currentProblem.getAgentsData().size() :
+                                        "some of the agents did not have have unique name";
+
                                 for (AgentData agentData : currentProblem.getAgentsData())
                                 {
+                                    assert agentData.getName() != null && !agentData.getName().equals("") :
+                                            "agent must have a name that is not an empty string";
                                     Object[] agentInitializationArgs = new Object[4];
                                     agentInitializationArgs[0] = currentAlgorithmBehaviour.cloneBehaviour();
                                     agentInitializationArgs[1] = agentData;
@@ -156,8 +168,25 @@ public class Experiment implements ExperimentInterface {
                                     AgentController agentController = this.mainContainer.createNewAgent(agentData.getName(),
                                             SmartHomeAgent.class.getName(),
                                             agentInitializationArgs);
+
+                                    assert (agentController.getState().getName().equals("Initiated")) :
+                                            "new agent state was not == INITIATED after initiated";
+
+
                                     this.agentControllers.add(agentController);
                                 }
+
+                                assert this.agentControllers
+                                        .stream()
+                                        .map(ac -> {
+                                            try {return ac.getName();}
+                                        catch(Throwable t){} return null;})
+                                        .distinct()
+                                        .filter(name -> name != null)
+                                        .collect(Collectors.toList())
+                                        .size() == currentProblem.getAgentsData().size() :
+                                        "some of the agents did not have have unique name (StaleProxyException might have been thrown)";
+
 
                                 this.aliveAgents = this.agentControllers.size();
                                 if (waitingBarrier.isBroken())
@@ -185,9 +214,18 @@ public class Experiment implements ExperimentInterface {
                                 {
                                     logger.warn("experiment thread got BrokenBarrierException while waiting for algo-problem run to end",
                                             e);
+                                    if (!experimentRunStoppedWithError.get() &&
+                                            !experimentRunStoppedByUser.get())
+                                    {
+                                        logger.error("exception was thrown while !experimentRunStoppedWithError && !experimentRunStoppedByUser", e);
+                                        assert false : "barrier was broken without the user stopping the experiment or an error occoured";//the system reached a bad state - should fail the assertion test
+                                    }
                                 }
                                 finally
                                 {
+                                    assert waitingBarrier.getNumberWaiting() == 0 :
+                                            "no threads should wait on the barrier once algo-problem conf run ended";
+
                                     experimentConfigurationRunning.set(false);
                                     if (experimentRunStoppedByUser.get() || experimentRunStoppedWithError.get())
                                     {
@@ -221,6 +259,8 @@ public class Experiment implements ExperimentInterface {
                 logger.info("Experiment ended");
                 service.experimentEnded(algorithmProblemResults);
             }
+            assert !experimentConfigurationRunning.get() :
+                    "experimentConfigurationRunning should be false when experiment has ended";
         }
 
         private void initialize() throws ControllerException {
@@ -253,6 +293,12 @@ public class Experiment implements ExperimentInterface {
                 numOfAgentsInProblems.put(problem.getId(), problem.getAgentsData().size());
                 prices.put(problem.getId(), problem.getPriceScheme());
             }
+
+            assert numOfAgentsInProblems.keySet().size() == problems.size() :
+                    "not all of the problem agent counts were sent to the data collection agent";
+            assert prices.keySet().size() == problems.size() :
+                    "not all of the problem agent price schemas were sent to the data collection agent";
+
             Object[] collectorInitializationArgs = new Object[3];
             collectorInitializationArgs[0] = numOfAgentsInProblems;
             collectorInitializationArgs[1] = prices;
@@ -260,6 +306,8 @@ public class Experiment implements ExperimentInterface {
             this.dataCollectorController = this.mainContainer.createNewAgent(DataCollectionCommunicator.SERVICE_NAME,
                     DataCollectionCommunicator.class.getName(),
                     collectorInitializationArgs);
+            assert (this.dataCollectorController.getState().getName().equals("Initiated")) :
+                    "data collector state was not == INITIATED after initiated";
             this.dataCollectorController.start();
             logger.info("started data collector agent");
         }
@@ -315,6 +363,17 @@ public class Experiment implements ExperimentInterface {
                     this.aliveAgents == 0)
             {//all agents are dead(completed their run)
                 logger.info("all agents died, will start running next problem-algorithm configuration once data collector sends results");
+                assert this.agentControllers
+                        .stream()
+                        .allMatch(ac -> {
+                            try {
+                                ac.getState();
+                                return false;}
+                            catch(StaleProxyException e){
+                            return true;
+                            }}) :
+                        "upon ending ";
+
                 (new Thread(() -> {// instead of blocking the caller block an anonymous thread
                     try
                     {
@@ -335,6 +394,7 @@ public class Experiment implements ExperimentInterface {
                                 !experimentRunStoppedByUser.get())
                         {
                             logger.error("exception was thrown while !experimentRunStoppedWithError && !experimentRunStoppedByUser", e);
+                            assert false : "barrier was broken without the user stopping the experiment or an error occoured";//the system reached a bad state - should fail the assertion test
                         }
                     }
                 })).start();
