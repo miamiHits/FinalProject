@@ -82,12 +82,16 @@ public class DSA extends SmartHomeAgentBehaviour {
     private void beforeIterationIsDone()
     {
         logger.info("calculating price, and created the objects to sending - stage 6");
-
         addBackgroundLoadToPriceScheme(helper.getPowerConsumption());
         double price = calcPrice(helper.getPowerConsumption());
-        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, helper.getPowerConsumption());
+        double[] arr = new double[helper.getPowerConsumption().length];
+        for (int i=0; i< helper.getPowerConsumption().length; ++i)
+        {
+            arr[i] = helper.getPowerConsumption()[i];
+        }
+        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, arr);
         agent.setCurrIteration(agentIterationData);
-        agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, helper.getPowerConsumption(), agent.getProblemId(), agent.getAlgoId());
+        agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId());
     }
 
     public int drawCoin() {
@@ -170,6 +174,7 @@ public class DSA extends SmartHomeAgentBehaviour {
                 bestPrice = res;
                 newTicks.addAll(ticks);
                 improved = true;
+                break;
             }
 
             //sub - ing from the array
