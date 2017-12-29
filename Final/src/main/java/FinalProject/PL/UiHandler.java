@@ -9,19 +9,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 
 public class UiHandler implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     private Service service;
-    private final Object EXPERIMENT_RUN_WAITER = new Object();
-    private List<AlgorithmProblemResult> experimentResults = null;
 
     public UiHandler(Service service)
     {
         this.service = service;
-        service.addObserver(this);
+        service.setObserver(this);
     }
 
     @Override
@@ -60,39 +57,29 @@ public class UiHandler implements UiHandlerInterface {
     @Override
     public void showExperimentRunningScreen() {
         System.out.println("Experiment it running");
-        try
-        {
-            synchronized (EXPERIMENT_RUN_WAITER)
-            {
-                EXPERIMENT_RUN_WAITER.wait();
-            }
-
-            showResultScreen();
-        } catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
     }
 
     @Override
-    public void showResultScreen() {
+    public void showResultScreen(List<AlgorithmProblemResult> experimentResults) {
         for (AlgorithmProblemResult res : experimentResults)
         {
             System.out.println(res.toString());
         }
         System.out.println('\n');
 
-        showMainScreen();
+//        showMainScreen();
     }
 
     @Override
-    public void update(Observable o, Object arg)
+    public void notifyExperimentEnded(List<AlgorithmProblemResult> results)
     {
         System.out.println("Experiment Ended!");
-        experimentResults = (List<AlgorithmProblemResult>) arg;
-        synchronized (EXPERIMENT_RUN_WAITER)
-        {
-            EXPERIMENT_RUN_WAITER.notifyAll();
-        }
+        showResultScreen(results);
+    }
+
+    @Override
+    public void notifyError(String msg)
+    {
+        System.out.println(msg);
     }
 }

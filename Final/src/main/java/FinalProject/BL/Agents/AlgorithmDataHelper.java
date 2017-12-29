@@ -192,7 +192,10 @@ public class AlgorithmDataHelper
             else
             {
                 if (effect.getProperty().equals(prop.getName())) {
-                    prop.setDeltaWhenWork(effect.getDelta());
+                    if (effect.getDelta() > 0)
+                    {
+                        prop.setDeltaWhenWork(effect.getDelta());
+                    }
                 } else {
                     prop.relatedSensorsDelta.put(effect.getProperty(), effect.getDelta());
                 }
@@ -200,25 +203,27 @@ public class AlgorithmDataHelper
         }
     }
 
-    public void solve(int[] a, int k, int i, List<List<Integer>> subsets) {
-        if (i == a.length) {
+    private void getSubsets(List<Integer> superSet, int k, int idx, Set<Integer> current,List<Set<Integer>> solution) {
+        //successful stop clause
+        if (current.size() == k) {
+            solution.add(new HashSet<>(current));
             return;
-        } else {
-            // loop over all subsets and try to put a[i] in
-            for (int j = 0; j < subsets.size(); j++) {
-                if (subsets.get(j).size() < k) {
-                    // subset j not full
-                    subsets.get(j).add(a[i]);
-                    solve(a, k, i+1, subsets); // do recursion
-                    subsets.get(j).remove((Integer)a[i]);
-
-                    if (subsets.get(j).size() == 0) {
-                        // Not skipping empty subsets, so I won't get duplicates
-                        break;
-                    }
-                }
-            }
         }
+        //unseccessful stop clause
+        if (idx == superSet.size()) return;
+        Integer x = superSet.get(idx);
+        current.add(x);
+        //"guess" x is in the subset
+        getSubsets(superSet, k, idx+1, current, solution);
+        current.remove(x);
+        //"guess" x is not in the subset
+        getSubsets(superSet, k, idx+1, current, solution);
+    }
+
+    public List<Set<Integer>> getSubsets(List<Integer> superSet, int k) {
+        List<Set<Integer>> res = new ArrayList<>();
+        getSubsets(superSet, k, 0, new HashSet<Integer>(), res);
+        return res;
     }
 
     public static <T> Predicate<T> distinctByKey(Function<? super T,Object> keyExtractor) {
@@ -227,12 +232,17 @@ public class AlgorithmDataHelper
     }
 
     public void calcPriceSchemeForAllNeighbours() {
+        neighboursPriceConsumption.clear();
         logger.info("Saving all my neighbors sched - stage 1");
         List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
         //first sum all the neighbours.
         for (AgentIterationData agentData : myNeighborsShed)
         {
-            double [] neighbourConsumption = agentData.getPowerConsumptionPerTick();
+            double [] neighbourConsumption = new double[agentData.getPowerConsumptionPerTick().length];
+            for(int i=0; i<agentData.getPowerConsumptionPerTick().length; ++i)
+            {
+                neighbourConsumption[i] = agentData.getPowerConsumptionPerTick()[i];
+            }
             neighboursPriceConsumption.add(neighbourConsumption);
             for ( int i=0; i<neighbourConsumption.length; ++i)
             {
@@ -266,7 +276,7 @@ public class AlgorithmDataHelper
                 break;
             case LT:
                 ticksToWork = Math.ceil((prop.getTargetValue()-1 - currentState) / prop.getDeltaWhenWork());
-                if (((ticksToWork *  prop.getDeltaWhenWork()) + currentState >= prop.getTargetValue()) && ticksToWork>1)
+                if (((ticksToWork *  prop.getDeltaWhenWork()) + currentState >= prop.getTargetValue()) )
                 {
                     ticksToWork--;
                 }
@@ -333,14 +343,35 @@ public class AlgorithmDataHelper
     }
 
     public void setPowerConsumption(double[] powerConsumption) {
-        this.powerConsumption = powerConsumption;
+        double[] arr = new double[powerConsumption.length];
+        for (int i=0; i<powerConsumption.length; ++i)
+        {
+            arr[i] = powerConsumption[i];
+        }
+        this.powerConsumption =arr;
     }
 
     public void calcTotalPowerConsumption(double cSum) {
         logger.info("Calculating total power consumption - stage 2");
+        List<double[]> toCalc = new ArrayList<>();
+        for(double[] arr : this.neighboursPriceConsumption)
+        {
+            double [] deepArr = new double[arr.length];
+            for(int i=0; i< arr.length; ++i)
+            {
+                deepArr[i] = arr[i];
+            }
 
-        List<double[]> toCalc = this.neighboursPriceConsumption;
-        toCalc.add(this.powerConsumption);
+            toCalc.add(deepArr);
+        }
+
+        double [] deepArr = new double[this.powerConsumption.length];
+        for(int i=0; i< this.powerConsumption.length; ++i)
+        {
+            deepArr[i] = this.powerConsumption[i];
+        }
+
+        toCalc.add(deepArr);
         this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, toCalc);
 
     }

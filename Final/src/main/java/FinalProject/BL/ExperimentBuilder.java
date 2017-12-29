@@ -12,7 +12,6 @@ public class ExperimentBuilder {
     private List<SmartHomeAgentBehaviour> algos;
     private Service service;
 
-
     public ExperimentBuilder(Service service)
     {
         this.service = service;
@@ -35,13 +34,47 @@ public class ExperimentBuilder {
         this.problems = problems;
     }
 
-    public Experiment createExperiment()
+    public Experiment createExperiment() throws RuntimeException
     {
-        //TODO gal
+        checkFieldsWereSet();//throws
+
         Experiment newlyCreatedExperiment = new Experiment(this.service, this.problems, this.algos);
         Experiment.maximumIterations = this.numOfIterations;
         return newlyCreatedExperiment;
     }
 
+    private void checkFieldsWereSet()throws RuntimeException
+    {
+        if (service == null)
+        {
+            throw new RuntimeException("Could not create Experiment, service is null");
+        }
+        else if (problems == null || problems.size() == 0)
+        {
+            throw new RuntimeException("Could not create Experiment, no problems were added");
+        }
+        else if (algos == null || algos.size() == 0)
+        {
+            throw new RuntimeException("Could not create Experiment, no algorithms were added");
+        }
+        else if (numOfIterations <= 0)
+        {
+            throw new RuntimeException("Could not create Experiment, number of iterations was not set");
+        }
+    }
 
+    public int getNumOfIterations()
+    {
+        return numOfIterations;
+    }
+
+    public List<Problem> getProblems()
+    {
+        return problems;
+    }
+
+    public List<SmartHomeAgentBehaviour> getAlgos()
+    {
+        return algos;
+    }
 }

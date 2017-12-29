@@ -18,6 +18,8 @@ package BL {
 		Behaviour -- Agent
 
 		class ACLMessage
+
+		class DFAgentDescription
 	}
 
 	package DataObjects{
@@ -35,7 +37,6 @@ package BL {
 		}
 
 		class Actuator {
-			+actions : List<Action>
 			+act(Sensors, Action) : void
 		}
 
@@ -47,7 +48,6 @@ package BL {
 		class Action {
 			+name : String
 			+powerConsumption : double
-			+effects : List<Effect>
 		}
 
 		enum RelationType {
@@ -66,29 +66,21 @@ package BL {
 
 		class Rule {
 			+isActive : boolean
-			+device : Device
 			+property : String
 			+ruleValue : double
-			+prefixType : RelationType
 			+relationValue : double
-			+prefix : Prefix
 		}
 
 		class AgentData {
 			+name : String
-			+neighbors : List<AgentData>
 			+backgroundLoad : double[Problem.horizon]
 			+priceSchema : double[Problem.horizon]
 			+houseType : int
-			+rules : List<Rule>
-			+actuators : List<Actuator>
-			+sensors : List<Sensor>
 		}
 
 		class Problem {
 			id : String
 			allDevices : Map<Integer, List<Device>>
-			allHomes : List<AgentData>
 			horizon : int
 			granularity : int
 			priceScheme : double[horizon]
@@ -114,7 +106,8 @@ package BL {
 	package Agents {
 
 		class AlgorithmDataHelper {
-			totalPriceConsumption : double
+			+totalPriceConsumption : double
+
 			+createNewProp() : PropertyWithData
 			+buildNewPropertyData(Rule, boolean) : void
 			+SetActuatorsAndSensors() : void
@@ -131,11 +124,7 @@ package BL {
 			+min : double
 			+max : double
 			+targetValue : double
-			+actuator : Actuator
-			+sensor : Sensor
 			+isPassiveOnly : boolean
-			+prefix : Prefix
-			+rt : RelationType
 			+targetTick : double
 			+deltaWhenWork : double
 			+powerConsumedInWork : double
@@ -148,8 +137,6 @@ package BL {
 
 		class SmartHomeAgent {
 			+agentData : agentData
-			+bestIteration : AgentIterationData
-			+currIteration : AgentIterationData
 			+numOfIterations : int
 			#Setup() : void
 			addBehaviour(Behaviour b) : void
@@ -158,9 +145,8 @@ package BL {
 		Note "action(){\n\twhile(!stop){\n\t\t...\n\t\tdoIteration();\n\t\tsendIterationToCollector();\n\t\t..\n\t}\n}" as smabNote
 
 		abstract class SmartHomeAgentBehaviour <<Abstract>> {
-			+agent : SmartHomeAgent
 			+name : String
-			#helper : AlgorithmDataHelper
+
 			#{abstract} doIteration() : void
 			-sendIterationToCollector(AgentIterationData) : void
 			-sendIterationToNeighbors() : void
@@ -209,8 +195,6 @@ package BL {
 
 		AlgorithmDataHelper --> PropertyWithData
 		AlgorithmDataHelper --> SmartHomeAgent
-
-
 	}
 
 	package IterationData {
@@ -246,19 +230,21 @@ package BL {
 		    +probAlgoToResult : Map<ProblemAlgorithm, AlgorithmProblemResult>
 		    +probToPriceScheme : Map<String, double[]>
 
-		    +algorithmRunEnded() : void
-		    +sendCSumToAgents(List<)
 		    +addData(IterationCollectedData) : void    
 		}
 
 		class DataCollectionCommunicator {
-			-dataCollector : DataCollector
+			+{static, final} SERVICE_TYPE : String
+			+{static, final} SERVICE_NAME : String
+
 			#setup() : void
+			#takeDown() : void
 		}
 
 		class DataCollectionCommunicatorBehaviour {
 		    +agent : DataCollectorCommunicator
 			+action() : void
+			+findAgents(String) : DFAgentDescription[]
 		}
 
 		class StatisticsHandler {
@@ -303,14 +289,11 @@ package BL {
 
 	class ExperimentBuilder {
 		-numOfIterations : int
-		-problems : List<Problem>
-		-algos : List<SmartHomeAgentBehaviour>
 		-service : Service
 
 		+setNumOfIterations(int) : void
 		+addAlgorithms(List<String>) : void
 		+addProblems(List<String>) : void
-		+createExperiment() : Experiment
 	}
 
 	interface ExperimentInterface {
@@ -321,12 +304,7 @@ package BL {
 
 	class Experiment {
 		+numOfIterations : int
-		-service : Service
-		-dataCollector : DataCollector
-		-problems : List<Problem>
-		-algorithms : List<SmartHomeAgentBehaviour>
 
-		-algorithmProblemRunResults : List<AlgorithmProblemResult>
 		+runExperiment() : void
 		+algorithmRunEnded(AlgorithmProblemResult) : void
 		+stopExperiment() : void
@@ -347,6 +325,7 @@ package BL {
 	DataCollectionCommunicator "1" -- "1...*" SmartHomeAgentBehaviour
 	DataCollectionCommunicator --> AgentIterationData
 	DataCollector --> AgentIterationData
+	DataCollectionCommunicatorBehaviour --> DFAgentDescription
 
 	SmartHomeAgentBehaviour -> PowerConsumptionUtils
 	SmartHomeAgent o- AgentIterationData
@@ -366,8 +345,6 @@ package PL {
 	}
 
 	class UiHandler <<Observer>> {
-		chartsCreator : ChartViewer
-		service : Service
 		-showMainScreen() : void
 		-showResultsScreen() : void
 		+notifyExperimentEnded(List<AlgorithmProblemResult>) : void
@@ -447,7 +424,6 @@ package DAL {
 }
 
 interface ServiceInterface {
-	+currExperiment : Experiment
 	+addAlgorithmsToExperiment(List<String>, int) : void
 	+addProblemsToExperiment(List<String>) : void
 	+runExperimrent() : void
@@ -458,9 +434,6 @@ interface ServiceInterface {
 }
 
 class Service <<Observable>> {
-	-experimentBuilder : ExperimentBuilder
-	-dalController : DataAccessControllerInterface
-	+currExperiment : Experiment
 	+addAlgorithmsToExperiment(List<SmartHomeAgentBehaviour>, int) : void
 	+addProblemsToExperiment(List<Problem>) : void
 	+runExperimrent() : void

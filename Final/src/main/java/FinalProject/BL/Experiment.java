@@ -121,8 +121,43 @@ public class Experiment implements ExperimentInterface {
         return this;
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
 
-///////////////////////////////////////////////
+        Experiment that = (Experiment) o;
+
+        if (!service.equals(that.service))
+        {
+            return false;
+        }
+        if (!problems.equals(that.problems))
+        {
+            return false;
+        }
+        return algorithms.equals(that.algorithms);
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = service.hashCode();
+        result = 31 * result + problems.hashCode();
+        result = 31 * result + algorithms.hashCode();
+        return result;
+    }
+
+
+    ///////////////////////////////////////////////
 //ExperimentRunnable
 ///////////////////////////////////////////////
     private class ExperimentRunnable implements Runnable, PlatformController.Listener
@@ -131,6 +166,7 @@ public class Experiment implements ExperimentInterface {
         private List<AgentController> agentControllers;
         private AgentController dataCollectorController;
         private int aliveAgents = 0;
+        private Runtime rt;
 
         @Override
         public void run() {
@@ -247,16 +283,19 @@ public class Experiment implements ExperimentInterface {
             if (experimentRunStoppedByUser.get())
             {
                 logger.info("Experiment stopped by user");
+                killJade();
                 //TODO gal discard results
             }
             else if (experimentRunStoppedWithError.get())
             {
                 logger.info("Experiment stopped with Error!");
+                killJade();
                 //TODO gal display error message
             }
             else
             {
                 logger.info("Experiment ended");
+                killJade();
                 service.experimentEnded(algorithmProblemResults);
             }
             assert !experimentConfigurationRunning.get() :
@@ -266,7 +305,7 @@ public class Experiment implements ExperimentInterface {
         private void initialize() throws ControllerException {
             logger.info("initialized jade infrastructure");
             // Get a hold on JADE runtime
-            Runtime rt = Runtime.instance();
+            rt = Runtime.instance();
 
             // Exit the JVM when there are no more containers around
             rt.setCloseVM(true);
@@ -315,14 +354,15 @@ public class Experiment implements ExperimentInterface {
         private void stopRun()
         {
             logger.info("experiment was stopped");
-            try
-            {
-                this.mainContainer.kill();
-            }
-            catch (StaleProxyException e)
-            {
-                //ignore the exception
-            }
+            killJade();
+//            try
+//            {
+//                this.mainContainer.kill();
+//            }
+//            catch (StaleProxyException e)
+//            {
+//                //ignore the exception
+//            }
 
             //not used for now since container.kill might be a better choice
             // TODO gal remove when surely not needed
@@ -331,19 +371,29 @@ public class Experiment implements ExperimentInterface {
             */
         }
 
-        private void killAllAgents()
+        private void killAllAgents() throws StaleProxyException
         {
             for (AgentController controller : this.agentControllers)
             {
-                try
+                if (!controller.getState().getName().equalsIgnoreCase("killed"))
                 {
                     controller.kill();
                 }
-                catch (StaleProxyException e)
-                {
-                    //ignore the exception
-                }
             }
+        }
+
+        private void killJade()
+        {
+//            try
+//            {
+////                killAllAgents();
+//                mainContainer.kill();
+////                mainContainer = null;
+////                rt.shutDown();
+//            } catch (StaleProxyException e)
+//            {
+//                logger.warn("could not kill Jade!");
+//            }
         }
 
 ///////////////////////////////////////////////
