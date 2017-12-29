@@ -10,6 +10,7 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.MessageTemplate;
+import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.*;
@@ -29,6 +30,8 @@ public class SmartHomeAgent extends Agent {
     private double cSum;
     private String problemId;
     private String algoId;
+
+    private Logger logger = Logger.getLogger(SmartHomeAgent.class);
 
 
     public AgentData getAgentData() {
@@ -113,15 +116,24 @@ public class SmartHomeAgent extends Agent {
         this.algoId = (String)getArguments()[2];
         this.problemId = (String)getArguments()[3];
         this.isZEROIteration = true;
-
-//        int iterationTotalNumber = agentData.getNumOfIterations();
-//        for(int i=0; i<iterationTotalNumber; i++)
-//        {
-            createAlgorithmAgent();
-//            this.IterationNum++;
-//        }
-
+        createAlgorithmAgent();
     }
+
+    @Override
+    protected void takeDown()
+    {
+        // Deregister from the yellow pages
+        try {
+            DFService.deregister(this);
+        }
+        catch (FIPAException fe) {
+            logger.error("failed to terminate: " + fe);
+        }
+        // Printout a dismissal message
+        logger.info("agent " + getAID().getName() + " terminating.");
+    }
+
+
 
     private void createAlgorithmAgent() {
         this.algorithm.initializeBehaviourWithAgent(this);

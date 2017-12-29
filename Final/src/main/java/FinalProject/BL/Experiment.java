@@ -355,14 +355,6 @@ public class Experiment implements ExperimentInterface {
         {
             logger.info("experiment was stopped");
             killJade();
-//            try
-//            {
-//                this.mainContainer.kill();
-//            }
-//            catch (StaleProxyException e)
-//            {
-//                //ignore the exception
-//            }
 
             //not used for now since container.kill might be a better choice
             // TODO gal remove when surely not needed
@@ -384,16 +376,19 @@ public class Experiment implements ExperimentInterface {
 
         private void killJade()
         {
-//            try
-//            {
-////                killAllAgents();
-//                mainContainer.kill();
-////                mainContainer = null;
-////                rt.shutDown();
-//            } catch (StaleProxyException e)
-//            {
-//                logger.warn("could not kill Jade!");
-//            }
+            try
+            {
+                mainContainer.removePlatformListener(this);
+                mainContainer.getPlatformController().kill();
+            }
+            catch (StaleProxyException e)
+            {
+                logger.warn("could not kill Jade!");
+            }
+            catch (ControllerException e)
+            {
+                logger.warn("could not kill Jade!");
+            }
         }
 
 ///////////////////////////////////////////////
