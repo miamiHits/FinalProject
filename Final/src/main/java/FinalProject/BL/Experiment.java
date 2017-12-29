@@ -327,22 +327,25 @@ public class Experiment implements ExperimentInterface {
         {
             for (AgentController controller : this.agentControllers)
             {
-                controller.kill();
+                if (!controller.getState().getName().equalsIgnoreCase("killed"))
+                {
+                    controller.kill();
+                }
             }
         }
 
         private void killJade()
         {
-            try
-            {
-//                killAllAgents();
-                mainContainer.kill();
-//                mainContainer = null;
-//                rt.shutDown();
-            } catch (StaleProxyException e)
-            {
-                logger.warn("could not kill Jade!");
-            }
+//            try
+//            {
+////                killAllAgents();
+//                mainContainer.kill();
+////                mainContainer = null;
+////                rt.shutDown();
+//            } catch (StaleProxyException e)
+//            {
+//                logger.warn("could not kill Jade!");
+//            }
         }
 
 ///////////////////////////////////////////////
