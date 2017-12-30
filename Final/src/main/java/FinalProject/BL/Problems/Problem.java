@@ -2,11 +2,13 @@ package FinalProject.BL.Problems;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class Problem {
+public class Problem implements Serializable
+{
 
     private String id;
 

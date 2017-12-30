@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import java.io.Serializable;
 import java.util.*;
 
-public class SmartHomeAgent extends Agent {
+public class SmartHomeAgent extends Agent implements Serializable{
     public static final String SERVICE_TYPE = "ACCESS_FOR_ALL_AGENTS";
     public static final String SERVICE_NAME = "AGENT";//TODO gal consider this one to be the agent's name(not static)
     public static final MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));

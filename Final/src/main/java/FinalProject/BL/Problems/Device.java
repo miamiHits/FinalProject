@@ -2,7 +2,10 @@ package FinalProject.BL.Problems;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Device {
+import java.io.Serializable;
+
+public class Device implements Serializable
+{
 
     protected String name;
     @SerializedName("subtype")

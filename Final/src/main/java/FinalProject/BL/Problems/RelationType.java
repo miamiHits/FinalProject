@@ -1,6 +1,8 @@
 package FinalProject.BL.Problems;
 
-public enum RelationType
+import java.io.Serializable;
+
+public enum RelationType implements Serializable
 {
     EQ,
     GEQ,

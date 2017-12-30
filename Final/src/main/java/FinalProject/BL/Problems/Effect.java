@@ -2,7 +2,10 @@ package FinalProject.BL.Problems;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Effect {
+import java.io.Serializable;
+
+public class Effect implements Serializable
+{
 
     @SerializedName("property")
     private String property;

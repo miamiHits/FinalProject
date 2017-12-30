@@ -1,10 +1,11 @@
 package FinalProject.BL.Problems;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AgentData {
+public class AgentData implements Serializable{
 
     private String name;
     private List<AgentData> neighbors;

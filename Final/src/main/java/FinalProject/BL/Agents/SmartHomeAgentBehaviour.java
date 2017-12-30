@@ -17,10 +17,11 @@ import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SmartHomeAgentBehaviour extends Behaviour {
+public abstract class SmartHomeAgentBehaviour extends Behaviour implements Serializable{
 
     public  String agentName;
     public SmartHomeAgent agent;
