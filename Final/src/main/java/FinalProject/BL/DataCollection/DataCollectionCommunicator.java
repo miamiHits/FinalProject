@@ -55,6 +55,7 @@ public class DataCollectionCommunicator extends Agent {
         }
     }
 
+    @Override
     protected void takeDown() {
         // Deregister from the yellow pages
         try {
