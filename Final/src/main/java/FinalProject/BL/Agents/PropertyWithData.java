@@ -29,6 +29,12 @@ public class PropertyWithData {
     public  Map<String,Double> relatedSensorsWhenWorkOfflineDelta = new HashMap<>();
     public List<Integer> activeTicks = new ArrayList<>();
 
+    public double getCachedSensorState() {
+        return cachedSensorState;
+    }
+
+    private double cachedSensorState;
+
     public String getName() {
         return name;
     }
@@ -149,7 +155,8 @@ public class PropertyWithData {
         this.powerConsumedInWork = powerConsumedInWork;
     }
 
-
+    public void setCachedSensor(double cachedSensor) {
+        this.cachedSensorState = cachedSensor; }
 
     public PropertyWithData () {}
 

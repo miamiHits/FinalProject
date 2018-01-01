@@ -164,6 +164,9 @@ public class AlgorithmDataHelper
                         prop.setSensor(sensors.stream()
                                 .filter(x -> x.getSensingProperties().contains(prop.getName()))
                                 .findFirst().get());
+                        prop.setCachedSensor(sensors.stream()
+                                .filter(x -> x.getSensingProperties().contains(prop.getName()))
+                                .findFirst().get().getCurrentState());
                     } else {
                         //match another sensors that work in this time
                         prop.relatedSensorsWhenWorkOfflineDelta.put(effect.getProperty(), effect.getDelta());
@@ -299,5 +302,17 @@ public class AlgorithmDataHelper
         double[] newList = Arrays.copyOf(old, old.length);
 
         return newList;
+    }
+
+    public List<Integer> clonList (List<Integer> old)
+    {
+        List<Integer> newList = new ArrayList<>();
+        newList.addAll(old);
+        return newList;
+    }
+
+    public void goBackToStartValues() {
+        for (PropertyWithData prop : this.allProperties)
+            prop.getSensor().setCurrentState(prop.getCachedSensorState());
     }
 }

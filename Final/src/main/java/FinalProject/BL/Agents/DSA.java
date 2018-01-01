@@ -58,7 +58,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
         if (buildNewShed)
         {
-
+            helper.goBackToStartValues();
             tryBuildScheduleBasic();
             beforeIterationIsDone();
 
@@ -152,13 +152,12 @@ public class DSA extends SmartHomeAgentBehaviour {
     private void startWork(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
         prop.activeTicks.clear();
         List<Set<Integer>> subsets;
-        List<Integer> newTicks = new ArrayList<>();
+        List<Integer> newTicks;
 
         if (ticksToWork <= 0)
         {
             subsets = checkAllOptions(prop);
-            prop.calcAndUpdateCurrState(prop.getTargetValue(), FINAL_TICK, iterationPowerConsumption, false);
-            helper.getDeviceToTicks().put(prop.getActuator(), prop.activeTicks);
+            if (subsets == null) return;
         }
         else{
             List<Integer> rangeForWork =  calcRangeOfWork(prop);
@@ -223,6 +222,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             if (res <= helper.totalPriceConsumption && res <= bestPrice)
             {
                 bestPrice = res;
+                newTicks.clear();
                 newTicks.addAll(ticks);
                 improved = true;
             }
@@ -243,12 +243,14 @@ public class DSA extends SmartHomeAgentBehaviour {
         List<Integer> rangeForWork =  calcRangeOfWork(prop);
          double currState = prop.getSensor().getCurrentState();
          double minVal = prop.getTargetValue();
-         double deltaIfNoActiveWorkIsDone = (prop.getMax() - currState) - (prop.getDeltaWhenWorkOffline() * rangeForWork.size());
+         double deltaIfNoActiveWorkIsDone = (currState - minVal) - ((Math.abs(prop.getDeltaWhenWorkOffline())) * rangeForWork.size());
          int ticksToWork = 0;
+         if (deltaIfNoActiveWorkIsDone>0) return null;
          for (int i= 0; i<rangeForWork.size(); ++i)
          {
              ticksToWork++;
-             if(prop.getDeltaWhenWork() + deltaIfNoActiveWorkIsDone > minVal)
+             deltaIfNoActiveWorkIsDone = Double.sum(deltaIfNoActiveWorkIsDone, prop.getDeltaWhenWork());
+             if(deltaIfNoActiveWorkIsDone > 0)
              {
                  break;
              }
@@ -261,7 +263,8 @@ public class DSA extends SmartHomeAgentBehaviour {
         if (ticksToWork <= 0)
         {
             prop.calcAndUpdateCurrState(prop.getTargetValue(), FINAL_TICK, iterationPowerConsumption, false);
-            helper.getDeviceToTicks().put(prop.getActuator(), prop.activeTicks);
+            List<Integer> activeTicks = helper.clonList(prop.activeTicks);
+            helper.getDeviceToTicks().put(prop.getActuator(), activeTicks);
         }
         else{
             int randomNum = 0;
@@ -292,7 +295,8 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void updateTotals(PropertyWithData prop, List<Integer> myTicks, Map<String, Double> sensorsToCharge)
     {
-        helper.getDeviceToTicks().put(prop.getActuator(), myTicks);
+        List<Integer> activeTicks = helper.clonList(myTicks);
+        helper.getDeviceToTicks().put(prop.getActuator(), activeTicks);
         for (int i=0; i<myTicks.size(); ++i)
         {
             this.iterationPowerConsumption [myTicks.get(i)] = Double.sum(this.iterationPowerConsumption[myTicks.get(i)] , prop.getPowerConsumedInWork());
@@ -312,6 +316,8 @@ public class DSA extends SmartHomeAgentBehaviour {
 
         //update the sensor
         double currState = prop.getSensor().getCurrentState() + (prop.getDeltaWhenWork() * myTicks.size());
+        if (currState > prop.getMax())
+            currState = prop.getMax();
         Map<Sensor, Double> toSend = new HashMap<>();
         toSend.put(prop.getSensor(), currState);
         prop.getActuator().act(toSend);
