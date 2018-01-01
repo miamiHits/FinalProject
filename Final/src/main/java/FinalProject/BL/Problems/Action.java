@@ -2,9 +2,11 @@ package FinalProject.BL.Problems;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Action {
+public class Action implements Serializable
+{
 
 
     private String name;

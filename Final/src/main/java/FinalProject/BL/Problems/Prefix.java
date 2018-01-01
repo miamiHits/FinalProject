@@ -1,6 +1,8 @@
 package FinalProject.BL.Problems;
 
-public enum Prefix
+import java.io.Serializable;
+
+public enum Prefix implements Serializable
 {
     BEFORE,
     AFTER,

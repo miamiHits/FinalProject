@@ -2,9 +2,11 @@ package FinalProject.BL.Problems;
 
 import org.apache.log4j.Logger;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Rule {
+public class Rule implements Serializable
+{
 
     private static final Logger logger = Logger.getLogger(Rule.class);
 

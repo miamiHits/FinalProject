@@ -2,9 +2,10 @@ package FinalProject.BL.Problems;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Sensor extends Device {
+public class Sensor extends Device implements Serializable{
 
     @SerializedName("current_state")
     private double currentState;

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Relative reference to the DTD file does not work when the test suite is in a jar file
+<!DOCTYPE TestsList SYSTEM "../common/xml/listTests.dtd" [
+	<!ENTITY % inline "#PCDATA|em|br|UL|LI|b">
+	]>
+-->
+<TestsList>
+    <Test name="Test Agents Waiting For Neighbours" skip="false">
+        <TestClassName>FinalProject.Experiment.TestAgentsWaitingForNeighbours</TestClassName>
+        <WhatTest> Test that non of the agents starts an iteration before the other agents.</WhatTest>
+        <HowWorkTest>messages received by the data collector are monitored,
+            once all agents sent their end of iteration message the  test behaviour send a fake C_sum and waits for the next iteration messages</HowWorkTest>
+        <WhenTestPass> The test passes if the experiment ended and all of the messages were of the correct iteration</WhenTestPass>
+    </Test>
+</TestsList>
