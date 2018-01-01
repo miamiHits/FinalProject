@@ -42,7 +42,7 @@ public class Sensor extends Device {
 
     public void change(double value)
     {
-        currentState += value;
+        currentState = value;
     }
 
     @Override
