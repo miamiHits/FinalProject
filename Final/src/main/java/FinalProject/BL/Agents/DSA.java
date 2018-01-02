@@ -88,13 +88,13 @@ public class DSA extends SmartHomeAgentBehaviour {
         agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId());
     }
 
-    public int drawCoin() {
+    private int drawCoin() {
         int[] notRandomNumbers = new int [] {0,0,0,0,1,1,1,1,1,1};
         double idx = Math.floor(Math.random() * notRandomNumbers.length);
         return notRandomNumbers[(int) idx];
     }
 
-    public boolean buildScheduleFromScratch() {
+    private boolean buildScheduleFromScratch() {
         //classifying the rules by activeness, start creating the prop object
         List <Rule> passiveRules = new ArrayList<>();
         List <Rule> activeRules = new ArrayList<>();
