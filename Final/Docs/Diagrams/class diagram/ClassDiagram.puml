@@ -314,7 +314,7 @@ package BL {
 	ExperimentBuilderInterface <|-- ExperimentBuilder
 
 	ExperimentBuilder --> Experiment : creates
-	Experiment o-- DataCollectorCommunicator
+	Experiment o-- DataCollectionCommunicator
 	Experiment *-- Problem
 	SmartHomeAgent *- AgentData
 	DataCollector --> AlgorithmProblemResult : create
