@@ -109,12 +109,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         while (messages.size() < neighbourCount)//the additional one is for the data collector's message
 //        while (messages.size() < neighbourCount)
         {
-            receivedMessage = this.agent.blockingReceive(MessageTemplate.not(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR));
+            receivedMessage = this.agent.blockingReceive(MessageTemplate.not(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR));
             logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
             messages.add(receivedMessage);
         }
         // wait for the message from the collector
-        receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR);
+        receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR);
         logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
         try {
             this.agent.setcSum(Double.parseDouble(receivedMessage.getContent()));

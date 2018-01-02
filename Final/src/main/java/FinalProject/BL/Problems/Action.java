@@ -63,5 +63,43 @@ public class Action implements Serializable
         }
         return null;
     }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        Action action = (Action) o;
+
+        if (Double.compare(action.getPowerConsumption(), getPowerConsumption()) != 0)
+        {
+            return false;
+        }
+        if (getName() != null ? !getName().equals(action.getName()) : action.getName() != null)
+        {
+            return false;
+        }
+        return getEffects() != null ? getEffects().equals(action.getEffects()) : action.getEffects() == null;
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result;
+        long temp;
+        result = getName() != null ? getName().hashCode() : 0;
+        temp = Double.doubleToLongBits(getPowerConsumption());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (getEffects() != null ? getEffects().hashCode() : 0);
+        return result;
+    }
 }
 
