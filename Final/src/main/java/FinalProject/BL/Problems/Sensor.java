@@ -43,7 +43,7 @@ public class Sensor extends Device implements Serializable{
 
     public void change(double value)
     {
-        currentState += value;
+        currentState = value;
     }
 
     @Override

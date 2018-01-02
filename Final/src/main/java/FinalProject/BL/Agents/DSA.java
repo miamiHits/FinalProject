@@ -3,7 +3,6 @@ import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.BL.Problems.*;
-import FinalProject.DAL.AlgorithmLoader;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
@@ -17,7 +16,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     private boolean finished = false;
     public static final int START_TICK = 0;
     private final static Logger logger = Logger.getLogger(DSA.class);
-
+    private double[] iterationPowerConsumption;
     public DSA()
     {
         super();//invoke the Behaviour default constructor
@@ -27,8 +26,9 @@ public class DSA extends SmartHomeAgentBehaviour {
     {
         this.agent = agent;
         this.currentNumberOfIter =0;
-        this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length -1;
+        this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length;
         this.helper = new AlgorithmDataHelper(agent);
+
     }
 
     @Override
@@ -36,22 +36,17 @@ public class DSA extends SmartHomeAgentBehaviour {
         if (agent.isZEROIteration())
         {
             logger.info("Starting work on Iteration: 0");
-            logger.info("Starting build schedule");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
         }
         else
         {
-            logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
-
             List<ACLMessage> messageList = waitForNeighbourMessages();
             parseMessages(messageList);
-
             helper.calcPriceSchemeForAllNeighbours();
             helper.calcTotalPowerConsumption(agent.getcSum());
-
+            logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
             tryBuildSchedule();
-            beforeIterationIsDone();
         }
         this.currentNumberOfIter ++;
     }
@@ -59,36 +54,35 @@ public class DSA extends SmartHomeAgentBehaviour {
     private void tryBuildSchedule() {
 
         boolean buildNewShed = drawCoin() == 1 ? true : false;
-        logger.info("Draw a cube got " + buildNewShed  +" - stage 3");
+        logger.info("Draw a cube got " + buildNewShed );
 
         if (buildNewShed)
         {
-            logger.info("Proposing new ticks for all the devices - stage 4");
+            helper.goBackToStartValues();
+            tryBuildScheduleBasic();
+            beforeIterationIsDone();
 
-            for (Actuator act : helper.getDeviceToTicks().keySet())
-            {
-                List<Integer> newProposeTicks = calcNewTicks(act);
-                helper.getDeviceToTicks().put(act, newProposeTicks);
-            }
-            double[] powerConsumption = buildNewScheduleAccordingToNewTicks();
-            helper.setPowerConsumption(powerConsumption);
         }
         else{
 
-            return;
+            double price = calcPrice(this.iterationPowerConsumption);
+            double[] arr = helper.clonArray(this.iterationPowerConsumption);
+            logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
+            logger.info("my PRICE is: " + price);
+            agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, arr);
+            agent.setCurrIteration(agentIterationData);
+            agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId());
         }
     }
 
     private void beforeIterationIsDone()
     {
-        logger.info("calculating price, and created the objects to sending - stage 6");
-        addBackgroundLoadToPriceScheme(helper.getPowerConsumption());
-        double price = calcPrice(helper.getPowerConsumption());
-        double[] arr = new double[helper.getPowerConsumption().length];
-        for (int i=0; i< helper.getPowerConsumption().length; ++i)
-        {
-            arr[i] = helper.getPowerConsumption()[i];
-        }
+
+        addBackgroundLoadToPriceScheme(this.iterationPowerConsumption);
+        double price = calcPrice(this.iterationPowerConsumption);
+        double[] arr = helper.clonArray(this.iterationPowerConsumption);
+        logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
+        logger.info("my PRICE is: " + price);
         agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, arr);
         agent.setCurrIteration(agentIterationData);
         agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId());
@@ -98,144 +92,6 @@ public class DSA extends SmartHomeAgentBehaviour {
         int[] notRandomNumbers = new int [] {0,0,0,0,1,1,1,1,1,1};
         double idx = Math.floor(Math.random() * notRandomNumbers.length);
         return notRandomNumbers[(int) idx];
-    }
-
-    public List<Integer> calcNewTicks(Actuator actuator){
-        double bestPrice=helper.totalPriceConsumption;
-        List<Integer> newTicks = new ArrayList<>();
-        //get the related prop
-        PropertyWithData prop =null;
-        for(PropertyWithData p : helper.getAllProperties())
-        {
-            if (p.getActuator().getName().equals(actuator.getName()))
-            {
-                prop = p;
-                break;
-            }
-        }
-
-        double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
-        List<Integer> rangeForWork = new ArrayList<>();
-        switch (prop.getPrefix())
-        {
-            case BEFORE: //Include the hour
-                for (int i=0; i<= prop.getTargetTick(); ++i)
-                {
-                    rangeForWork.add(i);
-                }
-                break;
-            case AFTER: // Hour and above (not included)
-                for (int i= (int) prop.getTargetTick()+1 ; i< agent.getAgentData().getBackgroundLoad().length ; ++i)
-                {
-                    rangeForWork.add(i);
-                }
-                break;
-            case AT:
-                rangeForWork.add((int) prop.getTargetTick());
-                break;
-        }
-
-        //remove the "rush" ticks
-     //   helper.getRushTicks().forEach(rT -> {
-      //      rangeForWork.stream().filter(mT -> rT == mT).forEach(rangeForWork::remove);
-      //  });
-        List<Set<Integer>> subsets = new ArrayList<>();
-        subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
-        double [] prevPowerConsumption = agent.getCurrIteration().getPowerConsumptionPerTick();
-        double [] refactoredPowerConsumption = new double[prevPowerConsumption.length];
-        //get the prev powerCon array
-        for(int i=0; i< prevPowerConsumption.length; ++i)
-        {
-            refactoredPowerConsumption[i] = prevPowerConsumption[i];
-        }
-
-        //get the specific tick this device work in
-        List<Integer> prevTicks = helper.getDeviceToTicks().get(actuator);
-        //remove them from the array
-        for (Integer tick : prevTicks)
-        {
-            refactoredPowerConsumption[tick] -= (double) refactoredPowerConsumption[tick] -  prop.getPowerConsumedInWork();
-        }
-
-        boolean improved = false;
-        for(Set<Integer> ticks : subsets)
-        {
-            //Adding the ticks to array
-            for (Integer tick : ticks)
-            {
-                double temp = refactoredPowerConsumption[tick];
-                refactoredPowerConsumption[tick] = Double.sum(temp ,  prop.getPowerConsumedInWork());
-            }
-            double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), refactoredPowerConsumption, prevPowerConsumption
-                    ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
-
-            if (res <= helper.totalPriceConsumption && res <= bestPrice)
-            {
-                bestPrice = res;
-                newTicks.addAll(ticks);
-                improved = true;
-                break;
-            }
-
-            //sub - ing from the array
-            for (Integer tick : ticks)
-            {
-                double temp = refactoredPowerConsumption[tick];
-                refactoredPowerConsumption[tick] = Math.abs(temp - prop.getPowerConsumedInWork());
-            }
-        }
-
-        if(!improved)
-        {
-            newTicks = helper.getDeviceToTicks().get(actuator);
-        }
-        return newTicks;
-    }
-
-    private double[] removePowerCons(Set<Integer> prevTicks, double[] refactoredPowerConsumption, double powerConsumption) {
-        double[] res = refactoredPowerConsumption;
-
-        for (Integer tick : prevTicks)
-        {
-            res[tick] -= (double) refactoredPowerConsumption[tick] -  powerConsumption;
-        }
-
-        return res;
-    }
-
-    private double[] addPowerCons(Set<Integer> ticks, double[] refactoredPowerConsumption, double powerConsumption) {
-        double[] res = refactoredPowerConsumption;
-        for (Integer tick : ticks)
-        {
-            res[tick] = Double.sum(refactoredPowerConsumption[tick], powerConsumption);
-        }
-
-        return res;
-    }
-
-    private double[] buildNewScheduleAccordingToNewTicks() {
-        logger.info("Building new power consumption array - stage 5");
-
-        double[] powerConsumption = new double[FINAL_TICK+1];
-        PropertyWithData prop = null;
-        double delta = 0;
-        for (Map.Entry<Actuator, List<Integer>> entry : helper.getDeviceToTicks().entrySet())
-        {
-            for (PropertyWithData p : helper.getAllProperties())
-            {
-                if (p.getActuator().getName().equals(entry.getKey().getName()))
-                {
-                    delta = p.getDeltaWhenWork();
-                }
-            }
-
-            for(Integer tick : entry.getValue())
-            {
-                double temp = Double.sum(delta, powerConsumption[tick]);
-                powerConsumption[tick] = temp;
-            }
-        }
-        return powerConsumption;
     }
 
     public boolean buildScheduleFromScratch() {
@@ -254,87 +110,261 @@ public class DSA extends SmartHomeAgentBehaviour {
         activeRules.forEach(pRule -> helper.buildNewPropertyData(pRule, false));
         helper.checkForPassiveRules();
         helper.SetActuatorsAndSensors();
-        logger.info(agent.getAgentData().getName() + "Finished build my prop object, start work on my schedule");
-        tryBuildScheduleIterationZero();
+        tryBuildScheduleBasic();
+
         beforeIterationIsDone();
 
         return true;
     }
 
-    private void tryBuildScheduleIterationZero()
+    private void tryBuildScheduleBasic()
     {
+        this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
         for(PropertyWithData prop : helper.getAllProperties().stream()
                 .filter(p->p.isPassiveOnly()==false)
                 .collect(Collectors.toList()))
         {
-            double ticksToWork=helper.calcHowLongDeviceNeedToWork(prop);
-            //draw ticks to work
-            List<Integer> myTicks = new ArrayList<>();
-            boolean flag = true;
-
-            while (flag)
-            {   //new iteration, flag starting with false as everything is okay.
-                flag= false;
-                int randomNum=0;
-                for(int i=0; i<ticksToWork; ++i)
+            //lets see what is the state of the curr&related sensors till then
+            prop.calcAndUpdateCurrState(prop.getMin(),START_TICK, this.iterationPowerConsumption, true);
+            double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
+            Map <String, Double> sensorsToCharge = new HashMap<>();
+            //check if there is sensor in the same ACT that is negative (usually related to charge)
+            for (Map.Entry<String,Double> entry : prop.getRelatedSensorsDelta().entrySet())
+            {
+                if (entry.getValue() < 0)
                 {
-                    switch (prop.getPrefix())
-                    {
-                        case BEFORE:    // Min + (int)(Math.random() * ((Max - Min) + 1))
-                            randomNum = START_TICK + (int)(Math.random() * ((prop.getTargetTick() - START_TICK) + 1));
-                            break;
-                        case AFTER:
-                            randomNum = (int) ((prop.getTargetTick()+1) + (int)(Math.random() * ((FINAL_TICK -  (prop.getTargetTick()+1)) + 1)));
-                            break;
-                        case AT:
-                            randomNum = (int) prop.getTargetTick();
-                            break;
-                    }
-
-                    if (!myTicks.contains(randomNum))
-                    {
-                        myTicks.add(randomNum);
-                    }
-                    else{
-                        --i;
-                    }
+                    double rateOfCharge = calcHowOftenNeedToCharge(entry.getKey(),entry.getValue(), ticksToWork, prop.getTargetTick());
+                    if (rateOfCharge > 0)
+                        sensorsToCharge.put(entry.getKey(), rateOfCharge);
                 }
-
-                //there are sensors that reflect from this work! check if there is a problem with that.
-                try
-                {
-                    if (!prop.relatedSensorsDelta.isEmpty())
-                    {
-                        for (String propName : prop.relatedSensorsDelta.keySet())
-                        {
-                            if (helper.getAllProperties().stream()
-                                    .filter(x->x.getName().equals(propName)).findFirst()!= null)
-                            {
-                                PropertyWithData relatedSensor = helper.getAllProperties().stream()
-                                        .filter(x->x.getName().equals(propName)).findFirst().get();
-                                if (!relatedSensor.canBeModified(prop.relatedSensorsDelta.get(propName)))
-                                {
-                                    //there is a problem with working at that hour, lets draw new tick.
-                                    flag = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                  }
-                  catch (Exception e)
-                  {
-                      logger.warn(agent.getAgentData().getName() + "Try to look for the related sensros , but not found like this");
-                  }
-
             }
 
-            helper.updateConsumption(prop, myTicks);
+            if (agent.isZEROIteration())
+            startWorkZERO(prop, sensorsToCharge, ticksToWork);
+            else{
+              startWork(prop, sensorsToCharge, ticksToWork);
+            }
         }
 
-        logger.info(agent.getAgentData().getName() + "Finished build sched");
 
     }
+
+    private void startWork(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
+        prop.activeTicks.clear();
+        List<Set<Integer>> subsets;
+        List<Integer> newTicks;
+
+        if (ticksToWork <= 0)
+        {
+            subsets = checkAllOptions(prop);
+            if (subsets == null) return;
+        }
+        else{
+            List<Integer> rangeForWork =  calcRangeOfWork(prop);
+            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
+        }
+        newTicks = calcBestPrice(prop, subsets);
+        updateTotals(prop, newTicks, sensorsToCharge);
+    }
+
+    private List<Integer> calcRangeOfWork(PropertyWithData prop) {
+        List<Integer> rangeForWork = new ArrayList<>();
+
+        switch (prop.getPrefix())
+        {
+            case BEFORE: //NOT Include the hour
+                for (int i=0; i< prop.getTargetTick(); ++i)
+                {
+                    rangeForWork.add(i);
+                }
+                break;
+            case AFTER:
+                for (int i= (int) prop.getTargetTick() ; i< agent.getAgentData().getBackgroundLoad().length ; ++i)
+                {
+                    rangeForWork.add(i);
+                }
+                break;
+            case AT:
+                rangeForWork.add((int) prop.getTargetTick());
+                break;
+        }
+
+        return rangeForWork;
+    }
+
+    private List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets)
+    {
+        double bestPrice=helper.totalPriceConsumption;
+        List<Integer> newTicks = new ArrayList<>();
+        double [] prevPowerConsumption = helper.clonArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        double [] newPowerConsumption = helper.clonArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        //get the specific tick this device work in
+        List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        //remove them from the array
+        for (Integer tick : prevTicks)
+        {
+            newPowerConsumption[tick] = newPowerConsumption[tick] -  prop.getPowerConsumedInWork();
+        }
+
+        double [] copyOfNew = helper.clonArray(newPowerConsumption);
+        boolean improved = false;
+        for(Set<Integer> ticks : subsets)
+        {
+            //Adding the ticks to array
+            for (Integer tick : ticks)
+            {
+                double temp = newPowerConsumption[tick];
+                newPowerConsumption[tick] = Double.sum(temp ,  prop.getPowerConsumedInWork());
+            }
+            double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), newPowerConsumption, prevPowerConsumption
+                    ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
+
+            if (res <= helper.totalPriceConsumption && res <= bestPrice)
+            {
+                bestPrice = res;
+                newTicks.clear();
+                newTicks.addAll(ticks);
+                improved = true;
+            }
+
+            //goBack
+            newPowerConsumption = helper.clonArray(copyOfNew);
+        }
+
+        if(!improved)
+        {
+            newTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        }
+
+        return newTicks;
+    }
+
+    private List<Set<Integer>> checkAllOptions(PropertyWithData prop) {
+        List<Integer> rangeForWork =  calcRangeOfWork(prop);
+         double currState = prop.getSensor().getCurrentState();
+         double minVal = prop.getTargetValue();
+         double deltaIfNoActiveWorkIsDone = (currState - minVal) - ((Math.abs(prop.getDeltaWhenWorkOffline())) * rangeForWork.size());
+         int ticksToWork = 0;
+         if (deltaIfNoActiveWorkIsDone>0) return null;
+         for (int i= 0; i<rangeForWork.size(); ++i)
+         {
+             ticksToWork++;
+             deltaIfNoActiveWorkIsDone = Double.sum(deltaIfNoActiveWorkIsDone, prop.getDeltaWhenWork());
+             if(deltaIfNoActiveWorkIsDone > 0)
+             {
+                 break;
+             }
+         }
+        return helper.getSubsets(rangeForWork, ticksToWork);
+    }
+
+    private void startWorkZERO(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
+        List<Integer> myTicks = new ArrayList<>();
+        if (ticksToWork <= 0)
+        {
+            prop.calcAndUpdateCurrState(prop.getTargetValue(), FINAL_TICK, iterationPowerConsumption, false);
+            List<Integer> activeTicks = helper.clonList(prop.activeTicks);
+            helper.getDeviceToTicks().put(prop.getActuator(), activeTicks);
+        }
+        else{
+            int randomNum = 0;
+            for (int i = 0; i < ticksToWork; ++i) {
+                switch (prop.getPrefix()) {
+                    case BEFORE:    // Min + (int)(Math.random() * ((Max - Min) + 1)). NOT INCLUDE THE HOUR
+                        randomNum = START_TICK + (int) (Math.random() * (((prop.getTargetTick()-1) - START_TICK) + 1));
+                        break;
+                    case AFTER:
+                        randomNum = (int) (prop.getTargetTick() + (int) (Math.random() * ((FINAL_TICK - prop.getTargetTick()) + 1)));
+                        break;
+                    case AT:
+                        randomNum = (int) prop.getTargetTick();
+                        break;
+                }
+
+                if (!myTicks.contains(randomNum)) {
+                    myTicks.add(randomNum);
+                } else {
+                    --i;
+                }
+            }
+
+            updateTotals(prop, myTicks, sensorsToCharge);
+
+        }
+    }
+
+    private void updateTotals(PropertyWithData prop, List<Integer> myTicks, Map<String, Double> sensorsToCharge)
+    {
+        List<Integer> activeTicks = helper.clonList(myTicks);
+        helper.getDeviceToTicks().put(prop.getActuator(), activeTicks);
+        for (int i=0; i<myTicks.size(); ++i)
+        {
+            this.iterationPowerConsumption [myTicks.get(i)] = Double.sum(this.iterationPowerConsumption[myTicks.get(i)] , prop.getPowerConsumedInWork());
+            if (!sensorsToCharge.isEmpty())
+            {
+                for (Map.Entry<String,Double> entry : sensorsToCharge.entrySet())
+                {
+                    PropertyWithData brother = helper.getAllProperties().stream().filter(x->x.getName().equals(entry.getKey())).findFirst().get();
+                    double timeToCharge = (i+1) % entry.getValue();
+                    if (i== (int) timeToCharge)
+                    {
+                        brother.updateValueToSensor(this.iterationPowerConsumption, brother.getMin(), entry.getValue(), i, true);
+                    }
+                }
+            }
+        }
+
+        //update the sensor
+        double currState = prop.getSensor().getCurrentState() + (prop.getDeltaWhenWork() * myTicks.size());
+        if (currState > prop.getMax())
+            currState = prop.getMax();
+        Map<Sensor, Double> toSend = new HashMap<>();
+        toSend.put(prop.getSensor(), currState);
+        prop.getActuator().act(toSend);
+
+    }
+
+    private double calcHowOftenNeedToCharge(String key, double delta, double ticksToWork, double targetTick) {
+        double tick=0;
+        PropertyWithData prop = null;
+        try{
+            prop = helper.getAllProperties().stream().filter(x->x.getName().equals(key)).findFirst().get();
+        }
+        catch (Exception e)
+        {
+            logger.warn(agent.getAgentData().getName() + "Try to look for the related sensros , but not found like this");
+            return -1;
+        }
+        double currState = prop.getSensor().getCurrentState();
+        //first, lets charge to the max
+        if (currState< prop.getMax())
+        {
+            double howLong = Math.ceil((prop.getMax()- currState) / prop.getDeltaWhenWork());
+            prop.updateValueToSensor(this.iterationPowerConsumption, currState, howLong, (int) targetTick- (int)howLong, true);
+            currState = prop.getMax();
+        }
+        //lets see how many time we'll need to charge it.
+        for (int i=0 ; i< ticksToWork; ++i)
+        {
+           currState += delta;
+           if (currState < prop.getMin())
+           {
+               tick ++;
+               currState = prop.getMax();
+           }
+        }
+
+        //no need to charge it between the work. lets just update the sensor
+        if (tick==0)
+        {
+            Map<Sensor, Double> toSend = new HashMap<>();
+            toSend.put(prop.getSensor(), currState);
+            prop.getActuator().act(toSend);
+        }
+
+        return tick;
+    }
+
 
     @Override
     public boolean done() {
@@ -345,10 +375,6 @@ public class DSA extends SmartHomeAgentBehaviour {
             this.agent.doDelete();
         }
         return agentFinishedExperiment;
-    }
-
-    public void setHelper(AlgorithmDataHelper helper) {
-        this.helper = helper;
     }
 
     public AlgorithmDataHelper getHelper() {

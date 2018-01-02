@@ -3,6 +3,7 @@ package FinalProject.BL.Problems;
 import org.apache.log4j.Logger;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class Actuator extends Device {
@@ -83,4 +84,9 @@ public class Actuator extends Device {
         return getActions() != null ? getActions().hashCode() : 0;
     }
 
+    public void act(Map<Sensor, Double> toSend) {
+        toSend.keySet().forEach(sens -> {
+            sens.change(toSend.get(sens));
+        });
+    }
 }

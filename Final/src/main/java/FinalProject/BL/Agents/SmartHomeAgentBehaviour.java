@@ -125,7 +125,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void parseMessages(List<ACLMessage> messageList) {
-        //TODO: Recognized Aviv message.
         List<AgentIterationData> neighbors = new ArrayList<>();
         for (int i=0; i< messageList.size(); ++i)
         {
@@ -162,12 +161,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected void addBackgroundLoadToPriceScheme(double[] powerConsumption)
     {
         double [] backgroundLoad = agent.getAgentData().getBackgroundLoad();
-        double [] newPowerCons = new double[backgroundLoad.length];
         for (int i=0 ; i<backgroundLoad.length; ++i)
         {
-            newPowerCons[i] =  Double.sum(powerConsumption[i], backgroundLoad[i]);
+            powerConsumption[i] =  Double.sum(powerConsumption[i], backgroundLoad[i]);
         }
-        helper.setPowerConsumption(newPowerCons);
     }
 
     protected void calcBestIteration ()
