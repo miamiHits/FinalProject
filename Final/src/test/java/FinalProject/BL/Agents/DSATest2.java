@@ -53,9 +53,9 @@ public class DSATest2 {
         agent = null;
     }
 
+    //TODO: Yarden check that this is ok:
     @Test
-    public void someTest() {
-        //TODO: Yarden check that this is ok:
+    public void buildScheduleFromScratchPropertiesTest() {
         List<PropertyWithData> props = new ArrayList<>(2);
 
         PropertyWithData chargeProp = new PropertyWithData();
@@ -69,6 +69,8 @@ public class DSATest2 {
         chargeProp.setDeltaWhenWork(13.56);
         chargeProp.setPowerConsumedInWork(11.52);
         chargeProp.setDeltaWhenWorkOffline(0);
+        chargeProp.setCachedSensor(30);
+        chargeProp.setLoaction(false);
         Actuator tesla_s = new Actuator("Tesla_S", "electric_vehicle", "room",
                                         Arrays.asList(new Action("off", 0, Arrays.asList(new Effect("charge", 0))),
                                                       new Action("charge_48a", 11.52,
@@ -80,31 +82,32 @@ public class DSATest2 {
         props.add(chargeProp);
 
         PropertyWithData laundryWashProp = new PropertyWithData();
-        chargeProp.setName("laundry_wash");
-        chargeProp.setMin(0);
-        chargeProp.setMax(60);
-        chargeProp.setTargetValue(60);
-        chargeProp.setPrefix(Prefix.BEFORE);
-        chargeProp.setRt(RelationType.EQ);
-        chargeProp.setTargetTick(6);
-        chargeProp.setDeltaWhenWork(60);
-        chargeProp.setPowerConsumedInWork(0.46);
-        chargeProp.setDeltaWhenWorkOffline(0);
+        laundryWashProp.setName("laundry_wash");
+        laundryWashProp.setMin(0);
+        laundryWashProp.setMax(60);
+        laundryWashProp.setTargetValue(60);
+        laundryWashProp.setPrefix(Prefix.BEFORE);
+        laundryWashProp.setRt(RelationType.EQ);
+        laundryWashProp.setTargetTick(6);
+        laundryWashProp.setDeltaWhenWork(60);
+        laundryWashProp.setPowerConsumedInWork(0.46);
+        laundryWashProp.setDeltaWhenWorkOffline(0);
+        laundryWashProp.setLoaction(false);
         Actuator GE_WSM2420D3WW_wash = new Actuator("GE_WSM2420D3WW_wash", "cloths_washer", "GE_WSM2420D3WW_wash",
                                         Arrays.asList(new Action("off", 0, Arrays.asList(new Effect("laundry_wash", 0))),
                                                       new Action("regular", 0.46,
                                                                  Arrays.asList(new Effect("laundry_wash", 60)))));
         Sensor GE_WSM2420D3WW_wash_sensor = new Sensor("GE_WSM2420D3WW_wash_sensor", "cloths_washer", "GE_WSM2420D3WW_wash", 60,
                                             Arrays.asList("laundry_wash"));
-        chargeProp.setActuator(GE_WSM2420D3WW_wash);
-        chargeProp.setSensor(GE_WSM2420D3WW_wash_sensor);
+        laundryWashProp.setActuator(GE_WSM2420D3WW_wash);
+        laundryWashProp.setSensor(GE_WSM2420D3WW_wash_sensor);
         props.add(laundryWashProp);
 
         try
         {
             ReflectiveUtils.invokeMethod(dsa, "buildScheduleFromScratch");
-
             Assert.assertEquals(dsa.helper.getAllProperties(), props);
+
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
         {
             e.printStackTrace();
