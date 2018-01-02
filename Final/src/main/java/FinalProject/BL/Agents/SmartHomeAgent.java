@@ -13,12 +13,13 @@ import jade.lang.acl.MessageTemplate;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SmartHomeAgent extends Agent implements Serializable{
     public static final String SERVICE_TYPE = "ACCESS_FOR_ALL_AGENTS";
     public static final String SERVICE_NAME = "AGENT";//TODO gal consider this one to be the agent's name(not static)
-    public static final MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_COLLERCTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));
+    public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR;
     private AgentData agentData;
     private AgentIterationData bestIteration;
     private AgentIterationData currIteration;
@@ -32,7 +33,6 @@ public class SmartHomeAgent extends Agent implements Serializable{
     private String algoId;
 
     private Logger logger = Logger.getLogger(SmartHomeAgent.class);
-
 
     public AgentData getAgentData() {
         return agentData;
@@ -110,6 +110,9 @@ public class SmartHomeAgent extends Agent implements Serializable{
     @Override
     protected void setup() {
         super.setup();
+
+        MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));
+
         //Getting fields in order: Algorithm, agentData
         this.algorithm = (SmartHomeAgentBehaviour) getArguments()[0];
         this.agentData = (AgentData) getArguments()[1];
