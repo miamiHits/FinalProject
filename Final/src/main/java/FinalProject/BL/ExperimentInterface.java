@@ -8,7 +8,7 @@ public interface ExperimentInterface {
     // gal: this one should be invoked by the data collection agent notifying all data
     // resulted from the algorithm-problem configuration run was fully processed
     // IMPORTANT - the method is blocking and should be invoked when the data collector has done all that is needed for the current configuration
-    void algorithmRunEnded(AlgorithmProblemResult result);
+    void algorithmProblemComboRunEnded(AlgorithmProblemResult result);
 
     void stopExperiment();
 

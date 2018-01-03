@@ -298,7 +298,7 @@ package BL {
 
 	interface ExperimentInterface {
 		+runExperiment() : void
-		+algorithmRunEnded(AlgorithmProblemResult) : void
+		+algorithmProblemComboRunEnded(AlgorithmProblemResult) : void
 		+stop() : void
 	}
 
@@ -306,7 +306,7 @@ package BL {
 		+numOfIterations : int
 
 		+runExperiment() : void
-		+algorithmRunEnded(AlgorithmProblemResult) : void
+		+algorithmProblemComboRunEnded(AlgorithmProblemResult) : void
 		+stopExperiment() : void
 	}
 

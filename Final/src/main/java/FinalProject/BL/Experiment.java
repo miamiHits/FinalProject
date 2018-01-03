@@ -65,7 +65,7 @@ public class Experiment implements ExperimentInterface {
     // resulted from the algorithm-problem configuration run was fully processed
     // IMPORTANT - the method is blocking and should be invoked when the data collector has done all that is needed for the current configuration
     @Override
-    public void algorithmRunEnded(AlgorithmProblemResult result)
+    public void algorithmProblemComboRunEnded(AlgorithmProblemResult result)
     {
         //TODO gal
         logger.info(String.format("data collector completed processing configuration:\n" +
@@ -73,7 +73,7 @@ public class Experiment implements ExperimentInterface {
                         "problem - %s"
                 , result.getAlgorithm()
                 , result.getProblem()));
-        assert result != null : "algorithmRunEnded must be invoked with a non-null result instance";
+        assert result != null : "algorithmProblemComboRunEnded must be invoked with a non-null result instance";
         assert result.getHighestCostForAgentInBestIteration() >= result.getLowestCostForAgentInBestIteration() :
                 "result - in best iteration, the highest cost for an agent must be greater than the lowest one";
         assert result.getIterationsTillBestPrice() <= Experiment.maximumIterations :
@@ -89,14 +89,14 @@ public class Experiment implements ExperimentInterface {
             }
             catch (InterruptedException e)
             {
-                logger.error("got exception while waiting on algorithmRunEnded",
+                logger.error("got exception while waiting on algorithmProblemComboRunEnded",
                         e);
                 this.experimentRunStoppedWithError.set(true);
                 this.waitingBarrier.reset();// wake the other blocked threads
             }
             catch (BrokenBarrierException e)
             {
-                logger.warn("got BrokenBarrierException while waiting on algorithmRunEnded",
+                logger.warn("got BrokenBarrierException while waiting on algorithmProblemComboRunEnded",
                         e);
                 //TODO gal is there anything to do here?
                 if (!experimentRunStoppedWithError.get() &&
@@ -433,7 +433,7 @@ public class Experiment implements ExperimentInterface {
                     }
                     catch (BrokenBarrierException e)
                     {
-                        logger.info("got BrokenBarrierException while waiting on algorithmRunEnded",
+                        logger.info("got BrokenBarrierException while waiting on algorithmProblemComboRunEnded",
                                 e);
                         if (!experimentRunStoppedWithError.get() &&
                                 !experimentRunStoppedByUser.get())
