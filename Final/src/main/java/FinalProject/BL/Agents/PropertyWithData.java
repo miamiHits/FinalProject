@@ -160,6 +160,15 @@ public class PropertyWithData {
 
     public PropertyWithData () {}
 
+    /**
+     *  scans the designated interval and add activations due to offline(the actuator.state = off) delta that is not 0
+     * @param minVal - the minimal value that should be always kept
+     * @param targetTickToCount - the upper bound of the interval that is under examination
+     * @param powerConsumption - current power consumption that might be modified due to additional activations resulted from offline delta != 0
+     * @param isFromStart - consider the the target tick mentioned in the rule to be a pivot for the horizon
+     *                    this argument indicates if the bottom partition will be checked:
+     *                    true results scan 0 -> targetTick | false results targetTick -> targetToCount
+     */
     public void calcAndUpdateCurrState(double minVal, double targetTickToCount, double[] powerConsumption, boolean isFromStart) {
 
         double currState = sensor.getCurrentState();
@@ -196,7 +205,7 @@ public class PropertyWithData {
                     currState -=deltaWhenWorkOffline;
                     //now lets charge it to the maximum point
                     double ticksToCharge = Math.ceil((max - currState) / deltaWhenWork);
-                    currState = updateValueToSensor(powerConsumption, currState, ticksToCharge, i, isFromStart);
+                    currState = updateValueToSensor(powerConsumption, currState, ticksToCharge, i, isFromStart);//TODO gal yarden is this a possible bug? the sensor will never be updated when isFromStart = True
 
                     i = (int)ticksToCharge + i + 1 ;
 
@@ -212,6 +221,15 @@ public class PropertyWithData {
         }
     }
 
+    /**
+     *
+     * @param iterationPowerConsumption - current consumption prior the update
+     * @param newState - current sensor's state what will be updated in the method
+     * @param ticksToCharge - how many additional ticks of activation are required
+     * @param idxTicks - the base index on the horizon from which the additional activations will be added
+     * @param offlineWork - ??? TODO gal what is the meaning of this argument?
+     * @return the new state of the sensor after the latest activation(the same as newState if no additional activation was required)
+     */
     public double updateValueToSensor (double [] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork)
     {
         for (int j=1; j<= ticksToCharge; ++j)
@@ -220,10 +238,12 @@ public class PropertyWithData {
             iterationPowerConsumption[j + idxTicks] = Double.sum(iterationPowerConsumption[j + idxTicks], powerConsumedInWork);
             newState = Double.sum(newState, deltaWhenWork);
             if(!offlineWork)
-            this.activeTicks.add(j+idxTicks);
+            {
+                this.activeTicks.add(j+idxTicks);
+            }
         }
 
-        if (newState > max)
+        if (newState > max)//TODO gal yarden are we ignoring the scenario where the extra activations break the passive rule of max?
             newState = max;
 
         Map<Sensor, Double> toSend = new HashMap<>();
