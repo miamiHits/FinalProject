@@ -128,6 +128,11 @@ public class DSA extends SmartHomeAgentBehaviour {
                 .filter(p->p.isPassiveOnly()==false)
                 .collect(Collectors.toList()))
         {
+            if (prop.getPrefix() == Prefix.BEFORE)
+            {
+                specialCaseOfBefore(prop);
+
+            }
             //lets see what is the state of the curr&related sensors till then
             prop.calcAndUpdateCurrState(prop.getMin(),START_TICK, this.iterationPowerConsumption, true);
             double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
@@ -150,6 +155,11 @@ public class DSA extends SmartHomeAgentBehaviour {
             }
         }
 
+
+    }
+
+    private void specialCaseOfBefore(PropertyWithData prop) {
+        prop.calcAndUpdateCurrState(prop.getTargetValue(),START_TICK, this.iterationPowerConsumption, true);
 
     }
 
@@ -278,13 +288,25 @@ public class DSA extends SmartHomeAgentBehaviour {
                         randomNum = START_TICK + (int) (Math.random() * (((prop.getTargetTick()-1) - START_TICK) + 1));
                         break;
                     case AFTER:
-                        randomNum = (int) (prop.getTargetTick() + (int) (Math.random() * ((FINAL_TICK - prop.getTargetTick()) + 1)));
+                        if (prop.getTargetTick() + ticksToWork > (this.iterationPowerConsumption.length))
+                        {
+                            double targetTick = prop.getTargetTick();
+                            for (int j= 0 ; j< ticksToWork; j++){
+                                myTicks.add((int)targetTick - j);
+                                randomNum = (int)targetTick - j;
+                            }
+                            i = (int)ticksToWork;
+                        }
+                        else
+                        {
+                            randomNum = (int) (prop.getTargetTick() + (int) (Math.random() * ((FINAL_TICK - prop.getTargetTick()) + 1)));
+                        }
                         break;
                     case AT:
-                        randomNum = (int) prop.getTargetTick();
+                        specialTreatForAt(ticksToWork, prop, myTicks);
                         break;
                 }
-
+                if (prop.getPrefix() == Prefix.AT) break;
                 if (!myTicks.contains(randomNum)) {
                     myTicks.add(randomNum);
                 } else {
@@ -292,9 +314,24 @@ public class DSA extends SmartHomeAgentBehaviour {
                 }
             }
 
+
             updateTotals(prop, myTicks, sensorsToCharge);
 
         }
+    }
+
+    private void specialTreatForAt(double ticksToWork, PropertyWithData prop, List<Integer> myTicks) {
+        if (ticksToWork == 1)
+        {
+            myTicks.add((int)prop.getTargetTick());
+        }
+        else
+        {   double targetTick = prop.getTargetTick();
+            for (int i= 0 ; i< ticksToWork; i++){
+                myTicks.add((int)targetTick - i);
+            }
+        }
+
     }
 
     private void updateTotals(PropertyWithData prop, List<Integer> myTicks, Map<String, Double> sensorsToCharge)

@@ -76,6 +76,7 @@ public class AlgorithmDataHelper
                 case GEQ:
                 case LEQ:
                     prop.setTargetValue(rule.getRuleValue());
+                    break;
                 case GT:
                     prop.setTargetValue(rule.getRuleValue()+1);
                     break;
@@ -84,16 +85,10 @@ public class AlgorithmDataHelper
                     break;
             }
 
-            if (prop.getPrefix() == Prefix.BEFORE)
-            {
-                specialCaseOfBefore(prop);
-            }
         }
     }
 
-    private void specialCaseOfBefore(PropertyWithData prop) {
-        prop.setMin(prop.getTargetValue());
-    }
+
 
     public void SetActuatorsAndSensors()
     {
