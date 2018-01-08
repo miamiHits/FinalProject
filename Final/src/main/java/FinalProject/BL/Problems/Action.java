@@ -3,6 +3,7 @@ package FinalProject.BL.Problems;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Action implements Serializable
@@ -21,6 +22,14 @@ public class Action implements Serializable
         this.powerConsumption = powerConsumption;
         this.effects = effects;
     }
+
+    public Action(Action other) {
+        this.name = other.getName();
+        this.powerConsumption = other.getPowerConsumption();
+        this.effects = new ArrayList<>(other.getEffects().size());
+        this.effects.addAll(other.effects);
+    }
+
 
     public String getName()
     {

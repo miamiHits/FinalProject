@@ -20,6 +20,12 @@ public class Device implements Serializable
         this.location = location;
     }
 
+    public Device(Device other) {
+        this.name = other.getName();
+        this.subtype = other.getSubtype();
+        this.location = other.getLocation();
+    }
+
     public String getName()
     {
         return name;

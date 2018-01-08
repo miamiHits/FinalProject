@@ -3,6 +3,7 @@ package FinalProject.BL.Problems;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Sensor extends Device implements Serializable{
@@ -18,6 +19,13 @@ public class Sensor extends Device implements Serializable{
         super(name, subtype, location);
         currentState = state;
         sensingProperties = sensingProps;
+    }
+
+    public Sensor(Sensor other) {
+        super(other);
+        this.currentState = other.getCurrentState();
+        this.sensingProperties = new ArrayList<>(other.getSensingProperties().size());
+        this.sensingProperties.addAll(other.getSensingProperties());
     }
 
     public double getCurrentState()

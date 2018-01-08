@@ -76,8 +76,8 @@ alt user selected a set of algorithm and problems
                     Agent -> DCCB : [runEnded]
                 end
 
-                DCCB -> DataCollector : algorithmRunEnded()
-                DataCollector -> Experiment : algorithmRunEnded(AlgorithmProblemResult)
+                DCCB -> DataCollector : algorithmProblemComboRunEnded()
+                DataCollector -> Experiment : algorithmProblemComboRunEnded(AlgorithmProblemResult)
             end
         end
 
