@@ -85,8 +85,10 @@ public class Actuator extends Device {
     }
 
     public void act(Map<Sensor, Double> toSend) {
-        toSend.keySet().forEach(sens -> {
-            sens.change(toSend.get(sens));
-        });
+        for(Map.Entry<Sensor, Double> entry : toSend.entrySet())
+        {
+            entry.getKey().change(entry.getValue());
+        }
+
     }
 }
