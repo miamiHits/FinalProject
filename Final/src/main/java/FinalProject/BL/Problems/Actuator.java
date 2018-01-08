@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Actuator extends Device {
 
@@ -16,6 +17,12 @@ public class Actuator extends Device {
     {
         super(name, subtype, location);
         actions = actionList;
+    }
+
+    public Actuator(Actuator other) {
+        super(other);
+        this.actions = other.getActions().stream()
+                .map(Action::new).collect(Collectors.toList());
     }
 
     public List<Action> getActions()

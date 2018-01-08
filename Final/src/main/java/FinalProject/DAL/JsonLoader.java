@@ -299,10 +299,10 @@ public class JsonLoader implements JsonLoaderInterface {
                     .collect(Collectors.toList());
             target.setRules(parsedRules);
 
-            List<Actuator> acts = copyDeviceList(deviceList, actuators);
+            List<Actuator> acts = copyActuatorsList(deviceList, actuators);
             target.setActuators(acts);
 
-            List<Sensor> sensorsList = copyDeviceList(deviceList, sensors);
+            List<Sensor> sensorsList = copySensorsList(deviceList, sensors);
             target.setSensors(sensorsList);
 
             List<AgentData> targetNeighbors = Arrays.stream(neighbors)
@@ -321,18 +321,30 @@ public class JsonLoader implements JsonLoaderInterface {
             target.setNeighbors(targetNeighbors);
         }
 
-        private <T extends Device> List<T> copyDeviceList(List<Device> deviceList,
-                                                          String[] deviceNamesToCopy)
-        {
-            List<T> lst = new ArrayList<>();
+
+        private List<Sensor> copySensorsList(List<Device> deviceList, String[] deviceNamesToCopy) {
+            List<Sensor> lst = new ArrayList<>();
             for (String name : deviceNamesToCopy)
             {
                 lst.addAll(deviceList.stream()
-                                    .filter(dev -> dev.getName().equals(name))
-                                    .map(dev -> (T) dev)
-                                    .collect(Collectors.toList()));
+                                   .filter(dev -> dev.getName().equals(name))
+                                   .map(dev -> new Sensor((Sensor) dev))
+                                   .collect(Collectors.toList()));
             }
             return lst;
         }
+
+        private List<Actuator> copyActuatorsList(List<Device> deviceList, String[] deviceNamesToCopy) {
+            List<Actuator> lst = new ArrayList<>();
+            for (String name : deviceNamesToCopy)
+            {
+                lst.addAll(deviceList.stream()
+                                   .filter(dev -> dev.getName().equals(name))
+                                   .map(dev -> new Actuator((Actuator) dev))
+                                   .collect(Collectors.toList()));
+            }
+            return lst;
+        }
+
     }
 }
