@@ -69,8 +69,30 @@ public class AlgorithmDataHelper
             prop.setPrefix(rule.getPrefix());
             prop.setRt(rule.getPrefixType());
             prop.setTargetTick(rule.getRelationValue());
-            prop.setTargetValue(rule.getRuleValue());
+
+            switch (rule.getPrefixType())
+            {
+                case EQ:
+                case GEQ:
+                case LEQ:
+                    prop.setTargetValue(rule.getRuleValue());
+                case GT:
+                    prop.setTargetValue(rule.getRuleValue()+1);
+                    break;
+                case LT:
+                    prop.setTargetValue(rule.getRuleValue()-1);
+                    break;
+            }
+
+            if (prop.getPrefix() == Prefix.BEFORE)
+            {
+                specialCaseOfBefore(prop);
+            }
         }
+    }
+
+    private void specialCaseOfBefore(PropertyWithData prop) {
+        prop.setMin(prop.getTargetValue());
     }
 
     public void SetActuatorsAndSensors()

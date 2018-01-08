@@ -4,6 +4,7 @@ import FinalProject.BL.Problems.Actuator;
 import FinalProject.BL.Problems.Prefix;
 import FinalProject.BL.Problems.RelationType;
 import FinalProject.BL.Problems.Sensor;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,8 @@ public class PropertyWithData {
     public  Map<String,Double> relatedSensorsDelta = new HashMap<>();
     public  Map<String,Double> relatedSensorsWhenWorkOfflineDelta = new HashMap<>();
     public List<Integer> activeTicks = new ArrayList<>();
+    private final static Logger logger = Logger.getLogger(PropertyWithData.class);
+    private double FINAL_TICK;
 
     public double getCachedSensorState() {
         return cachedSensorState;
@@ -196,9 +199,14 @@ public class PropertyWithData {
                     currState -=deltaWhenWorkOffline;
                     //now lets charge it to the maximum point
                     double ticksToCharge = Math.ceil((max - currState) / deltaWhenWork);
+                    if (ticksToCharge + i > (powerConsumption.length-1))
+                    {
+                         ticksToCharge = (powerConsumption.length-1) - i ;
+                    }
                     currState = updateValueToSensor(powerConsumption, currState, ticksToCharge, i, isFromStart);
 
                     i = (int)ticksToCharge + i + 1 ;
+                    if (i>= counter) break;
 
                 }
 

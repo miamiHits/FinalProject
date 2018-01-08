@@ -38,6 +38,8 @@ public class DSA extends SmartHomeAgentBehaviour {
             logger.info("Starting work on Iteration: 0");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
+            logger.info("FINISH ITER 0");
+
         }
         else
         {
@@ -47,6 +49,8 @@ public class DSA extends SmartHomeAgentBehaviour {
             helper.calcTotalPowerConsumption(agent.getcSum());
             logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
             tryBuildSchedule();
+            logger.info("FINISHed ITER " + currentNumberOfIter);
+
         }
         this.currentNumberOfIter ++;
     }
@@ -94,7 +98,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         return notRandomNumbers[(int) idx];
     }
 
-    private boolean buildScheduleFromScratch() {
+    public boolean buildScheduleFromScratch() {
         //classifying the rules by activeness, start creating the prop object
         List <Rule> passiveRules = new ArrayList<>();
         List <Rule> activeRules = new ArrayList<>();
@@ -340,8 +344,11 @@ public class DSA extends SmartHomeAgentBehaviour {
         if (currState< prop.getMax())
         {
             double howLong = Math.ceil((prop.getMax()- currState) / prop.getDeltaWhenWork());
-            prop.updateValueToSensor(this.iterationPowerConsumption, currState, howLong, (int) targetTick- (int)howLong, true);
-            currState = prop.getMax();
+        //    if (targetTick - howLong >0) {
+        //        prop.updateValueToSensor(this.iterationPowerConsumption, currState, howLong, (int) targetTick- (int)howLong, true);
+           //     currState = prop.getMax();
+         //   }
+
         }
         //lets see how many time we'll need to charge it.
         for (int i=0 ; i< ticksToWork; ++i)
