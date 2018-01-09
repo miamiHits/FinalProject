@@ -1,6 +1,7 @@
 package FinalProject.BL.DataCollection;
 
 import FinalProject.BL.IterationData.IterationCollectedData;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,14 +12,13 @@ public class DataCollector {
     private Map<ProblemAlgorithm, IterationAgentsPrice> probAlgoToItAgentPrice;
     private Map<ProblemAlgorithm, AlgorithmProblemResult> probAlgoToResult;
     private Map<String, double[]> probToPriceScheme;
-    private Map<String, List<Set<String>>> neighborhoodsInProblems;
+    private static final Logger logger = Logger.getLogger(DataCollector.class);
 
     public DataCollector(Map<String, Integer> numOfAgentsInProblems, Map<String, double[]> prices) {
         this.numOfAgentsInProblems = numOfAgentsInProblems;
         this.probToPriceScheme = prices;
         this.probAlgoToItAgentPrice = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
         this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
-        this.neighborhoodsInProblems = new HashMap<String, List<Set<String>>>();
     }
 
     public double addData (IterationCollectedData data){
@@ -74,21 +74,10 @@ public class DataCollector {
         neighborhood.add(data.getAgentName());
         boolean exist = false;
         List<Set<String>> neighborhoods;
-        if (neighborhoodsInProblems.containsKey(tempPA.getProblemId())){
-            neighborhoods = neighborhoodsInProblems.get(tempPA.getProblemId());
-            for (Set<String> n: neighborhoods){
-                if (n.containsAll(neighborhood)){
-                    exist = true;
-                    break;
-                }
-            }
-            if (!exist){
-                neighborhoods.add(neighborhood);
-            }
-        }else{
-            neighborhoods = new LinkedList<Set<String>>();
-            neighborhoods.add(neighborhood);
-            neighborhoodsInProblems.put(tempPA.getProblemId(), neighborhoods);
+        IterationAgentsPrice IAP = probAlgoToItAgentPrice.get(tempPA);
+        if (IAP == null){
+            logger.warn("IAP is null when adding Neighborhood");
+            
         }
     }
 

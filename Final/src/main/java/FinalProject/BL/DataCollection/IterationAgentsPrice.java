@@ -50,7 +50,7 @@ public class IterationAgentsPrice {
         }
     }
 
-    public void addEpeakToNeighborhood(int iterationNum, double epeak, Set<String> neighborhood){
+    public void addNeighborhoodAndEpeak(int iterationNum, double epeak, Set<String> neighborhood){
         List<NeighborhoodEpeak> neigEpeak = iterationsToNeighborhoodsPeak.get(iterationNum);
         if (neigEpeak == null){
             neigEpeak = new LinkedList<NeighborhoodEpeak>();
