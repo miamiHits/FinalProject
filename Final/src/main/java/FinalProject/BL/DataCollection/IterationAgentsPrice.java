@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class IterationAgentsPrice {
     private Map<Integer, List<AgentPrice>> iterationToAgentsPrice;
+    private Map<Integer,List<NeighborhoodEpeak>> iterationsToNeighborhoodsPeak;
 
     public IterationAgentsPrice() {
         iterationToAgentsPrice = new HashMap<Integer, List<AgentPrice>>();

@@ -39,8 +39,8 @@ public class DataCollector {
         if (isIterationFinished(tempPA, tempIAP, data)){
             double newPrice = calculateTotalPrice(tempPA, tempIAP, data.getIterNum());
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
-            if (newPrice < result.getLowestCostInBestIteration()){
-                result.setLowestCostInBestIteration(newPrice);
+            if (newPrice < result.getBestPrice()){
+                result.setBestPrice(newPrice);
                 result.setIterationsTillBestPrice(data.getIterNum());
                 setLowestHighestInBestIter(tempPA, result);
                 setAvgPriceInIter(tempPA, result, data.getIterNum());

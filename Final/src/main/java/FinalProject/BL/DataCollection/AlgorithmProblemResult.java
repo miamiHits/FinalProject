@@ -8,7 +8,7 @@ public class AlgorithmProblemResult {
     private String algorithm;
     private Map<Integer, Double> avgPricePerIteration;
     private int iterationsTillBestPrice;
-    private double lowestCostInBestIteration;
+    private double bestPrice;
     private double lowestCostForAgentInBestIteration;
     private String lowestCostForAgentInBestIterationAgentName;
     private double highestCostForAgentInBestIteration;
@@ -19,7 +19,7 @@ public class AlgorithmProblemResult {
         algorithm = probAlgo.getAlgorithmName();
         avgPricePerIteration = new HashMap<Integer, Double>();
         iterationsTillBestPrice = 0;
-        lowestCostInBestIteration = Double.MAX_VALUE;
+        bestPrice = Double.MAX_VALUE;
     }
 
     public String getProblem() {
@@ -86,12 +86,12 @@ public class AlgorithmProblemResult {
         this.highestCostForAgentInBestIterationAgentName = highestCostForAgentInBestIterationAgentName;
     }
 
-    public double getLowestCostInBestIteration() {
-        return lowestCostInBestIteration;
+    public double getBestPrice() {
+        return bestPrice;
     }
 
-    public void setLowestCostInBestIteration(double lowestCostInBestIteration) {
-        this.lowestCostInBestIteration = lowestCostInBestIteration;
+    public void setBestPrice(double bestPrice) {
+        this.bestPrice = bestPrice;
     }
 
     @Override
@@ -102,7 +102,7 @@ public class AlgorithmProblemResult {
                 ", algorithm='" + algorithm + '\'' + "\n" +
                 ", avgPricePerIteration=" + avgPricePerIteration + "\n" +
                 ", iterationsTillBestPrice=" + iterationsTillBestPrice + "\n" +
-                ", lowestCostInBestIteration=" + lowestCostInBestIteration + "\n" +
+                ", bestPrice=" + bestPrice + "\n" +
                 ", lowestCostForAgentInBestIteration=" + lowestCostForAgentInBestIteration + "\n" +
                 ", lowestCostForAgentInBestIterationAgentName='" + lowestCostForAgentInBestIterationAgentName + '\'' + "\n" +
                 ", highestCostForAgentInBestIteration=" + highestCostForAgentInBestIteration + "\n" +
