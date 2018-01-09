@@ -2,10 +2,7 @@ package FinalProject.BL.DataCollection;
 
 import FinalProject.BL.IterationData.IterationCollectedData;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DataCollector {
@@ -73,11 +70,12 @@ public class DataCollector {
     }
 
     private void addNeighborhoodIfNotExist(IterationCollectedData data, ProblemAlgorithm tempPA) {
+        Set<String> neighborhood = data.getNeighborhood();
+        neighborhood.add(data.getAgentName());
+        boolean exist = false;
+        List<Set<String>> neighborhoods;
         if (neighborhoodsInProblems.containsKey(tempPA.getProblemId())){
-            List<Set<String>> neighborhoods = neighborhoodsInProblems.get(tempPA.getProblemId());
-            Set<String> neighborhood = data.getNeighborhood();
-            neighborhood.add(data.getAgentName());
-            boolean exist = false;
+            neighborhoods = neighborhoodsInProblems.get(tempPA.getProblemId());
             for (Set<String> n: neighborhoods){
                 if (n.containsAll(neighborhood)){
                     exist = true;
@@ -87,6 +85,10 @@ public class DataCollector {
             if (!exist){
                 neighborhoods.add(neighborhood);
             }
+        }else{
+            neighborhoods = new LinkedList<Set<String>>();
+            neighborhoods.add(neighborhood);
+            neighborhoodsInProblems.put(tempPA.getProblemId(), neighborhoods);
         }
     }
 
