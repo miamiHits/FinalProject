@@ -72,13 +72,12 @@ public class DataCollector {
     private void addNeighborhoodIfNotExist(IterationCollectedData data, ProblemAlgorithm tempPA) {
         Set<String> neighborhood = data.getNeighborhood();
         neighborhood.add(data.getAgentName());
-        boolean exist = false;
-        List<Set<String>> neighborhoods;
         IterationAgentsPrice IAP = probAlgoToItAgentPrice.get(tempPA);
         if (IAP == null){
             logger.warn("IAP is null when adding Neighborhood");
-            
+            return;
         }
+        IAP.addNeighborhoodAndEpeak(data.getIterNum(), data.getEpeak(), neighborhood);
     }
 
     private void setAvgPriceInIter(ProblemAlgorithm PA, AlgorithmProblemResult result, int iterNum) {

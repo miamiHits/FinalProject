@@ -7,7 +7,9 @@ public class IterationCollectedData extends AgentIterationData {
     private String problemId;
     private String algorithm;
     private Set<String> neighborhood;
+    private double epeak;
 
+    //@todo add epeak and neigborhood to constructor
     public IterationCollectedData(int iterNum, String agentName, double price, double[] powerConsPerDevice,
                                   String problemId, String algo ) {
         super(iterNum, agentName, price, powerConsPerDevice);
@@ -38,4 +40,13 @@ public class IterationCollectedData extends AgentIterationData {
     public Set<String> getNeighborhood() {
         return neighborhood;
     }
+
+    public double getEpeak() {
+        return epeak;
+    }
+
+    public void setEpeak(double epeak) {
+        this.epeak = epeak;
+    }
+
 }
