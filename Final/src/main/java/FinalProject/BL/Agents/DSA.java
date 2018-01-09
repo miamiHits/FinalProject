@@ -56,27 +56,9 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     private void tryBuildSchedule() {
-
-        boolean buildNewShed = drawCoin() == 1 ? true : false;
-        logger.info("Draw a cube got " + buildNewShed );
-
-        if (buildNewShed)
-        {
-            helper.goBackToStartValues();
-            tryBuildScheduleBasic();
-            beforeIterationIsDone();
-
-        }
-        else{
-
-            double price = calcPrice(this.iterationPowerConsumption);
-            double[] arr = helper.clonArray(this.iterationPowerConsumption);
-            logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
-            logger.info("my PRICE is: " + price);
-            agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, arr);
-            agent.setCurrIteration(agentIterationData);
-            agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId());
-        }
+        helper.goBackToStartValues();
+        tryBuildScheduleBasic();
+        beforeIterationIsDone();
     }
 
     private void beforeIterationIsDone()
@@ -164,21 +146,29 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     private void startWork(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
-        prop.activeTicks.clear();
-        List<Set<Integer>> subsets;
-        List<Integer> newTicks;
-
-        if (ticksToWork <= 0)
+        boolean buildNewShed = drawCoin() == 1 ? true : false;
+        if (buildNewShed)
         {
-            subsets = checkAllOptions(prop);
-            if (subsets == null) return;
+            prop.activeTicks.clear();
+            List<Set<Integer>> subsets;
+            List<Integer> newTicks;
+
+            if (ticksToWork <= 0)
+            {
+                subsets = checkAllOptions(prop);
+                if (subsets == null) return;
+            }
+            else{
+                List<Integer> rangeForWork =  calcRangeOfWork(prop);
+                subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
+            }
+            newTicks = calcBestPrice(prop, subsets);
+            updateTotals(prop, newTicks, sensorsToCharge);
         }
         else{
-            List<Integer> rangeForWork =  calcRangeOfWork(prop);
-            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
+            updateTotals(prop, prop.activeTicks, sensorsToCharge);
         }
-        newTicks = calcBestPrice(prop, subsets);
-        updateTotals(prop, newTicks, sensorsToCharge);
+
     }
 
     private List<Integer> calcRangeOfWork(PropertyWithData prop) {
