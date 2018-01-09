@@ -9,12 +9,13 @@ public class IterationCollectedData extends AgentIterationData {
     private Set<String> neighborhood;
     private double epeak;
 
-    //@todo add epeak and neigborhood to constructor
     public IterationCollectedData(int iterNum, String agentName, double price, double[] powerConsPerDevice,
-                                  String problemId, String algo ) {
+                                  String problemId, String algo, Set<String> neighborhood, double epeak ) {
         super(iterNum, agentName, price, powerConsPerDevice);
         this.problemId = problemId;
         this.algorithm = algo;
+        this.neighborhood = neighborhood;
+        this.epeak = epeak;
     }
 
     public String getProblemId() {
