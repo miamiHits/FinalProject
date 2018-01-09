@@ -1,10 +1,9 @@
 package FinalProject.BL.DataCollection;
 
 import FinalProject.BL.IterationData.IterationCollectedData;
+import org.apache.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DataCollector {
@@ -13,16 +12,47 @@ public class DataCollector {
     private Map<ProblemAlgorithm, IterationAgentsPrice> probAlgoToItAgentPrice;
     private Map<ProblemAlgorithm, AlgorithmProblemResult> probAlgoToResult;
     private Map<String, double[]> probToPriceScheme;
+    private static final Logger logger = Logger.getLogger(DataCollector.class);
 
     public DataCollector(Map<String, Integer> numOfAgentsInProblems, Map<String, double[]> prices) {
         this.numOfAgentsInProblems = numOfAgentsInProblems;
         this.probToPriceScheme = prices;
         this.probAlgoToItAgentPrice = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
         this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
-}
+    }
 
     public double addData (IterationCollectedData data){
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
+        IterationAgentsPrice tempIAP;
+
+        tempIAP = addAgentPrice(data, tempPA);
+
+        addNeighborhoodIfNotExist(data, tempPA);
+
+        Double newPrice = calculateTotalPrice(data, tempPA, tempIAP);
+
+        if (newPrice != null) {return newPrice;}
+        return 0;
+    }
+
+    private Double calculateTotalPrice(IterationCollectedData data, ProblemAlgorithm tempPA, IterationAgentsPrice tempIAP) {
+        if (isIterationFinished(tempPA, tempIAP, data)){
+            double newPrice = calculateTotalPrice(tempPA, tempIAP, data.getIterNum());
+            AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
+            if (newPrice < result.getBestPrice()){
+                result.setBestPrice(newPrice);
+                result.setIterationsTillBestPrice(data.getIterNum());
+                setLowestHighestInBestIter(tempPA, result);
+                setAvgPriceInIter(tempPA, result, data.getIterNum());
+            }else{ //not the best iter
+                setAvgPriceInIter(tempPA, result, data.getIterNum());
+            }
+            return newPrice;
+        }
+        return null;
+    }
+
+    private IterationAgentsPrice addAgentPrice(IterationCollectedData data, ProblemAlgorithm tempPA) {
         IterationAgentsPrice tempIAP;
         if (probAlgoToItAgentPrice.containsKey(tempPA)){
             tempIAP = probAlgoToItAgentPrice.get(tempPA);
@@ -36,20 +66,18 @@ public class DataCollector {
                             data.getPowerConsumptionPerTick()));
             probAlgoToItAgentPrice.put(tempPA, tempIAP);
         }
-        if (isIterationFinished(tempPA, tempIAP, data)){
-            double newPrice = calculateTotalPrice(tempPA, tempIAP, data.getIterNum());
-            AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
-            if (newPrice < result.getLowestCostInBestIteration()){
-                result.setLowestCostInBestIteration(newPrice);
-                result.setIterationsTillBestPrice(data.getIterNum());
-                setLowestHighestInBestIter(tempPA, result);
-                setAvgPriceInIter(tempPA, result, data.getIterNum());
-            }else{ //not the best iter
-                setAvgPriceInIter(tempPA, result, data.getIterNum());
-            }
-            return newPrice;
+        return tempIAP;
+    }
+
+    private void addNeighborhoodIfNotExist(IterationCollectedData data, ProblemAlgorithm tempPA) {
+        Set<String> neighborhood = data.getNeighborhood();
+        neighborhood.add(data.getAgentName());
+        IterationAgentsPrice IAP = probAlgoToItAgentPrice.get(tempPA);
+        if (IAP == null){
+            logger.warn("IAP is null when adding Neighborhood");
+            return;
         }
-        return 0;
+        IAP.addNeighborhoodAndEpeak(data.getIterNum(), data.getEpeak(), neighborhood);
     }
 
     private void setAvgPriceInIter(ProblemAlgorithm PA, AlgorithmProblemResult result, int iterNum) {
