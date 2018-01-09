@@ -1,9 +1,6 @@
 package FinalProject.BL.DataCollection;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IterationAgentsPrice {
     private Map<Integer, List<AgentPrice>> iterationToAgentsPrice;
@@ -11,6 +8,7 @@ public class IterationAgentsPrice {
 
     public IterationAgentsPrice() {
         iterationToAgentsPrice = new HashMap<Integer, List<AgentPrice>>();
+        iterationsToNeighborhoodsPeak = new HashMap<Integer,List<NeighborhoodEpeak>>();
     }
 
     public List<AgentPrice> getAgentsPrices(int iterationNum){
@@ -34,6 +32,24 @@ public class IterationAgentsPrice {
         }
     }
 
+    public void addEpeakToNeighborhood(int iterationNum, double epeak, Set<String> neighborhood){
+        List<NeighborhoodEpeak> neigEpeak = iterationsToNeighborhoodsPeak.get(iterationNum);
+        if (neigEpeak == null){
+            neigEpeak = new  LinkedList<NeighborhoodEpeak>();
+            neigEpeak.add(new NeighborhoodEpeak(neighborhood, epeak));
+            iterationsToNeighborhoodsPeak.put(iterationNum, neigEpeak);
+        }
+        else{
+            for (NeighborhoodEpeak ne: neigEpeak) {
+                if (ne.getNeighborhood().containsAll(neighborhood)){
+                    if(epeak != ne.getEpeak()){
+                        
+                    }
+                }
+            }
+        }
+    }
+
     public Map<Integer, List<AgentPrice>> getIterationToAgentsPrice() {
         return iterationToAgentsPrice;
     }
@@ -41,5 +57,15 @@ public class IterationAgentsPrice {
     public void setIterationToAgentsPrice(Map<Integer, List<AgentPrice>> iterationToAgentsPrice) {
         this.iterationToAgentsPrice = iterationToAgentsPrice;
     }
+
+    public Map<Integer, List<NeighborhoodEpeak>> getIterationsToNeighborhoodsPeak() {
+        return iterationsToNeighborhoodsPeak;
+    }
+
+    public void setIterationsToNeighborhoodsPeak(Map<Integer, List<NeighborhoodEpeak>> iterationsToNeighborhoodsPeak) {
+        this.iterationsToNeighborhoodsPeak = iterationsToNeighborhoodsPeak;
+    }
+
+
 
 }

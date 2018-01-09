@@ -6,9 +6,9 @@ public class NeighborhoodEpeak {
     private Set<String> Neighborhood;
     private double epeak;
 
-    public NeighborhoodEpeak(Set<String> neighborhood) {
+    public NeighborhoodEpeak(Set<String> neighborhood, double epeak) {
         Neighborhood = neighborhood;
-        this.epeak = -1;
+        this.epeak = epeak;
     }
 
     public Set<String> getNeighborhood() {
