@@ -16,10 +16,12 @@ public class AgentData implements Serializable{
     private List<Sensor> sensors;
     private int numOfIterations;
     private double[] priceScheme;
+    private int granularity;
 
 
     public AgentData(String name, List<AgentData> neighbors, double[] backgroundLoad, int houseType, List<Rule> rules,
-                     List<Actuator> actuators, List<Sensor> sensors, int numOfIterations, double[] priceScheme)
+                     List<Actuator> actuators, List<Sensor> sensors, int numOfIterations, double[] priceScheme,
+                     int granularity)
     {
         this.name = name;
         this.neighbors = neighbors;
@@ -30,15 +32,18 @@ public class AgentData implements Serializable{
         this.sensors = sensors;
         this.numOfIterations = numOfIterations;
         this.priceScheme = priceScheme;
+        this.granularity = granularity;
     }
 
     /**
      * Used only for Json parsing!
      * @param name
+     * @param granularity
      */
-    public AgentData(String name)
+    public AgentData(String name, int granularity)
     {
         this.name = name;
+        this.granularity = granularity;
     }
 
     public String getName()
@@ -125,6 +130,16 @@ public class AgentData implements Serializable{
 
     public void setPriceScheme(double[] priceScheme) {
         this.priceScheme = priceScheme;
+    }
+
+    public int getGranularity()
+    {
+        return granularity;
+    }
+
+    public void setGranularity(int granularity)
+    {
+        this.granularity = granularity;
     }
 
     @Override

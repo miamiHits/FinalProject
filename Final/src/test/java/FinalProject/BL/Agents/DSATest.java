@@ -1,6 +1,5 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.Problems.Actuator;
 import FinalProject.BL.Problems.*;
 import org.junit.After;
@@ -10,11 +9,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 public class DSATest {
 
-    public AgentData ad = new AgentData("YC");
+    public AgentData ad = new AgentData("YC", 60);
     public SmartHomeAgent shg= new SmartHomeAgent();
     public List<Actuator> actuatorList = new ArrayList<>();
     public List<Sensor> sensorListList = new ArrayList<>();
@@ -129,7 +126,7 @@ public class DSATest {
 
     @After
     public void tearDown() throws Exception {
-        ad = new AgentData("YC");
+        ad = new AgentData("YC", 60);
         shg = new SmartHomeAgent();
         actuatorList = new ArrayList<>();
         sensorListList = new ArrayList<>();

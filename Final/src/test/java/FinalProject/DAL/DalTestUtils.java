@@ -21,6 +21,8 @@ public class DalTestUtils {
 
     private static List<AgentData> createDm_7_1_2AllHomes(Map<Integer, List<Device>> deviceDict)
     {
+        int granularity = 60;
+
         double[][] backgroundLoadsArr = {
                 new double[] {0.23, 0.28, 0.08, 0.23, 0.19, 0.05, 0.15, 0.11, 0.24, 0.19, 0.18, 0.02},
                 new double[] {0.23, 0.09, 0.05, 0.1, 0.1, 0.03, 0.29, 0.01, 0.23, 0.2, 0.23, 0.04},
@@ -60,17 +62,17 @@ public class DalTestUtils {
         };
         int[] htArr = {0, 0, 0, 1, 1, 2, 2};
 
-        return createAllHomesFromArrays(deviceDict, backgroundLoadsArr, rulesArr, actArr, sensArr, htArr);
+        return createAllHomesFromArrays(granularity, deviceDict, backgroundLoadsArr, rulesArr, actArr, sensArr, htArr);
     }
 
-    private static List<AgentData> createAllHomesFromArrays(Map<Integer, List<Device>> deviceDict,
+    private static List<AgentData> createAllHomesFromArrays(int granularity, Map<Integer, List<Device>> deviceDict,
                                                             double[][] backgroundLoadsArr, String[][] rulesArr,
                                                             String[][] actArr, String[][] sensArr, int[] htArr)
     {
         List<AgentData> allHomes = new ArrayList<>(backgroundLoadsArr.length);
         for (int i = 0; i < backgroundLoadsArr.length; i++)
         {
-            allHomes.add(new AgentData("h" + (i + 1)));
+            allHomes.add(new AgentData("h" + (i + 1), granularity));
         }
         addAllOtherHousesAsNeighbors(allHomes);
 
