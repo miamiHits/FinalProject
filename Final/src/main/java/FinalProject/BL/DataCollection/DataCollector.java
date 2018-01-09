@@ -39,6 +39,10 @@ public class DataCollector {
                             data.getPowerConsumptionPerTick()));
             probAlgoToItAgentPrice.put(tempPA, tempIAP);
         }
+        if (neighborhoodsInProblems.containsKey(tempPA.getProblemId())){
+            List<Set<String>> neighborhoods = neighborhoodsInProblems.get(tempPA.getProblemId());
+            Set<String> neighborhood = data.getNeighborhood();
+        }
         if (isIterationFinished(tempPA, tempIAP, data)){
             double newPrice = calculateTotalPrice(tempPA, tempIAP, data.getIterNum());
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
