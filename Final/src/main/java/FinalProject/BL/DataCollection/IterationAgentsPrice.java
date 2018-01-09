@@ -1,10 +1,13 @@
 package FinalProject.BL.DataCollection;
 
+import org.apache.log4j.Logger;
+
 import java.util.*;
 
 public class IterationAgentsPrice {
     private Map<Integer, List<AgentPrice>> iterationToAgentsPrice;
     private Map<Integer,List<NeighborhoodEpeak>> iterationsToNeighborhoodsPeak;
+    private static final Logger logger = Logger.getLogger(IterationAgentsPrice.class);
 
     public IterationAgentsPrice() {
         iterationToAgentsPrice = new HashMap<Integer, List<AgentPrice>>();
@@ -43,8 +46,10 @@ public class IterationAgentsPrice {
             for (NeighborhoodEpeak ne: neigEpeak) {
                 if (ne.getNeighborhood().containsAll(neighborhood)){
                     if(epeak != ne.getEpeak()){
-                        
+                        logger.warn("got different Epeak on same neighborhood");
+                        ne.setEpeak(epeak);
                     }
+                    break;
                 }
             }
         }
