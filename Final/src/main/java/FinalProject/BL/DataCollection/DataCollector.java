@@ -27,22 +27,18 @@ public class DataCollector {
     public double addData (IterationCollectedData data){
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
         IterationAgentsPrice tempIAP;
-        if (probAlgoToItAgentPrice.containsKey(tempPA)){
-            tempIAP = probAlgoToItAgentPrice.get(tempPA);
-            tempIAP.addAgentPrice(data.getIterNum(),
-                    new AgentPrice(data.getAgentName(), data.getPrice(),
-                            data.getPowerConsumptionPerTick()));
-        }else{
-            tempIAP = new IterationAgentsPrice();
-            tempIAP.addAgentPrice(data.getIterNum(),
-                    new AgentPrice(data.getAgentName(), data.getPrice(),
-                            data.getPowerConsumptionPerTick()));
-            probAlgoToItAgentPrice.put(tempPA, tempIAP);
-        }
-        if (neighborhoodsInProblems.containsKey(tempPA.getProblemId())){
-            List<Set<String>> neighborhoods = neighborhoodsInProblems.get(tempPA.getProblemId());
-            Set<String> neighborhood = data.getNeighborhood();
-        }
+
+        tempIAP = addAgentPrice(data, tempPA);
+
+        addNeighborhoodIfNotExist(data, tempPA);
+
+        Double newPrice = calculateTotalPrice(data, tempPA, tempIAP);
+
+        if (newPrice != null) {return newPrice;}
+        return 0;
+    }
+
+    private Double calculateTotalPrice(IterationCollectedData data, ProblemAlgorithm tempPA, IterationAgentsPrice tempIAP) {
         if (isIterationFinished(tempPA, tempIAP, data)){
             double newPrice = calculateTotalPrice(tempPA, tempIAP, data.getIterNum());
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
@@ -56,7 +52,42 @@ public class DataCollector {
             }
             return newPrice;
         }
-        return 0;
+        return null;
+    }
+
+    private IterationAgentsPrice addAgentPrice(IterationCollectedData data, ProblemAlgorithm tempPA) {
+        IterationAgentsPrice tempIAP;
+        if (probAlgoToItAgentPrice.containsKey(tempPA)){
+            tempIAP = probAlgoToItAgentPrice.get(tempPA);
+            tempIAP.addAgentPrice(data.getIterNum(),
+                    new AgentPrice(data.getAgentName(), data.getPrice(),
+                            data.getPowerConsumptionPerTick()));
+        }else{
+            tempIAP = new IterationAgentsPrice();
+            tempIAP.addAgentPrice(data.getIterNum(),
+                    new AgentPrice(data.getAgentName(), data.getPrice(),
+                            data.getPowerConsumptionPerTick()));
+            probAlgoToItAgentPrice.put(tempPA, tempIAP);
+        }
+        return tempIAP;
+    }
+
+    private void addNeighborhoodIfNotExist(IterationCollectedData data, ProblemAlgorithm tempPA) {
+        if (neighborhoodsInProblems.containsKey(tempPA.getProblemId())){
+            List<Set<String>> neighborhoods = neighborhoodsInProblems.get(tempPA.getProblemId());
+            Set<String> neighborhood = data.getNeighborhood();
+            neighborhood.add(data.getAgentName());
+            boolean exist = false;
+            for (Set<String> n: neighborhoods){
+                if (n.containsAll(neighborhood)){
+                    exist = true;
+                    break;
+                }
+            }
+            if (!exist){
+                neighborhoods.add(neighborhood);
+            }
+        }
     }
 
     private void setAvgPriceInIter(ProblemAlgorithm PA, AlgorithmProblemResult result, int iterNum) {
