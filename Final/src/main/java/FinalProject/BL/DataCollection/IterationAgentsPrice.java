@@ -52,6 +52,7 @@ public class IterationAgentsPrice {
 
     public void addNeighborhoodAndEpeak(int iterationNum, double epeak, Set<String> neighborhood){
         List<NeighborhoodEpeak> neigEpeak = iterationsToNeighborhoodsPeak.get(iterationNum);
+        boolean exist = false;
         if (neigEpeak == null){
             neigEpeak = new LinkedList<NeighborhoodEpeak>();
             neigEpeak.add(new NeighborhoodEpeak(neighborhood, epeak));
@@ -64,8 +65,12 @@ public class IterationAgentsPrice {
                         logger.warn("got different Epeak on same neighborhood");
                         ne.setEpeak(epeak);
                     }
+                    exist = true;
                     break;
                 }
+            }
+            if (!exist){
+                neigEpeak.add(new NeighborhoodEpeak(neighborhood, epeak));
             }
         }
     }
