@@ -20,8 +20,23 @@ public class IterationAgentsPrice {
 
     public boolean isIterationOver(int iterationNum, int numOfAgents){
         List<AgentPrice> agentsPrices = iterationToAgentsPrice.get(iterationNum);
-        if (agentsPrices != null){return agentsPrices.size() == numOfAgents;}
+        if (agentsPrices != null){
+            return agentsPrices.size() == numOfAgents && epeakCalculated(iterationNum);
+        }
         return false;
+    }
+
+    private boolean epeakCalculated(int iterationNum) {
+        List<NeighborhoodEpeak> neigEpeak = iterationsToNeighborhoodsPeak.get(iterationNum);
+        if (neigEpeak == null){
+            return false;
+        }
+        for (NeighborhoodEpeak ne: neigEpeak) {
+           if(ne.getEpeak() == -1){
+               return false;
+           }
+        }
+        return true;
     }
 
     public void addAgentPrice(int iterationNum, AgentPrice agentPrice ){
@@ -38,7 +53,7 @@ public class IterationAgentsPrice {
     public void addEpeakToNeighborhood(int iterationNum, double epeak, Set<String> neighborhood){
         List<NeighborhoodEpeak> neigEpeak = iterationsToNeighborhoodsPeak.get(iterationNum);
         if (neigEpeak == null){
-            neigEpeak = new  LinkedList<NeighborhoodEpeak>();
+            neigEpeak = new LinkedList<NeighborhoodEpeak>();
             neigEpeak.add(new NeighborhoodEpeak(neighborhood, epeak));
             iterationsToNeighborhoodsPeak.put(iterationNum, neigEpeak);
         }
