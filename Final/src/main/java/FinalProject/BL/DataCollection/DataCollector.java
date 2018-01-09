@@ -5,6 +5,7 @@ import FinalProject.BL.IterationData.IterationCollectedData;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DataCollector {
@@ -13,13 +14,15 @@ public class DataCollector {
     private Map<ProblemAlgorithm, IterationAgentsPrice> probAlgoToItAgentPrice;
     private Map<ProblemAlgorithm, AlgorithmProblemResult> probAlgoToResult;
     private Map<String, double[]> probToPriceScheme;
+    private Map<String, List<Set<String>>> neighborhoodsInProblems;
 
     public DataCollector(Map<String, Integer> numOfAgentsInProblems, Map<String, double[]> prices) {
         this.numOfAgentsInProblems = numOfAgentsInProblems;
         this.probToPriceScheme = prices;
         this.probAlgoToItAgentPrice = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
         this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
-}
+        this.neighborhoodsInProblems = new HashMap<String, List<Set<String>>>();
+    }
 
     public double addData (IterationCollectedData data){
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());

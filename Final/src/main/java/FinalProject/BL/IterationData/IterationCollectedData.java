@@ -5,6 +5,7 @@ public class IterationCollectedData extends AgentIterationData {
     private String problemId;
     private String algorithm;
 
+
     public String getProblemId() {
         return problemId;
     }
