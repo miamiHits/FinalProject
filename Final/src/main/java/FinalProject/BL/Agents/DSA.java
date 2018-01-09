@@ -282,8 +282,9 @@ public class DSA extends SmartHomeAgentBehaviour {
                         {
                             double targetTick = prop.getTargetTick();
                             for (int j= 0 ; j< ticksToWork; j++){
-                                myTicks.add((int)targetTick - j);
-                                randomNum = (int)targetTick - j;
+                                randomNum = drawRandomNum(0,(int)targetTick - j);
+                                if (!myTicks.contains(randomNum))
+                                    myTicks.add(randomNum);
                             }
                             i = (int)ticksToWork;
                         }
@@ -310,6 +311,10 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
     }
 
+    private int drawRandomNum(int start,int last)
+    {
+        return start + (int) (Math.random() * ((last - start) + 1));
+    }
     private void specialTreatForAt(double ticksToWork, PropertyWithData prop, List<Integer> myTicks) {
         if (ticksToWork == 1)
         {
@@ -318,7 +323,9 @@ public class DSA extends SmartHomeAgentBehaviour {
         else
         {   double targetTick = prop.getTargetTick();
             for (int i= 0 ; i< ticksToWork; i++){
-                myTicks.add((int)targetTick - i);
+                int randomNum = drawRandomNum(0,(int)targetTick - i);
+                if (!myTicks.contains(randomNum))
+                    myTicks.add(randomNum);
             }
         }
 

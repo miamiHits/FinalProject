@@ -36,7 +36,7 @@ public class PropertyWithDataTest
                 Arrays.asList(new Action("off", 0,
                                 Arrays.asList(new Effect("charge", 0))),
                         new Action("charge_48a", 10,
-                                Arrays.asList(new Effect("charge", 0)))));
+                                Arrays.asList(new Effect("charge", 10)))));
         chargeProp.setActuator(tesla_s);
         final ArrayList<Integer> activeTicks = new ArrayList<>();
         activeTicks.add(0);
@@ -106,7 +106,7 @@ public class PropertyWithDataTest
     public void calcAndUpdateCurrState_targetPassiveValuesAreKept()
     {
         final double TARGET_TICK = 3;
-        final boolean IS_FROM_START = false;
+        final boolean IS_FROM_START = true;
         final double OFF_DELTA = -10;
         final double ON_DELTA = 20;
         final ArrayList<Integer> activeTicks = new ArrayList<>();
@@ -141,7 +141,7 @@ public class PropertyWithDataTest
     public void calcAndUpdateCurrState_minimalPassiveValueIsKeptUntilActivation()
     {
         final double TARGET_TICK = 10;
-        final boolean IS_FROM_START = true;
+        final boolean IS_FROM_START = false;
         final double ON_DELTA = 20;
         final double OFF_DELTA = -10;
         final ArrayList<Integer> activeTicks = new ArrayList<>();
@@ -161,7 +161,21 @@ public class PropertyWithDataTest
         double[] consumption = new double[HORIZON_SIZE];
         chargeProp.activeTicks = activeTicks;
         chargeProp.calcAndUpdateCurrState(chargeProp.getMin(), HORIZON_SIZE, consumption, IS_FROM_START);
-        assertPropertyState(chargeProp, 0, HORIZON_SIZE, ON_DELTA, OFF_DELTA);
+        double currentCharge = chargeProp.getCachedSensorState();
+        for (int i = 0; i < 11; i++)
+        {
+            if (chargeProp.activeTicks.contains(i))
+            {
+                currentCharge += ON_DELTA;
+            }
+            else
+            {
+                currentCharge += OFF_DELTA;
+            }
+
+
+        }
+        Assert.assertTrue(currentCharge >= chargeProp.getMin());
     }
 
     @Test
@@ -216,9 +230,13 @@ public class PropertyWithDataTest
         double[] consumption = new double[HORIZON_SIZE];
         chargeProp.activeTicks = activeTicks;
 
-        double targetTickToCount = bottomPivotSelected ? HORIZON_SIZE : 0;
-        chargeProp.calcAndUpdateCurrState(chargeProp.getMin(), targetTickToCount, consumption, bottomPivotSelected);
-        assertPropertyState(chargeProp, 0, HORIZON_SIZE, ON_DELTA, OFF_DELTA);
+        double targetTickToCount = 9;
+        chargeProp.calcAndUpdateCurrState(chargeProp.getTargetValue(), targetTickToCount, consumption, bottomPivotSelected);
+        Assert.assertTrue(chargeProp.getSensor().getCurrentState() <= chargeProp.getMax());
+        Assert.assertTrue(chargeProp.getSensor().getCurrentState() >= chargeProp.getMin());
+        Assert.assertTrue(chargeProp.getSensor().getCurrentState() >= chargeProp.getTargetValue());
+
+
     }
 
     /**
@@ -233,8 +251,8 @@ public class PropertyWithDataTest
                                             double onDelta,
                                             double offDelta)
     {
-        double currentCharge = 0;
-        for (int i = startTick; i < endTick; i++)
+        double currentCharge = chargeProp.getCachedSensorState();
+        for (int i = startTick; i < chargeProp.activeTicks.size(); i++)
         {
             if (chargeProp.activeTicks.contains(i))
             {
@@ -252,14 +270,7 @@ public class PropertyWithDataTest
                     currentCharge,
                     chargeProp.getMax()),
                     chargeProp.getMax() >= currentCharge);
-            if (i > chargeProp.getTargetTick())
-            {
-                Assert.assertTrue(String.format("property state %f should be greater than the target value value %f after target tick %f",
-                        currentCharge,
-                        chargeProp.getTargetValue(),
-                        chargeProp.getTargetTick()),
-                        chargeProp.getTargetValue() <= currentCharge);
-            }
+
         }
     }
 

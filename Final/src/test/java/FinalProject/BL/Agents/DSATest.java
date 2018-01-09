@@ -1,212 +1,115 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.Problems.Actuator;
 import FinalProject.BL.Problems.*;
+import FinalProject.DAL.DalTestUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DSATest {
 
-    public AgentData ad = new AgentData("YC", 60);
-    public SmartHomeAgent shg= new SmartHomeAgent();
-    public List<Actuator> actuatorList = new ArrayList<>();
-    public List<Sensor> sensorListList = new ArrayList<>();
-    public List<Rule> ruleList = new ArrayList<>();
-    public DSA dsa;
-    public AlgorithmDataHelper dh;
+    private Problem dm_7_1_2;
+    private DSA dsa;
+    private SmartHomeAgent agent;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() {
+        //needed for logging
+        org.apache.log4j.BasicConfigurator.configure();
 
-        createData();
-        shg.setAgentData(ad);
-        shg.setZEROIteration(true);
-        dsa = new DSA(shg);
-       // dh = new AlgorithmDataHelper(shg);
-        dh = dsa.getHelper();
+        //create a problem obj
+        dm_7_1_2 = DalTestUtils.getProblemDm_7_1_2();
+        agent = new SmartHomeAgent();
 
-    }
-    @Before
-    public void createData() {
+        AgentData agentData = dm_7_1_2.getAgentsData().get(0);
+        String problemId = dm_7_1_2.getId();
+        try
+        {
+            ReflectiveUtils.setFiledValue(agentData, "priceScheme", dm_7_1_2.getPriceScheme());
 
-        actuatorList = new ArrayList<Actuator>();
-        BuildDevice1();
-        BuildDevice2();
+            //agent.setup() will not be called so we'll do it manually
+            ReflectiveUtils.setFiledValue(agent, "agentData", agentData);
+            ReflectiveUtils.setFiledValue(agent, "problemId", problemId);
+            ReflectiveUtils.setFiledValue(agent, "algoId", "DSA");
+            ReflectiveUtils.setFiledValue(agent, "isZEROIteration", true);
 
-        createSensors();
-        ad.setSensors(sensorListList);
-        ad.setActuators(actuatorList);
-
-        ad.setBackgroundLoad(new double[12]);
-        ad.setPriceScheme(new double[12]);
-    }
-    @Before
-    public void createRules() {
-        Rule r = new Rule();
-        r.setActive(true);
-        r.setLocation("water_tank");
-        r.setPrefixType(RelationType.GEQ);
-        r.setRuleValue(57);
-        r.setProperty("water_temp");
-        r.setPrefix(Prefix.AFTER);
-        r.setRelationValue(8);
-      //  Rule r1 =new Rule( true, actuatorList.get(0), null, "water_temp", 57,  RelationType.GEQ, Prefix.AFTER, 8);
-        Rule r2 =new Rule( false, null, "water_tank", "water_temp", 37,  RelationType.GEQ, null, 0);
-        Rule r3 =new Rule( false, null, "water_tank", "water_temp", 78,  RelationType.LEQ, null, 0);
-        Rule r4 =new Rule( true, actuatorList.get(1), null, "charge", 70,  RelationType.LT, Prefix.AFTER, 2);
-        Rule r5 =new Rule( false, actuatorList.get(1), null, "charge", 0,  RelationType.GEQ, null, 0);
-        Rule r6 =new Rule( false, actuatorList.get(1), null, "charge", 100,  RelationType.LEQ, null, 0);
-        ruleList.add(r);
-        ruleList.add(r2);
-        ruleList.add(r3);
-        ruleList.add(r4);
-        ruleList.add(r5);
-        ruleList.add(r6);
-        ad.setRules(ruleList);
-
-    }
-    @Before
-    public void createSensors() {
-        List<String> sp = new ArrayList<>();
-        sp.add("water_temp");
-        Sensor sensor1 = new Sensor("water_heat_sensor", "", "", 50, sp);
-        List<String> sp2 = new ArrayList<>();
-        sp2.add("charge");
-        Sensor sensor2 = new Sensor("Tesla_S_battery", "", "", 30, sp2);
-        sensorListList.add(sensor1);
-        sensorListList.add(sensor2);
-
-    }
-
-    public void createSensors2() {
-        List<String> sp = new ArrayList<>();
-        sp.add("water_temp");
-        Sensor sensor1 = new Sensor("water_heat_sensor", "", "", 50, sp);
-        List<String> sp2 = new ArrayList<>();
-        sp2.add("charge");
-        Sensor sensor2 = new Sensor("Tesla_S_battery", "", "", 30, sp2);
-        List<String> sp3 = new ArrayList<>();
-        sp3.add("temperature_heat");
-        Sensor sensor3 = new Sensor("thermostat_heat", "", "", 18, sp3);
-        sensorListList.add(sensor1);
-        sensorListList.add(sensor2);
-        sensorListList.add(sensor3);
-
-    }
-    @Before
-    public void BuildDevice1() {
-        List<Action> actionList = new ArrayList<>();
-        List<Effect> effectsList1 = new ArrayList<>();
-        List<Effect> effectsList2 = new ArrayList<>();
-
-        effectsList1.add(new Effect("water_temp", -7.1));
-        actionList.add(new Action("off", 0.0, effectsList1));
-        effectsList2.add(new Effect("water_temp", 12.88));
-        actionList.add(new Action("heat", 5.52, effectsList2));
-        Actuator a = new Actuator("Rheem_XE40M12ST45U1", "", "", actionList);
-        actuatorList.add(a);
-    }
-    @Before
-    public void BuildDevice2() {
-        List<Action> actionList = new ArrayList<>();
-        List<Effect> effectsList1 = new ArrayList<>();
-        List<Effect> effectsList2 = new ArrayList<>();
-
-        effectsList1.add(new Effect("charge", 0.0));
-        actionList.add(new Action("off", 0.0, effectsList1));
-        effectsList2.add(new Effect("charge", 13.56));
-        actionList.add(new Action("charge_48a", 11.52, effectsList2));
-        Actuator a = new Actuator("Tesla_S", "", "", actionList);
-        actuatorList.add(a);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        dsa = new DSA(agent);
     }
 
     @After
-    public void tearDown() throws Exception {
-        ad = new AgentData("YC", 60);
-        shg = new SmartHomeAgent();
-        actuatorList = new ArrayList<>();
-        sensorListList = new ArrayList<>();
-        ruleList = new ArrayList<>();
+    public void tearDown() {
+        dm_7_1_2 = null;
+        dsa = null;
+        agent = null;
     }
 
     @Test
-    public void SimpleTestIter0() {
-        sensorListList = new ArrayList<>();
-        createSensors();
-        actuatorList = new ArrayList<>();
-        BuildDevice1();
-        BuildDevice2();
-        dsa.buildScheduleFromScratch();
-        Assert.assertTrue(dsa.getHelper().getAllProperties().size()==2);
-        Assert.assertTrue(dsa.getHelper().getAllProperties().get(0).getName().equals("water_temp"));
-        Assert.assertTrue(dsa.getHelper().getAllProperties().get(0).getMin()==37);
+    public void buildScheduleFromScratchPropertiesTest() {
+        List<PropertyWithData> props = new ArrayList<>(2);
 
-        Assert.assertTrue(dsa.getHelper().getAllProperties().get(0).getActuator().getName().equals("Rheem_XE40M12ST45U1"));
-        Assert.assertTrue(dsa.getHelper().getAllProperties().get(0).getSensor().getName().equals("water_heat_sensor"));
-    }
+        PropertyWithData chargeProp = new PropertyWithData();
+        chargeProp.setName("charge");
+        chargeProp.setMin(0);
+        chargeProp.setMax(100);
+        chargeProp.setTargetValue(59);
+        chargeProp.setPrefix(Prefix.BEFORE);
+        chargeProp.setRt(RelationType.LEQ);
+        chargeProp.setTargetTick(3);
+        chargeProp.setDeltaWhenWork(13.56);
+        chargeProp.setPowerConsumedInWork(11.52);
+        chargeProp.setDeltaWhenWorkOffline(0);
+        chargeProp.setCachedSensor(30);
+        chargeProp.setLoaction(false);
+        Actuator tesla_s = new Actuator("Tesla_S", "electric_vehicle", "room",
+                                        Arrays.asList(new Action("off", 0, Arrays.asList(new Effect("charge", 0))),
+                                                      new Action("charge_48a", 11.52,
+                                                                 Arrays.asList(new Effect("charge", 13.56)))));
+        Sensor Tesla_S_battery = new Sensor("Tesla_S_battery", "battery", "Tesla_S", 70.68,
+                                            Arrays.asList("charge"));
+        chargeProp.setActuator(tesla_s);
+        chargeProp.setSensor(Tesla_S_battery);
+        props.add(chargeProp);
 
-    @Test
-    public void ModerateTestIter0()
-    {
-        BuildDevice3();
-        sensorListList = new ArrayList<>();
-        ruleList = new ArrayList<>();
-        createSensors2();
-        createRules2();
-        ad.setSensors(sensorListList);
-        dsa.buildScheduleFromScratch();
-        Assert.assertTrue(dsa.getHelper().getAllProperties().size()==3);
+        PropertyWithData laundryWashProp = new PropertyWithData();
+        laundryWashProp.setName("laundry_wash");
+        laundryWashProp.setMin(0);
+        laundryWashProp.setMax(60);
+        laundryWashProp.setTargetValue(60);
+        laundryWashProp.setPrefix(Prefix.BEFORE);
+        laundryWashProp.setRt(RelationType.EQ);
+        laundryWashProp.setTargetTick(6);
+        laundryWashProp.setDeltaWhenWork(60);
+        laundryWashProp.setPowerConsumedInWork(0.46);
+        laundryWashProp.setDeltaWhenWorkOffline(0);
+        laundryWashProp.setLoaction(false);
+        Actuator GE_WSM2420D3WW_wash = new Actuator("GE_WSM2420D3WW_wash", "cloths_washer", "GE_WSM2420D3WW_wash",
+                                        Arrays.asList(new Action("off", 0, Arrays.asList(new Effect("laundry_wash", 0))),
+                                                      new Action("regular", 0.46,
+                                                                 Arrays.asList(new Effect("laundry_wash", 60)))));
+        Sensor GE_WSM2420D3WW_wash_sensor = new Sensor("GE_WSM2420D3WW_wash_sensor", "cloths_washer", "GE_WSM2420D3WW_wash", 60,
+                                            Arrays.asList("laundry_wash"));
+        laundryWashProp.setActuator(GE_WSM2420D3WW_wash);
+        laundryWashProp.setSensor(GE_WSM2420D3WW_wash_sensor);
+        props.add(laundryWashProp);
 
+        try
+        {
+            ReflectiveUtils.invokeMethod(dsa, "buildScheduleFromScratch");
+            Assert.assertEquals(dsa.helper.getAllProperties(), props);
 
-
-    }
-
-    public void BuildDevice3() {
-        List<Action> actionList = new ArrayList<>();
-        List<Effect> effectsList1 = new ArrayList<>();
-        List<Effect> effectsList2 = new ArrayList<>();
-
-        effectsList1.add(new Effect("temperature_heat", -1.64));
-        actionList.add(new Action("off", 0.0, effectsList1));
-        effectsList2.add(new Effect("temperature_heat", 2.53));
-        actionList.add(new Action("heat", 1.5, effectsList2));
-        Actuator a = new Actuator("Dyson_AM09", "", "", actionList);
-        actuatorList.add(a);
-    }
-
-
-    public void createRules2() {
-        Rule r = new Rule();
-        r.setActive(true);
-        r.setLocation("water_tank");
-        r.setPrefixType(RelationType.GEQ);
-        r.setRuleValue(57);
-        r.setProperty("water_temp");
-        r.setPrefix(Prefix.AFTER);
-        r.setRelationValue(8);
-        //  Rule r1 =new Rule( true, actuatorList.get(0), null, "water_temp", 57,  RelationType.GEQ, Prefix.AFTER, 8);
-        Rule r2 =new Rule( false, null, "water_tank", "water_temp", 37,  RelationType.GEQ, null, 0);
-        Rule r3 =new Rule( false, null, "water_tank", "water_temp", 78,  RelationType.LEQ, null, 0);
-        Rule r4 =new Rule( true, actuatorList.get(1), null, "charge", 70,  RelationType.LT, Prefix.AFTER, 2);
-        Rule r5 =new Rule( false, actuatorList.get(1), null, "charge", 0,  RelationType.GEQ, null, 0);
-        Rule r6 =new Rule( false, actuatorList.get(1), null, "charge", 100,  RelationType.LEQ, null, 0);
-        ruleList.add(r);
-        ruleList.add(r2);
-        ruleList.add(r3);
-        ruleList.add(r4);
-        ruleList.add(r5);
-        ruleList.add(r6);
-        Rule r7 =new Rule( true, null, "room", "temperature_heat", 19,  RelationType.GT, Prefix.AFTER, 5);
-        Rule r8 =new Rule( false,null, "room", "temperature_heat", 8,  RelationType.GEQ, null, 0);
-        Rule r9 =new Rule( false, null, "room", "temperature_heat", 35,  RelationType.LEQ, null, 0);
-        ruleList.add(r7);
-        ruleList.add(r8);
-        ruleList.add(r9);
-        ad.setRules(ruleList);
-
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
     }
 }
