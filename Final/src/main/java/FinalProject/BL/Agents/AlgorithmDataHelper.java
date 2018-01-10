@@ -332,4 +332,6 @@ public class AlgorithmDataHelper
         for (PropertyWithData prop : this.allProperties)
             prop.getSensor().setCurrentState(prop.getCachedSensorState());
     }
+
+
 }
