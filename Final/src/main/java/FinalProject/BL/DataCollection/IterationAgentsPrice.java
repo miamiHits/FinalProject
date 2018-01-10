@@ -93,7 +93,13 @@ public class IterationAgentsPrice {
 
 
     public boolean ePeakCalculated(int iterNum) {
-
-
+        List<NeighborhoodEpeak> ne = iterationsToNeighborhoodsPeak.get(iterNum);
+        if (ne == null){return false;}
+        for (NeighborhoodEpeak e: ne){
+            if (e.getEpeak() == -1){
+                return false;
+            }
+        }
+        return true;
     }
 }
