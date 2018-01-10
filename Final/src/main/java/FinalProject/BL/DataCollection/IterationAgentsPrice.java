@@ -101,6 +101,7 @@ public class IterationAgentsPrice {
                 return false;
             }
         }
+
         return true;
     }
 

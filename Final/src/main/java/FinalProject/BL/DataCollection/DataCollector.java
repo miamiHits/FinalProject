@@ -43,7 +43,7 @@ public class DataCollector {
         }
         if (iterFinished && tempIAP.ePeakCalculated(data.getIterNum())){
             pupulateTotalGradeForIteration(data, newPrice, tempPA, tempIAP);
-            return null; //we don't want the Data collector to send messages now
+            return -1.0; //we don't want the Data collector to send messages now
         }else if (iterFinished){
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
             if (newPrice < result.getBestPrice()){
