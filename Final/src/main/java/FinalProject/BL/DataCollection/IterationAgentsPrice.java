@@ -92,5 +92,8 @@ public class IterationAgentsPrice {
     }
 
 
+    public boolean ePeakCalculated(int iterNum) {
 
+
+    }
 }

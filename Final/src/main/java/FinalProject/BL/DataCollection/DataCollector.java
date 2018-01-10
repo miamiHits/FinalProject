@@ -71,7 +71,12 @@ public class DataCollector {
 
     private void addNeighborhoodIfNotExist(IterationCollectedData data, ProblemAlgorithm tempPA) {
         Set<String> neighborhood = data.getNeighborhood();
-        neighborhood.add(data.getAgentName());
+        String name = data.getAgentName();
+        int shtrudel = name.indexOf('@');
+        if (shtrudel != -1){
+            name = name.substring(0, shtrudel);
+        }
+        neighborhood.add(name);
         IterationAgentsPrice IAP = probAlgoToItAgentPrice.get(tempPA);
         if (IAP == null){
             logger.warn("IAP is null when adding Neighborhood");
@@ -139,7 +144,7 @@ public class DataCollector {
         List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
         Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
         if (prices != null && numOfAgents != null &&
-                prices.size() == numOfAgents){ //iteration is over
+                prices.size() == numOfAgents && IAP.ePeakCalculated(data.getIterNum())){ //iteration is over
             if (!probAlgoToResult.containsKey(PA)){ //no prob result yet
                 AlgorithmProblemResult result = new AlgorithmProblemResult(PA);
                 result.setIterationsTillBestPrice(data.getIterNum());
