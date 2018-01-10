@@ -21,7 +21,7 @@ public class IterationAgentsPrice {
     public boolean isIterationOverNoEpeak(int iterationNum, int numOfAgents){
         List<AgentPrice> agentsPrices = iterationToAgentsPrice.get(iterationNum);
         if (agentsPrices != null){
-            return agentsPrices.size() == numOfAgents && epeakCalculated(iterationNum);
+            return agentsPrices.size() == numOfAgents; //&& epeakCalculated(iterationNum);
         }
         return false;
     }
@@ -32,7 +32,7 @@ public class IterationAgentsPrice {
             return false;
         }
         for (NeighborhoodEpeak ne: neigEpeak) {
-           if(ne.getEpeak() == -1){
+           if(ne.getEpeak() == -1 || !ne.gotAllEpeaks()){
                return false;
            }
         }
