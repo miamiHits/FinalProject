@@ -26,15 +26,13 @@ public class IterationAgentsPrice {
         return false;
     }
 
-    private boolean epeakCalculated(int iterationNum) {
-        List<NeighborhoodEpeak> neigEpeak = iterationsToNeighborhoodsPeak.get(iterationNum);
-        if (neigEpeak == null){
-            return false;
-        }
-        for (NeighborhoodEpeak ne: neigEpeak) {
-           if(ne.getEpeak() == -1 || !ne.gotAllEpeaks()){
-               return false;
-           }
+    public boolean ePeakCalculated(int iterNum) {
+        List<NeighborhoodEpeak> ne = iterationsToNeighborhoodsPeak.get(iterNum);
+        if (ne == null){return false;}
+        for (NeighborhoodEpeak e: ne){
+            if (e.getEpeak() == -1 || !e.gotAllEpeaks()){
+                return false;
+            }
         }
         return true;
     }
@@ -92,18 +90,6 @@ public class IterationAgentsPrice {
         this.iterationsToNeighborhoodsPeak = iterationsToNeighborhoodsPeak;
     }
 
-
-    public boolean ePeakCalculated(int iterNum) {
-        List<NeighborhoodEpeak> ne = iterationsToNeighborhoodsPeak.get(iterNum);
-        if (ne == null){return false;}
-        for (NeighborhoodEpeak e: ne){
-            if (e.getEpeak() == -1){
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     public double getTotalEpeakInIter(int iterNum) {
         double totalEpeak = 0;
