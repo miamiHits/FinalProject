@@ -3,6 +3,7 @@ package FinalProject.BL.DataCollection;
 import org.apache.log4j.Logger;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class IterationAgentsPrice {
     private Map<Integer, List<AgentPrice>> iterationToAgentsPrice;
@@ -104,6 +105,15 @@ public class IterationAgentsPrice {
     }
 
     public double getTotalEpeakInIter(int iterNum) {
-        return 0;
+        double totalEpeak = 0;
+        List<NeighborhoodEpeak> ne = iterationsToNeighborhoodsPeak.get(iterNum);
+        for (NeighborhoodEpeak n : ne){
+            if (n.getEpeak() == -1){
+                logger.warn("getTotalEpeakInIter encountered -1 in epeak property");
+                continue;
+            }
+            totalEpeak += n.getEpeak();
+        }
+        return totalEpeak;
     }
 }
