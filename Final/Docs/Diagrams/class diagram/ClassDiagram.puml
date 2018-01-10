@@ -17,8 +17,6 @@ package BL {
 		abstract class Behaviour <<Abstract, JADE>>
 		Behaviour -- Agent
 
-		class ACLMessage
-
 		class DFAgentDescription
 	}
 
@@ -37,7 +35,7 @@ package BL {
 		}
 
 		class Actuator {
-			+act(Sensors, Action) : void
+			+act(Map<Sensor, double>, Action) : void
 		}
 
 		class Effect {
@@ -76,6 +74,9 @@ package BL {
 			+backgroundLoad : double[Problem.horizon]
 			+priceSchema : double[Problem.horizon]
 			+houseType : int
+			+numOfIterations : int
+			+priceScheme : double[]
+			+granularity : int
 		}
 
 		class Problem {
@@ -107,16 +108,18 @@ package BL {
 
 		class AlgorithmDataHelper {
 			+totalPriceConsumption : double
-
-			+createNewProp() : PropertyWithData
+			+DeviceToTicks : Map<Actuator, List<Integer>>
+			
+			+allProperties : List<PropertyWithData>
 			+buildNewPropertyData(Rule, boolean) : void
 			+SetActuatorsAndSensors() : void
 			+matchSensors(Action, PropertyWithData, boolean) : void
-			+solve(int[], int, int, List<List<int>>) : void
-			+{static} distinctByKey(Function) : Predicate
+			+getSubsets(List<Integer>, int) : List<Set<int>>
 			+calcPriceSchemeForAllNeighbours() : void
+			+calcTotalPowerConsumption(double) : void
+			+checkForPassiveRules() : void
 			+calcHowLongDeviceNeedToWork(PropertyWithData) : double
-			+updateConsumption(PropertyWithData, List<int>) : void
+			+goBackToStartValues() : void
 		}
 
 		class PropertyWithData {
@@ -124,34 +127,42 @@ package BL {
 			+min : double
 			+max : double
 			+targetValue : double
-			+isPassiveOnly : boolean
 			+targetTick : double
 			+deltaWhenWork : double
+			+isPasiveOnly : boolean
 			+powerConsumedInWork : double
 			+deltaWhenWorkOffline : double
 			+isLocation : boolean
 			+relatedSensorsDelta : Map<String,Double>
 			+relatedSensorsWhenWorkOfflineDelta : Map<String,Double>
-			+canBeModified(double) : boolean
+			+calcAndUpdateCurrState(double, double, double[], boolean) : void
+			+updateValueToSensor(double[], double, double, int, boolean) : double
 		}
 
 		class SmartHomeAgent {
-			+agentData : agentData
+			+{static} SERVICE_TYPE : String
+			+{static} SERVICE_NAME : String
 			+numOfIterations : int
-			#Setup() : void
-			addBehaviour(Behaviour b) : void
+			+iterationNum : int
+			+isZEROIteration : boolean
+			+cSum : double
+			+problemId : String
+			+algoId : String
+
+			#setup() : void
+			#takeDown() : void
+			addBehaviour(Behaviour) : void
 		}
 
 		Note "action(){\n\twhile(!stop){\n\t\t...\n\t\tdoIteration();\n\t\tsendIterationToCollector();\n\t\t..\n\t}\n}" as smabNote
 
 		abstract class SmartHomeAgentBehaviour <<Abstract>> {
-			+name : String
-
 			#{abstract} doIteration() : void
-			-sendIterationToCollector(AgentIterationData) : void
-			-sendIterationToNeighbors() : void
+			#sendIterationToCollector() : void
+			#sendIterationToNeighbors() : void
+			+cloneBehaviour() : SmartHomeAgentBehaviour
 			+{abstract} cloneBehaviour() : SmartHomeAgentBehaviour
-			+waitForNeighbourMessages : List<ACLMessage>
+			#waitForNeighbourMessages : List<ACLMessage>
 			#parseMessages(List<ACLMessage>) : void
 			#calcPrice(double[]) : double
 			#initializeBehaviourWithAgent(SmartHomeAgent) : void
@@ -288,9 +299,6 @@ package BL {
 	}
 
 	class ExperimentBuilder {
-		-numOfIterations : int
-		-service : Service
-
 		+setNumOfIterations(int) : void
 		+addAlgorithms(List<String>) : void
 		+addProblems(List<String>) : void
@@ -303,8 +311,8 @@ package BL {
 	}
 
 	class Experiment {
+		+{static} maximumIterations : int
 		+numOfIterations : int
-
 		+runExperiment() : void
 		+algorithmProblemComboRunEnded(AlgorithmProblemResult) : void
 		+stopExperiment() : void
@@ -345,10 +353,11 @@ package PL {
 	}
 
 	class UiHandler <<Observer>> {
-		-showMainScreen() : void
-		-showResultsScreen() : void
+		+showMainScreen() : void
+		+showResultsScreen() : void
+		+shoExperimentRunningScreen() : void
 		+notifyExperimentEnded(List<AlgorithmProblemResult>) : void
-
+		+notifyError(String) : void
 	}
 
 	class ChartViewer {
@@ -434,12 +443,14 @@ interface ServiceInterface {
 }
 
 class Service <<Observable>> {
+	+setObserver(UiHandler) : void
 	+addAlgorithmsToExperiment(List<SmartHomeAgentBehaviour>, int) : void
 	+addProblemsToExperiment(List<Problem>) : void
 	+runExperimrent() : void
 	+stopExperiment() : void
 	+getExperimentResults() : List<AlgorithmProblemResult>
     +experimentEnded(List<AlgorithmProblemResult>) : void
+    +experimentEndedWithError(Exception) : void
     +saveExperimentResults(List<AlgorithmProblemResult>) : void
 }
 
