@@ -41,7 +41,7 @@ public class IterationAgentsPrice {
         if (iterationToAgentsPrice.containsKey(iterationNum)){
             List<AgentPrice> prices = iterationToAgentsPrice.get(iterationNum);
             for(AgentPrice ag : prices){
-                if(ag.getAgentName() == agentPrice.getAgentName()){
+                if(ag.getAgentName().equals(agentPrice.getAgentName())){
                     return;
                 }
             }
