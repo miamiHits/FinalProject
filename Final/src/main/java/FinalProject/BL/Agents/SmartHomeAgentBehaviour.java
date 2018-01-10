@@ -167,8 +167,5 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
     }
 
-    protected void calcBestIteration ()
-    {
 
-    }
 }

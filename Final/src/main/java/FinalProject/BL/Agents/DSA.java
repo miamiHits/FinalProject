@@ -43,16 +43,29 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
         else
         {
-            List<ACLMessage> messageList = waitForNeighbourMessages();
-            parseMessages(messageList);
-            helper.calcPriceSchemeForAllNeighbours();
-            helper.calcTotalPowerConsumption(agent.getcSum());
+
+            receivedAllMessagesAndHandleThem();
             logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
             tryBuildSchedule();
             logger.info("FINISHed ITER " + currentNumberOfIter);
 
         }
         this.currentNumberOfIter ++;
+    }
+
+    private void receivedAllMessagesAndHandleThem() {
+        List<ACLMessage> messageList = waitForNeighbourMessages();
+        parseMessages(messageList);
+        helper.calcPriceSchemeForAllNeighbours();
+        helper.calcTotalPowerConsumption(agent.getcSum());
+        sentEpeakToDC(currentNumberOfIter-1);
+    }
+
+
+    private void sentEpeakToDC(int iterationNum) {
+        IterationCollectedData agentIterSum = new IterationCollectedData(iterationNum, agent.getName(),agentIterationData.getPrice(), agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(), agent.getAlgoId(),(agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), helper.totalPriceConsumption);
+        this.agentIteraionCollected = agentIterSum;
+        sendIterationToCollector();
     }
 
     private void tryBuildSchedule() {
@@ -63,7 +76,6 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void beforeIterationIsDone()
     {
-
         addBackgroundLoadToPriceScheme(this.iterationPowerConsumption);
         double price = calcPrice(this.iterationPowerConsumption);
         double[] arr = helper.clonArray(this.iterationPowerConsumption);
@@ -71,7 +83,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         logger.info("my PRICE is: " + price);
         agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, arr);
         agent.setCurrIteration(agentIterationData);
-        agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId());
+        agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId(), (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), -1);
     }
 
     private int drawCoin() {
@@ -413,6 +425,11 @@ public class DSA extends SmartHomeAgentBehaviour {
         if (agentFinishedExperiment)
         {
             logger.info(Utils.parseAgentName(this.agent) + " ended its final iteration");
+            logger.info(Utils.parseAgentName(this.agent) + " about to send data to DataCollector");
+
+            receivedAllMessagesAndHandleThem();
+            logger.info(Utils.parseAgentName(this.agent) + " Just sent to DataCollector final calculations");
+
             this.agent.doDelete();
         }
         return agentFinishedExperiment;
