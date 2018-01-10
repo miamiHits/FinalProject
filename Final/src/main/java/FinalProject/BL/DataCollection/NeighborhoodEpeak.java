@@ -10,7 +10,7 @@ public class NeighborhoodEpeak {
     public NeighborhoodEpeak(Set<String> neighborhood, double epeak) {
         this.neighborhood = neighborhood;
         this.epeak = epeak;
-        countEpeaks = 1;
+        countEpeaks = 0;
     }
 
     public boolean gotAllEpeaks(){
