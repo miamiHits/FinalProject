@@ -59,13 +59,14 @@ public class DataCollector {
         return null;
     }
 
-    private void pupulateTotalGradeForIteration(IterationCollectedData data, double newPrice, ProblemAlgorithm pa, IterationAgentsPrice iap) {
+    private void pupulateTotalGradeForIteration(IterationCollectedData data, double csum, ProblemAlgorithm pa, IterationAgentsPrice iap) {
         AlgorithmProblemResult apr = probAlgoToResult.get(pa);
         if(apr == null){
             logger.error("AlgorithmProblemResult is null when trying to calc Total grade for iter: " + data.getIterNum());
         }
-        double totalGrade = 0;
-
+        double totalGrade = csum;
+        //now we add all the ePeaks
+        totalGrade += iap.getTotalEpeakInIter(data.getIterNum());
         apr.setTotalGradeToIter(data.getIterNum(), totalGrade);
     }
 

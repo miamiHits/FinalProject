@@ -102,4 +102,8 @@ public class IterationAgentsPrice {
         }
         return true;
     }
+
+    public double getTotalEpeakInIter(int iterNum) {
+        return 0;
+    }
 }
