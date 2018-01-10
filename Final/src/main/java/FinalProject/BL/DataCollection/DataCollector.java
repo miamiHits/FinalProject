@@ -29,17 +29,18 @@ public class DataCollector {
 
         addNeighborhoodIfNotExist(data, tempPA);
 
-        Double newPrice = calculateTotalPrice(data, tempPA, tempIAP);
+        Double newPrice = calculateCsumForAllAgents(data, tempPA, tempIAP);
 
         if (newPrice != null) {return newPrice;}
         return 0;
     }
 
-    private Double calculateTotalPrice(IterationCollectedData data, ProblemAlgorithm tempPA, IterationAgentsPrice tempIAP) {
-        if (isIterationFinished(tempPA, tempIAP, data) && tempIAP.ePeakCalculated(data.getIterNum())){
+    private Double calculateCsumForAllAgents(IterationCollectedData data, ProblemAlgorithm tempPA, IterationAgentsPrice tempIAP) {
+        boolean iterFinished = isIterationFinished(tempPA, tempIAP, data);
+        if (iterFinished && tempIAP.ePeakCalculated(data.getIterNum())){
             //todo
-        }else if (isIterationFinished(tempPA, tempIAP, data)){
-            double newPrice = calculateTotalPrice(tempPA, tempIAP, data.getIterNum());
+        }else if (iterFinished){
+            double newPrice = calculateCsumForAllAgents(tempPA, tempIAP, data.getIterNum());
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
             if (newPrice < result.getBestPrice()){
                 result.setBestPrice(newPrice);
@@ -133,7 +134,7 @@ public class DataCollector {
         }
     }
 
-    private double calculateTotalPrice(ProblemAlgorithm tempPA, IterationAgentsPrice IAP, int iterNum) {
+    private double calculateCsumForAllAgents(ProblemAlgorithm tempPA, IterationAgentsPrice IAP, int iterNum) {
         List<AgentPrice> prices = IAP.getAgentsPrices(iterNum);
         List<double[]> agentPrices = prices.stream().map(a -> a.getSchedule()).collect(Collectors.toList());
         double[] priceScheme = probToPriceScheme.get(tempPA.getProblemId());
@@ -145,11 +146,7 @@ public class DataCollector {
                                      IterationCollectedData data) {
         List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
         Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
-        /*if (prices != null && numOfAgents != null &&
-                prices.size() == numOfAgents&& IAP.ePeakCalculated(data.getIterNum())){ //iteration+ePeak finished
-
-
-        }else */if (prices != null && numOfAgents != null &&
+        if (prices != null && numOfAgents != null &&
                 prices.size() == numOfAgents){ //iteration is over  with no epeak calculated
             if (!probAlgoToResult.containsKey(PA)){ //no prob result yet
                 AlgorithmProblemResult result = new AlgorithmProblemResult(PA);
