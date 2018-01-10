@@ -1,5 +1,7 @@
 package FinalProject.BL.DataCollection;
 
+import org.apache.log4j.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +16,7 @@ public class AlgorithmProblemResult {
     private String lowestCostForAgentInBestIterationAgentName;
     private double highestCostForAgentInBestIteration;
     private String highestCostForAgentInBestIterationAgentName;
+    private static final Logger logger = Logger.getLogger(AlgorithmProblemResult.class);
 
     public AlgorithmProblemResult(ProblemAlgorithm probAlgo) {
         problem = probAlgo.getProblemId();
@@ -104,6 +107,14 @@ public class AlgorithmProblemResult {
         this.totalGradePerIteration = totalGradePerIteration;
     }
 
+    public void setTotalGradeToIter(int iterNum, double totalGrade) {
+        Double tg = totalGradePerIteration.get(iterNum);
+        if (tg != null){
+            logger.warn("already had totalGrade on iter: " + iterNum);
+        }
+        totalGradePerIteration.put(iterNum, totalGrade);
+    }
+
     @Override
     public String toString()
     {
@@ -120,4 +131,5 @@ public class AlgorithmProblemResult {
                 ", highestCostForAgentInBestIterationAgentName='" + highestCostForAgentInBestIterationAgentName + '\'' +"\n" +
                 '}';
     }
+
 }

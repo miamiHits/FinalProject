@@ -64,7 +64,9 @@ public class DataCollector {
         if(apr == null){
             logger.error("AlgorithmProblemResult is null when trying to calc Total grade for iter: " + data.getIterNum());
         }
+        double totalGrade = 0;
 
+        apr.setTotalGradeToIter(data.getIterNum(), totalGrade);
     }
 
     private IterationAgentsPrice addAgentPrice(IterationCollectedData data, ProblemAlgorithm tempPA) {
