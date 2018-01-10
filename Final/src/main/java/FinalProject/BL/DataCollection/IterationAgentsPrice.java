@@ -39,7 +39,13 @@ public class IterationAgentsPrice {
 
     public void addAgentPrice(int iterationNum, AgentPrice agentPrice ){
         if (iterationToAgentsPrice.containsKey(iterationNum)){
-            iterationToAgentsPrice.get(iterationNum).add(agentPrice);
+            List<AgentPrice> prices = iterationToAgentsPrice.get(iterationNum);
+            for(AgentPrice ag : prices){
+                if(ag.getAgentName() == agentPrice.getAgentName()){
+                    return;
+                }
+            }
+            prices.add(agentPrice);
         }
         else{
             List<AgentPrice> agentsPrices = new LinkedList<AgentPrice>();
