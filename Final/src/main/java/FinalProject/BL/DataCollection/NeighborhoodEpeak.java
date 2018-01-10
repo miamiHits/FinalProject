@@ -17,6 +17,10 @@ public class NeighborhoodEpeak {
         return countEpeaks == neighborhood.size();
     }
 
+    public void addEpeak(){
+        countEpeaks ++;
+    }
+
     public Set<String> getNeighborhood() {
         return neighborhood;
     }

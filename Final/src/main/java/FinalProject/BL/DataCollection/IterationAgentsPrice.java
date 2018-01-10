@@ -66,6 +66,7 @@ public class IterationAgentsPrice {
                         logger.warn("got different Epeak on same neighborhood");
                         ne.setEpeak(epeak);
                     }
+                    ne.addEpeak();
                     exist = true;
                     break;
                 }
