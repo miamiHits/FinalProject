@@ -1,5 +1,7 @@
 package FinalProject.BL.DataCollection;
 
+import org.apache.log4j.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,17 +9,20 @@ public class AlgorithmProblemResult {
     private String problem;
     private String algorithm;
     private Map<Integer, Double> avgPricePerIteration;
+    private Map<Integer, Double> totalGradePerIteration;
     private int iterationsTillBestPrice;
     private double bestPrice;
     private double lowestCostForAgentInBestIteration;
     private String lowestCostForAgentInBestIterationAgentName;
     private double highestCostForAgentInBestIteration;
     private String highestCostForAgentInBestIterationAgentName;
+    private static final Logger logger = Logger.getLogger(AlgorithmProblemResult.class);
 
     public AlgorithmProblemResult(ProblemAlgorithm probAlgo) {
         problem = probAlgo.getProblemId();
         algorithm = probAlgo.getAlgorithmName();
         avgPricePerIteration = new HashMap<Integer, Double>();
+        totalGradePerIteration = new HashMap<Integer, Double>();
         iterationsTillBestPrice = 0;
         bestPrice = Double.MAX_VALUE;
     }
@@ -94,6 +99,22 @@ public class AlgorithmProblemResult {
         this.bestPrice = bestPrice;
     }
 
+    public Map<Integer, Double> getTotalGradePerIteration() {
+        return totalGradePerIteration;
+    }
+
+    public void setTotalGradePerIteration(Map<Integer, Double> totalGradePerIteration) {
+        this.totalGradePerIteration = totalGradePerIteration;
+    }
+
+    public void setTotalGradeToIter(int iterNum, double totalGrade) {
+        Double tg = totalGradePerIteration.get(iterNum);
+        if (tg != null){
+            logger.warn("already had totalGrade on iter: " + iterNum);
+        }
+        totalGradePerIteration.put(iterNum, totalGrade);
+    }
+
     @Override
     public String toString()
     {
@@ -101,6 +122,7 @@ public class AlgorithmProblemResult {
                 "problem='" + problem + '\'' + "\n" +
                 ", algorithm='" + algorithm + '\'' + "\n" +
                 ", avgPricePerIteration=" + avgPricePerIteration + "\n" +
+                ", totalGradePerIteration=" + totalGradePerIteration + "\n" +
                 ", iterationsTillBestPrice=" + iterationsTillBestPrice + "\n" +
                 ", bestPrice=" + bestPrice + "\n" +
                 ", lowestCostForAgentInBestIteration=" + lowestCostForAgentInBestIteration + "\n" +
@@ -109,4 +131,5 @@ public class AlgorithmProblemResult {
                 ", highestCostForAgentInBestIterationAgentName='" + highestCostForAgentInBestIterationAgentName + '\'' +"\n" +
                 '}';
     }
+
 }

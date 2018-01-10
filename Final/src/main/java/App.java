@@ -8,8 +8,8 @@ public class App
     {
         org.apache.log4j.BasicConfigurator.configure();
 
-        JsonLoaderInterface jsonLoader = new JsonLoader("src\\test\\testResources\\jsons");
-        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader("target\\classes\\FinalProject\\BL\\Agents");
+        JsonLoaderInterface jsonLoader = new JsonLoader("Final\\src\\test\\testResources\\jsons");
+        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader("Final\\target\\classes\\FinalProject\\BL\\Agents");
         DataAccessController dal = new DataAccessController(jsonLoader, algorithmLoader);
         Service service = new Service(dal);
         UiHandler ui = new UiHandler(service);

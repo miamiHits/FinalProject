@@ -18,30 +18,46 @@ public class IterationAgentsPrice {
         return iterationToAgentsPrice.get(iterationNum);
     }
 
-    public boolean isIterationOver(int iterationNum, int numOfAgents){
+    public boolean isIterationOverNoEpeak(int iterationNum, int numOfAgents){
         List<AgentPrice> agentsPrices = iterationToAgentsPrice.get(iterationNum);
         if (agentsPrices != null){
-            return agentsPrices.size() == numOfAgents && epeakCalculated(iterationNum);
+            return agentsPrices.size() == numOfAgents; //&& epeakCalculated(iterationNum);
         }
         return false;
     }
 
-    private boolean epeakCalculated(int iterationNum) {
-        List<NeighborhoodEpeak> neigEpeak = iterationsToNeighborhoodsPeak.get(iterationNum);
-        if (neigEpeak == null){
-            return false;
-        }
-        for (NeighborhoodEpeak ne: neigEpeak) {
-           if(ne.getEpeak() == -1){
-               return false;
-           }
+    public boolean ePeakCalculated(int iterNum) {
+        List<NeighborhoodEpeak> ne = iterationsToNeighborhoodsPeak.get(iterNum);
+        if (ne == null){return false;}
+        for (NeighborhoodEpeak e: ne){
+            if (e.getEpeak() == -1 || !e.gotAllEpeaks()){
+                return false;
+            }
         }
         return true;
     }
 
     public void addAgentPrice(int iterationNum, AgentPrice agentPrice ){
+        String name1 = agentPrice.getAgentName();
+        String name2 = "";
+        int shtrudel = name1.indexOf('@');
+        if (shtrudel != -1){
+            name1 = name1.substring(0, shtrudel);
+        }
+
         if (iterationToAgentsPrice.containsKey(iterationNum)){
-            iterationToAgentsPrice.get(iterationNum).add(agentPrice);
+            List<AgentPrice> prices = iterationToAgentsPrice.get(iterationNum);
+            for(AgentPrice ag : prices){
+                name2 = ag.getAgentName();
+                shtrudel = name2.indexOf('@');
+                if (shtrudel != -1){
+                    name2 = name2.substring(0, shtrudel);
+                }
+                if(name1.equals(name2)){
+                    return;
+                }
+            }
+            prices.add(agentPrice);
         }
         else{
             List<AgentPrice> agentsPrices = new LinkedList<AgentPrice>();
@@ -61,10 +77,11 @@ public class IterationAgentsPrice {
         else{
             for (NeighborhoodEpeak ne: neigEpeak) {
                 if (ne.getNeighborhood().containsAll(neighborhood)){
-                    if(epeak != ne.getEpeak()){
+                    if(epeak != -1 && epeak != ne.getEpeak()){
                         logger.warn("got different Epeak on same neighborhood");
                         ne.setEpeak(epeak);
                     }
+                    ne.addEpeak();
                     exist = true;
                     break;
                 }
@@ -92,5 +109,16 @@ public class IterationAgentsPrice {
     }
 
 
-
+    public double getTotalEpeakInIter(int iterNum) {
+        double totalEpeak = 0;
+        List<NeighborhoodEpeak> ne = iterationsToNeighborhoodsPeak.get(iterNum);
+        for (NeighborhoodEpeak n : ne){
+            if (n.getEpeak() == -1){
+                logger.warn("getTotalEpeakInIter encountered -1 in epeak property");
+                continue;
+            }
+            totalEpeak += n.getEpeak();
+        }
+        return totalEpeak;
+    }
 }

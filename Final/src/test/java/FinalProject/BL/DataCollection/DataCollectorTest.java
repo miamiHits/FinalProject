@@ -6,7 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class DataCollectorTest {
     private DataCollector dataCollector;
@@ -30,17 +32,20 @@ public class DataCollectorTest {
         prices.put("p2", pricePerTick1);
         prices.put("p3", pricePerTick2);
         prices.put("p4", pricePerTick1);
+        Set<String> neighborhood = new HashSet<String>();
+        neighborhood.add("a0");
+        neighborhood.add("a1");
         dataCollector = new DataCollector(numOfAgentsInProblems, prices);
         double[] powerConsPerTick = new double[]{22.1, 22.3, 55.77, 12.2, 15.5, 44.3, 3, 7 , 77, 12, 5, 78};
         ICD1 = new IterationCollectedData(0,"a0",
             22.33, powerConsPerTick,
-        "p4", "algo0");
+        "p4", "algo0", neighborhood, 22.36);
         ICD2 = new IterationCollectedData(0,"a0",
                 22.33, powerConsPerTick,
-                "p1", "algo0");
+                "p1", "algo0", neighborhood, 25.36);
         ICD3 = new IterationCollectedData(0,"a1",
                 22.33, powerConsPerTick,
-                "p1", "algo0");
+                "p1", "algo0", neighborhood, 20.36);
 
     }
 
