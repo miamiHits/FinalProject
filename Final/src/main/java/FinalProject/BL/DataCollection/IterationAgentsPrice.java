@@ -3,7 +3,6 @@ package FinalProject.BL.DataCollection;
 import org.apache.log4j.Logger;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class IterationAgentsPrice {
     private Map<Integer, List<AgentPrice>> iterationToAgentsPrice;
@@ -19,7 +18,7 @@ public class IterationAgentsPrice {
         return iterationToAgentsPrice.get(iterationNum);
     }
 
-    public boolean isIterationOver(int iterationNum, int numOfAgents){
+    public boolean isIterationOverNoEpeak(int iterationNum, int numOfAgents){
         List<AgentPrice> agentsPrices = iterationToAgentsPrice.get(iterationNum);
         if (agentsPrices != null){
             return agentsPrices.size() == numOfAgents && epeakCalculated(iterationNum);

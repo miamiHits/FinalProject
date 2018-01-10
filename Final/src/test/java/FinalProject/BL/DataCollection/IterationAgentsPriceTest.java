@@ -9,8 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-
 public class IterationAgentsPriceTest {
     private IterationAgentsPrice IAP;
 
@@ -35,9 +33,9 @@ public class IterationAgentsPriceTest {
 
     @Test
     public void isIterationOver() {
-        Assert.assertFalse(IAP.isIterationOver(0, 2));
-        Assert.assertFalse(IAP.isIterationOver(1, 2));
-        //Assert.assertTrue(IAP.isIterationOver(2, 2));
+        Assert.assertFalse(IAP.isIterationOverNoEpeak(0, 2));
+        Assert.assertFalse(IAP.isIterationOverNoEpeak(1, 2));
+        //Assert.assertTrue(IAP.isIterationOverNoEpeak(2, 2));
     }
 
     @Test
