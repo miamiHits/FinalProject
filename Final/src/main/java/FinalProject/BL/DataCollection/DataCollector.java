@@ -37,10 +37,14 @@ public class DataCollector {
 
     private Double calculateCsumForAllAgents(IterationCollectedData data, ProblemAlgorithm tempPA, IterationAgentsPrice tempIAP) {
         boolean iterFinished = isIterationFinished(tempPA, tempIAP, data);
+        double newPrice = 0;
+        if(iterFinished){
+            newPrice = calculateCsumForAllAgents(tempPA, tempIAP, data.getIterNum());
+        }
         if (iterFinished && tempIAP.ePeakCalculated(data.getIterNum())){
-            //todo
+            pupulateTotalGradeForIteration(data, newPrice, tempPA, tempIAP);
+            return null; //we don't want the Data collector to send messages now
         }else if (iterFinished){
-            double newPrice = calculateCsumForAllAgents(tempPA, tempIAP, data.getIterNum());
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
             if (newPrice < result.getBestPrice()){
                 result.setBestPrice(newPrice);
@@ -53,6 +57,14 @@ public class DataCollector {
             return newPrice;
         }
         return null;
+    }
+
+    private void pupulateTotalGradeForIteration(IterationCollectedData data, double newPrice, ProblemAlgorithm pa, IterationAgentsPrice iap) {
+        AlgorithmProblemResult apr = probAlgoToResult.get(pa);
+        if(apr == null){
+            logger.error("AlgorithmProblemResult is null when trying to calc Total grade for iter: " + data.getIterNum());
+        }
+
     }
 
     private IterationAgentsPrice addAgentPrice(IterationCollectedData data, ProblemAlgorithm tempPA) {
