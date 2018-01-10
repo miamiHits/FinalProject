@@ -61,7 +61,7 @@ public class IterationAgentsPrice {
         else{
             for (NeighborhoodEpeak ne: neigEpeak) {
                 if (ne.getNeighborhood().containsAll(neighborhood)){
-                    if(epeak != ne.getEpeak()){
+                    if(epeak != -1 && epeak != ne.getEpeak()){
                         logger.warn("got different Epeak on same neighborhood");
                         ne.setEpeak(epeak);
                     }
