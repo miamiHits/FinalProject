@@ -38,10 +38,22 @@ public class IterationAgentsPrice {
     }
 
     public void addAgentPrice(int iterationNum, AgentPrice agentPrice ){
+        String name1 = agentPrice.getAgentName();
+        String name2 = "";
+        int shtrudel = name1.indexOf('@');
+        if (shtrudel != -1){
+            name1 = name1.substring(0, shtrudel);
+        }
+
         if (iterationToAgentsPrice.containsKey(iterationNum)){
             List<AgentPrice> prices = iterationToAgentsPrice.get(iterationNum);
             for(AgentPrice ag : prices){
-                if(ag.getAgentName().equals(agentPrice.getAgentName())){
+                name2 = ag.getAgentName();
+                shtrudel = name2.indexOf('@');
+                if (shtrudel != -1){
+                    name2 = name2.substring(0, shtrudel);
+                }
+                if(name1.equals(name2)){
                     return;
                 }
             }
