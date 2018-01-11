@@ -1,6 +1,6 @@
 package FinalProject.DAL;
 
-import FinalProject.BL.Problems.*;
+import FinalProject.BL.DataObjects.*;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import org.apache.log4j.Logger;

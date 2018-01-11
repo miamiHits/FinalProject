@@ -3,7 +3,7 @@ package FinalProject;
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
-import FinalProject.BL.Problems.Problem;
+import FinalProject.BL.DataObjects.Problem;
 import FinalProject.DAL.DalTestUtils;
 import FinalProject.DAL.DataAccessController;
 import FinalProject.DAL.DataAccessControllerInterface;

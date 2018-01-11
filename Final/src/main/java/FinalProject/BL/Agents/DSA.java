@@ -2,7 +2,7 @@ package FinalProject.BL.Agents;
 import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
-import FinalProject.BL.Problems.*;
+import FinalProject.BL.DataObjects.*;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;

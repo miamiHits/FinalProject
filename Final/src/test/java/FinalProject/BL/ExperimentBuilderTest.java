@@ -1,7 +1,7 @@
 package FinalProject.BL;
 
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
-import FinalProject.BL.Problems.Problem;
+import FinalProject.BL.DataObjects.Problem;
 import FinalProject.Service;
 import org.junit.After;
 import org.junit.Assert;

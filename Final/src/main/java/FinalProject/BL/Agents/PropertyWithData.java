@@ -1,9 +1,9 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.Problems.Actuator;
-import FinalProject.BL.Problems.Prefix;
-import FinalProject.BL.Problems.RelationType;
-import FinalProject.BL.Problems.Sensor;
+import FinalProject.BL.DataObjects.Actuator;
+import FinalProject.BL.DataObjects.Prefix;
+import FinalProject.BL.DataObjects.RelationType;
+import FinalProject.BL.DataObjects.Sensor;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;

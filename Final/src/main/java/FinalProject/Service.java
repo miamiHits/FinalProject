@@ -4,7 +4,7 @@ import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.Experiment;
 import FinalProject.BL.ExperimentBuilder;
-import FinalProject.BL.Problems.Problem;
+import FinalProject.BL.DataObjects.Problem;
 import FinalProject.DAL.DataAccessControllerInterface;
 import FinalProject.PL.UiHandlerInterface;
 import org.apache.log4j.Logger;

@@ -1,6 +1,6 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.Problems.*;
+import FinalProject.BL.DataObjects.*;
 import FinalProject.DAL.DalTestUtils;
 import org.junit.After;
 import org.junit.Assert;

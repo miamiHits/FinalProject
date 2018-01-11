@@ -1,7 +1,7 @@
 package FinalProject.DAL;
 
-import FinalProject.BL.Problems.Device;
-import FinalProject.BL.Problems.Problem;
+import FinalProject.BL.DataObjects.Device;
+import FinalProject.BL.DataObjects.Problem;
 
 import java.util.List;
 import java.util.Map;

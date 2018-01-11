@@ -1,4 +1,4 @@
-package FinalProject.BL.Problems;
+package FinalProject.BL.DataObjects;
 
 import org.apache.log4j.Logger;
 

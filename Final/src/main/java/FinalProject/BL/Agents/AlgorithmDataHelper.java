@@ -1,15 +1,11 @@
 package FinalProject.BL.Agents;
 
 import FinalProject.BL.IterationData.AgentIterationData;
-import FinalProject.BL.Problems.*;
+import FinalProject.BL.DataObjects.*;
 import org.apache.log4j.Logger;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
 

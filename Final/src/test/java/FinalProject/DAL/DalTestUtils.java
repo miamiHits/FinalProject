@@ -1,6 +1,6 @@
 package FinalProject.DAL;
 
-import FinalProject.BL.Problems.*;
+import FinalProject.BL.DataObjects.*;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,7 +2,7 @@ package FinalProject.BL.Agents;
 
 import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.IterationData.AgentIterationData;
-import FinalProject.BL.Problems.AgentData;
+import FinalProject.BL.DataObjects.AgentData;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
