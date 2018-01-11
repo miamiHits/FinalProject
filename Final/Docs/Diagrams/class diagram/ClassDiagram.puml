@@ -96,7 +96,7 @@ package BL {
 		Problem *-- AgentData
 		AgentData o-- Sensor
 		AgentData o-- Actuator
-		AgentData o-down- AgentData
+		AgentData -- AgentData
 		AgentData o-- Rule
 
 		Prefix <-- Rule
@@ -221,6 +221,8 @@ package BL {
 
 			+problemId : String
 			+algorithm : String
+			+neighborhood : Set<String>
+			+epeak : double
 		} 
 
 		AgentIterationData <|-- IterationCollectedData
@@ -233,6 +235,7 @@ package BL {
 			+{static} AC : double
 			+{static} calculateCSum(List<double[]>, double[]) : double
 			+{static} calculateTotalConsumptionWithPenalty(double, double[], double[], List<double[]>, double[]) : double
+			+{static} calculateTotalConsumptionWithPenalty(double, List<double[]>) : double
 		}
 
 		class DataCollector {
@@ -275,9 +278,6 @@ package BL {
 			+highestCostInForAgentBestIterationAgentName : String
 		}
 
-		Note "calculateCSum(allHomesSchedule, powerScheme) {...}" as UtilsCSumNote
-		Note "calculateEPeak(CSum, newSchedule, oldSchedule, otherSchedules, powerScheme) {...}" as UtilsEPeakNote
-
 		DataCollector --o DataCollectionCommunicator
 		DataCollector o-- IterationCollectedData
 		DataCollectionCommunicatorBehaviour --|> Behaviour
@@ -285,9 +285,6 @@ package BL {
 		DataCollector --> StatisticsHandler
 		
 		DataCollector --> PowerConsumptionUtils
-
-		PowerConsumptionUtils .. UtilsEPeakNote
-		PowerConsumptionUtils .. UtilsCSumNote
 	}
 
 	interface ExperimentBuilderInterface {

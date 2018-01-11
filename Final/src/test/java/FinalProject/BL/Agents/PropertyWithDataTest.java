@@ -1,6 +1,6 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.Problems.*;
+import FinalProject.BL.DataObjects.*;
 import org.junit.*;
 
 import java.util.ArrayList;

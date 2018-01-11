@@ -1,6 +1,6 @@
 package FinalProject.DAL;
 
-import FinalProject.BL.Problems.Problem;
+import FinalProject.BL.DataObjects.Problem;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
