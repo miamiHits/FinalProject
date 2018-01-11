@@ -63,7 +63,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
 
     private void sentEpeakToDC(int iterationNum) {
-        IterationCollectedData agentIterSum = new IterationCollectedData(iterationNum, agent.getName(),agentIterationData.getPrice(), agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(), agent.getAlgoId(),(agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), helper.totalPriceConsumption);
+        IterationCollectedData agentIterSum = new IterationCollectedData(iterationNum, agent.getName(),agentIterationData.getPrice(), agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(), agent.getAlgoId(),(agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), (helper.totalPriceConsumption - this.agent.getcSum()));
         this.agentIteraionCollected = agentIterSum;
         sendIterationToCollector();
     }
