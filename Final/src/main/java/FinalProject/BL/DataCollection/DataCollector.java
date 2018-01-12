@@ -23,11 +23,13 @@ public class DataCollector {
 
     public double addData (IterationCollectedData data){
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
-        IterationAgentsPrice tempIAP;
+        IterationAgentsPrice tempIAP = probAlgoToItAgentPrice.get(tempPA);
 
-        tempIAP = addAgentPrice(data, tempPA);
-
-        addNeighborhoodIfNotExist(data, tempPA);
+        if (isIterationFinished(tempPA, tempIAP, data)){
+            addNeighborhoodIfNotExist(data, tempPA);
+        }else{
+            tempIAP = addAgentPrice(data, tempPA);
+        }
 
         Double newPrice = calculateCsumForAllAgents(data, tempPA, tempIAP);
 
@@ -38,13 +40,13 @@ public class DataCollector {
     private Double calculateCsumForAllAgents(IterationCollectedData data, ProblemAlgorithm tempPA, IterationAgentsPrice tempIAP) {
         boolean iterFinished = isIterationFinished(tempPA, tempIAP, data);
         double newPrice = 0;
-        if(iterFinished){
+        if(iterFinished &&){
             newPrice = calculateCsumForAllAgents(tempPA, tempIAP, data.getIterNum());
         }
         if (iterFinished && tempIAP.ePeakCalculated(data.getIterNum())){
             pupulateTotalGradeForIteration(data, newPrice, tempPA, tempIAP);
             return -1.0; //we don't want the Data collector to send messages now
-        }else if (iterFinished){
+        }else if (iterFinished && tempIAP.onlyfirstEpeakArrived(data.getIterNum())){
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
             if (newPrice < result.getBestPrice()){
                 result.setBestPrice(newPrice);
@@ -159,6 +161,7 @@ public class DataCollector {
     //if first then create new probResult
     private boolean isIterationFinished(ProblemAlgorithm PA, IterationAgentsPrice IAP,
                                      IterationCollectedData data) {
+        if(IAP == null) {return false;}
         List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
         Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
         if (prices != null && numOfAgents != null &&
