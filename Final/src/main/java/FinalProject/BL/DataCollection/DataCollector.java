@@ -26,11 +26,11 @@ public class DataCollector {
         IterationAgentsPrice tempIAP = probAlgoToItAgentPrice.get(tempPA);
 
         if (isIterationFinished(tempPA, tempIAP, data)){
-            addProbResult(tempPA, tempIAP, data);
             addNeighborhoodIfNotExist(data, tempPA);
         }else{
             tempIAP = addAgentPrice(data, tempPA);
             if (isIterationFinished(tempPA, tempIAP, data)){ //last agent finished part 1
+                addProbResult(tempPA, tempIAP, data);
                 return calculateCsumForAllAgents(data, tempPA, tempIAP);
             }
             return 0;
