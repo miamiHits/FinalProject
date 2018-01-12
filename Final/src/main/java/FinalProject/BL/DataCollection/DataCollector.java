@@ -27,54 +27,38 @@ public class DataCollector {
 
         if (isIterationFinished(tempPA, tempIAP, data)){
             addNeighborhoodIfNotExist(data, tempPA);
+            if(tempIAP.ePeakCalculated(data.getIterNum())){ //last agent finished part 2
+                pupulateTotalGradeForIteration(data, tempPA, tempIAP);
+                return -1.0;
+            }
         }else{
             tempIAP = addAgentPrice(data, tempPA);
             if (isIterationFinished(tempPA, tempIAP, data)){ //last agent finished part 1
                 addProbResult(tempPA, tempIAP, data);
-                return calculateCsumForAllAgents(data, tempPA, tempIAP);
+                return calculateCsumForAllAgents(tempPA, tempIAP, data.getIterNum());
             }
             return 0;
         }
-
-        Double newPrice = calculateCsumForAllAgents(data, tempPA, tempIAP);
-
-        if (newPrice != null) {return newPrice;}
         return 0;
     }
 
-    private Double calculateCsumForAllAgents(IterationCollectedData data, ProblemAlgorithm tempPA, IterationAgentsPrice tempIAP) {
-        boolean iterFinished = isIterationFinished(tempPA, tempIAP, data);
-        double newPrice = 0;
-        if(iterFinished){
-            newPrice = calculateCsumForAllAgents(tempPA, tempIAP, data.getIterNum());
-        }
-        if (iterFinished && tempIAP.ePeakCalculated(data.getIterNum())){
-            pupulateTotalGradeForIteration(data, newPrice, tempPA, tempIAP);
-            return -1.0; //we don't want the Data collector to send messages now
-        }else if (iterFinished){  //todo: fix to totalGrade
-            AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
-            if (newPrice < result.getBestPrice()){
-                result.setBestPrice(newPrice);
-                result.setIterationsTillBestPrice(data.getIterNum());
-                setLowestHighestInBestIter(tempPA, result);
-                setAvgPriceInIter(tempPA, result, data.getIterNum());
-            }else{ //not the best iter
-                setAvgPriceInIter(tempPA, result, data.getIterNum());
-            }
-            return newPrice;
-        }
-        return null;
-    }
-
-    private void pupulateTotalGradeForIteration(IterationCollectedData data, double csum, ProblemAlgorithm pa, IterationAgentsPrice iap) {
+    private void pupulateTotalGradeForIteration(IterationCollectedData data, ProblemAlgorithm pa, IterationAgentsPrice iap) {
         AlgorithmProblemResult apr = probAlgoToResult.get(pa);
         if(apr == null){
             logger.error("AlgorithmProblemResult is null when trying to calc Total grade for iter: " + data.getIterNum());
         }
-        double totalGrade = csum;
+        double totalGrade = calculateCsumForAllAgents(pa, iap, data.getIterNum());
         //now we add all the ePeaks
         totalGrade += iap.getTotalEpeakInIter(data.getIterNum());
         apr.setTotalGradeToIter(data.getIterNum(), totalGrade);
+        if (totalGrade < apr.getBestPrice()){
+            apr.setBestPrice(totalGrade);
+            apr.setIterationsTillBestPrice(data.getIterNum());
+            setLowestHighestInBestIter(pa, apr);
+            setAvgPriceInIter(pa, apr, data.getIterNum());
+        }else{ //not the best iter
+            setAvgPriceInIter(pa, apr, data.getIterNum());
+        }
     }
 
     private IterationAgentsPrice addAgentPrice(IterationCollectedData data, ProblemAlgorithm tempPA) {
