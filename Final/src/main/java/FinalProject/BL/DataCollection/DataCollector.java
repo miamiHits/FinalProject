@@ -51,8 +51,8 @@ public class DataCollector {
         //now we add all the ePeaks
         totalGrade += iap.getTotalEpeakInIter(data.getIterNum());
         apr.setTotalGradeToIter(data.getIterNum(), totalGrade);
-        if (totalGrade < apr.getBestPrice()){
-            apr.setBestPrice(totalGrade);
+        if (totalGrade < apr.getBestGrade()){
+            apr.setBestGrade(totalGrade);
             apr.setIterationsTillBestPrice(data.getIterNum());
             setLowestHighestInBestIter(pa, apr);
             setAvgPriceInIter(pa, apr, data.getIterNum());
