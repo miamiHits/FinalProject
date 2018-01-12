@@ -293,7 +293,7 @@ package BL {
 			+algorithm : String
 			+avgPricePerIteration : Map<int, double>
 			+iterationsTillBestPrice : int
-			+bestPrice : double
+			+bestGrade : double
 			+lowestCostForAgentInBestIteration : double
 			+lowestCostForAgentInBestIterationAgentName : String
 			+highestCostForAgentInBestIteration : double

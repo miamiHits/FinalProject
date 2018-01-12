@@ -53,6 +53,7 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
     }
 
     private void sendCsumToEveryone(ACLMessage msg, double cSumReturned) {
+        System.out.println("SENDINGGGGGGGGGGGGGGGGGGGGGGG");
         DFAgentDescription[] agents = findAgents(msg.getOntology());
         ACLMessage replay;
         for (DFAgentDescription dfa: agents) {

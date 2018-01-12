@@ -26,6 +26,21 @@ public class IterationAgentsPrice {
         return false;
     }
 
+    public boolean onlyfirstEpeakArrived(int iterNum){
+        List<NeighborhoodEpeak> ne = iterationsToNeighborhoodsPeak.get(iterNum);
+        if (ne == null){return false;}
+        int count = 0;
+        for (NeighborhoodEpeak e: ne){
+            if (e.getCountEpeaks() > 1 ){
+                return false;
+            }
+            else if (e.getCountEpeaks() == 1){
+                count ++;
+            }
+        }
+        return count == 1;
+    }
+
     public boolean ePeakCalculated(int iterNum) {
         List<NeighborhoodEpeak> ne = iterationsToNeighborhoodsPeak.get(iterNum);
         if (ne == null){return false;}
