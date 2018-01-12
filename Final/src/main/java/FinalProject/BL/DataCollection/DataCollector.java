@@ -26,9 +26,14 @@ public class DataCollector {
         IterationAgentsPrice tempIAP = probAlgoToItAgentPrice.get(tempPA);
 
         if (isIterationFinished(tempPA, tempIAP, data)){
+            addProbResult(tempPA, tempIAP, data);
             addNeighborhoodIfNotExist(data, tempPA);
         }else{
             tempIAP = addAgentPrice(data, tempPA);
+            if (isIterationFinished(tempPA, tempIAP, data)){ //last agent finished part 1
+                return calculateCsumForAllAgents(data, tempPA, tempIAP);
+            }
+            return 0;
         }
 
         Double newPrice = calculateCsumForAllAgents(data, tempPA, tempIAP);
@@ -40,13 +45,13 @@ public class DataCollector {
     private Double calculateCsumForAllAgents(IterationCollectedData data, ProblemAlgorithm tempPA, IterationAgentsPrice tempIAP) {
         boolean iterFinished = isIterationFinished(tempPA, tempIAP, data);
         double newPrice = 0;
-        if(iterFinished &&){
+        if(iterFinished){
             newPrice = calculateCsumForAllAgents(tempPA, tempIAP, data.getIterNum());
         }
         if (iterFinished && tempIAP.ePeakCalculated(data.getIterNum())){
             pupulateTotalGradeForIteration(data, newPrice, tempPA, tempIAP);
             return -1.0; //we don't want the Data collector to send messages now
-        }else if (iterFinished && tempIAP.onlyfirstEpeakArrived(data.getIterNum())){
+        }else if (iterFinished){  //todo: fix to totalGrade
             AlgorithmProblemResult result = probAlgoToResult.get(tempPA);
             if (newPrice < result.getBestPrice()){
                 result.setBestPrice(newPrice);
@@ -158,10 +163,25 @@ public class DataCollector {
         return PowerConsumptionUtils.calculateCSum(agentPrices, priceScheme);
     }
 
-    //if first then create new probResult
+
+
     private boolean isIterationFinished(ProblemAlgorithm PA, IterationAgentsPrice IAP,
-                                     IterationCollectedData data) {
+                                        IterationCollectedData data) {
         if(IAP == null) {return false;}
+        List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
+        Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
+        if (prices != null && numOfAgents != null &&
+                prices.size() == numOfAgents){ //iteration is over  with no epeak calculated
+            return true;
+        }
+        return false;
+    }
+
+
+    //if first then create new probResult
+    private void addProbResult(ProblemAlgorithm PA, IterationAgentsPrice IAP,
+                                     IterationCollectedData data) {
+        if(IAP == null) {return;}
         List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
         Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
         if (prices != null && numOfAgents != null &&
@@ -171,9 +191,7 @@ public class DataCollector {
                 result.setIterationsTillBestPrice(data.getIterNum());
                 probAlgoToResult.put(PA, result);
             }
-            return true;
         }
-        return false;
     }
 
     public AlgorithmProblemResult getAlgoProblemResult(String problemID, String algoName){
