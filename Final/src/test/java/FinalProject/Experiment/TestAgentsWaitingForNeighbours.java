@@ -1,15 +1,9 @@
 package FinalProject.Experiment;
 
-import FinalProject.BL.Agents.DSA;
-import FinalProject.BL.Agents.SmartHomeAgent;
-import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.DataCollection.DataCollectionCommunicatorBehaviour;
-import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.BL.DataObjects.AgentData;
-import FinalProject.BL.DataObjects.Problem;
-import FinalProject.DAL.*;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -18,53 +12,36 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
-import test.common.Test;
 import test.common.TestException;
-import test.common.TestUtility;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 // this test will
-public class TestAgentsWaitingForNeighbours extends Test
+public class TestAgentsWaitingForNeighbours extends AbstractJadeIntegrationTest
 {
-    private SmartHomeAgentBehaviour algorithm;
-    private Problem problem;
-    private Map<String, Boolean> messagesReceivedFromAgents;
+    private enum AgentMessageType
+    {NONE, NO_EPEAK, WITH_EPEAK}
+    private Map<String, AgentMessageType> messagesReceivedFromAgents;
 
-    public static int MAXIMUM_ITERATIONS = 2;
-
+    @Override
     public Behaviour load(Agent a) throws TestException
     {
-        org.apache.log4j.BasicConfigurator.configure();
+        super.load(a);
         // Perform test specific initialisation
         this.messagesReceivedFromAgents = new HashMap<>();
 
-        loadExpeimentConfiguration();
+        loadExperimentConfiguration();
         publishTestAgentAsDataCollector(a);
 
-        Behaviour b = new TestBehaviour();// Create the Behaviour actually performing the test
+        Behaviour b = new TestBehaviour_TestAgentsWaitingForNeighbours_DataCollectionCommunicatorBehaviour();// Create the Behaviour actually performing the test
         return b;
     }
     public void clean(Agent a) {
         // Perform test specific clean-up
+        super.clean(a);
     }
 
-    private void loadExpeimentConfiguration()
-    {
-        List<String> algoNameList = new ArrayList<>();
-        algoNameList.add(DSA.class.getName());
-        List<String> problemNameList = new ArrayList<>();
-        problemNameList.add("dm_7_1_2");
-        JsonLoaderInterface jsonLoader = new JsonLoader("Final\\src\\test\\testResources\\jsons");
-        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader("Final\\target\\classes\\FinalProject\\BL\\Agents");
-        DataAccessController dal = new DataAccessController(jsonLoader, algorithmLoader);
-        algorithm =  dal.getAlgorithms(algoNameList).get(0);
-        problem = dal.getProblems(problemNameList).get(0);
-        Experiment.maximumIterations = MAXIMUM_ITERATIONS;
-    }
     public void publishTestAgentAsDataCollector(Agent a)
     {
         DFAgentDescription dfd = new DFAgentDescription();
@@ -82,60 +59,45 @@ public class TestAgentsWaitingForNeighbours extends Test
         }
     }
 
-    private void initializeAgents(Agent agent)
+    @Override
+    public void initializeAgents(Agent initializationAgent)
     {
+        super.initializeAgents(initializationAgent);
         for (AgentData agentData : problem.getAgentsData())
         {
-            Object[] agentInitializationArgs = new Object[4];
-            agentInitializationArgs[0] = algorithm.cloneBehaviour();
-            agentInitializationArgs[1] = agentData;
-            agentInitializationArgs[2] = algorithm.getBehaviourName();
-            agentInitializationArgs[3] = problem.getId();
-            try
-            {
-                TestUtility.createAgent(agent, agentData.getName(),
-                        SmartHomeAgent.class.getName(),
-                        agentInitializationArgs);
-            } catch (TestException e)
-            {
-                e.printStackTrace();
-            }
-            messagesReceivedFromAgents.put(agentData.getName(), false);
+            messagesReceivedFromAgents.put(agentData.getName(), AgentMessageType.NONE);
         }
     }
 
-    private class TestBehaviour extends DataCollectionCommunicatorBehaviour
+    public class TestBehaviour_TestAgentsWaitingForNeighbours_DataCollectionCommunicatorBehaviour extends DataCollectionCommunicatorBehaviour
     {
-        private boolean firstRun = false;
-        private int currentIterationNumber = 0;
+        public int currentIterationNumber = 0;
 
         @Override
         public void action()
         {
             try
             {
-                if (!firstRun)
+                if (!initializationApplied)
                 {
-                    firstRun = true;
+                    initializationApplied = true;
                     initializeAgents(myAgent);
                 }
 
                 ACLMessage m;
                 while ((m = myAgent.receive()) != null)
                 {
-                    IterationCollectedData IDC = (IterationCollectedData) m.getContentObject();
-                    if (messagesReceivedFromAgents.get(m.getSender().getLocalName()))
-                    {//received more than one message from the agent for the current
-                        failed("received more than one message from an agent");
-                    }
-                    if (IDC.getIterNum() != this.currentIterationNumber)
+                    IterationCollectedData ICD = (IterationCollectedData) m.getContentObject();
+                    examineMessage(ICD, m);
+                    if (ICD.getIterNum() != this.currentIterationNumber)
                     {
                         failed(String.format("received a message from agent %s with iteration number %d where current iteration number is %d",
                                 m.getSender().getLocalName(),
-                                IDC.getIterNum(),
+                                ICD.getIterNum(),
                                 this.currentIterationNumber));
                     }
-                    messagesReceivedFromAgents.put(m.getSender().getLocalName(),true);
+                    AgentMessageType updatedType = ICD.getEpeak() == -1 ? AgentMessageType.NO_EPEAK : AgentMessageType.WITH_EPEAK;
+                    messagesReceivedFromAgents.put(m.getSender().getLocalName(),updatedType);
                 }
                 if (didReceiveMessageFromAllAgents())
                 {
@@ -157,10 +119,8 @@ public class TestAgentsWaitingForNeighbours extends Test
             }
         }
 
-        private void startNextIteration()
+        public void startNextIteration()
         {
-            messagesReceivedFromAgents.replaceAll((k, v) -> false);
-            this.currentIterationNumber++;
             for (String agentName : messagesReceivedFromAgents.keySet())
             {
                 ACLMessage replay = new ACLMessage(ACLMessage.INFORM);
@@ -168,12 +128,41 @@ public class TestAgentsWaitingForNeighbours extends Test
                 replay.setContent(String.valueOf(10));
                 myAgent.send(replay);
             }
-            System.out.println("starting iteration #" + this.currentIterationNumber);
+            if (!messagesReceivedFromAgents.containsValue(AgentMessageType.NO_EPEAK))
+            {//this is a new iteration since all epeak messages from all agents were received
+                messagesReceivedFromAgents.replaceAll((k, v) -> AgentMessageType.NONE);
+                this.currentIterationNumber++;
+                System.out.println("starting iteration #" + this.currentIterationNumber);
+            }
         }
 
-        private boolean didReceiveMessageFromAllAgents()
+        public boolean didReceiveMessageFromAllAgents()
         {
-            return !messagesReceivedFromAgents.containsValue(false);
+            return !messagesReceivedFromAgents.containsValue(AgentMessageType.NONE);
+        }
+
+        public void examineMessage(IterationCollectedData ICD, ACLMessage m)
+        {
+            if (ICD.getEpeak() == -1)
+            {//this is a message of end of iteration prior the epeak calculation
+                if (messagesReceivedFromAgents.get(m.getSender().getLocalName()) == AgentMessageType.NO_EPEAK)
+                {
+                    failed("agent " + m.getSender().getLocalName() + " sent more than once the end of iteration, prior epeak calculation message");
+                }
+            }
+            else
+            {//this is a message that should be sent once all agent
+                if (messagesReceivedFromAgents.get(m.getSender().getLocalName()) == AgentMessageType.WITH_EPEAK)
+                {
+                    failed("agent " + m.getSender().getLocalName() + " sent more than once the end of iteration, after epeak calculation message");
+                }
+            }
+//            AgentMessageType messageType = messagesReceivedFromAgents.get(m.getSender().getLocalName());
+//            if (messageType == AgentMessageType.WITH_EPEAK &&
+//                    messa)
+//            {//received more than one message from the agent for the current
+//                failed("received more than one message from an agent");
+//            }
         }
     }
 }

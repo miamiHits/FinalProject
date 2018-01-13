@@ -105,17 +105,17 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         List<ACLMessage> messages = new ArrayList<>();
         ACLMessage receivedMessage;
         int neighbourCount = this.agent.getAgentData().getNeighbors().size();
-        //TODO wait also for DATA COLLECTOR Message
         while (messages.size() < neighbourCount)//the additional one is for the data collector's message
-//        while (messages.size() < neighbourCount)
         {
-            receivedMessage = this.agent.blockingReceive(MessageTemplate.not(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR));
+            receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
             logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
             messages.add(receivedMessage);
         }
+        clearAmsMessages();
         // wait for the message from the collector
         receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR);
-        logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
+        logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()) +
+                "with contents: " + receivedMessage.getContent());
         try {
             this.agent.setcSum(Double.parseDouble(receivedMessage.getContent()));
         }catch(Exception e){
@@ -131,7 +131,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             try {
                 neighbors.add((AgentIterationData)messageList.get(i).getContentObject());
             } catch (UnreadableException e) {
-                e.printStackTrace();
+                logger.error("failed parsing the message contents with an exception", e);
             }
         }
 
@@ -165,6 +165,23 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         {
             powerConsumption[i] =  Double.sum(powerConsumption[i], backgroundLoad[i]);
         }
+    }
+
+    /**
+     * agent might get messages from the AMS - agent management system, the smart home agent ignore these messages
+     * the method clears these messages from the agent's messages queue and print their contents as warnings
+     */
+    private void clearAmsMessages()
+    {
+        ACLMessage receivedMessage;
+        do
+        {
+            receivedMessage = this.agent.receive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_AMS);
+            if (receivedMessage != null)
+            {
+                logger.warn(receivedMessage);
+            }
+        } while (receivedMessage != null);
     }
 
 
