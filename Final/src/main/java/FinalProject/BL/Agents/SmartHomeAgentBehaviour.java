@@ -37,6 +37,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     @Override
     public void action() {
+        logger.debug("action method invoked");
         doIteration();
         sendIterationToCollector();
         sendIterationToNeighbors();
@@ -67,6 +68,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                     message.addReceiver(foundAID.getName());
                 }
                 message.setContentObject(agentIteraionCollected);
+                logger.debug(String.format("sending iteration #%d data to data collector", agentIteraionCollected.getIterNum()));
                 agent.send(message);
             }
             else
