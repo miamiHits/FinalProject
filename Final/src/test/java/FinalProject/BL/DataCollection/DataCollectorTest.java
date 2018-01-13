@@ -20,7 +20,7 @@ public class DataCollectorTest {
     public void setUp() throws Exception {
         Map<String, Integer> numOfAgentsInProblems = new HashMap<String, Integer>();
         numOfAgentsInProblems.put("p0", 0);
-        numOfAgentsInProblems.put("p1", 1);
+        numOfAgentsInProblems.put("p1", 2);
         numOfAgentsInProblems.put("p2", 2);
         numOfAgentsInProblems.put("p3", 3);
         numOfAgentsInProblems.put("p4", 3);
@@ -32,20 +32,21 @@ public class DataCollectorTest {
         prices.put("p2", pricePerTick1);
         prices.put("p3", pricePerTick2);
         prices.put("p4", pricePerTick1);
-        Set<String> neighborhood = new HashSet<String>();
-        neighborhood.add("a0");
-        neighborhood.add("a1");
+        Set<String> neighborhood1 = new HashSet<String>();
+        Set<String> neighborhood2 = new HashSet<String>();
+        neighborhood2.add("a0");
+        neighborhood1.add("a1");
         dataCollector = new DataCollector(numOfAgentsInProblems, prices);
         double[] powerConsPerTick = new double[]{22.1, 22.3, 55.77, 12.2, 15.5, 44.3, 3, 7 , 77, 12, 5, 78};
         ICD1 = new IterationCollectedData(0,"a0",
             22.33, powerConsPerTick,
-        "p4", "algo0", neighborhood, 22.36);
+        "p4", "algo0", neighborhood1, 22.36);
         ICD2 = new IterationCollectedData(0,"a0",
                 22.33, powerConsPerTick,
-                "p1", "algo0", neighborhood, 25.36);
+                "p1", "algo0", neighborhood1, 25.36);
         ICD3 = new IterationCollectedData(0,"a1",
                 22.33, powerConsPerTick,
-                "p1", "algo0", neighborhood, 20.36);
+                "p1", "algo0", neighborhood2, 20.36);
 
     }
 
@@ -73,7 +74,7 @@ public class DataCollectorTest {
     @Test
     public void getNumOfAgentsInProblem() throws Exception {
         Assert.assertTrue(dataCollector.getNumOfAgentsInProblem("p0") == 0);
-        Assert.assertTrue(dataCollector.getNumOfAgentsInProblem("p1") == 1);
+        Assert.assertTrue(dataCollector.getNumOfAgentsInProblem("p1") == 2);
         Assert.assertTrue(dataCollector.getNumOfAgentsInProblem("p2") == 2);
         Assert.assertTrue(dataCollector.getNumOfAgentsInProblem("p3") == 3);
     }
