@@ -448,4 +448,6 @@ public class DSA extends SmartHomeAgentBehaviour {
         newInstance.agentIterationData = null;//will be created as part of the behaviour run(see buildScheduleFromScratch)
         return newInstance;
     }
+
+    public double[] getPowerConsumption() { return this.iterationPowerConsumption;}
 }

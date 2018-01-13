@@ -167,12 +167,14 @@ public class AlgorithmDataHelper
 
     private void matchSensors(Action act, PropertyWithData prop, boolean isOffline)
     {
+        double granularity = agent.getAgentData().getGranularity();
         List<Sensor> sensors = agent.getAgentData().getSensors();
         if (!(act.getEffects().stream().anyMatch(x->x.getDelta() < 0 && x.getProperty().equals(prop.getName())))  || isOffline) {
             for (Effect effect : act.getEffects()) {
                 if (isOffline) {
                     //match the actual sensor
                     if (effect.getProperty().equals(prop.getName())) {
+                        if (granularity!=60 && effect.getDelta()>0) {calcNewDelta(granularity, effect);}
                         prop.setDeltaWhenWorkOffline(effect.getDelta());
                         prop.setSensor(sensors.stream()
                                 .filter(x -> x.getSensingProperties().contains(prop.getName()))
@@ -186,6 +188,7 @@ public class AlgorithmDataHelper
                     }
                 } else {
                     // GT 0 for the case there is prop that go down bc another prop. FE: charge go down if clean work
+                    if (granularity!=60) {calcNewDelta(granularity, effect);}
                     if (effect.getProperty().equals(prop.getName())) {
                         if (effect.getDelta() > 0) {
                             prop.setDeltaWhenWork(effect.getDelta());
@@ -202,6 +205,12 @@ public class AlgorithmDataHelper
         } else {
             return;
         }
+    }
+
+    private void calcNewDelta(double granularity, Effect effect) {
+        double relation = granularity / 60;
+        effect.setDelta(effect.getDelta()/relation);
+
     }
 
     private void getSubsets(List<Integer> superSet, int k, int idx, Set<Integer> current,List<Set<Integer>> solution) {
