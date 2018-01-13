@@ -26,7 +26,7 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
         if (msg != null ) {
             String senderName = msg.getSender().getName();
             if (!senderName.startsWith("ams")) {
-                logger.info("received a message from: " + msg.getSender().getName());
+                logger.info("received a message from: " + msg.getSender().getLocalName());
                 // Message received. Process it
                 try {
                     IterationCollectedData ICD = (IterationCollectedData) msg.getContentObject();
@@ -53,7 +53,7 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
     }
 
     private void sendCsumToEveryone(ACLMessage msg, double cSumReturned) {
-        System.out.println("SENDINGGGGGGGGGGGGGGGGGGGGGGG");
+        logger.info("sending c_sum to all agents in the experiment");
         DFAgentDescription[] agents = findAgents(msg.getOntology());
         ACLMessage replay;
         for (DFAgentDescription dfa: agents) {

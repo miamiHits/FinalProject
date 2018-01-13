@@ -13,7 +13,7 @@ public class TestGroupAgent extends TesterAgent
     @Override
     protected TestGroup getTestGroup()
     {
-        TestGroup tg = new TestGroup("FinalProject\\Experiment\\testList.xml")
+        TestGroup tg = new TestGroup("testList.xml")
         {
             AgentContainer mainContainer;
             // Re-define the initialize() method to perform initializations common to all
@@ -29,7 +29,7 @@ public class TestGroupAgent extends TesterAgent
                 // Perform clean-up operations common to all tests in the group
                 try
                 {
-                    a.doDelete();
+                    a.clean(true);
                     this.mainContainer.getPlatformController().kill();
                 } catch (ControllerException e)
                 {

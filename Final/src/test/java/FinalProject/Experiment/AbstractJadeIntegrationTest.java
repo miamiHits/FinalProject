@@ -20,6 +20,15 @@ import java.util.List;
 
 public abstract class AbstractJadeIntegrationTest extends Test
 {
+    protected enum AgentMessageType
+    {
+        NONE,
+        NO_EPEAK,
+        WITH_EPEAK
+    }
+
+
+
     public static int MAXIMUM_ITERATIONS = 4;
 
     protected SmartHomeAgentBehaviour algorithm;

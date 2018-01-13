@@ -46,7 +46,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     {
         logger.debug(String.format("%s sends its iteration to the data collector", this.agent.getAgentData().getName()));
 
-        AID foundAgentAID = null;
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
         sd.setType(DataCollectionCommunicator.SERVICE_TYPE);

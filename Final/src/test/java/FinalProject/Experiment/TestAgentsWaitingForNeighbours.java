@@ -1,27 +1,19 @@
 package FinalProject.Experiment;
 
-import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.DataCollection.DataCollectionCommunicatorBehaviour;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.BL.DataObjects.AgentData;
-import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import test.common.TestException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-// this test will
 public class TestAgentsWaitingForNeighbours extends AbstractJadeIntegrationTest
 {
-    private enum AgentMessageType
-    {NONE, NO_EPEAK, WITH_EPEAK}
     private Map<String, AgentMessageType> messagesReceivedFromAgents;
 
     @Override
@@ -32,31 +24,13 @@ public class TestAgentsWaitingForNeighbours extends AbstractJadeIntegrationTest
         this.messagesReceivedFromAgents = new HashMap<>();
 
         loadExperimentConfiguration();
-        publishTestAgentAsDataCollector(a);
+        ExperimentTestUtils.publishTestAgentAsDataCollector(a);
 
-        Behaviour b = new TestBehaviour_TestAgentsWaitingForNeighbours_DataCollectionCommunicatorBehaviour();// Create the Behaviour actually performing the test
-        return b;
+        return new TestBehaviour_TestAgentsWaitingForNeighbours_DataCollectionCommunicatorBehaviour();// Create the Behaviour actually performing the test
     }
     public void clean(Agent a) {
         // Perform test specific clean-up
         super.clean(a);
-    }
-
-    public void publishTestAgentAsDataCollector(Agent a)
-    {
-        DFAgentDescription dfd = new DFAgentDescription();
-        dfd.setName(a.getAID());
-        ServiceDescription sd = new ServiceDescription();
-        sd.setType(DataCollectionCommunicator.SERVICE_TYPE);
-        sd.setName(DataCollectionCommunicator.SERVICE_NAME);
-        dfd.addServices(sd);
-        try
-        {
-            DFService.register(a, dfd);
-        } catch (FIPAException e)
-        {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -69,9 +43,9 @@ public class TestAgentsWaitingForNeighbours extends AbstractJadeIntegrationTest
         }
     }
 
-    public class TestBehaviour_TestAgentsWaitingForNeighbours_DataCollectionCommunicatorBehaviour extends DataCollectionCommunicatorBehaviour
+    private class TestBehaviour_TestAgentsWaitingForNeighbours_DataCollectionCommunicatorBehaviour extends DataCollectionCommunicatorBehaviour
     {
-        public int currentIterationNumber = 0;
+        private int currentIterationNumber = 0;
 
         @Override
         public void action()
@@ -119,15 +93,9 @@ public class TestAgentsWaitingForNeighbours extends AbstractJadeIntegrationTest
             }
         }
 
-        public void startNextIteration()
+        private void startNextIteration()
         {
-            for (String agentName : messagesReceivedFromAgents.keySet())
-            {
-                ACLMessage replay = new ACLMessage(ACLMessage.INFORM);
-                replay.addReceiver(new AID(agentName, false));
-                replay.setContent(String.valueOf(10));
-                myAgent.send(replay);
-            }
+            ExperimentTestUtils.sendCSumToAllAgents(messagesReceivedFromAgents.keySet(), 10, myAgent);
             if (!messagesReceivedFromAgents.containsValue(AgentMessageType.NO_EPEAK))
             {//this is a new iteration since all epeak messages from all agents were received
                 messagesReceivedFromAgents.replaceAll((k, v) -> AgentMessageType.NONE);
@@ -136,12 +104,12 @@ public class TestAgentsWaitingForNeighbours extends AbstractJadeIntegrationTest
             }
         }
 
-        public boolean didReceiveMessageFromAllAgents()
+        private boolean didReceiveMessageFromAllAgents()
         {
             return !messagesReceivedFromAgents.containsValue(AgentMessageType.NONE);
         }
 
-        public void examineMessage(IterationCollectedData ICD, ACLMessage m)
+        private void examineMessage(IterationCollectedData ICD, ACLMessage m)
         {
             if (ICD.getEpeak() == -1)
             {//this is a message of end of iteration prior the epeak calculation
@@ -157,12 +125,6 @@ public class TestAgentsWaitingForNeighbours extends AbstractJadeIntegrationTest
                     failed("agent " + m.getSender().getLocalName() + " sent more than once the end of iteration, after epeak calculation message");
                 }
             }
-//            AgentMessageType messageType = messagesReceivedFromAgents.get(m.getSender().getLocalName());
-//            if (messageType == AgentMessageType.WITH_EPEAK &&
-//                    messa)
-//            {//received more than one message from the agent for the current
-//                failed("received more than one message from an agent");
-//            }
         }
     }
 }
