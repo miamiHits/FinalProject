@@ -29,7 +29,7 @@ public class AlgorithmProblemResultTest {
 
     @Test
     public void setTotalGradeToIter() throws Exception {
-        
+        result.setTotalGradeToIter(0, 5000.12);
     }
 
 }
