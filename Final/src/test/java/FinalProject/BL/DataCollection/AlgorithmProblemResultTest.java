@@ -30,6 +30,7 @@ public class AlgorithmProblemResultTest {
     @Test
     public void setTotalGradeToIter() throws Exception {
         result.setTotalGradeToIter(0, 5000.12);
+        Assert.assertTrue(result.getTotalGradePerIteration().get(0) == 5000.12);
     }
 
 }
