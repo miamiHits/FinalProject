@@ -27,8 +27,6 @@ public abstract class AbstractJadeIntegrationTest extends Test
         WITH_EPEAK
     }
 
-
-
     public static int MAXIMUM_ITERATIONS = 4;
 
     protected SmartHomeAgentBehaviour algorithm;
@@ -76,14 +74,6 @@ public abstract class AbstractJadeIntegrationTest extends Test
                 agentControllers.add(initializationAgent.getContainerController().createNewAgent(agentData.getName(),
                         SmartHomeAgent.class.getName(),
                         agentInitializationArgs));
-
-//                TestUtility.createAgent(initializationAgent, agentData.getName(),
-//                        SmartHomeAgent.class.getName(),
-//                        agentInitializationArgs);
-//            } catch (TestException e)
-//            {
-//                e.printStackTrace();
-//            }
             }
 
             for (AgentController agentContainer : agentControllers)

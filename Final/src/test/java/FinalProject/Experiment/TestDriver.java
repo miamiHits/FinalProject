@@ -20,7 +20,7 @@ public class TestDriver
             AgentContainer mainContainer = rt.createMainContainer(profile);
             Object[] testerArgs = new Object[1];
             testerArgs[0] = mainContainer;
-            AgentController testSuite = mainContainer.createNewAgent(DataCollectionCommunicator.SERVICE_NAME, TestGroupAgent.class.getName(), testerArgs);
+                AgentController testSuite = mainContainer.createNewAgent(TestGroupAgent.class.getName(), TestGroupAgent.class.getName(), testerArgs);
             testSuite.start();
         } catch (StaleProxyException e)
         {

@@ -22,4 +22,15 @@
         <WhenTestPass>the test home agent did not receive a message from its neighbours until the data collector sent the end of iteration message</WhenTestPass>
     </Test>
 
+    <Test name="Test Agent Receiving Messages From Data Collector" skip="false">
+        <TestClassName>FinalProject.Experiment.TestAgentReceivingMessagesFromDataCollector</TestClassName>
+        <WhatTest>verify that the data collector sends its messages</WhatTest>
+        <HowWorkTest>
+            the test will simulate an agent taking its part in an algorithm run, waiting for the message from the data collector with 10 seconds timeout.
+            the main goal of the test is to find possible deadlock scenarios in the system and should be applied a significant amount of times for it to be effective
+        </HowWorkTest>
+        <WhenTestPass>during the whole simulated experiment in the test, the test home agent received the required messages from the data collector</WhenTestPass>
+    </Test>
+
+
 </TestsList>
