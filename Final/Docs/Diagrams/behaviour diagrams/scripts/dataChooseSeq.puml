@@ -1,21 +1,27 @@
 @startuml
 actor User as u
 participant DataAccessController as DAC
+participant ExperimentBuilder as EB
 
 activate u
 activate UiHandler
 activate Service
+activate EB
 
 
-u -> UiHandler : select problems
+
 alt Json files describing problems are available in the system
 
-    UiHandler --> u : [opens a file selection dialog]
+    UiHandler -> UiHandler : [displays the available algorithms in the list builder element]
+    u -> UiHandler : [clicks "Load"]
     note left
-        user selects the Json
-        files from the dialog
+        user selects the desired
+        algorithms in the list
+        builder GUI element
+        and inserted number of
+        iterations
     end note
-    u -> UiHandler : [selectedProblems]
+
     UiHandler -> Service : loadProblems(List<problemNames: String>)
 
     activate DAC
@@ -33,28 +39,30 @@ alt Json files describing problems are available in the system
     JsonLoader --> DAC : [Devices]
 
     DAC -->Service : [List<Problem>]
+    Service -> EB : addProblems(List<Problem>)
     Service --> UiHandler : showSuccessMsg(msg: String)
     UiHandler --> u : [shows a success message]
 
 else no available Json files describing problems in the system
 
-    Service --> UiHandler : showErrorMessage(msg: String)
     UiHandler --> u : [shows a descriptive error message]
 
 else one or more of the Json files is not a valid problem
 
-    UiHandler --> u : [opens a file selection dialog]
+    UiHandler -> UiHandler : [displays the available algorithms in the list builder element]
+    u -> UiHandler : [clicks "Load"]
     note left
-        user selects the Json
-        files from the dialog
+        user selects the desired
+        algorithms in the list
+        builder GUI element
+        and inserted number of
+        iterations
     end note
-    u -> UiHandler : [selectedProblems]
+
     UiHandler -> Service : loadProblems(List<problemNames: String>)
 
-    activate DAC
     Service -> DAC : getProblems(List<problemNames: String>)
 
-    activate JsonLoader
     DAC -> JsonLoader : loadProblem(String problemName)
     JsonLoader -> JsonLoader : verifyJson(String problemName)
     JsonLoader -> Service : [ParseException]

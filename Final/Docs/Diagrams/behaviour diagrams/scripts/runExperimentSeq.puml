@@ -2,6 +2,7 @@
 actor User as u
 collections Agent
 participant DataAccessController as DAC
+participant DataControllerCommunicator as DCC
 participant DataControllerCommunicatorAgentBehaviour as DCCB
 
 activate u
@@ -10,94 +11,124 @@ activate Service
 activate Agent
 activate AgentBehaviour
 activate Problem
+activate ExperimentBuilder
 
-u -> UiHandler : create Experiment
-UiHandler -> Service : createExperiment(List<Problem>, List<SmartHomeAgentAgentBehaviour>)
+note right of Jade
+    This is an abstraction
+    for the use in jade,
+    no need to show every
+    jade class as a participant
+end note
+
+u -> UiHandler : [clicks "Start Experiment"]
 
 alt user selected a set of algorithm and problems
 
-    Service -> Experiment : <<create>>
-    activate Experiment
-    Service --> UiHandler : true
-    UiHandler --> u : [show success message]
-    u -> UiHandler : run Experiment
     UiHandler -> Service : runExperiment()
+    Service -> ExperimentBuilder : createExperiment()
+    ExperimentBuilder -> Experiment : <<create>>
+    activate Experiment
+    ExperimentBuilder --> Service : Experiment
     Service -> Experiment : runExperiment()
-    Experiment -> DataCollector : <<create>>
-    activate DataCollector
 
-    Service --> UiHandler : true
+    Service -> UiHandler : notifyObserver()
     UiHandler --> u : [show message indicating the experiment started]
 
+    Experiment -> Jade : getInstance()
+    activate Jade
+
+    '/////////create the collection mechanism
+    Experiment -> Jade : createAgent(DataControllerCommunicator)
+    Jade -> DCC : <<create>>
+    activate DCC
+    Jade --> Experiment : [DataCollectorCommunicator]
+    Experiment -> DCC : start()
+    DCC -> DCCB : <<create>>
+    activate DCCB
+    DCCB -> DataCollector : <<create>>
+    activate DataCollector
+
     alt the user let the experiment run till it ends
+
         loop for each Problem
             loop for each algorithm
 
-                '/////////create the collection mechanism
-                DataCollector -> DataCollectorCommunicator : <<create>>
-                activate DataCollectorCommunicator
-                DataCollector -> DCCB : <<create>>
-                activate DCCB
-                DataCollector -> DataCollectorCommunicator : addAgentBehaviour(DataControllerCommunicatorAgentBehaviour)
-
                 '/////////run agents
                 loop for each agent
-                    Experiment -> Agent : addAgentBehaviour(SmartHomeAgentAgentBehaviour algorithm)
+                    Experiment -> AgentBehaviour : clone()
+                    AgentBehaviour --> Experiment : [AgentBehaviour]
+                    Experiment -> Jade : createAgent(AgentBehaviour)
+                    Jade --> Experiment : [Agent]
                     Experiment -> Agent : start()
 
-                    loop until the running algorithm has converged
-                        AgentBehaviour -> AgentBehaviour : doIteration()
-                        opt
-                            AgentBehaviour -> Agent : send(ACLMessage msg)
-                            Agent -> Agent : [algorithm related message]
-                            note left
-                                as part of each
-                                iteration agents
-                                send on another messages
-                            end note
-                        end
-                        AgentBehaviour -> Agent : send(ACLMessage msg)
-                        Agent -> DCCB : [AgentIterationData]
-                        note left
-                            AgentIterationData wrapped
-                            in ACLMessage sent via jade
-                            agent messaging platform
-                        end note
-
-                        break iterationNumber >= max iterations that was set by the user
-                        end
-                    end
-                    AgentBehaviour -> AgentBehaviour : setDone(true)
-                    AgentBehaviour -> Agent : send(ACLMessage msg)
-                    note right
-                        ACLMessage indicating the
-                        algorithm run has ended
+                end
+                loop until the running algorithm has converged
+                    AgentBehaviour -> AgentBehaviour : doIteration()
+                    note over AgentBehaviour
+                        the abstract instance
+                        of agent behaviour
+                        invokes the concrete
+                        algorithm instance's
+                        method
                     end note
-                    Agent -> DCCB : [runEnded]
+
+                    '// send iteration data to neighbours
+                    AgentBehaviour -> Agent : send(ACLMessage)
+                    Agent -> Agent : [IterationCollectedData]
+                    note left
+                        as part of each
+                        iteration, agents
+                        send the data of
+                        the latest iteration
+                        to other agents
+                    end note
+
+                    '// send iteration data to data collector
+                    AgentBehaviour -> Agent : send(ACLMessage)
+                    Agent -> DCC : [IterationCollectedData]
+                    note left
+                        the agent sends
+                        the data of
+                        the latest iteration
+                        to other agents
+                    end note
+
+                    DCCB -> DCC : send(ACLMessage)
+                    DCC -> Agent : [double]
+                    note over DCC
+                        once all agents
+                        sent their data
+                        of the latest iteration
+                        the data collector
+                        can complete its
+                        calculation and send
+                        the result to the all
+                        of the agents
+                    end note
+
+                    break iterationNumber >= max iterations that was set by the user
+                    end
                 end
 
-                DCCB -> DataCollector : algorithmProblemComboRunEnded()
-                DataCollector -> Experiment : algorithmProblemComboRunEnded(AlgorithmProblemResult)
+                DCCB -> Experiment : algorithmProblemComboRunEnded(AlgorithmProblemResult)
             end
         end
 
+        Experiment ->x Jade : <<terminate>>
+        deactivate Jade
+
         Experiment -> Service : experimentEnded(List<AlgorithmProblemResult>)
-        loop for each problem
-            Experiment ->x Problem : <<delete>>
-            loop for each agent
-                Problem ->x Agent : <<delete>>
-            end
-            deactivate Agent
-        end
-        deactivate Problem
 
         Service -> UiHandler : displayExperimentResults(List<AlgorithmProblemResult>)
         UiHandler -> ChartViewer : displayExperimentResults(List<AlgorithmProblemResult>)
+
         activate ChartViewer
 
     else while running the experiment the user stops it, at any point
 
         activate Problem
+        activate Jade
+
         u -> Service : stopExperiment()
         note left
             this alternative is identical
@@ -107,16 +138,16 @@ alt user selected a set of algorithm and problems
         end note
         Service -> Experiment : stop()
 
-        loop for each problem
-            Experiment ->x Problem : <<delete>>
-            loop for each agent
-                Experiment -> Agent : kill()
-                Problem ->x Agent : <<delete>>
-            end
-            deactivate Agent
+        loop for each agent
+            Experiment -> Agent : kill()
         end
-        deactivate Problem
+
+        deactivate Agent
+        Experiment ->x Jade : <<terminate>>
+        deactivate Jade
     end
+
+    deactivate Problem
 
 else user did not select a set of problems or a set of algorithms
 
