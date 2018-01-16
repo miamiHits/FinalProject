@@ -31,7 +31,6 @@ public class SmartHomeAgent extends Agent implements Serializable{
     private AgentIterationData currIteration;
     private SmartHomeAgentBehaviour algorithm;
     private boolean isZEROIteration;
-    private int IterationNum = 0;
     private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
     private boolean stop = false;
     private double cSum;
@@ -78,10 +77,6 @@ public class SmartHomeAgent extends Agent implements Serializable{
 
     public void setMyNeighborsShed(List<AgentIterationData> myNeighborsShed) {
         this.myNeighborsShed = myNeighborsShed;
-    }
-
-    public int getIterationNum() {
-        return IterationNum;
     }
 
     public boolean getStop() {return this.stop;}

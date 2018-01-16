@@ -234,7 +234,7 @@ public class PropertyWithData {
      * @param newState - current sensor's state what will be updated in the method
      * @param ticksToCharge - how many additional ticks of activation are required
      * @param idxTicks - the base index on the horizon from which the additional activations will be added
-     * @param offlineWork - ??? TODO gal what is the meaning of this argument?
+     * @param offlineWork
      * @return the new state of the sensor after the latest activation(the same as newState if no additional activation was required)
      */
     public double updateValueToSensor (double [] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork)
@@ -250,7 +250,7 @@ public class PropertyWithData {
             }
         }
 
-        if (newState > max)//TODO gal yarden are we ignoring the scenario where the extra activations break the passive rule of max?
+        if (newState > max)
             newState = max;
 
         Map<Sensor, Double> toSend = new HashMap<>();

@@ -103,14 +103,13 @@ public class ServiceTest {
     @Test
     public void experimentEndedWithError() throws Exception
     {
-        //TODO
+        //TODO implement
     }
 
     @Test
     public void saveExperimentResult() throws Exception
     {
-        //TODO
-        //not implemented yet
+        //TODO implement
     }
 
 }

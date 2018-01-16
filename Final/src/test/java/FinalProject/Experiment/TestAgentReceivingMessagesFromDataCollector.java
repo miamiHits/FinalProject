@@ -4,7 +4,6 @@ import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SmartHomeAgent;
 import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.DataObjects.AgentData;
-import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import jade.core.AID;
 import jade.core.Agent;
@@ -14,15 +13,12 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
-import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
 import test.common.TestException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
@@ -57,7 +53,7 @@ public class TestAgentReceivingMessagesFromDataCollector extends AbstractJadeInt
     {
         try
         {
-            initializeDataCollector(initializationAgent);
+            startRegularDataCollector(initializationAgent);
 
             // override the behaviour of the first agent
             List<AgentData> allAgents = problem.getAgentsData();
@@ -88,27 +84,6 @@ public class TestAgentReceivingMessagesFromDataCollector extends AbstractJadeInt
             e.printStackTrace();
         }
 
-    }
-
-    private void initializeDataCollector(Agent initializationAgent) throws StaleProxyException
-    {
-        Experiment mockExperiment = mock(Experiment.class);
-
-        Experiment.maximumIterations = MAXIMUM_ITERATIONS;
-
-        Map<String, Integer> numOfAgentsInProblems = new HashMap<>();
-        Map<String, double[]> prices = new HashMap<>();
-        numOfAgentsInProblems.put(problem.getId(), problem.getAgentsData().size());
-        prices.put(problem.getId(), problem.getPriceScheme());
-
-        Object[] collectorInitializationArgs = new Object[3];
-        collectorInitializationArgs[0] = numOfAgentsInProblems;
-        collectorInitializationArgs[1] = prices;
-        collectorInitializationArgs[2] = mockExperiment;
-        AgentController dataCollectorController = initializationAgent.getContainerController().createNewAgent(DataCollectionCommunicator.SERVICE_NAME,
-                DataCollectionCommunicator.class.getName(),
-                collectorInitializationArgs);
-        dataCollectorController.start();
     }
 
     private void registerAgent()

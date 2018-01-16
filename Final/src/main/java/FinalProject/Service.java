@@ -39,7 +39,6 @@ public class Service {
 
     public void addAlgorithmsToExperiment(List<String> algorithmNames, int iterationNumber)
     {
-        //TODO gal
         logger.info("algorithms added: " + algorithmNames.toString());
         List<SmartHomeAgentBehaviour> loadedAlgorithms = this.dalController.getAlgorithms(algorithmNames);
         this.experimentBuilder.addAlgorithms(loadedAlgorithms);
@@ -48,7 +47,6 @@ public class Service {
 
     public void addProblemsToExperiment(List<String> problemNames)
     {
-        //TODO gal
         logger.info("problems added: " + problemNames.toString());
         List<Problem> loadedProblems = this.dalController.getProblems(problemNames);
         this.experimentBuilder.addProblems(loadedProblems);
@@ -56,7 +54,6 @@ public class Service {
 
     public void runExperiment()
     {
-        //TODO gal
         try
         {
             this.currExperiment = this.experimentBuilder.createExperiment();
@@ -69,7 +66,6 @@ public class Service {
 
     public void stopExperiment()
     {
-        //TODO gal
         logger.info("experiment was stopped");
         this.currExperiment.stopExperiment();
     }
@@ -81,13 +77,13 @@ public class Service {
 
     public void experimentEndedWithError(Exception e)
     {
-        //TODO gal
+        //TODO notify the ui
         logger.error("error", e);
     }
 
     public void saveExperimentResult(List<AlgorithmProblemResult> results)
     {
-        //TODO
+        //TODO implement
     }
 
 }

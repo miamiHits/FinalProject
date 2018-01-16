@@ -61,7 +61,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                         result.length,
                         DataCollectionCommunicator.SERVICE_TYPE,
                         result[0].getName().toString()));
-                ACLMessage message = new ACLMessage(ACLMessage.REQUEST);//TODO gal reconsider the type
+                ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
                 message.setOntology(agent.getProblemId()+agent.getAlgoId());
                 for (DFAgentDescription foundAID : result)
                 {

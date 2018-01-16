@@ -12,6 +12,4 @@ public interface ExperimentInterface {
 
     void stopExperiment();
 
-    //TODO gal consider removing this one
-    boolean experimentCompleted();
 }

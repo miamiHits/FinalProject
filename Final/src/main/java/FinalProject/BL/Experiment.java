@@ -43,7 +43,6 @@ public class Experiment implements ExperimentInterface {
 
     public Experiment(Service service, List<Problem> problems, List<SmartHomeAgentBehaviour> algorithms)
     {
-        //TODO gal
         logger.info("experiment created");
         this.service = service;
         this.problems = problems;
@@ -55,7 +54,6 @@ public class Experiment implements ExperimentInterface {
     @Override
     public void runExperiment()
     {
-        //TODO gal
         logger.info("starting experiment thread");
         assert this.experimentThread != null : "experiment thread must be initiated";
         this.experimentThread.start();
@@ -67,7 +65,6 @@ public class Experiment implements ExperimentInterface {
     @Override
     public void algorithmProblemComboRunEnded(AlgorithmProblemResult result)
     {
-        //TODO gal
         logger.info(String.format("data collector completed processing configuration:\n" +
                         "algorithm - %s\n" +
                         "problem - %s"
@@ -85,7 +82,7 @@ public class Experiment implements ExperimentInterface {
         {
             try
             {
-                this.waitingBarrier.await();// TODO gal make it non-blocking
+                this.waitingBarrier.await();
             }
             catch (InterruptedException e)
             {
@@ -98,7 +95,6 @@ public class Experiment implements ExperimentInterface {
             {
                 logger.warn("got BrokenBarrierException while waiting on algorithmProblemComboRunEnded",
                         e);
-                //TODO gal is there anything to do here?
                 if (!experimentRunStoppedWithError.get() &&
                         !experimentRunStoppedByUser.get())
                 {
@@ -170,7 +166,6 @@ public class Experiment implements ExperimentInterface {
 
         @Override
         public void run() {
-            //TODO gal
             try
             {
                 initialize();
@@ -284,13 +279,12 @@ public class Experiment implements ExperimentInterface {
             {
                 logger.info("Experiment stopped by user");
                 killJade();
-                //TODO gal discard results
             }
             else if (experimentRunStoppedWithError.get())
             {
                 logger.info("Experiment stopped with Error!");
                 killJade();
-                //TODO gal display error message
+                //TODO display error message
             }
             else
             {
@@ -355,12 +349,6 @@ public class Experiment implements ExperimentInterface {
         {
             logger.info("experiment was stopped");
             killJade();
-
-            //not used for now since container.kill might be a better choice
-            // TODO gal remove when surely not needed
-            /*
-            killAllAgents();
-            */
         }
 
         private void killAllAgents() throws StaleProxyException
@@ -467,13 +455,4 @@ public class Experiment implements ExperimentInterface {
             logger.debug("killedPlatform");
         }
     }
-
-    //TODO gal consider removing this one
-    @Override
-    public boolean experimentCompleted()
-    {
-        return this.experimentCompleted;
-    }
-
-
 }

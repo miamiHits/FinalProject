@@ -3,6 +3,7 @@ package FinalProject.Experiment;
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SmartHomeAgent;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.DataObjects.AgentData;
 import FinalProject.BL.DataObjects.Problem;
 import FinalProject.BL.Experiment;
@@ -16,7 +17,11 @@ import jade.wrapper.StaleProxyException;
 import test.common.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.mockito.Mockito.mock;
 
 public abstract class AbstractJadeIntegrationTest extends Test
 {
@@ -28,6 +33,7 @@ public abstract class AbstractJadeIntegrationTest extends Test
     }
 
     public static int MAXIMUM_ITERATIONS = 4;
+    public static int currentTestIterationNumber = 0;
 
     protected SmartHomeAgentBehaviour algorithm;
     protected Problem problem;
@@ -88,6 +94,27 @@ public abstract class AbstractJadeIntegrationTest extends Test
         }
     }
 
+
+    protected void startRegularDataCollector(Agent initializationAgent) throws StaleProxyException
+    {
+        Experiment mockExperiment = mock(Experiment.class);
+
+        Experiment.maximumIterations = MAXIMUM_ITERATIONS;
+
+        Map<String, Integer> numOfAgentsInProblems = new HashMap<>();
+        Map<String, double[]> prices = new HashMap<>();
+        numOfAgentsInProblems.put(problem.getId(), problem.getAgentsData().size());
+        prices.put(problem.getId(), problem.getPriceScheme());
+
+        Object[] collectorInitializationArgs = new Object[3];
+        collectorInitializationArgs[0] = numOfAgentsInProblems;
+        collectorInitializationArgs[1] = prices;
+        collectorInitializationArgs[2] = mockExperiment;
+        AgentController dataCollectorController = initializationAgent.getContainerController().createNewAgent(DataCollectionCommunicator.SERVICE_NAME,
+                DataCollectionCommunicator.class.getName(),
+                collectorInitializationArgs);
+        dataCollectorController.start();
+    }
 
 
 }

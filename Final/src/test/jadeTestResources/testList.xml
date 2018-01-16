@@ -29,7 +29,22 @@
             the test will simulate an agent taking its part in an algorithm run, waiting for the message from the data collector with 10 seconds timeout.
             the main goal of the test is to find possible deadlock scenarios in the system and should be applied a significant amount of times for it to be effective
         </HowWorkTest>
-        <WhenTestPass>during the whole simulated experiment in the test, the test home agent received the required messages from the data collector</WhenTestPass>
+        <WhenTestPass>
+            during the whole simulated experiment in the test, the test home agent received the required messages from the data collector
+        </WhenTestPass>
+    </Test>
+
+    <Test name="Test Agents inner state" skip="false">
+        <TestClassName>FinalProject.Experiment.TestAgentsInnerState</TestClassName>
+        <WhatTest>verify that the inner state of all of the agents is correct for the whole run</WhatTest>
+        <HowWorkTest>
+            the test will run an experiment and extend the behaviour of the smart home agents and the data collector
+            the behaiour extensions will not change the behaviour but will will send themselves to a dedicated 3rd agent
+            this agent will test, via getters, the inner state of each agent
+        </HowWorkTest>
+        <WhenTestPass>
+            during the whole simulated experiment in the test, the inner state of the agents is correct
+        </WhenTestPass>
     </Test>
 
 
