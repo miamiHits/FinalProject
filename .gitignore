@@ -1,15 +1,2 @@
-Final/.idea/
-
-\.idea/compiler/.xml
-
-\.idea/dictionaries/ychen\.xml
-
-\.idea/
-
-*.class
-
-Final/target/
-target/maven-archiver/pom.properties
-*.iml
-Final/MTPs-Main-Container.txt
-Final/APDescription.txt
+.idea/*
+target/*
