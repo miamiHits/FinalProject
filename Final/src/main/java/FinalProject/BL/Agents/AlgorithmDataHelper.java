@@ -27,7 +27,7 @@ public class AlgorithmDataHelper
     }
 
     public void buildNewPropertyData(Rule rule, boolean isPassive) {
-        PropertyWithData prop= null;
+        PropertyWithData prop = null;
         if (allProperties.size() > 0)
         {
             prop = allProperties.stream().filter(p -> p.getName().equals(rule.getProperty()))
@@ -60,7 +60,7 @@ public class AlgorithmDataHelper
                     break;
             }
         }
-        else
+        else //is active
         {
             prop.setPrefix(rule.getPrefix());
             prop.setRt(rule.getPrefixType());

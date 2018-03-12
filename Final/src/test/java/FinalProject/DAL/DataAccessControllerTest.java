@@ -18,8 +18,8 @@ public class DataAccessControllerTest {
     @Before
     public void setUp() throws Exception
     {
-        JsonLoaderInterface jsonLoader = new JsonLoader("src\\test\\testResources\\jsons");
-        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader("src\\test\\testResources\\compiledAlgorithms");
+        JsonLoaderInterface jsonLoader = new JsonLoader("src/test/testResources/jsons");
+        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader("src/test/testResources/compiledAlgorithms");
         accessController = new DataAccessController(jsonLoader, algorithmLoader);
     }
 

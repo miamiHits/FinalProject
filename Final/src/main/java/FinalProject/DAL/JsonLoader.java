@@ -80,7 +80,8 @@ public class JsonLoader implements JsonLoaderInterface {
     private Problem loadSingleProblem(String problemName)
     {
         Problem problem = null;
-        final String filePath = jsonsDir.getPath() + "\\" + problemName + FILE_TYPE;
+//        final String filePath = problemName + FILE_TYPE;
+        final String filePath = jsonsDir.getPath() + "/" + problemName + FILE_TYPE;
         try(Reader reader = new BufferedReader(new FileReader(filePath)))
         {
             JsonParser parser = new JsonParser();
@@ -176,8 +177,7 @@ public class JsonLoader implements JsonLoaderInterface {
     @Override
     public List<String> getAllProblemNames()
     {
-        if (jsonsDir == null)
-        {
+        if (jsonsDir == null) {
             logger.error("jsonsDir is null!");
             return null;
         }
@@ -198,7 +198,8 @@ public class JsonLoader implements JsonLoaderInterface {
         }
 
         deviceDict = new HashMap<>(3);
-        String deviceDictPath = jsonsDir.getPath() + "\\" + DEVICE_DICT_FILE_NAME + FILE_TYPE;
+        String deviceDictPath = DEVICE_DICT_FILE_NAME + FILE_TYPE;
+//        String deviceDictPath = jsonsDir.getPath() + "\\" + DEVICE_DICT_FILE_NAME + FILE_TYPE;
 
         try(Reader reader = new BufferedReader(new FileReader(deviceDictPath)))
         {

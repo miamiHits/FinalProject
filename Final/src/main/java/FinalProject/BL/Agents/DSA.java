@@ -98,14 +98,16 @@ public class DSA extends SmartHomeAgentBehaviour {
         List <Rule> activeRules = new ArrayList<>();
         for (Rule rule : agent.getAgentData().getRules())
         {
-            if (rule.isActive())
+            if (rule.isActive()) {
                 activeRules.add(rule);
-            else
+            }
+            else {
                 passiveRules.add(rule);
+            }
         }
 
         passiveRules.forEach(pRule -> helper.buildNewPropertyData(pRule, true));
-        activeRules.forEach(pRule -> helper.buildNewPropertyData(pRule, false));
+        activeRules.forEach(rRule -> helper.buildNewPropertyData(rRule, false));
         helper.checkForPassiveRules();
         helper.SetActuatorsAndSensors();
         tryBuildScheduleBasic();
@@ -119,7 +121,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     {
         this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
         for(PropertyWithData prop : helper.getAllProperties().stream()
-                .filter(p->p.isPassiveOnly()==false)
+                .filter(p -> !p.isPassiveOnly())
                 .collect(Collectors.toList()))
         {
             if (prop.getPrefix() == Prefix.BEFORE)
@@ -127,7 +129,7 @@ public class DSA extends SmartHomeAgentBehaviour {
                 specialCaseOfBefore(prop);
 
             }
-            //lets see what is the state of the curr&related sensors till then
+            //lets see what is the state of the curr & related sensors till then
             prop.calcAndUpdateCurrState(prop.getMin(),START_TICK, this.iterationPowerConsumption, true);
             double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
             Map <String, Double> sensorsToCharge = new HashMap<>();
@@ -137,13 +139,15 @@ public class DSA extends SmartHomeAgentBehaviour {
                 if (entry.getValue() < 0)
                 {
                     double rateOfCharge = calcHowOftenNeedToCharge(entry.getKey(),entry.getValue(), ticksToWork, prop.getTargetTick());
-                    if (rateOfCharge > 0)
+                    if (rateOfCharge > 0) {
                         sensorsToCharge.put(entry.getKey(), rateOfCharge);
+                    }
                 }
             }
 
-            if (agent.isZEROIteration())
-            startWorkZERO(prop, sensorsToCharge, ticksToWork);
+            if (agent.isZEROIteration()) {
+                startWorkZERO(prop, sensorsToCharge, ticksToWork);
+            }
             else{
               startWork(prop, sensorsToCharge, ticksToWork);
             }
@@ -210,7 +214,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets)
     {
-        double bestPrice=helper.totalPriceConsumption;
+        double bestPrice = helper.totalPriceConsumption;
         List<Integer> newTicks = new ArrayList<>();
         double [] prevPowerConsumption = helper.clonArray(agent.getCurrIteration().getPowerConsumptionPerTick());
         double [] newPowerConsumption = helper.clonArray(agent.getCurrIteration().getPowerConsumptionPerTick());
@@ -230,7 +234,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             for (Integer tick : ticks)
             {
                 double temp = newPowerConsumption[tick];
-                newPowerConsumption[tick] = Double.sum(temp ,  prop.getPowerConsumedInWork());
+                newPowerConsumption[tick] = Double.sum(temp,  prop.getPowerConsumedInWork());
             }
             double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), newPowerConsumption, prevPowerConsumption
                     ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());

@@ -169,8 +169,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     /**
-     * agent might get messages from the AMS - agent management system, the smart home agent ignore these messages
-     * the method clears these messages from the agent's messages queue and print their contents as warnings
+     * agent might get messages from the AMS - agent management system, the smart home agent ignores these messages.
+     * this method clears these messages from the agent's messages queue and prints their contents as warnings
      */
     private void clearAmsMessages()
     {

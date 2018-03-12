@@ -69,7 +69,7 @@ public class JsonLoaderTest {
     @Test
     public void loadProblemsNoFileBad() throws Exception
     {
-        List<Problem> actual = loader.loadProblems(Collections.singletonList("some\\path\\to\\nowhere"));
+        List<Problem> actual = loader.loadProblems(Collections.singletonList("some/path/to/nowhere"));
         Assert.assertTrue(actual.isEmpty());
     }
 

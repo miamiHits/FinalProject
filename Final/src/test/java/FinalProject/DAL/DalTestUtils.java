@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class DalTestUtils {
 
-    public static final String JSON_DIR_PATH = "src\\test\\testResources\\jsons";
+    public static final String JSON_DIR_PATH = "src/test/testResources/jsons";
 
     public static Problem getProblemDm_7_1_2()
     {
