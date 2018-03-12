@@ -2,6 +2,7 @@ package FinalProject.BL.Agents;
 
 
 import FinalProject.BL.DataCollection.DataCollectionCommunicator;
+import FinalProject.BL.DataObjects.Rule;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.Utils;
@@ -97,6 +98,30 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    protected void initHelper() {
+        //classifying the rules by activeness, start creating the prop object
+        List<Rule> passiveRules = new ArrayList<>();
+        List <Rule> activeRules = new ArrayList<>();
+        for (Rule rule : agent.getAgentData().getRules())
+        {
+            if (rule.isActive()) {
+                activeRules.add(rule);
+            }
+            else {
+                passiveRules.add(rule);
+            }
+        }
+
+        passiveRules.forEach(pRule -> helper.buildNewPropertyData(pRule, true));
+        activeRules.forEach(rRule -> helper.buildNewPropertyData(rRule, false));
+        helper.checkForPassiveRules();
+        helper.SetActuatorsAndSensors();
+    }
+
+    protected int drawRandomNum(int start, int last) {
+        return start + (int) (Math.random() * ((last - start) + 1));
     }
 
     public abstract SmartHomeAgentBehaviour cloneBehaviour();

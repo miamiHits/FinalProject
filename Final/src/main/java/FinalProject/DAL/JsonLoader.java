@@ -198,8 +198,8 @@ public class JsonLoader implements JsonLoaderInterface {
         }
 
         deviceDict = new HashMap<>(3);
-        String deviceDictPath = DEVICE_DICT_FILE_NAME + FILE_TYPE;
-//        String deviceDictPath = jsonsDir.getPath() + "\\" + DEVICE_DICT_FILE_NAME + FILE_TYPE;
+//        String deviceDictPath = DEVICE_DICT_FILE_NAME + FILE_TYPE;
+        String deviceDictPath = jsonsDir.getPath() + "/" + DEVICE_DICT_FILE_NAME + FILE_TYPE;
 
         try(Reader reader = new BufferedReader(new FileReader(deviceDictPath)))
         {

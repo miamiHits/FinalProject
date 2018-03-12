@@ -326,7 +326,7 @@ public class AlgorithmDataHelper
         return newList;
     }
 
-    public List<Integer> clonList (List<Integer> old)
+    public List<Integer> cloneList(List<Integer> old)
     {
         List<Integer> newList = new ArrayList<>();
         newList.addAll(old);
