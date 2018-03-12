@@ -30,7 +30,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     @Override
-    protected void doIteration() {
+    public void doIteration() {
         if (agent.isZEROIteration()) {
             logger.info("Starting work on Iteration: 0");
             buildScheduleFromScratch();
