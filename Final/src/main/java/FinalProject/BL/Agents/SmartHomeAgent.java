@@ -19,12 +19,9 @@ import java.util.List;
 public class SmartHomeAgent extends Agent implements Serializable{
     public static final String SERVICE_TYPE = "ACCESS_FOR_ALL_AGENTS";
     public static final String SERVICE_NAME = "AGENT";//TODO gal consider this one to be the agent's name(not static)
-    public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));
-    public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_AMS = MessageTemplate.MatchSender(new AID("ams", false));
-    public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR =
-            MessageTemplate.and(
-                    MessageTemplate.not(MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR),
-                    MessageTemplate.not(MESSAGE_TEMPLATE_SENDER_IS_AMS));
+    public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR;
+    public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_AMS;
+    public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR;
 
     private AgentData agentData;
     private AgentIterationData bestIteration;
@@ -116,6 +113,12 @@ public class SmartHomeAgent extends Agent implements Serializable{
     @Override
     protected void setup() {
         super.setup();
+
+        MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));
+        MESSAGE_TEMPLATE_SENDER_IS_AMS = MessageTemplate.MatchSender(new AID("ams", false));
+        MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR = MessageTemplate.and(MessageTemplate.not(MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR),
+                MessageTemplate.not(MESSAGE_TEMPLATE_SENDER_IS_AMS));
+
         //Getting fields in order: Algorithm, agentData
         this.algorithm = (SmartHomeAgentBehaviour) getArguments()[0];
         this.agentData = (AgentData) getArguments()[1];
