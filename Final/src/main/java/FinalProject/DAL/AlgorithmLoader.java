@@ -95,7 +95,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
             fileName = fileName.substring(0, fileName.indexOf(UNCOMPILED_FILE_TYPE));
         }
 
-        boolean compilationSuccess = compile(path + "/" + fileName + UNCOMPILED_FILE_TYPE);
+        boolean compilationSuccess = compile(path + "\\" + fileName + UNCOMPILED_FILE_TYPE);
         if (!compilationSuccess)
         {
             throw new IOException("Could not compile class " + fileName);
@@ -103,7 +103,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 
         if (!verifyClassIsAlgorithm(fileName))
         {
-            File file = new File(compiledDir.getPath() + "/" + fileName + COMPILED_FILE_TYPE);
+            File file = new File(compiledDir.getPath() + "\\" + fileName + COMPILED_FILE_TYPE);
 
             if(!file.delete())
             {

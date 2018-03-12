@@ -14,8 +14,8 @@ import java.util.List;
 public class AlgorithmLoaderTest {
 
     private AlgorithmLoader loader;
-    private final static String compiledDirPath = "src/test/testResources/compiledAlgorithms";
-    private final static String uncompiledDirPath = "src/test/testResources/uncompiledAlgorithms";
+    private final static String compiledDirPath = "src\\test\\testResources\\compiledAlgorithms";
+    private final static String uncompiledDirPath = "src\\test\\testResources\\uncompiledAlgorithms";
     private List<String> classesToDelete;
 
     @Before
@@ -32,7 +32,7 @@ public class AlgorithmLoaderTest {
         loader = null;
 
         classesToDelete.forEach(className -> {
-            File file = new File(compiledDirPath + "/" + className + ".class");
+            File file = new File(compiledDirPath + "\\" + className + ".class");
 
             if(!file.delete())
             {
@@ -125,7 +125,7 @@ public class AlgorithmLoaderTest {
         String fileName = "BehaviourToCompile";
         loader.addAlgoToSystem(uncompiledDirPath, fileName + ".java");
 
-        File classFile = new File(compiledDirPath + "/" + fileName + ".class");
+        File classFile = new File(compiledDirPath + "\\" + fileName + ".class");
         Assert.assertTrue(classFile.exists());
 
         classesToDelete.add(fileName);
@@ -137,7 +137,7 @@ public class AlgorithmLoaderTest {
         String fileName = "SomeClassToCompile";
         loader.addAlgoToSystem(uncompiledDirPath, fileName + ".java");
 
-        File classFile = new File(compiledDirPath + "/" + fileName + ".class");
+        File classFile = new File(compiledDirPath + "\\" + fileName + ".class");
         Assert.assertFalse(classFile.exists());
     }
 
