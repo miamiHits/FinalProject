@@ -43,7 +43,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             tryBuildSchedule();
             logger.info("FINISHed ITER " + currentNumberOfIter);
         }
-        this.currentNumberOfIter ++;
+        this.currentNumberOfIter++;
     }
 
     private void receivedAllMessagesAndHandleThem() {
@@ -56,7 +56,11 @@ public class DSA extends SmartHomeAgentBehaviour {
 
 
     private void sentEpeakToDC(int iterationNum) {
-        IterationCollectedData agentIterSum = new IterationCollectedData(iterationNum, agent.getName(),agentIterationData.getPrice(), agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(), agent.getAlgoId(),(agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), (helper.totalPriceConsumption - this.agent.getcSum()));
+        IterationCollectedData agentIterSum = new IterationCollectedData(iterationNum, agent.getName(),
+                agentIterationData.getPrice(), agentIterationData.getPowerConsumptionPerTick(),
+                agent.getProblemId(), agent.getAlgoId(),
+                (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())),
+                (helper.totalPriceConsumption - this.agent.getcSum()));
         this.agentIteraionCollected = agentIterSum;
         sendIterationToCollector();
     }
@@ -71,18 +75,12 @@ public class DSA extends SmartHomeAgentBehaviour {
     {
         addBackgroundLoadToPriceScheme(this.iterationPowerConsumption);
         double price = calcPrice(this.iterationPowerConsumption);
-        double[] arr = helper.clonArray(this.iterationPowerConsumption);
+        double[] arr = helper.cloneArray(this.iterationPowerConsumption);
         logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
         logger.info("my PRICE is: " + price);
         agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, arr);
         agent.setCurrIteration(agentIterationData);
         agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId(), (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), -1);
-    }
-
-    private int drawCoin() {
-        int[] notRandomNumbers = new int [] {0,0,0,0,1,1,1,1,1,1};
-        double idx = Math.floor(Math.random() * notRandomNumbers.length);
-        return notRandomNumbers[(int) idx];
     }
 
     public void buildScheduleFromScratch() {
@@ -132,102 +130,30 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     }
 
+    //TODO: maybe split: draw coin and build new sched
     private void startWorkNonZeroIter(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
-        boolean buildNewShed = drawCoin() == 1 ? true : false;
+        boolean buildNewShed = drawCoin();
         if (buildNewShed)
         {
             prop.activeTicks.clear();
             List<Set<Integer>> subsets;
             List<Integer> newTicks;
 
-            if (ticksToWork <= 0)
-            {
+            if (ticksToWork <= 0) {
                 subsets = checkAllOptions(prop);
                 if (subsets == null) return;
             }
-            else{
+            else {
                 List<Integer> rangeForWork =  calcRangeOfWork(prop);
                 subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
             }
             newTicks = calcBestPrice(prop, subsets);
             updateTotals(prop, newTicks, sensorsToCharge);
         }
-        else{
+        else {
             updateTotals(prop, prop.activeTicks, sensorsToCharge);
         }
 
-    }
-
-    private List<Integer> calcRangeOfWork(PropertyWithData prop) {
-        List<Integer> rangeForWork = new ArrayList<>();
-
-        switch (prop.getPrefix())
-        {
-            case BEFORE: //NOT Include the hour
-                for (int i=0; i< prop.getTargetTick(); ++i)
-                {
-                    rangeForWork.add(i);
-                }
-                break;
-            case AFTER:
-                for (int i= (int) prop.getTargetTick() ; i< agent.getAgentData().getBackgroundLoad().length ; ++i)
-                {
-                    rangeForWork.add(i);
-                }
-                break;
-            case AT:
-                rangeForWork.add((int) prop.getTargetTick());
-                break;
-        }
-
-        return rangeForWork;
-    }
-
-    private List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets)
-    {
-        double bestPrice = helper.totalPriceConsumption;
-        List<Integer> newTicks = new ArrayList<>();
-        double [] prevPowerConsumption = helper.clonArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        double [] newPowerConsumption = helper.clonArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        //get the specific tick this device work in
-        List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
-        //remove them from the array
-        for (Integer tick : prevTicks)
-        {
-            newPowerConsumption[tick] = newPowerConsumption[tick] -  prop.getPowerConsumedInWork();
-        }
-
-        double [] copyOfNew = helper.clonArray(newPowerConsumption);
-        boolean improved = false;
-        for(Set<Integer> ticks : subsets)
-        {
-            //Adding the ticks to array
-            for (Integer tick : ticks)
-            {
-                double temp = newPowerConsumption[tick];
-                newPowerConsumption[tick] = Double.sum(temp,  prop.getPowerConsumedInWork());
-            }
-            double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), newPowerConsumption, prevPowerConsumption
-                    ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
-
-            if (res <= helper.totalPriceConsumption && res <= bestPrice)
-            {
-                bestPrice = res;
-                newTicks.clear();
-                newTicks.addAll(ticks);
-                improved = true;
-            }
-
-            //goBack
-            newPowerConsumption = helper.clonArray(copyOfNew);
-        }
-
-        if(!improved)
-        {
-            newTicks = helper.getDeviceToTicks().get(prop.getActuator());
-        }
-
-        return newTicks;
     }
 
     private List<Set<Integer>> checkAllOptions(PropertyWithData prop) {

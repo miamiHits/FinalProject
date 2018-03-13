@@ -21,15 +21,14 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
 
 public abstract class SmartHomeAgentBehaviour extends Behaviour implements Serializable{
 
     public static final int START_TICK = 0;
-    public  String agentName;
+    private final Random randGenerator = new Random();
     public SmartHomeAgent agent;
     protected int currentNumberOfIter;
     protected int FINAL_TICK;
@@ -41,6 +40,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected boolean finished = false;
     protected double[] iterationPowerConsumption;
 
+    //Main method! implemented by inheriting algos!
     protected abstract void doIteration();
 
     @Override
@@ -214,6 +214,81 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
             updateTotals(prop, myTicks, sensorsToCharge);
         }
+    }
+
+    protected boolean drawCoin() {
+//        int[] notRandomNumbers = new int [] {0,0,0,0,1,1,1,1,1,1};
+//        double idx = Math.floor(Math.random() * notRandomNumbers.length);
+//        return notRandomNumbers[(int) idx];
+        return randGenerator.nextBoolean();
+    }
+
+    protected List<Integer> calcRangeOfWork(PropertyWithData prop) {
+        List<Integer> rangeForWork = new ArrayList<>();
+
+        switch (prop.getPrefix())
+        {
+            case BEFORE: //NOT Include the hour
+                for (int i=0; i< prop.getTargetTick(); ++i) {
+                    rangeForWork.add(i);
+                }
+                break;
+            case AFTER:
+                for (int i= (int) prop.getTargetTick(); i < agent.getAgentData().getBackgroundLoad().length; ++i) {
+                    rangeForWork.add(i);
+                }
+                break;
+            case AT:
+                rangeForWork.add((int) prop.getTargetTick());
+                break;
+        }
+
+        return rangeForWork;
+    }
+
+    protected List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets)
+    {
+        double bestPrice = helper.totalPriceConsumption;
+        List<Integer> newTicks = new ArrayList<>();
+        double [] prevPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        //get the specific tick this device work in
+        List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        //remove them from the array
+        for (Integer tick : prevTicks) {
+            newPowerConsumption[tick] = newPowerConsumption[tick] -  prop.getPowerConsumedInWork();
+        }
+
+        double [] copyOfNew = helper.cloneArray(newPowerConsumption);
+        boolean improved = false;
+
+        //find the best option
+        for(Set<Integer> ticks : subsets)
+        {
+            //Adding the ticks to array
+            for (Integer tick : ticks) {
+                double temp = newPowerConsumption[tick];
+                newPowerConsumption[tick] = Double.sum(temp, prop.getPowerConsumedInWork());
+            }
+            double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), newPowerConsumption, prevPowerConsumption
+                    ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
+
+            if (res <= helper.totalPriceConsumption && res <= bestPrice) {
+                bestPrice = res;
+                newTicks.clear();
+                newTicks.addAll(ticks);
+                improved = true;
+            }
+
+            //goBack
+            newPowerConsumption = helper.cloneArray(copyOfNew);
+        }
+
+        if(!improved) {
+            newTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        }
+
+        return newTicks;
     }
 
     public abstract SmartHomeAgentBehaviour cloneBehaviour();

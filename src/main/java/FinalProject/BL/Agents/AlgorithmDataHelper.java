@@ -16,7 +16,6 @@ public class AlgorithmDataHelper
     private List<PropertyWithData> allProperties;
     private SmartHomeAgent agent;
     private List<double[]> neighboursPriceConsumption = new ArrayList<>();
-    private List<Integer> rushTicks = new ArrayList<>();
     private final static Logger logger = Logger.getLogger(AlgorithmDataHelper.class);
     private double [] powerConsumption;
 
@@ -243,7 +242,7 @@ public class AlgorithmDataHelper
         List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
         for (AgentIterationData agentData : myNeighborsShed)
         {
-            double [] neighbourConsumption = clonArray(agentData.getPowerConsumptionPerTick());
+            double [] neighbourConsumption = cloneArray(agentData.getPowerConsumptionPerTick());
             neighboursPriceConsumption.add(neighbourConsumption);
         }
     }
@@ -302,7 +301,7 @@ public class AlgorithmDataHelper
 
         List<double[]> toCalc = new ArrayList<>();
         toCalc.addAll(this.neighboursPriceConsumption);
-        double [] myPowerCons = clonArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
         toCalc.add(myPowerCons);
         this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, toCalc);
         logger.info("TOTAL power consumption is : " + this.totalPriceConsumption);
@@ -319,7 +318,7 @@ public class AlgorithmDataHelper
         }
     }
 
-    public double[] clonArray(double[] old)
+    public double[] cloneArray(double[] old)
     {
         double[] newList = Arrays.copyOf(old, old.length);
 
