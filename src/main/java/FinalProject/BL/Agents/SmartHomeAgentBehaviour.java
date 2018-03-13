@@ -6,6 +6,7 @@ import FinalProject.BL.DataObjects.AgentData;
 import FinalProject.BL.DataObjects.Prefix;
 import FinalProject.BL.DataObjects.Rule;
 import FinalProject.BL.DataObjects.Sensor;
+import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.Utils;
@@ -44,6 +45,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     //Main method! implemented by inheriting algos!
     protected abstract void doIteration();
+    //Called by done() when returning true
+    protected abstract void onTermination();
 
     @Override
     public void action() {
@@ -442,5 +445,19 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         } while (receivedMessage != null);
     }
 
+    @Override
+    public boolean done() {
+        boolean agentFinishedExperiment = currentNumberOfIter > Experiment.maximumIterations;
+        if (agentFinishedExperiment) {
+            logger.info(Utils.parseAgentName(this.agent) + " ended its final iteration");
+            logger.info(Utils.parseAgentName(this.agent) + " about to send data to DataCollector");
+
+            //impl by child
+            onTermination();
+
+            this.agent.doDelete();
+        }
+        return agentFinishedExperiment;
+    }
 
 }

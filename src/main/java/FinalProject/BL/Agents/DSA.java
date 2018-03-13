@@ -152,18 +152,22 @@ public class DSA extends SmartHomeAgentBehaviour {
         return tick;
     }
 
+//    @Override
+//    public boolean done() {
+//        boolean agentFinishedExperiment = currentNumberOfIter > Experiment.maximumIterations;
+//        if (agentFinishedExperiment) {
+//            logger.info(Utils.parseAgentName(this.agent) + " ended its final iteration");
+//            logger.info(Utils.parseAgentName(this.agent) + " about to send data to DataCollector");
+//
+//
+//            this.agent.doDelete();
+//        }
+//        return agentFinishedExperiment;
+//    }
+
     @Override
-    public boolean done() {
-        boolean agentFinishedExperiment = currentNumberOfIter > Experiment.maximumIterations;
-        if (agentFinishedExperiment) {
-            logger.info(Utils.parseAgentName(this.agent) + " ended its final iteration");
-            logger.info(Utils.parseAgentName(this.agent) + " about to send data to DataCollector");
-
-            receivedAllMessagesAndHandleThem();
-            logger.info(Utils.parseAgentName(this.agent) + " Just sent to DataCollector final calculations");
-
-            this.agent.doDelete();
-        }
-        return agentFinishedExperiment;
+    public void onTermination() {
+        receivedAllMessagesAndHandleThem();
+        logger.info(Utils.parseAgentName(this.agent) + " Just sent to DataCollector final calculations");
     }
 }

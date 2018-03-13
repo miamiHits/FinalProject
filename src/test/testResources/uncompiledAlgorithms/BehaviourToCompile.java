@@ -9,6 +9,11 @@ public class BehaviourToCompile extends SmartHomeAgentBehaviour {
     }
 
     @Override
+    protected void onTermination() {
+
+    }
+
+    @Override
     protected void sendIterationToCollector()
     {
         //nothing here
