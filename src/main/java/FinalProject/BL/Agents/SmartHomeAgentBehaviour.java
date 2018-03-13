@@ -2,6 +2,7 @@ package FinalProject.BL.Agents;
 
 
 import FinalProject.BL.DataCollection.DataCollectionCommunicator;
+import FinalProject.BL.DataObjects.AgentData;
 import FinalProject.BL.DataObjects.Prefix;
 import FinalProject.BL.DataObjects.Rule;
 import FinalProject.BL.DataObjects.Sensor;
@@ -22,6 +23,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
 
@@ -160,67 +162,71 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void startWorkZERO(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
-        List<Integer> myTicks = new ArrayList<>();
         if (ticksToWork <= 0) {
             prop.calcAndUpdateCurrState(prop.getTargetValue(), FINAL_TICK, iterationPowerConsumption, false);
             List<Integer> activeTicks = helper.cloneList(prop.activeTicks);
             helper.getDeviceToTicks().put(prop.getActuator(), activeTicks);
+            return;
         }
-        else {
-            int randomNum = 0;
-            for (int i = 0; i < ticksToWork; ++i) {
-                switch (prop.getPrefix()) {
-                    case BEFORE:    // Min + (int)(Math.random() * ((Max - Min) + 1)). NOT INCLUDE THE HOUR
-                        randomNum = START_TICK + (int) (Math.random() * (((prop.getTargetTick()-1) - START_TICK) + 1));
-                        break;
-                    case AFTER:
-                        if (prop.getTargetTick() + ticksToWork > (this.iterationPowerConsumption.length)) {
-                            double targetTick = prop.getTargetTick();
-                            for (int j= 0 ; j< ticksToWork; j++) {
-                                randomNum = drawRandomNum(0,(int) targetTick - j);
-                                if (!myTicks.contains(randomNum))
-                                    myTicks.add(randomNum);
-                            }
-                            i = (int)ticksToWork;
-                        }
-                        else {
-                            randomNum = (int) (prop.getTargetTick() + (int) (Math.random() * ((FINAL_TICK - prop.getTargetTick()) + 1)));
-                        }
-                        break;
-                    case AT:
-                        if (ticksToWork == 1) {
-                            myTicks.add((int)prop.getTargetTick());
-                        }
-                        else
-                        {   double targetTick = prop.getTargetTick();
-                            for (int j = 0 ; j< ticksToWork; j++) {
-                                randomNum = drawRandomNum(0,(int)targetTick - j);
-                                if (!myTicks.contains(randomNum)) {
-                                    myTicks.add(randomNum);
-                                }
-                            }
-                        }
-                        break;
-                }
-                
-                if (prop.getPrefix() == Prefix.AT) break;
-                if (!myTicks.contains(randomNum)) {
-                    myTicks.add(randomNum);
-                }
-                else {
-                    i--;
-                }
-            }
-
-            updateTotals(prop, myTicks, sensorsToCharge);
-        }
+        List<Integer> myTicks = generateRandomTicksForProp(prop, ticksToWork);
+        updateTotals(prop, myTicks, sensorsToCharge);
     }
 
-    protected boolean drawCoin() {
+    private List<Integer> generateRandomTicksForProp(PropertyWithData prop, double ticksToWork) {
+        List<Integer> myTicks = new ArrayList<>();
+        //generate random schedule based on prop's rules
+        int randomNum = 0;
+        for (int i = 0; i < ticksToWork; ++i) {
+            switch (prop.getPrefix()) {
+                case BEFORE:    // Min + (int)(Math.random() * ((Max - Min) + 1)). NOT INCLUDE THE HOUR
+                    randomNum = START_TICK + (int) (Math.random() * (((prop.getTargetTick() - 1) - START_TICK) + 1));
+                    break;
+                case AFTER:
+                    if (prop.getTargetTick() + ticksToWork > (this.iterationPowerConsumption.length)) {
+                        double targetTick = prop.getTargetTick();
+                        for (int j= 0 ; j< ticksToWork; j++) {
+                            randomNum = drawRandomNum(0,(int) targetTick - j);
+                            if (!myTicks.contains(randomNum))
+                                myTicks.add(randomNum);
+                        }
+                        i = (int)ticksToWork;
+                    }
+                    else {
+                        randomNum = (int) (prop.getTargetTick() + (int) (Math.random() * ((FINAL_TICK - prop.getTargetTick()) + 1)));
+                    }
+                    break;
+                case AT:
+                    if (ticksToWork == 1) {
+                        myTicks.add((int)prop.getTargetTick());
+                    }
+                    else {   double targetTick = prop.getTargetTick();
+                        for (int j = 0 ; j< ticksToWork; j++) {
+                            randomNum = drawRandomNum(0,(int)targetTick - j);
+                            if (!myTicks.contains(randomNum)) {
+                                myTicks.add(randomNum);
+                            }
+                        }
+                    }
+                    break;
+            }
+
+            if (prop.getPrefix() == Prefix.AT) break;
+            else if (!myTicks.contains(randomNum)) {
+                myTicks.add(randomNum);
+            }
+            else {
+                i--;
+            }
+        }
+        return myTicks;
+    }
+
+    protected boolean drawCoin(float probabilityForTrue) {
 //        int[] notRandomNumbers = new int [] {0,0,0,0,1,1,1,1,1,1};
 //        double idx = Math.floor(Math.random() * notRandomNumbers.length);
-//        return notRandomNumbers[(int) idx];
-        return randGenerator.nextBoolean();
+//        return notRandomNumbers[(int) idx] == 1;
+
+        return randGenerator.nextFloat() < probabilityForTrue;
     }
 
     protected List<Integer> calcRangeOfWork(PropertyWithData prop) {
@@ -289,6 +295,65 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
 
         return newTicks;
+    }
+
+    protected List<Set<Integer>> checkAllSubsetOptions(PropertyWithData prop) {
+        List<Integer> rangeForWork =  calcRangeOfWork(prop);
+         double currState = prop.getSensor().getCurrentState();
+         double minVal = prop.getTargetValue();
+         double deltaIfNoActiveWorkIsDone = (currState - minVal) - ((Math.abs(prop.getDeltaWhenWorkOffline())) * rangeForWork.size());
+         int ticksToWork = 0;
+         if (deltaIfNoActiveWorkIsDone > 0) {
+             return null;
+         }
+         for (int i = 0; i < rangeForWork.size(); ++i) {
+             ticksToWork++;
+             deltaIfNoActiveWorkIsDone = Double.sum(deltaIfNoActiveWorkIsDone, prop.getDeltaWhenWork());
+             if(deltaIfNoActiveWorkIsDone > 0) {
+                 break;
+             }
+         }
+        return helper.getSubsets(rangeForWork, ticksToWork);
+    }
+
+    protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
+        prop.activeTicks.clear();
+        List<Set<Integer>> subsets;
+        List<Integer> newTicks;
+
+        if (ticksToWork <= 0) {
+            subsets = checkAllSubsetOptions(prop);
+            if (subsets == null) return;
+        }
+        else {
+            List<Integer> rangeForWork = calcRangeOfWork(prop);
+            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
+        }
+        newTicks = calcBestPrice(prop, subsets);
+        updateTotals(prop, newTicks, sensorsToCharge);
+    }
+
+    protected void sentEpeakToDataCollector(int iterationNum) {
+        Set<String> neighborhood = agent.getAgentData().getNeighbors().stream()
+                .map(AgentData::getName)
+                .collect(Collectors.toSet());
+        IterationCollectedData agentIterSum = new IterationCollectedData(
+                iterationNum, agent.getName(), agentIterationData.getPrice(),
+                agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
+                agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getcSum());
+        this.agentIteraionCollected = agentIterSum;
+        sendIterationToCollector();
+    }
+
+    protected void beforeIterationIsDone() {
+        addBackgroundLoadToPriceScheme(this.iterationPowerConsumption);
+        double price = calcPrice(this.iterationPowerConsumption);
+        double[] arr = helper.cloneArray(this.iterationPowerConsumption);
+        logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
+        logger.info("my PRICE is: " + price);
+        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, arr);
+        agent.setCurrIteration(agentIterationData);
+        agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId(), (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), -1);
     }
 
     public abstract SmartHomeAgentBehaviour cloneBehaviour();
