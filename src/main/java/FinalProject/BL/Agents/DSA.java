@@ -1,10 +1,8 @@
 package FinalProject.BL.Agents;
-import FinalProject.BL.DataObjects.*;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
 
@@ -61,8 +59,8 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     private void receivedAllMessagesAndHandleThem() {
-        List<ACLMessage> messageList = waitForNeighbourMessages();
-        parseMessages(messageList);
+        List<ACLMessage> messageList = waitForNeighbourAndCollectorMessages();
+        readNeighboursMsgs(messageList);
         helper.calcPriceSchemeForAllNeighbours();
         helper.calcTotalPowerConsumption(agent.getcSum());
         sentEpeakToDataCollector(currentNumberOfIter-1);
