@@ -66,6 +66,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void updatePowerConsumption() {
         helper.calcPowerConsumptionForAllNeighbours();
+        agent.setcSum(calcCsum());
         helper.calcTotalPowerConsumption(agent.getcSum());
         updateAgentIterationData(currentNumberOfIter - 1); //TODO: maybe not needed
     }
