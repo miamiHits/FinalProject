@@ -234,7 +234,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
                     {
                         message.addReceiver(foundAID.getName());
                     }
-                    message.setContentObject(this.agentIteraionCollected);
+                    message.setContentObject(this.agentIterationCollected);
                     agent.send(message);
                 }
                 else
@@ -259,7 +259,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
 
             try {
                 System.out.println("test home agent about to send the message " + aclmsg.toString());
-                aclmsg.setContentObject(this.agentIteraionCollected);
+                aclmsg.setContentObject(this.agentIterationCollected);
                 agent.send(aclmsg);
             } catch (IOException e) {
                 failed("test home agent failed sending the fake iteration data to it's neighbours");
@@ -301,7 +301,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
             System.out.println("test home agent starts new iteration");
             this.collectNeighboursMessages();
             verifyNeighboursDidNotStartNewIteration();
-            this.agentIteraionCollected = new IterationCollectedData(
+            this.agentIterationCollected = new IterationCollectedData(
                     currentIterationNumber,
                     agent.getName(),
                     10,
@@ -320,7 +320,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
                 return;
             }
             this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR);
-            this.agentIteraionCollected = new IterationCollectedData(
+            this.agentIterationCollected = new IterationCollectedData(
                     currentIterationNumber,
                     agent.getName(),
                     10,

@@ -17,7 +17,6 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
@@ -37,16 +36,88 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected int FINAL_TICK;
     protected AlgorithmDataHelper helper;
     protected AgentIterationData agentIterationData;
-    protected IterationCollectedData agentIteraionCollected;
+    protected IterationCollectedData agentIterationCollected;
 
     private final static Logger logger = Logger.getLogger(SmartHomeAgentBehaviour.class);
     protected boolean finished = false;
     protected double[] iterationPowerConsumption;
 
-    //Main method! implemented by inheriting algos!
+    /**
+     * Main method! implemented by inheriting algos!
+     */
     protected abstract void doIteration();
-    //Called by done() when returning true
+
+    /**
+     * Called by {@code done()} when returning true
+     */
     protected abstract void onTermination();
+
+    protected void tryBuildScheduleBasic() {
+        this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
+        List<PropertyWithData> helperNonPassiveOnlyProps = helper.getAllProperties().stream()
+                .filter(p -> !p.isPassiveOnly())
+                .collect(Collectors.toList());
+        for (PropertyWithData prop : helperNonPassiveOnlyProps) {
+            if (prop.getPrefix() == Prefix.BEFORE) {
+                prop.calcAndUpdateCurrState(prop.getTargetValue(),START_TICK,
+                        this.iterationPowerConsumption, true);
+            }
+            //lets see what is the state of the curr & related sensors till then
+            prop.calcAndUpdateCurrState(prop.getMin(),START_TICK, this.iterationPowerConsumption, true);
+            double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
+            Map<String, Double> sensorsToCharge = new HashMap<>();
+            //check if there is sensor in the same ACT that is negative (usually related to charge)
+            prop.getRelatedSensorsDelta().forEach((key, value) -> {
+                if (value < 0) {
+                    double rateOfCharge = calcHowManyTicksNeedToCharge(key, value, ticksToWork);
+                    if (rateOfCharge > 0) {
+                        sensorsToCharge.put(key, rateOfCharge);
+                    }
+                }
+            });
+            generateScheduleForProp(prop, ticksToWork, sensorsToCharge);
+        }
+    }
+
+    /**
+     * generate schedule for the {@code prop} and update the sensors
+     * @param prop the property to which the schedule should be generated
+     * @param ticksToWork number of active ticks needed
+     * @param sensorsToCharge sensors affected
+     */
+    protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Double> sensorsToCharge);
+
+    protected int calcHowManyTicksNeedToCharge(String key, double delta, double ticksToWork) {
+        int ticks = 0;
+        PropertyWithData prop;
+        prop = helper.getAllProperties().stream()
+                .filter(x -> x.getName().equals(key))
+                .findFirst()
+                .orElse(null);
+        if (prop == null) {
+            logger.warn(agent.getAgentData().getName() + " Try to look for the related sensors, but not found like this");
+            return -1;
+        }
+
+        double currState = prop.getSensor().getCurrentState();
+        //lets see how many time we'll need to charge it.
+        for (int i=0 ; i < ticksToWork; ++i) {
+            currState += delta;
+            if (currState < prop.getMin()) {
+                ticks++;
+                currState = prop.getMax();
+            }
+        }
+
+        //no need to charge it between the work. lets just update the sensor
+        if (ticks == 0) {
+            Map<Sensor, Double> toSend = new HashMap<>();
+            toSend.put(prop.getSensor(), currState);
+            prop.getActuator().act(toSend);
+        }
+
+        return ticks;
+    }
 
     @Override
     public void action() {
@@ -80,8 +151,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 {
                     message.addReceiver(foundAID.getName());
                 }
-                message.setContentObject(agentIteraionCollected);
-                logger.debug(String.format("sending iteration #%d data to data collector", agentIteraionCollected.getIterNum()));
+                message.setContentObject(agentIterationCollected);
+                logger.debug(String.format("sending iteration #%d data to data collector", agentIterationCollected.getIterNum()));
                 agent.send(message);
             }
             else
@@ -136,18 +207,19 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return start + (int) (Math.random() * ((last - start) + 1));
     }
 
-    protected void updateTotals(PropertyWithData prop, List<Integer> myTicks, Map<String, Double> sensorsToCharge)
-    {
+    protected void updateTotals(PropertyWithData prop, List<Integer> myTicks, Map<String, Double> sensorsToCharge) {
         List<Integer> activeTicks = helper.cloneList(myTicks);
         helper.getDeviceToTicks().put(prop.getActuator(), activeTicks);
         for (int i = 0; i < myTicks.size(); ++i) {
-            iterationPowerConsumption [myTicks.get(i)] = Double.sum(this.iterationPowerConsumption[myTicks.get(i)],
+            iterationPowerConsumption[myTicks.get(i)] = Double.sum(this.iterationPowerConsumption[myTicks.get(i)],
                     prop.getPowerConsumedInWork());
             if (!sensorsToCharge.isEmpty()) {
                 for (Map.Entry<String,Double> entry : sensorsToCharge.entrySet()) {
-                    PropertyWithData brother = helper.getAllProperties().stream().filter(x->x.getName().equals(entry.getKey())).findFirst().get();
+                    PropertyWithData brother = helper.getAllProperties().stream()
+                            .filter(property -> property.getName().equals(entry.getKey()))
+                            .findFirst().orElse(null);
                     double timeToCharge = (i + 1) % entry.getValue();
-                    if (i == (int) timeToCharge) {
+                    if (i == (int) timeToCharge && brother != null) {
                         brother.updateValueToSensor(this.iterationPowerConsumption, brother.getMin(), entry.getValue(), i, true);
                     }
                 }
@@ -156,12 +228,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
         //update the sensor
         double currState = prop.getSensor().getCurrentState() + (prop.getDeltaWhenWork() * myTicks.size());
-        if (currState > prop.getMax())
+        if (currState > prop.getMax()) {
             currState = prop.getMax();
-        Map<Sensor, Double> toSend = new HashMap<>();
-        toSend.put(prop.getSensor(), currState);
-        prop.getActuator().act(toSend);
-
+        }
+        Map<Sensor, Double> sensorToStateMap = new HashMap<>();
+        sensorToStateMap.put(prop.getSensor(), currState);
+        prop.getActuator().act(sensorToStateMap);
     }
 
     protected void startWorkZERO(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
@@ -344,7 +416,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 iterationNum, agent.getName(), agentIterationData.getPrice(),
                 agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
                 agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getcSum());
-        this.agentIteraionCollected = agentIterSum;
+        this.agentIterationCollected = agentIterSum;
         sendIterationToCollector();
     }
 
@@ -356,7 +428,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         logger.info("my PRICE is: " + price);
         agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, arr);
         agent.setCurrIteration(agentIterationData);
-        agentIteraionCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId(), (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), -1);
+        agentIterationCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(), agent.getAlgoId(), (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), -1);
     }
 
     public abstract SmartHomeAgentBehaviour cloneBehaviour();

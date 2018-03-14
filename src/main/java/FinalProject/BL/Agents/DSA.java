@@ -1,7 +1,4 @@
 package FinalProject.BL.Agents;
-import FinalProject.BL.Experiment;
-import FinalProject.BL.IterationData.AgentIterationData;
-import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.BL.DataObjects.*;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
@@ -51,6 +48,8 @@ public class DSA extends SmartHomeAgentBehaviour {
         return helper;
     }
 
+    public double[] getPowerConsumption() { return this.iterationPowerConsumption;}
+
     @Override
     public DSA cloneBehaviour() {
         DSA newInstance = new DSA();
@@ -60,8 +59,6 @@ public class DSA extends SmartHomeAgentBehaviour {
         newInstance.agentIterationData = null;//will be created as part of the behaviour run(see buildScheduleFromScratch)
         return newInstance;
     }
-
-    public double[] getPowerConsumption() { return this.iterationPowerConsumption;}
 
     private void receivedAllMessagesAndHandleThem() {
         List<ACLMessage> messageList = waitForNeighbourMessages();
@@ -80,35 +77,9 @@ public class DSA extends SmartHomeAgentBehaviour {
         initHelper();
         tryBuildScheduleBasic();
     }
-    //TODO move this up somehow!
 
-    private void tryBuildScheduleBasic() {
-        this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
-        List<PropertyWithData> helperNonPassiveOnlyProps = helper.getAllProperties().stream()
-                .filter(p -> !p.isPassiveOnly())
-                .collect(Collectors.toList());
-        for(PropertyWithData prop : helperNonPassiveOnlyProps) {
-            if (prop.getPrefix() == Prefix.BEFORE) {
-                prop.calcAndUpdateCurrState(prop.getTargetValue(),START_TICK, this.iterationPowerConsumption, true);
-            }
-            //lets see what is the state of the curr & related sensors till then
-            prop.calcAndUpdateCurrState(prop.getMin(),START_TICK, this.iterationPowerConsumption, true);
-            double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
-            Map<String, Double> sensorsToCharge = new HashMap<>();
-            //check if there is sensor in the same ACT that is negative (usually related to charge)
-            for (Map.Entry<String,Double> entry : prop.getRelatedSensorsDelta().entrySet()) {
-                if (entry.getValue() < 0) {
-                    double rateOfCharge = calcHowOftenNeedToCharge(entry.getKey(),entry.getValue(), ticksToWork);
-                    if (rateOfCharge > 0) {
-                        sensorsToCharge.put(entry.getKey(), rateOfCharge);
-                    }
-                }
-            }
-            startWork(prop, ticksToWork, sensorsToCharge);
-        }
-    }
-
-    private void startWork(PropertyWithData prop, double ticksToWork, Map<String, Double> sensorsToCharge) {
+    @Override
+    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Double> sensorsToCharge) {
         if (agent.isZEROIteration()) {
             startWorkZERO(prop, sensorsToCharge, ticksToWork);
         }
@@ -120,39 +91,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
     }
 
-    private int calcHowOftenNeedToCharge(String key, double delta, double ticksToWork) {
-        int tick = 0;
-        PropertyWithData prop;
-        prop = helper.getAllProperties().stream()
-                .filter(x -> x.getName().equals(key))
-                .findFirst()
-                .orElse(null);
-        if (prop == null) {
-            logger.warn(agent.getAgentData().getName() + " Try to look for the related sensors, but not found like this");
-            return -1;
-        }
-
-        double currState = prop.getSensor().getCurrentState();
-        //lets see how many time we'll need to charge it.
-        for (int i=0 ; i < ticksToWork; ++i) {
-           currState += delta;
-           if (currState < prop.getMin()) {
-               tick++;
-               currState = prop.getMax();
-           }
-        }
-
-        //no need to charge it between the work. lets just update the sensor
-        if (tick == 0) {
-            Map<Sensor, Double> toSend = new HashMap<>();
-            toSend.put(prop.getSensor(), currState);
-            prop.getActuator().act(toSend);
-        }
-
-        return tick;
-    }
-
-//    @Override
+    //    @Override
 //    public boolean done() {
 //        boolean agentFinishedExperiment = currentNumberOfIter > Experiment.maximumIterations;
 //        if (agentFinishedExperiment) {
