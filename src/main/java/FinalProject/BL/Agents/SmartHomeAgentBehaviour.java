@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateCSum;
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
 
 public abstract class SmartHomeAgentBehaviour extends Behaviour implements Serializable{
@@ -378,7 +379,27 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         updateTotals(prop, newTicks, sensorsToCharge);
     }
 
-    protected void sentEpeakToDataCollector(int iterationNum) {
+    protected double calcCsum() {
+        List<double[]> scheds = agent.getMyNeighborsShed().stream()
+                .map(AgentIterationData::getPowerConsumptionPerTick)
+                .collect(Collectors.toList());
+        scheds.add(iterationPowerConsumption);
+        return calculateCSum(scheds, agent.getAgentData().getPriceScheme());
+    }
+//    protected void updateAgentIterationData(int iterationNum) {
+//        Set<String> neighborhood = agent.getAgentData().getNeighbors().stream()
+//                .map(AgentData::getName)
+//                .collect(Collectors.toSet());
+//        IterationCollectedData agentIterSum = new IterationCollectedData(
+//                iterationNum, agent.getName(), agentIterationData.getPrice(),
+//                agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
+//                agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getcSum());
+//        this.agentIterationCollected = agentIterSum;
+//        sendIterationToCollector();
+//    }
+
+    //TODO: REMOVED send to collector
+    protected void updateAgentIterationData(int iterationNum) {
         Set<String> neighborhood = agent.getAgentData().getNeighbors().stream()
                 .map(AgentData::getName)
                 .collect(Collectors.toSet());
@@ -387,11 +408,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
                 agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getcSum());
         this.agentIterationCollected = agentIterSum;
-        sendIterationToCollector();
+//        sendIterationToCollector();
     }
 
     protected void beforeIterationIsDone() {
-        addBackgroundLoadToPriceScheme(this.iterationPowerConsumption);
+        addBackgroundLoadToPowerConsumption(this.iterationPowerConsumption);
         double price = calcPrice(this.iterationPowerConsumption);
         double[] arr = helper.cloneArray(this.iterationPowerConsumption);
         logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
@@ -403,17 +424,22 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     /**
-     * a blocking method that waits far receiving messages from all neighbours, and and clears all AMS messages
+     * a blocking method that waits far receiving messages from all neighbours and collector,
+     * and and clears all AMS messages
      * @return List of messages from all neighbours
      */
     protected List<ACLMessage> waitForNeighbourAndCollectorMessages() {
         List<ACLMessage> messages = waitForNeighbourMessages();
-        clearAmsMessages();
 
         waitForCollectorMessage();
         return messages;
     }
 
+    /**
+     *a blocking method that waits far receiving messages from all neighbours,
+     * and and clears all AMS messages
+     * @return List of messages from all neighbours
+     */
     protected List<ACLMessage> waitForNeighbourMessages() {
         List<ACLMessage> messages = new ArrayList<>();
         ACLMessage receivedMessage;
@@ -423,6 +449,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
             messages.add(receivedMessage);
         }
+
+        //clear queue from ams messages
+        clearAmsMessages();
+
         return messages;
     }
 
@@ -472,7 +502,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         this.helper = new AlgorithmDataHelper(agent);
     }
 
-    protected void addBackgroundLoadToPriceScheme(double[] powerConsumption) {
+    protected void addBackgroundLoadToPowerConsumption(double[] powerConsumption) {
         double [] backgroundLoad = agent.getAgentData().getBackgroundLoad();
         for (int i = 0 ; i < backgroundLoad.length; ++i) {
             powerConsumption[i] = powerConsumption[i] + backgroundLoad[i];

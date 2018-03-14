@@ -81,7 +81,7 @@ public class AlgorithmDataHelper
 
         }
     }
-    
+
     public void SetActuatorsAndSensors()
     {
         ////<propName, Act>
@@ -232,13 +232,11 @@ public class AlgorithmDataHelper
         return res;
     }
 
-    public void calcPriceSchemeForAllNeighbours()
-    {
+    public void calcPowerConsumptionForAllNeighbours() {
         neighboursPriceConsumption.clear();
         logger.info("Saving all my neighbors sched - stage 1");
         List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
-        for (AgentIterationData agentData : myNeighborsShed)
-        {
+        for (AgentIterationData agentData : myNeighborsShed) {
             double [] neighbourConsumption = cloneArray(agentData.getPowerConsumptionPerTick());
             neighboursPriceConsumption.add(neighbourConsumption);
         }
@@ -324,6 +322,5 @@ public class AlgorithmDataHelper
         for (PropertyWithData prop : this.allProperties)
             prop.getSensor().setCurrentState(prop.getCachedSensorState());
     }
-
 
 }

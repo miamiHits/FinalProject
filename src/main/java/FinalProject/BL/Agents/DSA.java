@@ -33,7 +33,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             logger.info("FINISH ITER 0");
         }
         else {
-            receivedAllMessagesAndHandleThem();
+            receiveAllMessagesAndHandleThem();
             logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
             tryBuildSchedule();
             logger.info("FINISHed ITER " + currentNumberOfIter);
@@ -58,12 +58,16 @@ public class DSA extends SmartHomeAgentBehaviour {
         return newInstance;
     }
 
-    private void receivedAllMessagesAndHandleThem() {
-        List<ACLMessage> messageList = waitForNeighbourAndCollectorMessages();
+    private void receiveAllMessagesAndHandleThem() {
+        List<ACLMessage> messageList = waitForNeighbourMessages();
         readNeighboursMsgs(messageList);
-        helper.calcPriceSchemeForAllNeighbours();
+        updatePowerConsumption();
+    }
+
+    private void updatePowerConsumption() {
+        helper.calcPowerConsumptionForAllNeighbours();
         helper.calcTotalPowerConsumption(agent.getcSum());
-        sentEpeakToDataCollector(currentNumberOfIter - 1);
+        updateAgentIterationData(currentNumberOfIter - 1); //TODO: maybe not needed
     }
 
     private void tryBuildSchedule() {
@@ -104,7 +108,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     @Override
     public void onTermination() {
-        receivedAllMessagesAndHandleThem();
+        receiveAllMessagesAndHandleThem();
         logger.info(Utils.parseAgentName(this.agent) + " Just sent to DataCollector final calculations");
     }
 }
