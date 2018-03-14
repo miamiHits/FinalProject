@@ -54,6 +54,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      */
     protected abstract void onTermination();
 
+    /**
+     * Go through all properties and generate schedule for them
+     */
     protected void tryBuildScheduleBasic() {
         this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
         List<PropertyWithData> helperNonPassiveOnlyProps = helper.getAllProperties().stream()
@@ -92,7 +95,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     //-------------OVERRIDING METHODS:-------------------
     @Override
-    public final void action() {
+    public void action() {
         logger.debug("action method invoked");
         doIteration();
         sendIterationToCollector();
@@ -477,7 +480,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     //-------------PRIVATE METHODS:-------------------
-    
+
     private List<Integer> generateRandomTicksForProp(PropertyWithData prop, double ticksToWork) {
         List<Integer> myTicks = new ArrayList<>();
         //generate random schedule based on prop's rules
