@@ -7,8 +7,8 @@ import java.util.*;
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
 
 public class DSA extends SmartHomeAgentBehaviour {
-    private final static Logger logger = Logger.getLogger(DSA.class);
 
+    private final static Logger logger = Logger.getLogger(DSA.class);
     private final float PROBABILITY = 0.6f;
 
     public DSA()
@@ -63,7 +63,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         readNeighboursMsgs(messageList);
         helper.calcPriceSchemeForAllNeighbours();
         helper.calcTotalPowerConsumption(agent.getcSum());
-        sentEpeakToDataCollector(currentNumberOfIter-1);
+        sentEpeakToDataCollector(currentNumberOfIter - 1);
     }
 
     private void tryBuildSchedule() {

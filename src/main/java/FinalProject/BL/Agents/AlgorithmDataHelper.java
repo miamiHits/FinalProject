@@ -17,7 +17,6 @@ public class AlgorithmDataHelper
     private SmartHomeAgent agent;
     private List<double[]> neighboursPriceConsumption = new ArrayList<>();
     private final static Logger logger = Logger.getLogger(AlgorithmDataHelper.class);
-    private double [] powerConsumption;
 
     public AlgorithmDataHelper (SmartHomeAgent agent)
     {
@@ -82,9 +81,7 @@ public class AlgorithmDataHelper
 
         }
     }
-
-
-
+    
     public void SetActuatorsAndSensors()
     {
         ////<propName, Act>
@@ -285,15 +282,6 @@ public class AlgorithmDataHelper
 
     public List<double[]> getNeighboursPriceConsumption() {
         return neighboursPriceConsumption;
-    }
-
-    public void setPowerConsumption(double[] powerConsumption) {
-        double[] arr = new double[powerConsumption.length];
-        for (int i=0; i<powerConsumption.length; ++i)
-        {
-            arr[i] = powerConsumption[i];
-        }
-        this.powerConsumption =arr;
     }
 
     public void calcTotalPowerConsumption(double cSum) {
