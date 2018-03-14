@@ -90,6 +90,32 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     public abstract SmartHomeAgentBehaviour cloneBehaviour();
 
+    //-------------OVERRIDING METHODS:-------------------
+    @Override
+    public final void action() {
+        logger.debug("action method invoked");
+        doIteration();
+        sendIterationToCollector();
+        sendMsgToAllNeighbors(agent.getCurrIteration());
+    }
+
+    @Override
+    public boolean done() {
+        boolean agentFinishedExperiment = currentNumberOfIter > Experiment.maximumIterations;
+        if (agentFinishedExperiment) {
+            logger.info(Utils.parseAgentName(this.agent) + " ended its final iteration");
+            logger.info(Utils.parseAgentName(this.agent) + " about to send data to DataCollector");
+
+            //impl by child
+            onTermination();
+
+            this.agent.doDelete();
+        }
+        return agentFinishedExperiment;
+    }
+
+    //-------------PROTECTED METHODS:-------------------
+
     protected int calcHowManyTicksNeedToCharge(String key, double delta, double ticksToWork) {
         int ticks = 0;
         PropertyWithData prop;
@@ -120,14 +146,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
 
         return ticks;
-    }
-
-    @Override
-    public final void action() {
-        logger.debug("action method invoked");
-        doIteration();
-        sendIterationToCollector();
-        sendMsgToAllNeighbors(agent.getCurrIteration());
     }
 
     protected void sendIterationToCollector() {
@@ -245,55 +263,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
         List<Integer> myTicks = generateRandomTicksForProp(prop, ticksToWork);
         updateTotals(prop, myTicks, sensorsToCharge);
-    }
-
-    private List<Integer> generateRandomTicksForProp(PropertyWithData prop, double ticksToWork) {
-        List<Integer> myTicks = new ArrayList<>();
-        //generate random schedule based on prop's rules
-        int randomNum = 0;
-        for (int i = 0; i < ticksToWork; ++i) {
-            switch (prop.getPrefix()) {
-                case BEFORE:    // Min + (int)(Math.random() * ((Max - Min) + 1)). NOT INCLUDE THE HOUR
-                    randomNum = START_TICK + (int) (Math.random() * (((prop.getTargetTick() - 1) - START_TICK) + 1));
-                    break;
-                case AFTER:
-                    if (prop.getTargetTick() + ticksToWork > (this.iterationPowerConsumption.length)) {
-                        double targetTick = prop.getTargetTick();
-                        for (int j= 0 ; j< ticksToWork; j++) {
-                            randomNum = drawRandomNum(0,(int) targetTick - j);
-                            if (!myTicks.contains(randomNum))
-                                myTicks.add(randomNum);
-                        }
-                        i = (int)ticksToWork;
-                    }
-                    else {
-                        randomNum = (int) (prop.getTargetTick() + (int) (Math.random() * ((FINAL_TICK - prop.getTargetTick()) + 1)));
-                    }
-                    break;
-                case AT:
-                    if (ticksToWork == 1) {
-                        myTicks.add((int)prop.getTargetTick());
-                    }
-                    else {   double targetTick = prop.getTargetTick();
-                        for (int j = 0 ; j< ticksToWork; j++) {
-                            randomNum = drawRandomNum(0,(int)targetTick - j);
-                            if (!myTicks.contains(randomNum)) {
-                                myTicks.add(randomNum);
-                            }
-                        }
-                    }
-                    break;
-            }
-
-            if (prop.getPrefix() == Prefix.AT) break;
-            else if (!myTicks.contains(randomNum)) {
-                myTicks.add(randomNum);
-            }
-            else {
-                i--;
-            }
-        }
-        return myTicks;
     }
 
     protected boolean flipCoin(float probabilityForTrue) {
@@ -507,6 +476,57 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
     }
 
+    //-------------PRIVATE METHODS:-------------------
+    
+    private List<Integer> generateRandomTicksForProp(PropertyWithData prop, double ticksToWork) {
+        List<Integer> myTicks = new ArrayList<>();
+        //generate random schedule based on prop's rules
+        int randomNum = 0;
+        for (int i = 0; i < ticksToWork; ++i) {
+            switch (prop.getPrefix()) {
+                case BEFORE:    // Min + (int)(Math.random() * ((Max - Min) + 1)). NOT INCLUDE THE HOUR
+                    randomNum = START_TICK + (int) (Math.random() * (((prop.getTargetTick() - 1) - START_TICK) + 1));
+                    break;
+                case AFTER:
+                    if (prop.getTargetTick() + ticksToWork > (this.iterationPowerConsumption.length)) {
+                        double targetTick = prop.getTargetTick();
+                        for (int j= 0 ; j< ticksToWork; j++) {
+                            randomNum = drawRandomNum(0,(int) targetTick - j);
+                            if (!myTicks.contains(randomNum))
+                                myTicks.add(randomNum);
+                        }
+                        i = (int)ticksToWork;
+                    }
+                    else {
+                        randomNum = (int) (prop.getTargetTick() + (int) (Math.random() * ((FINAL_TICK - prop.getTargetTick()) + 1)));
+                    }
+                    break;
+                case AT:
+                    if (ticksToWork == 1) {
+                        myTicks.add((int)prop.getTargetTick());
+                    }
+                    else {   double targetTick = prop.getTargetTick();
+                        for (int j = 0 ; j< ticksToWork; j++) {
+                            randomNum = drawRandomNum(0,(int)targetTick - j);
+                            if (!myTicks.contains(randomNum)) {
+                                myTicks.add(randomNum);
+                            }
+                        }
+                    }
+                    break;
+            }
+
+            if (prop.getPrefix() == Prefix.AT) break;
+            else if (!myTicks.contains(randomNum)) {
+                myTicks.add(randomNum);
+            }
+            else {
+                i--;
+            }
+        }
+        return myTicks;
+    }
+
     /**
      * agent might get messages from the AMS - agent management system, the smart home agent ignores these messages.
      * this method clears these messages from the agent's messages queue and prints their contents as warnings
@@ -520,21 +540,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 logger.warn(receivedMessage);
             }
         } while (receivedMessage != null);
-    }
-
-    @Override
-    public boolean done() {
-        boolean agentFinishedExperiment = currentNumberOfIter > Experiment.maximumIterations;
-        if (agentFinishedExperiment) {
-            logger.info(Utils.parseAgentName(this.agent) + " ended its final iteration");
-            logger.info(Utils.parseAgentName(this.agent) + " about to send data to DataCollector");
-
-            //impl by child
-            onTermination();
-
-            this.agent.doDelete();
-        }
-        return agentFinishedExperiment;
     }
 
 }
