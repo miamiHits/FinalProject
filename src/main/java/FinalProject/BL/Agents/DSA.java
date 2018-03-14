@@ -81,7 +81,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         if (agent.isZEROIteration()) {
             startWorkZERO(prop, sensorsToCharge, ticksToWork);
         }
-        else if (drawCoin(PROBABILITY)) {
+        else if (flipCoin(PROBABILITY)) {
           startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork);
         }
         else {

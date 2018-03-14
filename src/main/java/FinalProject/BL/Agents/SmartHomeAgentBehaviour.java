@@ -42,6 +42,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected boolean finished = false;
     protected double[] iterationPowerConsumption;
 
+    //-------------ABSTRACT METHODS:-------------------
+
     /**
      * Main method implemented by inheriting algos!!!
      */
@@ -86,6 +88,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      */
     protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Double> sensorsToCharge);
 
+    public abstract SmartHomeAgentBehaviour cloneBehaviour();
+
     protected int calcHowManyTicksNeedToCharge(String key, double delta, double ticksToWork) {
         int ticks = 0;
         PropertyWithData prop;
@@ -119,7 +123,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     @Override
-    public void action() {
+    public final void action() {
         logger.debug("action method invoked");
         doIteration();
         sendIterationToCollector();
@@ -184,15 +188,14 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         //classifying the rules by activeness, start creating the prop object
         List<Rule> passiveRules = new ArrayList<>();
         List <Rule> activeRules = new ArrayList<>();
-        for (Rule rule : agent.getAgentData().getRules())
-        {
+        agent.getAgentData().getRules().forEach(rule -> {
             if (rule.isActive()) {
                 activeRules.add(rule);
             }
             else {
                 passiveRules.add(rule);
             }
-        }
+        });
 
         passiveRules.forEach(pRule -> helper.buildNewPropertyData(pRule, true));
         activeRules.forEach(rRule -> helper.buildNewPropertyData(rRule, false));
@@ -293,7 +296,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return myTicks;
     }
 
-    protected boolean drawCoin(float probabilityForTrue) {
+    protected boolean flipCoin(float probabilityForTrue) {
 //        int[] notRandomNumbers = new int [] {0,0,0,0,1,1,1,1,1,1};
 //        double idx = Math.floor(Math.random() * notRandomNumbers.length);
 //        return notRandomNumbers[(int) idx] == 1;
@@ -427,8 +430,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 agent.getAlgoId(), (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), -1);
     }
 
-    public abstract SmartHomeAgentBehaviour cloneBehaviour();
-
     /**
      * a blocking method that waits far receiving messages from all neighbours, and and clears all AMS messages
      * @return List of messages from all neighbours
@@ -481,29 +482,28 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected double calcPrice(double[] powerConsumption) {
         double res = 0 ;
         double [] priceScheme = agent.getAgentData().getPriceScheme();
-        for (int i=0 ; i<priceScheme.length; ++i)
-        {
-            double temp =  powerConsumption[i] * priceScheme[i];
-            res = Double.sum(temp, res);
+
+        for (int i = 0 ; i < priceScheme.length; ++i) {
+            res += powerConsumption[i] * priceScheme[i];
         }
         return res;
     }
 
-    // used by the agent instance to complete the initialization of the behaviour
-    protected void initializeBehaviourWithAgent(SmartHomeAgent agent)
-    {
+    /**
+     * used by the agent instance to complete the initialization of the behaviour
+     * @param agent
+     */
+    protected void initializeBehaviourWithAgent(SmartHomeAgent agent) {
         this.agent = agent;
-        this.currentNumberOfIter =0;
+        this.currentNumberOfIter = 0;
         this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length -1;
         this.helper = new AlgorithmDataHelper(agent);
     }
 
-    protected void addBackgroundLoadToPriceScheme(double[] powerConsumption)
-    {
+    protected void addBackgroundLoadToPriceScheme(double[] powerConsumption) {
         double [] backgroundLoad = agent.getAgentData().getBackgroundLoad();
-        for (int i=0 ; i<backgroundLoad.length; ++i)
-        {
-            powerConsumption[i] =  Double.sum(powerConsumption[i], backgroundLoad[i]);
+        for (int i = 0 ; i < backgroundLoad.length; ++i) {
+            powerConsumption[i] = powerConsumption[i] + backgroundLoad[i];
         }
     }
 
@@ -511,14 +511,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      * agent might get messages from the AMS - agent management system, the smart home agent ignores these messages.
      * this method clears these messages from the agent's messages queue and prints their contents as warnings
      */
-    private void clearAmsMessages()
-    {
+    private void clearAmsMessages() {
         ACLMessage receivedMessage;
         do
         {
             receivedMessage = this.agent.receive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_AMS);
-            if (receivedMessage != null)
-            {
+            if (receivedMessage != null) {
                 logger.warn(receivedMessage);
             }
         } while (receivedMessage != null);
