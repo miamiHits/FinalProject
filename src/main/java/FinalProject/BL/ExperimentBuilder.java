@@ -22,13 +22,13 @@ public class ExperimentBuilder {
         this.numOfIterations = newVal;
     }
 
-    public void addAlgorithms(List<SmartHomeAgentBehaviour> algorithms)
+    public void setAlgorithms(List<SmartHomeAgentBehaviour> algorithms)
     {
         //TODO gal
         this.algos = algorithms;
     }
 
-    public void addProblems(List<Problem> problems)
+    public void setProblems(List<Problem> problems)
     {
         //TODO gal
         this.problems = problems;

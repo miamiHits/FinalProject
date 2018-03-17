@@ -2,13 +2,20 @@ package FinalProject.PL;
 
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
+import FinalProject.DAL.*;
 import FinalProject.Service;
+import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.server.VaadinServlet;
 
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class UiHandler implements UiHandlerInterface {
 
@@ -44,10 +51,10 @@ public class UiHandler implements UiHandlerInterface {
 
         List<String> algoList = new ArrayList<>();
         algoList.add(DSA.class.getName());
-        service.addAlgorithmsToExperiment(algoList, numOfIter);
+        service.setAlgorithmsToExperiment(algoList, numOfIter);
         List<String> problem = new ArrayList<>();
         problem.add("dm_7_1_2");
-        service.addProblemsToExperiment(problem);
+        service.setProblemsToExperiment(problem);
 
         System.out.println("Starting Experiment!");
         service.runExperiment();
@@ -82,4 +89,36 @@ public class UiHandler implements UiHandlerInterface {
     {
         System.out.println(msg);
     }
+
+
+
+
+    @WebServlet(urlPatterns = "/*", name = "VaadinWebServlet", asyncSupported = true)
+    @VaadinServletConfiguration(ui = FinalProject.PL.ExperimentConfigurationPresenter.class, productionMode = false)
+    public static class VaadinWebServlet extends VaadinServlet {
+
+        public static Service service;
+        public static UiHandler uiHandler;
+
+        @Override
+        public void init() throws ServletException {
+            super.init();
+
+
+            // initializing simulator backend
+            org.apache.log4j.BasicConfigurator.configure();
+
+            String jsonPath = "src/test/testResources/jsons";
+            jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+            String algorithmsPath = "target/classes/FinalProject/BL/Agents";
+            jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+
+            JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
+            AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
+            DataAccessController dal = new DataAccessController(jsonLoader, algorithmLoader);
+            VaadinWebServlet.service = new Service(dal);
+            VaadinWebServlet.uiHandler = new UiHandler(service);
+        }
+    }
+
 }

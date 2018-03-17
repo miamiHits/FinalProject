@@ -1,5 +1,7 @@
 package FinalProject.PL;
 
+import FinalProject.Service;
+import com.vaadin.data.provider.DataProvider;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
 
@@ -10,9 +12,14 @@ public class ExperimentConfigurationPresenter extends UI {
     private VerticalLayout _algorithmsContainer;
     private VerticalLayout _problemsContainer;
 
+    private Service service;
+
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
+
+        //TODO gal for final iteration prevent use of more than one browser tab
+        this.service = UiHandler.VaadinWebServlet.service;
 
         final VerticalLayout mainLayout = new VerticalLayout();
         _algorithmsContainer = new VerticalLayout();
@@ -48,6 +55,7 @@ public class ExperimentConfigurationPresenter extends UI {
         TwinColSelect<String> algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
+        algorithmSelector.setDataProvider(DataProvider.ofCollection(this.service.getAvailableAlgorithms()));
 
         Button addAllAlgorithmsBtn = new Button("Add All");
 
