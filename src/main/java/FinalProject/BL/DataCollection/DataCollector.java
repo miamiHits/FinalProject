@@ -24,10 +24,10 @@ public class DataCollector {
     public double addData (IterationCollectedData data) {
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
         IterationAgentsPrice tempIAP = addAgentPrice(data, tempPA);
+        addNeighborhoodIfNotExist(data, tempPA);
 
         if (isIterationFinished(tempPA, tempIAP, data)) { //last agent finished iteration
             addProbResult(tempPA, tempIAP, data);
-            addNeighborhoodIfNotExist(data, tempPA);
             pupulateTotalGradeForIteration(data, tempPA, tempIAP);
             return -1.0;
         }
