@@ -35,7 +35,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         else {
             receiveAllMessagesAndHandleThem();
             logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
-            tryBuildSchedule();
+            resetAndBuildSchedule();
             logger.info("FINISHed ITER " + currentNumberOfIter);
         }
         beforeIterationIsDone();
@@ -54,7 +54,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;
         newInstance.FINAL_TICK = this.FINAL_TICK;
-        newInstance.agentIterationData = null;//will be created as part of the behaviour run(see buildScheduleFromScratch)
+        newInstance.agentIterationData = null; //will be created as part of the behaviour run(see buildScheduleFromScratch)
         return newInstance;
     }
 
@@ -68,17 +68,17 @@ public class DSA extends SmartHomeAgentBehaviour {
         helper.calcPowerConsumptionForAllNeighbours();
         agent.setcSum(calcCsum());
         helper.calcTotalPowerConsumption(agent.getcSum());
-        updateAgentIterationData(currentNumberOfIter - 1); //TODO: maybe not needed
+        updateAgentIterationData(currentNumberOfIter - 1);
     }
 
-    private void tryBuildSchedule() {
-        helper.goBackToStartValues();
-        tryBuildScheduleBasic();
+    private void resetAndBuildSchedule() {
+        helper.resetProperties();
+        buildScheduleBasic();
     }
 
     public void buildScheduleFromScratch() {
         initHelper();
-        tryBuildScheduleBasic();
+        buildScheduleBasic();
     }
 
     @Override

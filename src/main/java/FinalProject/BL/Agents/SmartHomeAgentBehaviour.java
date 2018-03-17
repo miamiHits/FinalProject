@@ -58,7 +58,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     /**
      * Go through all properties and generate schedule for them
      */
-    protected void tryBuildScheduleBasic() {
+    protected void buildScheduleBasic() {
         this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
         List<PropertyWithData> helperNonPassiveOnlyProps = helper.getAllProperties().stream()
                 .filter(p -> !p.isPassiveOnly())
@@ -233,8 +233,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         List<Integer> activeTicks = helper.cloneList(myTicks);
         helper.getDeviceToTicks().put(prop.getActuator(), activeTicks);
         for (int i = 0; i < myTicks.size(); ++i) {
-            iterationPowerConsumption[myTicks.get(i)] = Double.sum(this.iterationPowerConsumption[myTicks.get(i)],
-                    prop.getPowerConsumedInWork());
+            iterationPowerConsumption[myTicks.get(i)] = this.iterationPowerConsumption[myTicks.get(i)] + prop.getPowerConsumedInWork();
             if (!sensorsToCharge.isEmpty()) {
                 for (Map.Entry<String,Double> entry : sensorsToCharge.entrySet()) {
                     PropertyWithData brother = helper.getAllProperties().stream()
@@ -406,7 +405,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         IterationCollectedData agentIterSum = new IterationCollectedData(
                 iterationNum, agent.getName(), agentIterationData.getPrice(),
                 agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
-                agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getcSum());
+                agent.getAlgoId(), neighborhood, helper.ePeak);
         this.agentIterationCollected = agentIterSum;
 //        sendIterationToCollector();
     }
@@ -417,10 +416,13 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         double[] arr = helper.cloneArray(this.iterationPowerConsumption);
         logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
         logger.info("my PRICE is: " + price);
-        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, arr);
+        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(), price, arr);
         agent.setCurrIteration(agentIterationData);
+        Set<String> neighboursNames = agent.getAgentData().getNeighbors().stream()
+                .map(AgentData::getName)
+                .collect(Collectors.toSet());
         agentIterationCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(),
-                agent.getAlgoId(), (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), -1);
+                agent.getAlgoId(), neighboursNames, helper.ePeak);
     }
 
     /**
