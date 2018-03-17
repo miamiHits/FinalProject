@@ -7,10 +7,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 public class DalTestUtils {
 
-    public static final String JSON_DIR_PATH = "src/test/testResources/jsons".replaceAll("/", File.separator);
+    public static final String JSON_DIR_PATH = "src/test/testResources/jsons".replaceAll("/", Matcher.quoteReplacement(File.separator));
 
     public static Problem getProblemDm_7_1_2()
     {

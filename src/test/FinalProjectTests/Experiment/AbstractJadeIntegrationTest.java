@@ -18,6 +18,7 @@ import test.common.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public abstract class AbstractJadeIntegrationTest extends Test
 {
@@ -53,9 +54,9 @@ public abstract class AbstractJadeIntegrationTest extends Test
         List<String> problemNameList = new ArrayList<>();
         problemNameList.add("dm_7_1_2");
         String jsonPath = "src/test/testResources/jsons";
-        jsonPath.replaceAll("/", File.separator);
+        jsonPath.replaceAll("/", Matcher.quoteReplacement(File.separator));
         String algorithmsPath = "target/classes/FinalProject/BL/Agents";
-        algorithmsPath.replaceAll("/", File.separator);
+        algorithmsPath.replaceAll("/", Matcher.quoteReplacement(File.separator));
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
         AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);

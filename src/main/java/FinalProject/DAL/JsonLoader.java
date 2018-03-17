@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 public class JsonLoader implements JsonLoaderInterface {
@@ -81,7 +82,7 @@ public class JsonLoader implements JsonLoaderInterface {
     {
         Problem problem = null;
 //        final String filePath = problemName + FILE_TYPE;
-        final String filePath = jsonsDir.getPath() + File.separator + problemName + FILE_TYPE;
+        final String filePath = jsonsDir.getPath() + Matcher.quoteReplacement(File.separator) + problemName + FILE_TYPE;
         try(Reader reader = new BufferedReader(new FileReader(filePath)))
         {
             JsonParser parser = new JsonParser();
@@ -199,7 +200,7 @@ public class JsonLoader implements JsonLoaderInterface {
 
         deviceDict = new HashMap<>(3);
 //        String deviceDictPath = DEVICE_DICT_FILE_NAME + FILE_TYPE;
-        String deviceDictPath = jsonsDir.getPath() + File.separator + DEVICE_DICT_FILE_NAME + FILE_TYPE;
+        String deviceDictPath = jsonsDir.getPath() + Matcher.quoteReplacement(File.separator) + DEVICE_DICT_FILE_NAME + FILE_TYPE;
 
         try(Reader reader = new BufferedReader(new FileReader(deviceDictPath)))
         {

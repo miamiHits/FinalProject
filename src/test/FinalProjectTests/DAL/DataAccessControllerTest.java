@@ -11,6 +11,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
 
 //TODO
 public class DataAccessControllerTest {
@@ -20,8 +21,8 @@ public class DataAccessControllerTest {
     @Before
     public void setUp() throws Exception
     {
-        JsonLoaderInterface jsonLoader = new JsonLoader("src/test/testResources/jsons".replaceAll("/", File.separator));
-        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader("src/test/testResources/compiledAlgorithms".replaceAll("/", File.separator));
+        JsonLoaderInterface jsonLoader = new JsonLoader("src/test/testResources/jsons".replaceAll("/", Matcher.quoteReplacement(File.separator)));
+        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader("src/test/testResources/compiledAlgorithms".replaceAll("/", Matcher.quoteReplacement(File.separator)));
         accessController = new DataAccessController(jsonLoader, algorithmLoader);
     }
 

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 public class AlgorithmLoader implements AlgoLoaderInterface {
@@ -95,7 +96,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
             fileName = fileName.substring(0, fileName.indexOf(UNCOMPILED_FILE_TYPE));
         }
 
-        boolean compilationSuccess = compile(path + File.separator + fileName + UNCOMPILED_FILE_TYPE);
+        boolean compilationSuccess = compile(path + Matcher.quoteReplacement(File.separator) + fileName + UNCOMPILED_FILE_TYPE);
         if (!compilationSuccess)
         {
             throw new IOException("Could not compile class " + fileName);
@@ -103,7 +104,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 
         if (!verifyClassIsAlgorithm(fileName))
         {
-            File file = new File(compiledDir.getPath() + File.separator + fileName + COMPILED_FILE_TYPE);
+            File file = new File(compiledDir.getPath() + Matcher.quoteReplacement(File.separator) + fileName + COMPILED_FILE_TYPE);
 
             if(!file.delete())
             {

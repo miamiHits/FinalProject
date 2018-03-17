@@ -5,6 +5,7 @@ import FinalProject.Service;
 import FinalProject.PL.UiHandler;
 
 import java.io.File;
+import java.util.regex.Matcher;
 
 public class App
 {
@@ -13,9 +14,9 @@ public class App
         org.apache.log4j.BasicConfigurator.configure();
 
         String jsonPath = "src/test/testResources/jsons";
-        jsonPath.replaceAll("/", File.separator);
+        jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
         String algorithmsPath = "target/classes/FinalProject/BL/Agents";
-        algorithmsPath.replaceAll("/", File.separator);
+        jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
         AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);

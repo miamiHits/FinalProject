@@ -10,13 +10,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+
 import FinalProject.DAL.*;
 
 public class AlgorithmLoaderTest {
 
     private AlgorithmLoader loader;
-    private final static String compiledDirPath = "src/test/testResources/compiledAlgorithms".replaceAll("/", File.separator);
-    private final static String uncompiledDirPath = "src/test/testResources/uncompiledAlgorithms".replaceAll("/", File.separator);
+    private final static String compiledDirPath = "src/test/testResources/compiledAlgorithms".replaceAll("/", Matcher.quoteReplacement(File.separator));
+    private final static String uncompiledDirPath = "src/test/testResources/uncompiledAlgorithms".replaceAll("/", Matcher.quoteReplacement(File.separator));
     private List<String> classesToDelete;
 
     @Before
@@ -33,7 +35,7 @@ public class AlgorithmLoaderTest {
         loader = null;
 
         classesToDelete.forEach(className -> {
-            File file = new File(compiledDirPath + File.separator + className + ".class");
+            File file = new File(compiledDirPath + Matcher.quoteReplacement(File.separator) + className + ".class");
 
             if(!file.delete())
             {
@@ -126,7 +128,7 @@ public class AlgorithmLoaderTest {
         String fileName = "BehaviourToCompile";
         loader.addAlgoToSystem(uncompiledDirPath, fileName + ".java");
 
-        File classFile = new File(compiledDirPath + File.separator + fileName + ".class");
+        File classFile = new File(compiledDirPath + Matcher.quoteReplacement(File.separator) + fileName + ".class");
         Assert.assertTrue(classFile.exists());
 
         classesToDelete.add(fileName);
@@ -138,7 +140,7 @@ public class AlgorithmLoaderTest {
         String fileName = "SomeClassToCompile";
         loader.addAlgoToSystem(uncompiledDirPath, fileName + ".java");
 
-        File classFile = new File(compiledDirPath + File.separator + fileName + ".class");
+        File classFile = new File(compiledDirPath + Matcher.quoteReplacement(File.separator) + fileName + ".class");
         Assert.assertFalse(classFile.exists());
     }
 
