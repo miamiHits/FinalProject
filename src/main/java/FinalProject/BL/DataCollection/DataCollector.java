@@ -21,23 +21,15 @@ public class DataCollector {
         this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
     }
 
-    public double addData (IterationCollectedData data){
+    public double addData (IterationCollectedData data) {
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
-        IterationAgentsPrice tempIAP = probAlgoToItAgentPrice.get(tempPA);
+        IterationAgentsPrice tempIAP = addAgentPrice(data, tempPA);
 
-        if (isIterationFinished(tempPA, tempIAP, data)){
+        if (isIterationFinished(tempPA, tempIAP, data)) { //last agent finished iteration
+            addProbResult(tempPA, tempIAP, data);
             addNeighborhoodIfNotExist(data, tempPA);
-            if(tempIAP.ePeakCalculated(data.getIterNum())){ //last agent finished part 2
-                pupulateTotalGradeForIteration(data, tempPA, tempIAP);
-                return -1.0;
-            }
-        }else{
-            tempIAP = addAgentPrice(data, tempPA);
-            if (isIterationFinished(tempPA, tempIAP, data)){ //last agent finished part 1
-                addProbResult(tempPA, tempIAP, data);
-                return calculateCsumForAllAgents(tempPA, tempIAP, data.getIterNum());
-            }
-            return 0;
+            pupulateTotalGradeForIteration(data, tempPA, tempIAP);
+            return -1.0;
         }
         return 0;
     }
@@ -155,7 +147,7 @@ public class DataCollector {
         List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
         Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
         if (prices != null && numOfAgents != null &&
-                prices.size() == numOfAgents){ //iteration is over  with no epeak calculated
+                prices.size() == numOfAgents){ //iteration is over
             return true;
         }
         return false;
