@@ -1,0 +1,40 @@
+@startuml
+
+left to right direction
+'skinparam packageStyle rectangle
+
+actor user
+actor system <<system>>
+
+
+rectangle "choose algorithms" {
+
+	(choose algorithms) as (main)
+	(display algorithms list) as (display)
+	(load algorithms list) as (load list)
+	(select algorithms from list) as (select)
+	(load selected algorithms) as (load)
+	(select maximum number \n of iterations) as (maxIter)
+
+	(no algorithms to list) as (no algorithms)
+	(invalid number of iterations) as (invalidIter)
+
+  	user -- (main) : selects
+  	(main) .> (display) : include
+  	(main) .left.> (load list) : include
+  	(main) .right.> (select) : include
+  	user -up- (select) : selects
+  	(load list) -- system
+  	(display) -- system
+  	user .. (display)
+  	(main) -- system
+  	(load) -- system
+  	(select) .> load : include
+  	(select) .up.> (display) : include
+  	user -- (maxIter) : select
+  	(main) .down.> (maxIter) : include
+
+  	(no algorithms) .right.> (load list) : extends 
+  	(invalidIter) .right.> (maxIter) : extends
+}
+@enduml

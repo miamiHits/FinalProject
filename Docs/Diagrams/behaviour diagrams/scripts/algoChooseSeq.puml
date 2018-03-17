@@ -1,0 +1,48 @@
+@startuml
+actor User as u
+participant DataAccessController as DAC
+participant ExperimentBuilder as EB
+
+activate u
+activate Service
+activate UiHandler
+activate DAC
+activate EB
+
+alt There are available algorithms in the system
+
+    UiHandler -> UiHandler : [displays the available algorithms in the list builder element]
+    u -> UiHandler : [clicks "Load"]
+    note left
+        user selects the desired
+        algorithms in the list
+        builder GUI element
+        and inserted number of
+        iterations
+    end note
+
+    alt user selected at least one algorithm and inserted valid # of iterations
+        UiHandler -> Service : getAlgorithms(List<algorithmNames: String>)
+
+        Service -> DAC : getAlgorithms(List<algorithmNames: String>)
+
+        loop for each Algorithm name
+            activate AlgorithmLoader
+            DAC -> AlgorithmLoader : loadAlgorithm(String algorithmName)
+            AlgorithmLoader --> DAC : [SmartHomeAgentBehaviour]
+        end
+
+        DAC --> Service : [List<SmartHomeAgentBehaviour>]
+        Service -> EB : addAlgorithms(List<SmartHomeAgentBehaviour>)
+        Service -> EB : setNumOfIter(int)
+        Service --> UiHandler : showSuccessMsg(msg: String)
+        UiHandler --> u : [shows a success message]
+    else # of iteration field input is not a number / input <= 0 / empty
+        UiHandler --> u : [shows a validation error message]
+
+    end
+else There are no available algorithms in the system
+    Service --> UiHandler : showErrorMessage(msg: String)
+    UiHandler --> u : [shows a descriptive error message]
+end
+@enduml
