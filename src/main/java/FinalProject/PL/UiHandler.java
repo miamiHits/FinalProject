@@ -69,8 +69,9 @@ public class UiHandler implements UiHandlerInterface {
 
         //just for check the csv - we can change it later
         csvHandler csv = new csvHandler("Y:\\downloads\\results.csv");
+
         try {
-            csv.saveExpirmentResult(experimentResults);
+          csv.saveExpirmentResult(experimentResults);
         } catch (IOException e) {
             e.printStackTrace();
         }
