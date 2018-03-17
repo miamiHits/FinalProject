@@ -1,0 +1,40 @@
+@startuml
+
+skinparam packageStyle rectangle
+
+actor user
+actor system <<system>>
+
+rectangle "choose real data sets / problems" {
+
+	(choose real data sets) as (main)
+	(display data sets list) as (display)
+	(load data sets list) as (load list)
+	(load selected data sets) as (load)
+	(select data sets from list) as (select)
+  (validate data set format) as (validate)
+
+	(no data sets to list) as (no data)
+	(error in data set) as (dataErr)
+
+  	
+  	user -left- (main) : selects
+  	(main) .> (display) : include
+  	(main) .> (load list) : include
+  	(main) .> (select) : include
+  	user -up- (select) : selects
+  	(load list) -- system
+  	(display) -- system
+  	user .up. (display)
+  	(main) -- system
+    (load) -- system : loads
+  	(validate) -up- system
+    (select) .up.> load : include
+  	(validate) .up.> load : include
+
+  	(no data) .right.> (load list) : extends 
+  	(dataErr) .> (load) : extends
+
+}
+
+@enduml
