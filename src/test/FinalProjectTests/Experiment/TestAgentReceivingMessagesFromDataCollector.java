@@ -160,7 +160,7 @@ public class TestAgentReceivingMessagesFromDataCollector extends FinalProjectTes
                     {
                         message.addReceiver(foundAID.getName());
                     }
-                    message.setContentObject(this.agentIteraionCollected);
+                    message.setContentObject(this.agentIterationCollected);
                     testAgent.send(message);
                 } else
                 {
@@ -176,7 +176,7 @@ public class TestAgentReceivingMessagesFromDataCollector extends FinalProjectTes
 
         private void sendFakeIterationToNeighbors()
         {
-            System.out.println(String.format("test home agent sends fake iteration #%d data to its neighbours", this.agentIteraionCollected.getIterNum()));
+            System.out.println(String.format("test home agent sends fake iteration #%d data to its neighbours", this.agentIterationCollected.getIterNum()));
             ACLMessage aclmsg = new ACLMessage(ACLMessage.REQUEST);
             overriddenAgentData.getNeighbors().stream()
                     .map(neighbor -> new AID(neighbor.getName(), AID.ISLOCALNAME))
@@ -185,7 +185,7 @@ public class TestAgentReceivingMessagesFromDataCollector extends FinalProjectTes
             try
             {
                 System.out.println("test home agent about to send the message " + aclmsg.toString());
-                aclmsg.setContentObject(this.agentIteraionCollected);
+                aclmsg.setContentObject(this.agentIterationCollected);
                 testAgent.send(aclmsg);
             } catch (IOException e)
             {
@@ -211,7 +211,7 @@ public class TestAgentReceivingMessagesFromDataCollector extends FinalProjectTes
         {
             System.out.println("test home agent starts new iteration");
             this.collectNeighboursMessages();
-            this.agentIteraionCollected = new IterationCollectedData(
+            this.agentIterationCollected = new IterationCollectedData(
                     currentIterationNumber,
                     overriddenAgentData.getName(),
                     10,
@@ -232,7 +232,7 @@ public class TestAgentReceivingMessagesFromDataCollector extends FinalProjectTes
             {
                 failed("the data collector did not send the required message within the time limit");
             }
-            this.agentIteraionCollected = new IterationCollectedData(
+            this.agentIterationCollected = new IterationCollectedData(
                     currentIterationNumber,
                     overriddenAgentData.getName(),
                     10,

@@ -24,18 +24,15 @@ public class PowerConsumptionUtils {
     public static double calculateCSum(List<double[]> schedules, double[] priceScheme)
     {
         if (schedules == null || schedules.size() == 0 || priceScheme == null ||
-                !allTheSameLength(schedules) || schedules.get(0).length != priceScheme.length)
-        {
+                !allTheSameLength(schedules) || schedules.get(0).length != priceScheme.length) {
 
             logger.warn("Could not calculate Csum.");
             return -1;
         }
 
         double cSum = 0;
-        for (int i = 0; i < priceScheme.length; i++)
-        {
-            for (double[] arr : schedules)
-            {
+        for (int i = 0; i < priceScheme.length; i++) {
+            for (double[] arr : schedules) {
                 cSum += arr[i] * priceScheme[i];
             }
         }
@@ -51,12 +48,10 @@ public class PowerConsumptionUtils {
                                                               List<double[]> otherSchedules, double[] priceScheme)
     {
         if (newSchedule.length == oldSchedule.length && newSchedule.length == priceScheme.length
-                && allTheSameLength(otherSchedules))
-        {
+                && allTheSameLength(otherSchedules)) {
             cSum = replaceInCSum(cSum, newSchedule, oldSchedule, priceScheme);
 
-            List<double[]> scheds = new ArrayList<>();
-            scheds.addAll(otherSchedules);
+            List<double[]> scheds = new ArrayList<>(otherSchedules);
             scheds.add(newSchedule);
             double ePeak = calculateEPeak(scheds);
             return cSum + ePeak;
@@ -65,13 +60,10 @@ public class PowerConsumptionUtils {
         return -1;
     }
 
-    private static double calculateEPeak(List<double[]> schedules)
-    {
+    public static double calculateEPeak(List<double[]> schedules) {
         double eSqrSum = 0;
-        for (double[] sched : schedules)
-        {
-            for (double aSched : sched)
-            {
+        for (double[] sched : schedules) {
+            for (double aSched : sched) {
                 eSqrSum += Math.pow(aSched, 2);
             }
         }

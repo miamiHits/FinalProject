@@ -239,23 +239,23 @@ public class PropertyWithData {
      */
     public double updateValueToSensor (double [] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork)
     {
-        for (int j=1; j<= ticksToCharge; ++j)
-        {
+        for (int j = 1; j <= ticksToCharge; ++j) {
             //update the powerCons array
             iterationPowerConsumption[j + idxTicks] = Double.sum(iterationPowerConsumption[j + idxTicks], powerConsumedInWork);
             newState = Double.sum(newState, deltaWhenWork);
-            if(!offlineWork)
-            {
-                this.activeTicks.add(j+idxTicks);
+            if(!offlineWork) {
+                this.activeTicks.add(j + idxTicks);
             }
         }
 
-        if (newState > max)//TODO gal yarden are we ignoring the scenario where the extra activations break the passive rule of max?
+        if (newState > max) {//TODO gal yarden are we ignoring the scenario where the extra activations break the passive rule of max?
             newState = max;
+        }
 
-        Map<Sensor, Double> toSend = new HashMap<>();
-        toSend.put(sensor, newState);
-        actuator.act(toSend);
+        //update the sensor through the actuator
+        Map<Sensor, Double> sensorToStateMap = new HashMap<>();
+        sensorToStateMap.put(sensor, newState);
+        actuator.act(sensorToStateMap);
 
         return newState;
     }

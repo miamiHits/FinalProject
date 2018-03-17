@@ -57,6 +57,7 @@ public class JsonLoaderTest {
         List<Problem> actual = loader.loadProblems(lst);
         long end = Calendar.getInstance().getTime().getTime();
         System.out.println("time: " + (end - start) + " milliseconds");
+        //TODO: sometimes fails
         Assert.assertEquals(expected, actual);
     }
 
