@@ -10,7 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.util.List;
 
-public class GraphicalUIHandler extends UI implements UiHandlerInterface{
+public class GraphicalUIHandler implements UiHandlerInterface{
     @Override
     public void showMainScreen() {
 
@@ -36,26 +36,9 @@ public class GraphicalUIHandler extends UI implements UiHandlerInterface{
 
     }
 
-    @Override
-    protected void init(VaadinRequest vaadinRequest) {
-        final VerticalLayout layout = new VerticalLayout();
-
-        final TextField name = new TextField();
-        name.setCaption("Type your name here:");
-
-        Button button = new Button("Click1 Me");
-        button.addClickListener(e -> {
-            layout.addComponent(new Label("Thanks " + name.getValue()
-                    + ", it works!"));
-        });
-
-        layout.addComponents(name, button);
-
-        setContent(layout);
-    }
 
     @WebServlet(urlPatterns = "/*", name = "VaadinWebServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = FinalProject.PL.GraphicalUIHandler.class, productionMode = false)
+    @VaadinServletConfiguration(ui = FinalProject.PL.ExperimentConfigurationPresenter.class, productionMode = false)
     public static class VaadinWebServlet extends VaadinServlet {
         @Override
         public void init() throws ServletException {
