@@ -15,6 +15,7 @@ import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.DefaultTableXYDataset;
 import org.jfree.data.xy.DefaultXYDataset;
@@ -25,12 +26,16 @@ import java.awt.*;
 
 public class JFreeChartUtils {
 
+    //TODO gal in more advanced stage - remove unused
+
+    public static int ALGORITHM_COUNT = 1;
+
     /**
      * Returns a sample dataset.
      *
      * @return The dataset.
      */
-    public static CategoryDataset createDataset() {
+    public static CategoryDataset createCategoryDataset() {
 
         // row keys...
         String series1 = "First";
@@ -67,6 +72,39 @@ public class JFreeChartUtils {
 
         return dataset;
 
+    }
+
+    public static DefaultStatisticalCategoryDataset createLineChartDataset()
+    {
+        DefaultStatisticalCategoryDataset dataset = new DefaultStatisticalCategoryDataset();
+
+        for (int i = 1; i <= ALGORITHM_COUNT; i++)
+        {
+            for (int j = 0; j < 100; j++)
+            {
+                double mean = Math.random() * 10;
+                Number standardDeviation = j % 8 == 0 ? Math.random() * 1 : null;
+                String name = "line" + i;
+                dataset.add(mean, standardDeviation, name, new Integer(j));
+            }
+        }
+
+        return dataset;
+    }
+
+    public static DefaultCategoryDataset createBarChartDataset()
+    {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        for (int i = 1; i <= ALGORITHM_COUNT; i++)
+        {
+            double messagesSent = Math.random() * 10;
+            double iterationRunTime = Math.random() * 100;
+            String name = "line" + i;
+            dataset.addValue(messagesSent, name, "Total Messages Sent");
+            dataset.addValue(iterationRunTime, name, "Iteration Run Time (ms)");
+        }
+        return dataset;
     }
 
 
