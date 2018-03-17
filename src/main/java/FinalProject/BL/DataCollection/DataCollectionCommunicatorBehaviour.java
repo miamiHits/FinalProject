@@ -31,15 +31,12 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
                 try {
                     IterationCollectedData ICD = (IterationCollectedData) msg.getContentObject();
                     cSumReturned = agent.getCollector().addData(ICD);
-                    if(cSumReturned == -1.0){ //iteration+epeak finished
+                    if(cSumReturned == -1.0){ //iteration finished
                         if (ICD.getIterNum() == iterationNum ) { //last iteration finished (algo&prob finished)
                             logger.info("Algo: " + ICD.getAlgorithm() + " Problem: " + ICD.getProblemId() + " finished.");
                             agent.getExperiment().algorithmProblemComboRunEnded(
                                     agent.getCollector().getAlgoProblemResult(ICD.getProblemId(), ICD.getAlgorithm()));
                         }
-                    }else if (cSumReturned > 0) { //iteration finished with no epeak yet
-                        logger.info("iteration number " + ICD.getIterNum() + " finished.");
-                        sendCsumToEveryone(msg, cSumReturned);
                     }
                 } catch (UnreadableException e) {
                     logger.error(e);
