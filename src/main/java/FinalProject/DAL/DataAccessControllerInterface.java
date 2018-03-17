@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataObjects.Problem;
 
 import java.io.IOException;
@@ -12,4 +13,5 @@ public interface DataAccessControllerInterface {
     List<String> getAvailableAlgorithms();
     List<SmartHomeAgentBehaviour> getAlgorithms(List<String> algoNames);
     void addAlgorithmToSystem(String path, String name) throws IllegalAccessException, IOException, InstantiationException;
+    void saveExpirmentResult(List<AlgorithmProblemResult> problemResults);
 }

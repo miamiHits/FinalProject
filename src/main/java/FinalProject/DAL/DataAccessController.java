@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataObjects.Problem;
 
 import java.io.IOException;
@@ -60,5 +61,10 @@ public class DataAccessController implements DataAccessControllerInterface{
             throws IllegalAccessException, IOException, InstantiationException
     {
         algoLoader.addAlgoToSystem(path, name);
+    }
+
+    @Override
+    public void saveExpirmentResult(List<AlgorithmProblemResult> problemResults) {
+
     }
 }

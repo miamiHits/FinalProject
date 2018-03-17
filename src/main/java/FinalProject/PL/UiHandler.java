@@ -3,7 +3,7 @@ package FinalProject.PL;
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.Service;
-
+import FinalProject.DAL.csvHandler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -67,7 +67,15 @@ public class UiHandler implements UiHandlerInterface {
         }
         System.out.println('\n');
 
-//        showMainScreen();
+        //just for check the csv - we can change it later
+        csvHandler csv = new csvHandler("Y:\\downloads\\results.csv");
+        try {
+            csv.saveExpirmentResult(experimentResults);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     @Override
