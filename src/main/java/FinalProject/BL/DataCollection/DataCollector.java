@@ -83,7 +83,7 @@ public class DataCollector {
             logger.warn("IAP is null when adding Neighborhood");
             return;
         }
-        IAP.addNeighborhoodAndEpeak(data.getIterNum(), data.getEpeak(), neighborhood);
+        IAP.addNeighborhoodAndEpeak(data.getIterNum(), data.getePeak(), neighborhood);
     }
 
     private void setAvgPriceInIter(ProblemAlgorithm PA, AlgorithmProblemResult result, int iterNum) {

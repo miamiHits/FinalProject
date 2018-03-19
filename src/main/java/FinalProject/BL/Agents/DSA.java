@@ -1,7 +1,11 @@
 package FinalProject.BL.Agents;
+import FinalProject.BL.DataObjects.Prefix;
+import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
+
+import java.lang.instrument.Instrumentation;
 import java.util.*;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
@@ -9,7 +13,6 @@ import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTota
 public class DSA extends SmartHomeAgentBehaviour {
 
     private final static Logger logger = Logger.getLogger(DSA.class);
-    private final float PROBABILITY = 0.6f;
 
     public DSA()
     {
@@ -68,7 +71,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         helper.calcPowerConsumptionForAllNeighbours();
         agent.setcSum(calcCsum());
         helper.calcTotalPowerConsumption(agent.getcSum());
-        updateAgentIterationData(currentNumberOfIter - 1);
+//        updateAgentIterationData(currentNumberOfIter - 1);
     }
 
     private void resetAndBuildSchedule() {
@@ -83,33 +86,46 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     @Override
     protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Double> sensorsToCharge) {
+        float PROBABILITY = 0.6f;
         if (agent.isZEROIteration()) {
             startWorkZERO(prop, sensorsToCharge, ticksToWork);
         }
         else if (flipCoin(PROBABILITY)) {
-          startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork);
+            startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork);
         }
         else {
             updateTotals(prop, prop.activeTicks, sensorsToCharge);
         }
     }
 
-    //    @Override
-//    public boolean done() {
-//        boolean agentFinishedExperiment = currentNumberOfIter > Experiment.maximumIterations;
-//        if (agentFinishedExperiment) {
-//            logger.info(Utils.parseAgentName(this.agent) + " ended its final iteration");
-//            logger.info(Utils.parseAgentName(this.agent) + " about to send data to DataCollector");
-//
-//
-//            this.agent.doDelete();
-//        }
-//        return agentFinishedExperiment;
-//    }
-
     @Override
     public void onTermination() {
         receiveAllMessagesAndHandleThem();
         logger.info(Utils.parseAgentName(this.agent) + " Just sent to DataCollector final calculations");
+    }
+
+    @Override
+    protected long countIterationCommunication() {
+        final int MSG_TO_DEVICE_SIZE = 4;
+
+        //calc data sent to neighbours
+        long totalSize = Utils.getSizeOfObj(agentIterationData);
+        totalSize *= agent.getAgentData().getNeighbors().size();
+
+        //calc data sent to DC:
+        totalSize += Utils.getSizeOfObj(agentIterationCollected);
+
+        //calc messages to devices:
+
+        int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
+        for (PropertyWithData prop : helper.getAllProperties()) {
+            int numOfTimes = constantNumOfMsgs + prop.getRelatedSensorsDelta().size();
+            if (prop.getPrefix() != null && prop.getPrefix().equals(Prefix.BEFORE)) {
+                numOfTimes++;
+            }
+            totalSize += numOfTimes * MSG_TO_DEVICE_SIZE;
+        }
+
+        return totalSize;
     }
 }

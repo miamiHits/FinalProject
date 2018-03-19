@@ -41,13 +41,13 @@ public class DataCollectorTest {
         double[] powerConsPerTick = new double[]{22.1, 22.3, 55.77, 12.2, 15.5, 44.3, 3, 7 , 77, 12, 5, 78};
         ICD1 = new IterationCollectedData(0,"a0",
             22.33, powerConsPerTick,
-        "p4", "algo0", neighborhood1, 22.36);
+        "p4", "algo0", neighborhood1, 22.36, 1); //TODO: set real messageSize
         ICD2 = new IterationCollectedData(0,"a0",
                 22.33, powerConsPerTick,
-                "p1", "algo0", neighborhood1, 25.36);
+                "p1", "algo0", neighborhood1, 25.36, 1); //TODO: set real messageSize
         ICD3 = new IterationCollectedData(0,"a1",
                 22.33, powerConsPerTick,
-                "p1", "algo0", neighborhood2, 20.36);
+                "p1", "algo0", neighborhood2, 20.36, 1); //TODO: set real messageSize
 
     }
 

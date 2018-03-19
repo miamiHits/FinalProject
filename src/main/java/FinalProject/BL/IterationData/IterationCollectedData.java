@@ -7,15 +7,17 @@ public class IterationCollectedData extends AgentIterationData {
     private String problemId;
     private String algorithm;
     private Set<String> neighborhood;
-    private double epeak;
+    private double ePeak;
+    private long messagesSize;
 
     public IterationCollectedData(int iterNum, String agentName, double price, double[] powerConsPerDevice,
-                                  String problemId, String algo, Set<String> neighborhood, double epeak ) {
+                                  String problemId, String algo, Set<String> neighborhood, double epeak, long messagesSize ) {
         super(iterNum, agentName, price, powerConsPerDevice);
         this.problemId = problemId;
         this.algorithm = algo;
         this.neighborhood = neighborhood;
-        this.epeak = epeak;
+        this.ePeak = epeak;
+        this.messagesSize = messagesSize;
     }
 
     public String getProblemId() {
@@ -42,12 +44,20 @@ public class IterationCollectedData extends AgentIterationData {
         return neighborhood;
     }
 
-    public double getEpeak() {
-        return epeak;
+    public double getePeak() {
+        return ePeak;
     }
 
-    public void setEpeak(double epeak) {
-        this.epeak = epeak;
+    public void setePeak(double ePeak) {
+        this.ePeak = ePeak;
+    }
+
+    public long getMessagesSize() {
+        return messagesSize;
+    }
+
+    public void setMessagesSize(long messagesSize) {
+        this.messagesSize = messagesSize;
     }
 
 }
