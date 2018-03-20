@@ -1,7 +1,9 @@
 package FinalProject.BL.Agents;
 
+import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
 
+import java.util.List;
 import java.util.Map;
 
 public class SHMGM extends SmartHomeAgentBehaviour{
@@ -17,7 +19,9 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info("FINISH ITER 0");
         }
         else {
-            //TODO: other iter here
+            List<ACLMessage> messageList = waitForNeighbourMessages();
+            readNeighboursMsgs(messageList);
+            helper.calcTotalPowerConsumption(agent.getcSum());
         }
         beforeIterationIsDone();
         this.currentNumberOfIter++;

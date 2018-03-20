@@ -448,6 +448,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 agent.getAlgoId(), neighboursNames, helper.ePeak, countIterationCommunication());
     }
 
+    //TODO: not called. Maybe should be deleted!
     /**
      * a blocking method that waits far receiving messages from all neighbours and collector,
      * and and clears all AMS messages
@@ -481,6 +482,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return messages;
     }
 
+    //TODO: not called. Maybe should be deleted!
     protected void waitForCollectorMessage() {
         ACLMessage receivedMessage;
         receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR);
