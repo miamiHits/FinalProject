@@ -46,7 +46,7 @@ public class AgentPrice {
     public void setMsgLength(long msgLength) {
         this.msgLength = msgLength;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
