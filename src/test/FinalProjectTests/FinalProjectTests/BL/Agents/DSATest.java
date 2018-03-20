@@ -239,12 +239,15 @@ public class DSATest {
                     .collect(Collectors.toSet());
             AgentIterationData aid = new AgentIterationData(0, "name", 10.5, new double[]{});
             IterationCollectedData icd = new IterationCollectedData(0, "name", 10.5, new double[]{},
-                    "testProblem", "testAlgo", neighborhood, 10, 1);
+                    "testProblem", "testAlgo", neighborhood, 10, 1, 1);
             FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(dsa, "agentIterationCollected", icd);
             FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(dsa, "agentIterationData", aid);
             FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "initHelper");
-            Long returned = (Long) FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "countIterationCommunication");
-            Assert.assertTrue(returned == 1660);
+            FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "countIterationCommunication");
+            long size = agent.getIterationMessageSize();
+            int count = agent.getIterationMessageCount();
+            Assert.assertEquals(size,1675);
+            Assert.assertEquals(count, 16);
         } catch (Exception e) {
             System.out.println(e);
             Assert.fail();

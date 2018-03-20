@@ -1,6 +1,5 @@
 import FinalProject.BL.Agents.PropertyWithData;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
-import FinalProject.Utils;
 
 import java.util.Map;
 
@@ -47,8 +46,7 @@ public class BehaviourToCompile extends SmartHomeAgentBehaviour {
     }
 
     @Override
-    protected long countIterationCommunication() {
-        return -1;
+    protected void countIterationCommunication() {
     }
 
 }

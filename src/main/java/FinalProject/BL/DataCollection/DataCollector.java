@@ -59,12 +59,12 @@ public class DataCollector {
             tempIAP = probAlgoToItAgentPrice.get(tempPA);
             tempIAP.addAgentPrice(data.getIterNum(),
                     new AgentPrice(data.getAgentName(), data.getPrice(),
-                            data.getPowerConsumptionPerTick()));
+                            data.getPowerConsumptionPerTick(), data.getMessagesSize()));
         }else{
             tempIAP = new IterationAgentsPrice();
             tempIAP.addAgentPrice(data.getIterNum(),
                     new AgentPrice(data.getAgentName(), data.getPrice(),
-                            data.getPowerConsumptionPerTick()));
+                            data.getPowerConsumptionPerTick(), data.getMessagesSize()));
             probAlgoToItAgentPrice.put(tempPA, tempIAP);
         }
         return tempIAP;
