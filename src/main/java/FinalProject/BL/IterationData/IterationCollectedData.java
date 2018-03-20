@@ -62,4 +62,13 @@ public class IterationCollectedData extends AgentIterationData {
         this.messagesSize = messagesSize;
     }
 
+
+    public int getMsgCount() {
+        return msgCount;
+    }
+
+    public void setMsgCount(int msgCount) {
+        this.msgCount = msgCount;
+    }
+
 }
