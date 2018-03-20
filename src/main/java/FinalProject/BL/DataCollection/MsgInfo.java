@@ -2,11 +2,11 @@ package FinalProject.BL.DataCollection;
 
 public class MsgInfo {
     private int msgsNum;
-    private long msgsLength;
+    private long msgsSize;
 
-    public MsgInfo(int msgsNum, long msgsLength) {
+    public MsgInfo(int msgsNum, long msgsSize) {
         this.msgsNum = msgsNum;
-        this.msgsLength = msgsLength;
+        this.msgsSize = msgsSize;
     }
 
     public int getMsgsNum() {
@@ -17,12 +17,12 @@ public class MsgInfo {
         this.msgsNum = msgsNum;
     }
 
-    public long getMsgsLength() {
-        return msgsLength;
+    public long getMsgsSize() {
+        return msgsSize;
     }
 
-    public void setMsgsLength(long msgsLength) {
-        this.msgsLength = msgsLength;
+    public void setMsgsSize(long msgsSize) {
+        this.msgsSize = msgsSize;
     }
 
     @Override
@@ -33,13 +33,13 @@ public class MsgInfo {
         MsgInfo msgInfo = (MsgInfo) o;
 
         if (msgsNum != msgInfo.msgsNum) return false;
-        return msgsLength == msgInfo.msgsLength;
+        return msgsSize == msgInfo.msgsSize;
     }
 
     @Override
     public int hashCode() {
         int result = msgsNum;
-        result = 31 * result + (int) (msgsLength ^ (msgsLength >>> 32));
+        result = 31 * result + (int) (msgsSize ^ (msgsSize >>> 32));
         return result;
     }
 
@@ -47,7 +47,7 @@ public class MsgInfo {
     public String toString() {
         return "MsgInfo{" +
                 "msgsNum=" + msgsNum +
-                ", msgsLength=" + msgsLength +
+                ", msgsSize=" + msgsSize +
                 '}';
     }
 }
