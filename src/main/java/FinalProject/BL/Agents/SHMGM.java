@@ -33,8 +33,8 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     }
 
     @Override
-    protected long countIterationCommunication() {
-        return 0;
+    protected void countIterationCommunication() {
+
     }
 
     @Override
