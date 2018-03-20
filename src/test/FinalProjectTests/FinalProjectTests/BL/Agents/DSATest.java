@@ -244,7 +244,7 @@ public class DSATest {
             FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(dsa, "agentIterationData", aid);
             FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "initHelper");
             Long returned = (Long) FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "countIterationCommunication");
-            Assert.assertTrue(returned == 1637);
+            Assert.assertTrue(returned == 1660);
         } catch (Exception e) {
             System.out.println(e);
             Assert.fail();
