@@ -9,15 +9,17 @@ public class IterationCollectedData extends AgentIterationData {
     private Set<String> neighborhood;
     private double ePeak;
     private long messagesSize;
+    private int msgCount;
 
     public IterationCollectedData(int iterNum, String agentName, double price, double[] powerConsPerDevice,
-                                  String problemId, String algo, Set<String> neighborhood, double epeak, long messagesSize ) {
+                                  String problemId, String algo, Set<String> neighborhood, double epeak, long messagesSize, int msgCount ) {
         super(iterNum, agentName, price, powerConsPerDevice);
         this.problemId = problemId;
         this.algorithm = algo;
         this.neighborhood = neighborhood;
         this.ePeak = epeak;
         this.messagesSize = messagesSize;
+        this.msgCount = msgCount;
     }
 
     public String getProblemId() {

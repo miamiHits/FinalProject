@@ -219,7 +219,7 @@ public class TestAgentReceivingMessagesFromDataCollector extends FinalProjectTes
                     problem.getId(),
                     algorithm.getBehaviourName(),
                     (overriddenAgentData.getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())),
-                    -1, 1); //TODO: set real messageSize
+                    -1, 1, 1);
 
             this.sendFakeIterationToNeighbors();
             this.sendFakeIterationToCollector();
@@ -240,7 +240,7 @@ public class TestAgentReceivingMessagesFromDataCollector extends FinalProjectTes
                     problem.getId(),
                     algorithm.getBehaviourName(),
                     (overriddenAgentData.getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())),
-                    12, 1); //TODO: set real messageSize
+                    12, 1, 1);
             this.sendFakeIterationToNeighbors();
             this.sendFakeIterationToCollector();
             currentIterationNumber++;

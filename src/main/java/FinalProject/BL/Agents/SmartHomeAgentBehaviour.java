@@ -65,7 +65,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      * @return the total size of messages send from an agent to it's
      * neighbours + total size of messages send to it's devices.
      */
-    protected abstract long countIterationCommunication();
+    protected abstract void countIterationCommunication();
 
     public void buildScheduleFromScratch() {
         initHelper();
@@ -425,10 +425,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         Set<String> neighborhood = agent.getAgentData().getNeighbors().stream()
                 .map(AgentData::getName)
                 .collect(Collectors.toSet());
+        countIterationCommunication();
         IterationCollectedData agentIterSum = new IterationCollectedData(
                 iterationNum, agent.getName(), agentIterationData.getPrice(),
                 agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
-                agent.getAlgoId(), neighborhood, helper.ePeak, countIterationCommunication());
+                agent.getAlgoId(), neighborhood, helper.ePeak,
+                agent.getIterationMessageSize(), agent.getIterationMessageCount());
         this.agentIterationCollected = agentIterSum;
 //        sendIterationToCollector();
     }
@@ -444,8 +446,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         Set<String> neighboursNames = agent.getAgentData().getNeighbors().stream()
                 .map(AgentData::getName)
                 .collect(Collectors.toSet());
+        countIterationCommunication();
         agentIterationCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(),
-                agent.getAlgoId(), neighboursNames, helper.ePeak, countIterationCommunication());
+                agent.getAlgoId(), neighboursNames, helper.ePeak, agent.getIterationMessageSize(), agent.getIterationMessageCount());
     }
 
     /**
