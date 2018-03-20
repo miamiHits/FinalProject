@@ -93,7 +93,6 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     @Override
     protected void countIterationCommunication() {
-        final int MSG_TO_DEVICE_SIZE = 4;
         int count = 2; //2 for agentIterationCollected and agentIterationData
 
         //calc data sent to neighbours
@@ -106,17 +105,8 @@ public class DSA extends SmartHomeAgentBehaviour {
         totalSize += Utils.getSizeOfObj(agentIterationCollected);
 
         //calc messages to devices:
-        int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
-        for (PropertyWithData prop : helper.getAllProperties()) {
-            int numOfTimes = constantNumOfMsgs + prop.getRelatedSensorsDelta().size();
-            if (prop.getPrefix() != null && prop.getPrefix().equals(Prefix.BEFORE)) {
-                numOfTimes++;
-            }
-            totalSize += numOfTimes * MSG_TO_DEVICE_SIZE;
-            count += numOfTimes;
-        }
+        final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
 
-        agent.setIterationMessageCount(count);
-        agent.setIterationMessageSize(totalSize);
+        addMessagesSentToDevicesAndSetInAgent(count, totalSize, constantNumOfMsgs);
     }
 }

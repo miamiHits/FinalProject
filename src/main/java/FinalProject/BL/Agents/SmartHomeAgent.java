@@ -24,7 +24,7 @@ public class SmartHomeAgent extends Agent implements Serializable{
     public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR;
 
     private AgentData agentData;
-    private AgentIterationData bestIteration;
+    private AgentIterationData bestIteration; //TODO: maybe can be removed
     private AgentIterationData currIteration;
     private SmartHomeAgentBehaviour algorithm;
     private boolean isZEROIteration;
@@ -34,7 +34,6 @@ public class SmartHomeAgent extends Agent implements Serializable{
     private double cSum;
     private String problemId;
     private String algoId;
-
     private long iterationMessageSize = 0;
     private int iterationMessageCount = 0;
 

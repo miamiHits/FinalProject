@@ -114,6 +114,21 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     //-------------PROTECTED METHODS:-------------------
 
+    protected void addMessagesSentToDevicesAndSetInAgent(int count, long totalSize, int constantNumOfMsgs) {
+        final int MSG_TO_DEVICE_SIZE = 4;
+        for (PropertyWithData prop : helper.getAllProperties()) {
+            int numOfTimes = constantNumOfMsgs + prop.getRelatedSensorsDelta().size();
+            if (prop.getPrefix() != null && prop.getPrefix().equals(Prefix.BEFORE)) {
+                numOfTimes++;
+            }
+            totalSize += numOfTimes * MSG_TO_DEVICE_SIZE;
+            count += numOfTimes;
+        }
+
+        agent.setIterationMessageCount(count);
+        agent.setIterationMessageSize(totalSize);
+    }
+
     /**
      * Go through all properties and generate schedule for them
      */
