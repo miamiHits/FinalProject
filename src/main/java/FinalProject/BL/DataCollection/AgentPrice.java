@@ -7,12 +7,14 @@ public class AgentPrice {
     private double price;
     private double[] schedule;
     private long msgLength;
+    private int msgsNum;
 
-    public AgentPrice(String agentName, double price, double[] schedule, long msgLength) {
+    public AgentPrice(String agentName, double price, double[] schedule, long msgLength, int msgsNum) {
         this.agentName = agentName;
         this.price = price;
         this.schedule = schedule;
         this.msgLength = msgLength;
+        this.msgsNum = msgsNum;
     }
 
     public String getAgentName() {
@@ -45,6 +47,14 @@ public class AgentPrice {
 
     public void setMsgLength(long msgLength) {
         this.msgLength = msgLength;
+    }
+
+    public int getMsgsNum() {
+        return msgsNum;
+    }
+
+    public void setMsgsNum(int msgsNum) {
+        this.msgsNum = msgsNum;
     }
 
     @Override

@@ -131,7 +131,7 @@ public class AlgorithmProblemResult {
         int totalMsgNum = 0;
         List<AgentPrice> prices = iap.getIterationToAgentsPrice().get(iterNum);
         for (AgentPrice ap : prices){
-
+            dsfsd
         }
     }
 
