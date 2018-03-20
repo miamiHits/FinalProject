@@ -147,6 +147,7 @@ public class AlgorithmProblemResult {
                 ", totalGradePerIteration=" + totalGradePerIteration + "\n" +
                 ", iterationsTillBestPrice=" + iterationsTillBestPrice + "\n" +
                 ", bestGrade=" + bestGrade + "\n" +
+                ", messagesInIter=" + totalMessagesInIter + "\n" +
                 ", lowestCostForAgentInBestIteration=" + lowestCostForAgentInBestIteration + "\n" +
                 ", lowestCostForAgentInBestIterationAgentName='" + lowestCostForAgentInBestIterationAgentName + '\'' + "\n" +
                 ", highestCostForAgentInBestIteration=" + highestCostForAgentInBestIteration + "\n" +

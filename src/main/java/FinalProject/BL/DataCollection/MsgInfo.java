@@ -8,7 +8,7 @@ public class MsgInfo {
         this.msgsNum = msgsNum;
         this.msgsLength = msgsLength;
     }
-    
+
     public int getMsgsNum() {
         return msgsNum;
     }
@@ -43,4 +43,11 @@ public class MsgInfo {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "MsgInfo{" +
+                "msgsNum=" + msgsNum +
+                ", msgsLength=" + msgsLength +
+                '}';
+    }
 }
