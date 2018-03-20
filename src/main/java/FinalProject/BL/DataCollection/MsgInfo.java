@@ -4,6 +4,11 @@ public class MsgInfo {
     private int msgsNum;
     private long msgsLength;
 
+    public MsgInfo(int msgsNum, long msgsLength) {
+        this.msgsNum = msgsNum;
+        this.msgsLength = msgsLength;
+    }
+    
     public int getMsgsNum() {
         return msgsNum;
     }
