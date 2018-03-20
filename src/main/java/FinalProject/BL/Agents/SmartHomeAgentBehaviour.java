@@ -43,6 +43,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected boolean finished = false;
     protected double[] iterationPowerConsumption;
 
+    public SmartHomeAgentBehaviour() {}
+
+    public SmartHomeAgentBehaviour(SmartHomeAgent agent) {
+        this.agent = agent;
+    }
+
     //-------------ABSTRACT METHODS:-------------------
 
     /**
@@ -61,6 +67,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      */
     protected abstract long countIterationCommunication();
 
+    public void buildScheduleFromScratch() {
+        initHelper();
+        buildScheduleBasic();
+    }
+
     /**
      * generate schedule for the {@code prop} and update the sensors
      * @param prop the property to which the schedule should be generated
@@ -68,6 +79,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      * @param sensorsToCharge sensors affected
      */
     protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Double> sensorsToCharge);
+
+    public AlgorithmDataHelper getHelper() {
+        return helper;
+    }
+
+    public double[] getPowerConsumption() { return this.iterationPowerConsumption;}
 
     public abstract SmartHomeAgentBehaviour cloneBehaviour();
 

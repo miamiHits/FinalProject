@@ -20,7 +20,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     public DSA(SmartHomeAgent agent) {
-        this.agent = agent;
+        super(agent);
         this.currentNumberOfIter =0;
         this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length;
         this.helper = new AlgorithmDataHelper(agent);
@@ -45,15 +45,9 @@ public class DSA extends SmartHomeAgentBehaviour {
         this.currentNumberOfIter++;
     }
 
-    public AlgorithmDataHelper getHelper() {
-        return helper;
-    }
-
-    public double[] getPowerConsumption() { return this.iterationPowerConsumption;}
-
     @Override
     public DSA cloneBehaviour() {
-        DSA newInstance = new DSA();
+        DSA newInstance = new DSA(); //TODO: maybe should pass an agent?
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;
         newInstance.FINAL_TICK = this.FINAL_TICK;
@@ -76,11 +70,6 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void resetAndBuildSchedule() {
         helper.resetProperties();
-        buildScheduleBasic();
-    }
-
-    public void buildScheduleFromScratch() {
-        initHelper();
         buildScheduleBasic();
     }
 
