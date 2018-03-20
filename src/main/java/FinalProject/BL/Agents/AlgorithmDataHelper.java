@@ -7,11 +7,12 @@ import org.apache.log4j.Logger;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.*;
 
 public class AlgorithmDataHelper
 {
-    public double totalPriceConsumption=0;
+    public double totalPriceConsumption = 0;
+    public double ePeak = 0;
     private  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
     private List<PropertyWithData> allProperties;
     private SmartHomeAgent agent;
@@ -285,11 +286,11 @@ public class AlgorithmDataHelper
     public void calcTotalPowerConsumption(double cSum) {
         logger.info("Calculating total power consumption - stage 2");
 
-        List<double[]> toCalc = new ArrayList<>();
-        toCalc.addAll(this.neighboursPriceConsumption);
+        List<double[]> scheds = new ArrayList<>(this.neighboursPriceConsumption);
         double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        toCalc.add(myPowerCons);
-        this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, toCalc);
+        scheds.add(myPowerCons);
+        this.ePeak = calculateEPeak(scheds);
+        this.totalPriceConsumption = getAC() * cSum + getAE() * ePeak;
         logger.info("TOTAL power consumption is : " + this.totalPriceConsumption);
 
     }
@@ -318,7 +319,7 @@ public class AlgorithmDataHelper
         return newList;
     }
 
-    public void goBackToStartValues() {
+    public void resetProperties() {
         for (PropertyWithData prop : this.allProperties)
             prop.getSensor().setCurrentState(prop.getCachedSensorState());
     }

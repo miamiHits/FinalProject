@@ -35,6 +35,9 @@ public class SmartHomeAgent extends Agent implements Serializable{
     private String problemId;
     private String algoId;
 
+    private long iterationMessageSize = 0;
+    private int iterationMessageCount = 0;
+
     private Logger logger = Logger.getLogger(SmartHomeAgent.class);
 
     public AgentData getAgentData() {
@@ -110,6 +113,23 @@ public class SmartHomeAgent extends Agent implements Serializable{
     public void setAlgoId(String algoId) {
         this.algoId = algoId;
     }
+
+    public long getIterationMessageSize() {
+        return iterationMessageSize;
+    }
+
+    public void setIterationMessageSize(long iterationMessageSize) {
+        this.iterationMessageSize = iterationMessageSize;
+    }
+
+    public int getIterationMessageCount() {
+        return iterationMessageCount;
+    }
+
+    public void setIterationMessageCount(int iterationMessageCount) {
+        this.iterationMessageCount = iterationMessageCount;
+    }
+
     @Override
     protected void setup() {
         super.setup();

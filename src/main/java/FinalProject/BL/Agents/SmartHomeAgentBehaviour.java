@@ -43,6 +43,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected boolean finished = false;
     protected double[] iterationPowerConsumption;
 
+    public SmartHomeAgentBehaviour() {}
+
+    public SmartHomeAgentBehaviour(SmartHomeAgent agent) {
+        this.agent = agent;
+    }
+
     //-------------ABSTRACT METHODS:-------------------
 
     /**
@@ -56,32 +62,14 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected abstract void onTermination();
 
     /**
-     * Go through all properties and generate schedule for them
+     * @return the total size of messages send from an agent to it's
+     * neighbours + total size of messages send to it's devices.
      */
-    protected void tryBuildScheduleBasic() {
-        this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
-        List<PropertyWithData> helperNonPassiveOnlyProps = helper.getAllProperties().stream()
-                .filter(p -> !p.isPassiveOnly())
-                .collect(Collectors.toList());
-        for (PropertyWithData prop : helperNonPassiveOnlyProps) {
-            if (prop.getPrefix() == Prefix.BEFORE) {
-                prop.calcAndUpdateCurrState(prop.getTargetValue(),START_TICK, this.iterationPowerConsumption, true);
-            }
-            //lets see what is the state of the curr & related sensors till then
-            prop.calcAndUpdateCurrState(prop.getMin(),START_TICK, this.iterationPowerConsumption, true);
-            double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
-            Map<String, Double> sensorsToCharge = new HashMap<>();
-            //check if there is sensor in the same ACT that is negative (usually related to charge)
-            prop.getRelatedSensorsDelta().forEach((key, value) -> {
-                if (value < 0) {
-                    double ticksNeedToCharge = calcHowManyTicksNeedToCharge(key, value, ticksToWork);
-                    if (ticksNeedToCharge > 0) {
-                        sensorsToCharge.put(key, ticksNeedToCharge);
-                    }
-                }
-            });
-            generateScheduleForProp(prop, ticksToWork, sensorsToCharge);
-        }
+    protected abstract void countIterationCommunication();
+
+    public void buildScheduleFromScratch() {
+        initHelper();
+        buildScheduleBasic();
     }
 
     /**
@@ -91,6 +79,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      * @param sensorsToCharge sensors affected
      */
     protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Double> sensorsToCharge);
+
+    public AlgorithmDataHelper getHelper() {
+        return helper;
+    }
+
+    public double[] getPowerConsumption() { return this.iterationPowerConsumption;}
 
     public abstract SmartHomeAgentBehaviour cloneBehaviour();
 
@@ -119,6 +113,35 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     //-------------PROTECTED METHODS:-------------------
+
+    /**
+     * Go through all properties and generate schedule for them
+     */
+    protected void buildScheduleBasic() {
+        this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
+        List<PropertyWithData> helperNonPassiveOnlyProps = helper.getAllProperties().stream()
+                .filter(p -> !p.isPassiveOnly())
+                .collect(Collectors.toList());
+        for (PropertyWithData prop : helperNonPassiveOnlyProps) {
+            if (prop.getPrefix() == Prefix.BEFORE) {
+                prop.calcAndUpdateCurrState(prop.getTargetValue(),START_TICK, this.iterationPowerConsumption, true);
+            }
+            //lets see what is the state of the curr & related sensors till then
+            prop.calcAndUpdateCurrState(prop.getMin(),START_TICK, this.iterationPowerConsumption, true);
+            double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
+            Map<String, Double> sensorsToCharge = new HashMap<>();
+            //check if there is sensor in the same ACT that is negative (usually related to charge)
+            prop.getRelatedSensorsDelta().forEach((key, value) -> {
+                if (value < 0) {
+                    double ticksNeedToCharge = calcHowManyTicksNeedToCharge(key, value, ticksToWork);
+                    if (ticksNeedToCharge > 0) {
+                        sensorsToCharge.put(key, ticksNeedToCharge);
+                    }
+                }
+            });
+            generateScheduleForProp(prop, ticksToWork, sensorsToCharge);
+        }
+    }
 
     protected int calcHowManyTicksNeedToCharge(String key, double delta, double ticksToWork) {
         int ticks = 0;
@@ -233,8 +256,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         List<Integer> activeTicks = helper.cloneList(myTicks);
         helper.getDeviceToTicks().put(prop.getActuator(), activeTicks);
         for (int i = 0; i < myTicks.size(); ++i) {
-            iterationPowerConsumption[myTicks.get(i)] = Double.sum(this.iterationPowerConsumption[myTicks.get(i)],
-                    prop.getPowerConsumedInWork());
+            iterationPowerConsumption[myTicks.get(i)] = this.iterationPowerConsumption[myTicks.get(i)] + prop.getPowerConsumedInWork();
             if (!sensorsToCharge.isEmpty()) {
                 for (Map.Entry<String,Double> entry : sensorsToCharge.entrySet()) {
                     PropertyWithData brother = helper.getAllProperties().stream()
@@ -403,10 +425,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         Set<String> neighborhood = agent.getAgentData().getNeighbors().stream()
                 .map(AgentData::getName)
                 .collect(Collectors.toSet());
+        countIterationCommunication();
         IterationCollectedData agentIterSum = new IterationCollectedData(
                 iterationNum, agent.getName(), agentIterationData.getPrice(),
                 agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
-                agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getcSum());
+                agent.getAlgoId(), neighborhood, helper.ePeak,
+                agent.getIterationMessageSize(), agent.getIterationMessageCount());
         this.agentIterationCollected = agentIterSum;
 //        sendIterationToCollector();
     }
@@ -417,12 +441,17 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         double[] arr = helper.cloneArray(this.iterationPowerConsumption);
         logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
         logger.info("my PRICE is: " + price);
-        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(),price, arr);
+        agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(), price, arr);
         agent.setCurrIteration(agentIterationData);
+        Set<String> neighboursNames = agent.getAgentData().getNeighbors().stream()
+                .map(AgentData::getName)
+                .collect(Collectors.toSet());
+        countIterationCommunication();
         agentIterationCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(),
-                agent.getAlgoId(), (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())), -1);
+                agent.getAlgoId(), neighboursNames, helper.ePeak, agent.getIterationMessageSize(), agent.getIterationMessageCount());
     }
 
+    //TODO: not called. Maybe should be deleted!
     /**
      * a blocking method that waits far receiving messages from all neighbours and collector,
      * and and clears all AMS messages
@@ -456,6 +485,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return messages;
     }
 
+    //TODO: not called. Maybe should be deleted!
     protected void waitForCollectorMessage() {
         ACLMessage receivedMessage;
         receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR);

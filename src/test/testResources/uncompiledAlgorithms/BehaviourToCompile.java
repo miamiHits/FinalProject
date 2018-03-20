@@ -45,4 +45,8 @@ public class BehaviourToCompile extends SmartHomeAgentBehaviour {
         return false;
     }
 
+    @Override
+    protected void countIterationCommunication() {
+    }
+
 }

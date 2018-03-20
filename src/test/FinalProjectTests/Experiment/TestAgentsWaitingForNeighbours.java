@@ -70,7 +70,7 @@ public class TestAgentsWaitingForNeighbours extends AbstractJadeIntegrationTest
                                 ICD.getIterNum(),
                                 this.currentIterationNumber));
                     }
-                    AgentMessageType updatedType = ICD.getEpeak() == -1 ? AgentMessageType.NO_EPEAK : AgentMessageType.WITH_EPEAK;
+                    AgentMessageType updatedType = ICD.getePeak() == -1 ? AgentMessageType.NO_EPEAK : AgentMessageType.WITH_EPEAK;
                     messagesReceivedFromAgents.put(m.getSender().getLocalName(),updatedType);
                 }
                 if (didReceiveMessageFromAllAgents())
@@ -111,7 +111,7 @@ public class TestAgentsWaitingForNeighbours extends AbstractJadeIntegrationTest
 
         private void examineMessage(IterationCollectedData ICD, ACLMessage m)
         {
-            if (ICD.getEpeak() == -1)
+            if (ICD.getePeak() == -1)
             {//this is a message of end of iteration prior the epeak calculation
                 if (messagesReceivedFromAgents.get(m.getSender().getLocalName()) == AgentMessageType.NO_EPEAK)
                 {
