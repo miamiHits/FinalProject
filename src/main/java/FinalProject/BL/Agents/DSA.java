@@ -1,5 +1,4 @@
 package FinalProject.BL.Agents;
-import FinalProject.BL.DataObjects.Prefix;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
@@ -44,7 +43,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     @Override
-    public DSA cloneBehaviour() {
+    public SmartHomeAgentBehaviour cloneBehaviour() {
         DSA newInstance = new DSA(); //TODO: maybe should pass an agent?
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;

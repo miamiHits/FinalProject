@@ -1,6 +1,5 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.DataObjects.Prefix;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.Utils;
@@ -10,7 +9,9 @@ import jade.util.leap.Comparable;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class SHMGM extends SmartHomeAgentBehaviour{
@@ -63,9 +64,11 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevCsum, prevTotalCost, prevIterPowerConsumption);
         }
         else if (max.agentName.equals(agent.getName())) { //take new schedule
+            logger.error(agent.getName() + "'s improvement: " + max.improvement + " WAS THE GREATEST");
             agent.setcSum(prevCsum);
         }
-        else {
+        else { //take prev schedule
+            logger.error(agent.getName() + " got max improvement: " + max.improvement + " from agent " + max.agentName);
             resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevCsum, prevTotalCost, prevIterPowerConsumption);
         }
 
@@ -84,6 +87,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     }
 
     private List<ImprovementMsg> sendAndReceiveImprovement(double improvement) {
+        logger.info(agent.getName() + " sending improvement to neighbours");
         ImprovementMsg toSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum());
         sendMsgToAllNeighbors(toSend);
         List<ACLMessage> receivedMesgs = waitForNeighbourMessages();
@@ -98,6 +102,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        logger.info(agent.getName() + " got improvement to neighbours");
         return improvements;
     }
 
@@ -143,8 +148,8 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     }
 
     @Override
-    public DSA cloneBehaviour() {
-        DSA newInstance = new DSA();
+    public SmartHomeAgentBehaviour cloneBehaviour() {
+        SHMGM newInstance = new SHMGM();
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;
         newInstance.FINAL_TICK = this.FINAL_TICK;
