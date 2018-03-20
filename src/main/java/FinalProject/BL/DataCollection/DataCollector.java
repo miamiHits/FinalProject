@@ -43,6 +43,7 @@ public class DataCollector {
         //now we add all the ePeaks
         totalGrade += iap.getTotalEpeakInIter(data.getIterNum());
         apr.setTotalGradeToIter(data.getIterNum(), totalGrade);
+        apr.setTotalMsgsInIter(data.getIterNum(), iap);
         if (totalGrade < apr.getBestGrade()){
             apr.setBestGrade(totalGrade);
             apr.setIterationsTillBestPrice(data.getIterNum());
@@ -161,7 +162,7 @@ public class DataCollector {
         List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
         Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
         if (prices != null && numOfAgents != null &&
-                prices.size() == numOfAgents){ //iteration is over  with no epeak calculated
+                prices.size() == numOfAgents){ //iteration is over
             if (!probAlgoToResult.containsKey(PA)){ //no prob result yet
                 AlgorithmProblemResult result = new AlgorithmProblemResult(PA);
                 result.setIterationsTillBestPrice(data.getIterNum());
