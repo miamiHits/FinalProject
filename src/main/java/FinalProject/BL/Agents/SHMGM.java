@@ -56,17 +56,23 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         //calculate improvement
         double newPrice = calcPrice(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
         double newTotalCost = helper.calcTotalPowerConsumption(newPrice);
-        double improvement = newTotalCost - prevTotalCost;
+        double improvement =  prevTotalCost - newTotalCost;
 
-        List<ImprovementMsg> receivedImprovements = sendAndReceiveImprovement(improvement);
+        ImprovementMsg impMsg = sendImprovmentToNeighbours(improvement);
+        List<ImprovementMsg> receivedImprovements = receiveImprovements();
+        receivedImprovements.add(impMsg);
         ImprovementMsg max = receivedImprovements.stream().max(ImprovementMsg::compareTo).orElse(null);
         maxImprovementMsg = max;
         if (max == null) {
             logger.error("max is null! Something went wrong!!!!!!!");
             //TODO: maybe use oldPrice instead of prevAgentPriceSum
             resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
+            return;
         }
-        else if (max.getAgentName().equals(agent.getName())) { //take new schedule
+        String agentName = beautifyAgentName(agent.getName());
+        String maxName = beautifyAgentName(max.getAgentName());
+        logger.info("agent is: " + agentName +" max is: " + maxName + " iter num: " + this.currentNumberOfIter);
+        if (maxName.equals(agentName)) { //take new schedule
             logger.info(agent.getName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
             agent.setPriceSum(newPrice);
         }
@@ -76,6 +82,14 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
         }
 
+    }
+
+    private String beautifyAgentName(String name) {
+        int shtrudel = name.indexOf('@');
+        if (shtrudel != -1){
+            name = name.substring(0, shtrudel);
+        }
+        return name;
     }
 
     //TODO: test this well!
@@ -90,10 +104,8 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         this.iterationPowerConsumption = prevIterPowerConsumption;
     }
 
-    private List<ImprovementMsg> sendAndReceiveImprovement(double improvement) {
-        logger.info(agent.getName() + " sending improvement to neighbours");
-        ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum());
-        sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);
+    private List<ImprovementMsg> receiveImprovements() {
+
         List<ACLMessage> receivedMsgs = waitForNeighbourMessages(improvementTemplate);
         List<ImprovementMsg> improvements = receivedMsgs.stream()
                 .map(msg -> {
@@ -108,6 +120,13 @@ public class SHMGM extends SmartHomeAgentBehaviour{
                 .collect(Collectors.toList());
         logger.info(agent.getName() + " got improvement to neighbours");
         return improvements;
+    }
+
+    private ImprovementMsg sendImprovmentToNeighbours(double improvement) {
+        logger.info(agent.getName() + " sending improvement to neighbours");
+        ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum());
+        sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);
+        return improvementToSend;
     }
 
     @Override
