@@ -1,16 +1,16 @@
 package FinalProject.PL;
 
 import FinalProject.PL.JFreeChart.JFreeChartUtils;
+import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.ui.*;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Panel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.StatisticalLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;

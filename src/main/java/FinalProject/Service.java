@@ -92,4 +92,8 @@ public class Service {
         //TODO implement
     }
 
+
+    public void algorithmProblemIterEnded(String algo, String problem, float changePercentage) {
+        observer.algorithmProblemIterEnded(algo, problem, changePercentage);
+    }
 }

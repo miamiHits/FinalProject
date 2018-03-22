@@ -14,4 +14,6 @@ public interface UiHandlerInterface {
     void notifyExperimentEnded(List<AlgorithmProblemResult> results);
 
     void notifyError(String msg);
+
+    void algorithmProblemIterEnded(String algo, String problem, float changePercentage);
 }
