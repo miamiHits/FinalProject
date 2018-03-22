@@ -42,6 +42,11 @@ public class Service {
         return this.dalController.getAvailableAlgorithms();
     }
 
+    public List<String> getAvailableProblems()
+    {
+        return this.dalController.getAvailableProblems();
+    }
+
 
     public void setAlgorithmsToExperiment(List<String> algorithmNames, int iterationNumber)
     {

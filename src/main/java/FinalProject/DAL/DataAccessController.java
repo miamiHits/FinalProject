@@ -50,6 +50,12 @@ public class DataAccessController implements DataAccessControllerInterface{
     }
 
     @Override
+    public List<String> getAvailableProblems()
+    {
+        return jsonLoader.getAllProblemNames();
+    }
+
+    @Override
     public List<SmartHomeAgentBehaviour> getAlgorithms(List<String> algoNames)
     {
         return algoLoader.loadAlgorithms(algoNames);

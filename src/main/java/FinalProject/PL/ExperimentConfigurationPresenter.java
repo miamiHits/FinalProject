@@ -2,17 +2,27 @@ package FinalProject.PL;
 
 import FinalProject.Service;
 import com.vaadin.data.provider.DataProvider;
+import com.vaadin.event.selection.MultiSelectionEvent;
+import com.vaadin.event.selection.MultiSelectionListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ExperimentConfigurationPresenter extends Panel implements View {
+public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener {
 
     private VerticalLayout _algorithmsContainer;
     private VerticalLayout _problemsContainer;
+
+    private Button startExperimentBtn = new Button("Start Experiment");
+    private TextField numberOfIterationsTxt = new TextField("Select Number of Iterations");
+    private Button addNewAlgorithmBtn = new Button("Add New Algorithm");
+
+    private final List<String> selectedAlgorithms = new ArrayList<>();
+    private final List<String> selectedProblems = new ArrayList<>();
 
     private Service service;
 
@@ -44,9 +54,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View {
 
         mainLayout.addComponent(configurationLayout);
 
-        Button startExperimentBtn = new Button("Start Experiment");
-
-        startExperimentBtn.addClickListener(clickEvent -> UiHandler.navigator.navigateTo(UiHandler.EXPERIMENT_RESULTS));
+        startExperimentBtn.addClickListener(this);
 
         mainLayout.addComponent(startExperimentBtn);
         setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
@@ -66,17 +74,18 @@ public class ExperimentConfigurationPresenter extends Panel implements View {
         final List<String> availableAlgorithms = this.service.getAvailableAlgorithms();
         algorithmSelector.setDataProvider(DataProvider.ofCollection(availableAlgorithms));
 
+        algorithmSelector.addSelectionListener(new MultiSelectionListener<String>() {
+            @Override
+            public void selectionChange(MultiSelectionEvent<String> event) {
+                selectedAlgorithms.clear();
+                selectedAlgorithms.addAll(event.getAllSelectedItems());
+            }
+        });
+
         Button addAllAlgorithmsBtn = new Button("Add All");
         addAllAlgorithmsBtn.addClickListener(generateAddAllClickListener(availableAlgorithms, algorithmSelector));
 
-        TextField numberOfIterationsTxt = new TextField();
-        numberOfIterationsTxt.setCaption("Select Number of Iterations");
-
         Button loadSelectedAlgorithmsBtn = new Button("Load Algorithms");
-
-        Button addNewAlgorithmBtn = new Button("Add New Algorithm");
-
-
 
         _algorithmsContainer.addComponent(algorithmSelector);
         _algorithmsContainer.addComponent(addAllAlgorithmsBtn);
@@ -93,9 +102,21 @@ public class ExperimentConfigurationPresenter extends Panel implements View {
         TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
         problemSelector.setLeftColumnCaption("Available Problems");
         problemSelector.setRightColumnCaption("Selected Problems");
+        final List<String> availableProblems = this.service.getAvailableProblems();
+        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
+
+
+        problemSelector.addSelectionListener(new MultiSelectionListener<String>() {
+            @Override
+            public void selectionChange(MultiSelectionEvent<String> event) {
+                selectedProblems.clear();
+                selectedProblems.addAll(event.getAllSelectedItems());
+            }
+        });
+
 
         Button addAllProblemsBtn = new Button("Add All");
-        //TODO implement click listener
+        addAllProblemsBtn.addClickListener(generateAddAllClickListener(availableProblems, problemSelector));
 
         Button loadSelectedProblemsBtn = new Button("Load Problems");
 
@@ -131,4 +152,47 @@ public class ExperimentConfigurationPresenter extends Panel implements View {
         };
     }
 
+
+    @Override
+    public void buttonClick(Button.ClickEvent event) {
+        Button clickedButton = event.getButton();
+        if (clickedButton.equals(startExperimentBtn))
+        {
+            startExperimentClicked();
+        }
+        else if (clickedButton.equals(addNewAlgorithmBtn))
+        {
+
+        }
+    }
+
+    private void startExperimentClicked()
+    {
+
+        int numberOfIterations = parseIterationNumber();
+
+        service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
+        service.setProblemsToExperiment(selectedProblems);
+        service.runExperiment();
+
+    }
+
+    private int parseIterationNumber()
+    {
+        int result = -1;
+        try
+        {
+            result = Integer.valueOf(numberOfIterationsTxt.getValue());
+            if (result <= 0)
+            {
+                throw new NumberFormatException();
+            }
+        }
+        catch(NumberFormatException e)
+        {
+            //TODO gal implement error message
+        }
+
+        return result;
+    }
 }

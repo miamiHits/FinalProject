@@ -10,6 +10,7 @@ public interface DataAccessControllerInterface {
 
     List<Problem> getProblems(List<String> problemNames);
     List<String> getAvailableAlgorithms();
+    List<String> getAvailableProblems();
     List<SmartHomeAgentBehaviour> getAlgorithms(List<String> algoNames);
     void addAlgorithmToSystem(String path, String name) throws IllegalAccessException, IOException, InstantiationException;
 }
