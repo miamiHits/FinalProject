@@ -1,0 +1,22 @@
+@startuml
+actor User as u
+
+activate UiHandler
+activate Service
+activate ChartViewer
+
+ChartViewer -> u : [shows graph describing the results of the experiment]
+
+opt user chooses to save the experiment results
+    u -> UiHandler : save experiment results
+    UiHandler -> Service : saveExperimentResult(List<AlgorithmProblemResult>)
+    Service -> ExcelHandler : saveExperimentResult(List<AlgorithmProblemResult>)
+    activate ExcelHandler
+
+    Service -> UiHandler : showSuccessMsg(msg: String)
+    UiHandler -> u : [shows a success message]
+end
+
+UiHandler -> u : [displays the main screen]
+
+@enduml

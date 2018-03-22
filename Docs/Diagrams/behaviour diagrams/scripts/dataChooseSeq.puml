@@ -1,0 +1,75 @@
+@startuml
+actor User as u
+participant DataAccessController as DAC
+participant ExperimentBuilder as EB
+
+activate u
+activate UiHandler
+activate Service
+activate EB
+
+
+
+alt Json files describing problems are available in the system
+
+    UiHandler -> UiHandler : [displays the available algorithms in the list builder element]
+    u -> UiHandler : [clicks "Load"]
+    note left
+        user selects the desired
+        algorithms in the list
+        builder GUI element
+        and inserted number of
+        iterations
+    end note
+
+    UiHandler -> Service : loadProblems(List<problemNames: String>)
+
+    activate DAC
+    Service -> DAC : getProblems(List<problemNames: String>)
+
+    loop for each problem name
+        activate JsonLoader
+        DAC -> JsonLoader : loadProblem(String problemName)
+        JsonLoader -> JsonLoader : verifyJson(String problemName)
+        JsonLoader --> DAC : [Problem]
+    end
+
+    DAC -> JsonLoader : loadDevices(String devicesFileName)
+    JsonLoader -> JsonLoader : verifyJson(String devicesFileName)
+    JsonLoader --> DAC : [Devices]
+
+    DAC -->Service : [List<Problem>]
+    Service -> EB : addProblems(List<Problem>)
+    Service --> UiHandler : showSuccessMsg(msg: String)
+    UiHandler --> u : [shows a success message]
+
+else no available Json files describing problems in the system
+
+    UiHandler --> u : [shows a descriptive error message]
+
+else one or more of the Json files is not a valid problem
+
+    UiHandler -> UiHandler : [displays the available algorithms in the list builder element]
+    u -> UiHandler : [clicks "Load"]
+    note left
+        user selects the desired
+        algorithms in the list
+        builder GUI element
+        and inserted number of
+        iterations
+    end note
+
+    UiHandler -> Service : loadProblems(List<problemNames: String>)
+
+    Service -> DAC : getProblems(List<problemNames: String>)
+
+    DAC -> JsonLoader : loadProblem(String problemName)
+    JsonLoader -> JsonLoader : verifyJson(String problemName)
+    JsonLoader -> Service : [ParseException]
+    Service --> UiHandler : showErrorMessage(msg: String)
+    UiHandler --> u : [shows a descriptive error message]
+end
+
+
+
+@enduml

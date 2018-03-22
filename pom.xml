@@ -67,6 +67,12 @@
 			<artifactId>vaadin-themes</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.vaadin.addon</groupId>
+			<artifactId>jfreechartwrapper</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+
 		<!--non vaadin dependencies-->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

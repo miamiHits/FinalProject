@@ -37,19 +37,25 @@ public class Service {
         return experimentBuilder;
     }
 
-    public void addAlgorithmsToExperiment(List<String> algorithmNames, int iterationNumber)
+    public List<String> getAvailableAlgorithms()
+    {
+        return this.dalController.getAvailableAlgorithms();
+    }
+
+
+    public void setAlgorithmsToExperiment(List<String> algorithmNames, int iterationNumber)
     {
         logger.info("algorithms added: " + algorithmNames.toString());
         List<SmartHomeAgentBehaviour> loadedAlgorithms = this.dalController.getAlgorithms(algorithmNames);
-        this.experimentBuilder.addAlgorithms(loadedAlgorithms);
+        this.experimentBuilder.setAlgorithms(loadedAlgorithms);
         this.experimentBuilder.setNumOfIterations(iterationNumber);
     }
 
-    public void addProblemsToExperiment(List<String> problemNames)
+    public void setProblemsToExperiment(List<String> problemNames)
     {
         logger.info("problems added: " + problemNames.toString());
         List<Problem> loadedProblems = this.dalController.getProblems(problemNames);
-        this.experimentBuilder.addProblems(loadedProblems);
+        this.experimentBuilder.setProblems(loadedProblems);
     }
 
     public void runExperiment()

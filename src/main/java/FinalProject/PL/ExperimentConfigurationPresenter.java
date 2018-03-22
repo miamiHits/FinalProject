@@ -1,22 +1,32 @@
 package FinalProject.PL;
 
-import com.vaadin.server.VaadinRequest;
+import FinalProject.Service;
+import com.vaadin.data.provider.DataProvider;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 
 import java.util.Iterator;
+import java.util.List;
 
-public class ExperimentConfigurationPresenter extends UI {
+public class ExperimentConfigurationPresenter extends Panel implements View {
 
     private VerticalLayout _algorithmsContainer;
     private VerticalLayout _problemsContainer;
 
+    private Service service;
 
     @Override
-    protected void init(VaadinRequest vaadinRequest) {
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
 
-        final VerticalLayout mainLayout = new VerticalLayout();
+
+    //TODO gal for final iteration prevent use of more than one browser tab
         _algorithmsContainer = new VerticalLayout();
         _problemsContainer = new VerticalLayout();
+
+        this.service = UiHandler.service;
+
+        VerticalLayout mainLayout = new VerticalLayout();
 
         generateAlgorithmsSection();
         generateProblemsSection();
@@ -36,20 +46,28 @@ public class ExperimentConfigurationPresenter extends UI {
 
         Button startExperimentBtn = new Button("Start Experiment");
 
+        startExperimentBtn.addClickListener(clickEvent -> UiHandler.navigator.navigateTo(UiHandler.EXPERIMENT_RESULTS));
+
         mainLayout.addComponent(startExperimentBtn);
         setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
 
         setContent(mainLayout);
+
+        setSizeFull();
     }
+
 
     private void generateAlgorithmsSection()
     {
 
-        TwinColSelect<String> algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
+        final TwinColSelect<String> algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
+        final List<String> availableAlgorithms = this.service.getAvailableAlgorithms();
+        algorithmSelector.setDataProvider(DataProvider.ofCollection(availableAlgorithms));
 
         Button addAllAlgorithmsBtn = new Button("Add All");
+        addAllAlgorithmsBtn.addClickListener(generateAddAllClickListener(availableAlgorithms, algorithmSelector));
 
         TextField numberOfIterationsTxt = new TextField();
         numberOfIterationsTxt.setCaption("Select Number of Iterations");
@@ -96,6 +114,21 @@ public class ExperimentConfigurationPresenter extends UI {
             Component currentComponent = componentIterator.next();
             layout.setComponentAlignment(currentComponent, alignment);
         }
+    }
+
+
+
+    private Button.ClickListener generateAddAllClickListener(List<String> items, AbstractMultiSelect component)
+    {
+        return new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                for (String item : items)
+                {
+                    component.select(item);
+                }
+            }
+        };
     }
 
 }
