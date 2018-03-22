@@ -47,7 +47,7 @@ public class ExperimentBuilderTest {
     {
         SmartHomeAgentBehaviour behaviour = mock(SmartHomeAgentBehaviour.class);
         final List<SmartHomeAgentBehaviour> lst = Collections.singletonList(behaviour);
-        builder.addAlgorithms(lst);
+        builder.setAlgorithms(lst);
         Assert.assertEquals(lst, builder.getAlgos());
     }
 
@@ -56,7 +56,7 @@ public class ExperimentBuilderTest {
     {
         Problem prob = mock(Problem.class);
         final List<Problem> lst = Collections.singletonList(prob);
-        builder.addProblems(lst);
+        builder.setProblems(lst);
 
         Assert.assertEquals(lst, builder.getProblems());
     }
@@ -67,11 +67,11 @@ public class ExperimentBuilderTest {
         final int num = 1;
         SmartHomeAgentBehaviour behaviour = mock(SmartHomeAgentBehaviour.class);
         final List<SmartHomeAgentBehaviour> algLst = Collections.singletonList(behaviour);
-        builder.addAlgorithms(algLst);
+        builder.setAlgorithms(algLst);
         builder.setNumOfIterations(num);
         Problem prob = mock(Problem.class);
         final List<Problem> probLst = Collections.singletonList(prob);
-        builder.addProblems(probLst);
+        builder.setProblems(probLst);
 
         Experiment expected = new Experiment(service, probLst, algLst);
         expected.maximumIterations = num;
@@ -87,7 +87,7 @@ public class ExperimentBuilderTest {
         builder.setNumOfIterations(num);
         Problem prob = mock(Problem.class);
         final List<Problem> probLst = Collections.singletonList(prob);
-        builder.addProblems(probLst);
+        builder.setProblems(probLst);
 
         builder.createExperiment(); //throws
     }
@@ -97,7 +97,7 @@ public class ExperimentBuilderTest {
     {
         SmartHomeAgentBehaviour behaviour = mock(SmartHomeAgentBehaviour.class);
         final List<SmartHomeAgentBehaviour> algLst = Collections.singletonList(behaviour);
-        builder.addAlgorithms(algLst);
+        builder.setAlgorithms(algLst);
 
         builder.createExperiment();
     }
@@ -107,10 +107,10 @@ public class ExperimentBuilderTest {
     {
         SmartHomeAgentBehaviour behaviour = mock(SmartHomeAgentBehaviour.class);
         final List<SmartHomeAgentBehaviour> algLst = Collections.singletonList(behaviour);
-        builder.addAlgorithms(algLst);
+        builder.setAlgorithms(algLst);
         Problem prob = mock(Problem.class);
         final List<Problem> probLst = Collections.singletonList(prob);
-        builder.addProblems(probLst);
+        builder.setProblems(probLst);
 
         builder.createExperiment();
     }

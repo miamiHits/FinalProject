@@ -62,7 +62,7 @@ public class ServiceTest {
                 .thenReturn(Collections.singletonList(behaviour));
 
         int numOfIter = 1;
-        service.addAlgorithmsToExperiment(new ArrayList<>(), numOfIter);
+        service.setAlgorithmsToExperiment(new ArrayList<>(), numOfIter);
         Assert.assertEquals(service.getExperimentBuilder().getNumOfIterations(), numOfIter);
     }
 
@@ -72,7 +72,7 @@ public class ServiceTest {
         when(accessController.getAlgorithms(new ArrayList<>()))
                 .thenReturn(Collections.singletonList(behaviour));
 
-        service.addAlgorithmsToExperiment(new ArrayList<>(), 1);
+        service.setAlgorithmsToExperiment(new ArrayList<>(), 1);
         Assert.assertEquals(service.getExperimentBuilder().getAlgos(),
                             Collections.singletonList(behaviour));
     }
@@ -83,7 +83,7 @@ public class ServiceTest {
         when(accessController.getProblems(new ArrayList<>()))
                 .thenReturn(Collections.singletonList(problem));
 
-        service.addProblemsToExperiment(new ArrayList<>());
+        service.setProblemsToExperiment(new ArrayList<>());
         Assert.assertEquals(service.getExperimentBuilder().getProblems(),
                             Collections.singletonList(problem));
     }
