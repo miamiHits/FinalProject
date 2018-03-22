@@ -8,6 +8,7 @@ import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,15 +35,14 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             helper.calcPowerConsumptionForAllNeighbours(); //TODO added
             improveSchedule();
         }
-        beforeIterationIsDone();
+        beforeIterationIsDone(); //TODO check if its good
         this.currentNumberOfIter++;
     }
 
     private void improveSchedule() {
         //backup prev values
         //TODO: test backup well!
-
-        printData();
+        System.out.println("^^^^^^^^^^^^^^" + agent.getName() + Arrays.toString(iterationPowerConsumption));
 
         AlgorithmDataHelper helperBackup = new AlgorithmDataHelper(helper);
         double[] prevIterPowerConsumption = helper.cloneArray(iterationPowerConsumption);
@@ -82,21 +82,19 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         if (maxName.equals(agentName)) { //take new schedule
             logger.info(agent.getName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
             agent.setPriceSum(newPrice);
+            System.out.println("^^^^^^!!^^^^^^" + agent.getName() + Arrays.toString(iterationPowerConsumption));
+            beforeIterationIsDone(); //TODO check if its good
         }
         else { //take prev schedule
             logger.info(agent.getName() + " got max improvement: " + max.getImprovement() + " from agent " + max.getAgentName());
             //TODO: maybe use oldPrice instead of prevAgentPriceSum
             helper.ePeak = oldEpeak;
             resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
+            System.out.println("^^^^^^^^^^^^^^" + agent.getName() + Arrays.toString(iterationPowerConsumption));
         }
 
-        printData();
     }
 
-    private void printData() {
-        logger.debug("************** " + beautifyAgentName(agent.getName()) + " printing data!!!!");
-        logger.debug(beautifyAgentName(agent.getName()) + " iterData: " + agentIterationData + ", iterPowerCons " + iterationPowerConsumption.toString() + " agent price sum: " + agent.getPriceSum());
-    }
 
     private String beautifyAgentName(String name) {
         int shtrudel = name.indexOf('@');

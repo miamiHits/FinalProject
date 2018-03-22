@@ -34,6 +34,15 @@ public class DataCollector {
                 data.setePeak(PowerConsumptionUtils.calculateEPeak(schedules));
                 addNeighborhoodIfNotExist(data, tempPA);
             }
+            List<AgentPrice> pricess =  tempIAP.getIterationToAgentsPrice().get(data.getIterNum());
+            System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+            for(int j=0; j<7; j++){
+               System.out.print("Agent: " + pricess.get(j).getAgentName());
+                for(int i=0; i< pricess.get(j).getSchedule().length; i++){
+                    System.out.print(pricess.get(j).getSchedule()[i]);
+                }
+            }
+            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
             addProbResult(tempPA, tempIAP, data);
             pupulateTotalGradeForIteration(data, tempPA, tempIAP);
             return -1.0;
