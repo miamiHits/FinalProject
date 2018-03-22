@@ -7,6 +7,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class ExperimentConfigurationPresenter extends Panel implements View {
 
@@ -59,12 +60,14 @@ public class ExperimentConfigurationPresenter extends Panel implements View {
     private void generateAlgorithmsSection()
     {
 
-        TwinColSelect<String> algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
+        final TwinColSelect<String> algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
-        algorithmSelector.setDataProvider(DataProvider.ofCollection(this.service.getAvailableAlgorithms()));
+        final List<String> availableAlgorithms = this.service.getAvailableAlgorithms();
+        algorithmSelector.setDataProvider(DataProvider.ofCollection(availableAlgorithms));
 
         Button addAllAlgorithmsBtn = new Button("Add All");
+        addAllAlgorithmsBtn.addClickListener(generateAddAllClickListener(availableAlgorithms, algorithmSelector));
 
         TextField numberOfIterationsTxt = new TextField();
         numberOfIterationsTxt.setCaption("Select Number of Iterations");
@@ -111,6 +114,21 @@ public class ExperimentConfigurationPresenter extends Panel implements View {
             Component currentComponent = componentIterator.next();
             layout.setComponentAlignment(currentComponent, alignment);
         }
+    }
+
+
+
+    private Button.ClickListener generateAddAllClickListener(List<String> items, AbstractMultiSelect component)
+    {
+        return new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                for (String item : items)
+                {
+                    component.select(item);
+                }
+            }
+        };
     }
 
 }
