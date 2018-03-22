@@ -18,14 +18,14 @@ public class AlgorithmProblemResultTest {
 
         @Test
     public void setLowestCostForAgentInBestIteration() throws Exception {
-        result.setLowestCostForAgentInBestIterationAgentName("h1@213.213213.21/JADE");
-        Assert.assertTrue(result.getLowestCostForAgentInBestIterationAgentName().equals("h1"));
+        result.setLowestCostForAgentInBestIterationAgentName("h1@213.213213.21/JADE", 1);
+        Assert.assertTrue(result.getLowestCostForAgentInBestIterationAgentName().get(1).equals("h1"));
     }
 
     @Test
     public void setHighestCostForAgentInBestIterationAgentName() throws Exception {
-        result.setLowestCostForAgentInBestIterationAgentName("h2@213.213213.21/JADE");
-        Assert.assertTrue(result.getLowestCostForAgentInBestIterationAgentName().equals("h2"));
+        result.setLowestCostForAgentInBestIterationAgentName("h2@213.213213.21/JADE", 1);
+        Assert.assertTrue(result.getLowestCostForAgentInBestIterationAgentName().get(1).equals("h2"));
     }
 
     @Test

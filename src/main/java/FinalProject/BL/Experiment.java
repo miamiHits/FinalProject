@@ -74,8 +74,9 @@ public class Experiment implements ExperimentInterface {
                 , result.getAlgorithm()
                 , result.getProblem()));
         assert result != null : "algorithmProblemComboRunEnded must be invoked with a non-null result instance";
-        assert result.getHighestCostForAgentInBestIteration() >= result.getLowestCostForAgentInBestIteration() :
-                "result - in best iteration, the highest cost for an agent must be greater than the lowest one";
+
+     //   assert result.getHighestCostForAgentInBestIteration().entrySet().stream().forEach((k -> k.getValue().compareTo(result.getLowestCostForAgentInBestIteration().get(k))) > 0):
+               // "result - in best iteration, the highest cost for an agent must be greater than the lowest one";
         assert result.getIterationsTillBestPrice() <= Experiment.maximumIterations :
                 "result.getIterationsTillBestPrice() was greater than the maximum iteration caount";
 

@@ -13,10 +13,10 @@ public class AlgorithmProblemResult {
     private Map<Integer, Double> totalGradePerIteration;
     private int iterationsTillBestPrice;
     private double bestGrade;
-    private double lowestCostForAgentInBestIteration;
-    private String lowestCostForAgentInBestIterationAgentName;
-    private double highestCostForAgentInBestIteration;
-    private String highestCostForAgentInBestIterationAgentName;
+    private Map<Integer, Double> lowestCostForAgentInBestIteration;
+    private Map<Integer, String> lowestCostForAgentInBestIterationAgentName;
+    private Map<Integer, Double> highestCostForAgentInBestIteration;
+    private Map<Integer, String> highestCostForAgentInBestIterationAgentName;
     private static final Logger logger = Logger.getLogger(AlgorithmProblemResult.class);
     private Map<Integer, MsgInfo> totalMessagesInIter;
 
@@ -26,6 +26,10 @@ public class AlgorithmProblemResult {
         avgPricePerIteration = new HashMap<Integer, Double>();
         totalGradePerIteration = new HashMap<Integer, Double>();
         totalMessagesInIter = new HashMap<Integer, MsgInfo>();
+        lowestCostForAgentInBestIteration = new  HashMap<Integer, Double>();
+        lowestCostForAgentInBestIterationAgentName =  new  HashMap<Integer, String>();
+        highestCostForAgentInBestIteration = new  HashMap<Integer, Double>();
+        highestCostForAgentInBestIterationAgentName =  new  HashMap<Integer, String>();
         iterationsTillBestPrice = 0;
         bestGrade = Double.MAX_VALUE;
     }
@@ -62,44 +66,44 @@ public class AlgorithmProblemResult {
         this.iterationsTillBestPrice = iterationsTillBestPrice;
     }
 
-    public double getLowestCostForAgentInBestIteration() {
+    public Map<Integer, Double> getLowestCostForAgentInBestIteration() {
         return lowestCostForAgentInBestIteration;
     }
 
-    public void setLowestCostForAgentInBestIteration(double lowestCostForAgentInBestIteration) {
-        this.lowestCostForAgentInBestIteration = lowestCostForAgentInBestIteration;
+    public void setLowestCostForAgentInBestIteration(int iterNum, double lowestCostForAgentInBestIteration) {
+        this.lowestCostForAgentInBestIteration.put(iterNum, lowestCostForAgentInBestIteration);
     }
 
-    public String getLowestCostForAgentInBestIterationAgentName() {
+    public Map<Integer, String> getLowestCostForAgentInBestIterationAgentName() {
         return lowestCostForAgentInBestIterationAgentName;
     }
 
-    public void setLowestCostForAgentInBestIterationAgentName(String lowestCostForAgentInBestIterationAgentName) {
+    public void setLowestCostForAgentInBestIterationAgentName(String lowestCostForAgentInBestIterationAgentName, int iterNum) {
         int shtrudel = lowestCostForAgentInBestIterationAgentName.indexOf('@');
         if (shtrudel != -1){
             lowestCostForAgentInBestIterationAgentName = lowestCostForAgentInBestIterationAgentName.substring(0, shtrudel);
         }
-        this.lowestCostForAgentInBestIterationAgentName = lowestCostForAgentInBestIterationAgentName;
+        this.lowestCostForAgentInBestIterationAgentName.put(iterNum, lowestCostForAgentInBestIterationAgentName);
     }
 
-    public double getHighestCostForAgentInBestIteration() {
+    public Map<Integer, Double> getHighestCostForAgentInBestIteration() {
         return highestCostForAgentInBestIteration;
     }
 
-    public void setHighestCostForAgentInBestIteration(double highestCostForAgentInBestIteration) {
-        this.highestCostForAgentInBestIteration = highestCostForAgentInBestIteration;
+    public void setHighestCostForAgentInBestIteration(int iterNum, double highestCostForAgentInBestIteration) {
+        this.highestCostForAgentInBestIteration.put(iterNum, highestCostForAgentInBestIteration);
     }
 
-    public String getHighestCostForAgentInBestIterationAgentName() {
+    public Map<Integer, String> getHighestCostForAgentInBestIterationAgentName() {
         return highestCostForAgentInBestIterationAgentName;
     }
 
-    public void setHighestCostForAgentInBestIterationAgentName(String highestCostForAgentInBestIterationAgentName) {
+    public void setHighestCostForAgentInBestIterationAgentName(String highestCostForAgentInBestIterationAgentName, int iterNum) {
         int shtrudel = highestCostForAgentInBestIterationAgentName.indexOf('@');
         if (shtrudel != -1){
             highestCostForAgentInBestIterationAgentName = highestCostForAgentInBestIterationAgentName.substring(0, shtrudel);
         }
-        this.highestCostForAgentInBestIterationAgentName = highestCostForAgentInBestIterationAgentName;
+        this.highestCostForAgentInBestIterationAgentName.put(iterNum, highestCostForAgentInBestIterationAgentName);
     }
 
     public double getBestGrade() {
@@ -148,10 +152,12 @@ public class AlgorithmProblemResult {
                 ", iterationsTillBestPrice=" + iterationsTillBestPrice + "\n" +
                 ", bestGrade=" + bestGrade + "\n" +
                 ", messagesInIter=" + totalMessagesInIter + "\n" +
-                ", lowestCostForAgentInBestIteration=" + lowestCostForAgentInBestIteration + "\n" +
-                ", lowestCostForAgentInBestIterationAgentName='" + lowestCostForAgentInBestIterationAgentName + '\'' + "\n" +
-                ", highestCostForAgentInBestIteration=" + highestCostForAgentInBestIteration + "\n" +
-                ", highestCostForAgentInBestIterationAgentName='" + highestCostForAgentInBestIterationAgentName + '\'' +"\n" +
+                ", lowestCostForAgentInBestIteration=" + lowestCostForAgentInBestIteration.values() + "\n" +
+                ", lowestCostForAgentInBestIterationAgentName='" + lowestCostForAgentInBestIterationAgentName.values() + '\'' + "\n" +
+                ", highestCostForAgentInBestIteration=" + highestCostForAgentInBestIteration.values() + "\n" +
+                ", highestCostForAgentInBestIterationAgentName='" + highestCostForAgentInBestIterationAgentName.values() + '\'' +"\n" +
                 '}';
     }
+
+
 }

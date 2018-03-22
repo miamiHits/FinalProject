@@ -44,10 +44,10 @@ public class DataCollector {
         totalGrade += iap.getTotalEpeakInIter(data.getIterNum());
         apr.setTotalGradeToIter(data.getIterNum(), totalGrade);
         apr.setTotalMsgsInIter(data.getIterNum(), iap);
+        setLowestHighestForIter(pa, apr, data.getIterNum());
         if (totalGrade < apr.getBestGrade()){
             apr.setBestGrade(totalGrade);
             apr.setIterationsTillBestPrice(data.getIterNum());
-            setLowestHighestInBestIter(pa, apr);
             setAvgPriceInIter(pa, apr, data.getIterNum());
         }else{ //not the best iter
             setAvgPriceInIter(pa, apr, data.getIterNum());
@@ -104,30 +104,41 @@ public class DataCollector {
         }
     }
 
-    private void setLowestHighestInBestIter(ProblemAlgorithm tempPA, AlgorithmProblemResult result) {
+    private void setLowestHighestForIter(ProblemAlgorithm tempPA, AlgorithmProblemResult result, int iterNum) {
         double avg = 0;
         double min = Double.MAX_VALUE;
         double max = 0;
         double price = 0;
+        AgentPrice minAgent = null;
+        AgentPrice maxAgent = null;
         List<AgentPrice> prices;
         IterationAgentsPrice iter = probAlgoToItAgentPrice.get(tempPA);
 
         if (iter != null){
-            prices = iter.getAgentsPrices(result.getIterationsTillBestPrice());
+            prices = iter.getAgentsPrices(iterNum);
             for (AgentPrice ag: prices) {
                 price = ag.getPrice();
                 avg += price;
-                min = Double.min(min, price);
-                max = Double.max(max, price);
-                if (price == min){ //changed min
-                    result.setLowestCostForAgentInBestIteration(price);
-                    result.setLowestCostForAgentInBestIterationAgentName(ag.getAgentName());
+                if (min > price)
+                {
+                    min = price;
+                    minAgent = ag;
                 }
-                if (price == max){ //changed max
-                    result.setHighestCostForAgentInBestIteration(price);
-                    result.setHighestCostForAgentInBestIterationAgentName(ag.getAgentName());
+                if (max < price)
+                {
+                    max = price;
+                    maxAgent = ag;
                 }
             }
+            result.setLowestCostForAgentInBestIteration(iterNum, min);
+            if (minAgent!=null){
+                result.setLowestCostForAgentInBestIterationAgentName(minAgent.getAgentName(), iterNum);
+            }
+            result.setHighestCostForAgentInBestIteration(iterNum, max);
+            if (maxAgent!=null){
+                result.setHighestCostForAgentInBestIterationAgentName(maxAgent.getAgentName(), iterNum);
+            }
+
             result.getAvgPricePerIteration().put(
                     result.getIterationsTillBestPrice(), avg/prices.size());
         }
