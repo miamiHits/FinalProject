@@ -5,7 +5,10 @@ import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.DAL.*;
 import FinalProject.Service;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.navigator.Navigator;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.ui.UI;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,15 +20,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
-public class UiHandler implements UiHandlerInterface {
+public class UiHandler extends UI implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    private Service service;
+    public static Service service;
 
-    public UiHandler(Service service)
+    Navigator navigator;
+    protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
+    protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
+
+    public UiHandler()
     {
-        this.service = service;
+        String jsonPath = "src/test/testResources/jsons";
+        jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+        String algorithmsPath = "target/classes/FinalProject/BL/Agents";
+        jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+
+        JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
+        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
+        DataAccessController dal = new DataAccessController(jsonLoader, algorithmLoader);
+        service = new Service(dal);
         service.setObserver(this);
+
+    }
+
+    @Override
+    protected void init(VaadinRequest request) {
+
+        getPage().setTitle("Navigation Example");
+
+        // Create a navigator to control the views
+        navigator = new Navigator(this, this);
+
+        // Create and register the views
+//        navigator.addView("", new ExperimentConfigurationPresenter());
+        navigator.addView("", new ExperimentResultsPresenter());
+//            navigator.addView(MAINVIEW, new MainView());
     }
 
     @Override
@@ -91,14 +121,9 @@ public class UiHandler implements UiHandlerInterface {
     }
 
 
-
-
     @WebServlet(urlPatterns = "/*", name = "VaadinWebServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = FinalProject.PL.ExperimentConfigurationPresenter.class, productionMode = false)
+    @VaadinServletConfiguration(ui = FinalProject.PL.UiHandler.class, productionMode = false)
     public static class VaadinWebServlet extends VaadinServlet {
-
-        public static Service service;
-        public static UiHandler uiHandler;
 
         @Override
         public void init() throws ServletException {
@@ -108,16 +133,16 @@ public class UiHandler implements UiHandlerInterface {
             // initializing simulator backend
             org.apache.log4j.BasicConfigurator.configure();
 
-            String jsonPath = "src/test/testResources/jsons";
-            jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-            String algorithmsPath = "target/classes/FinalProject/BL/Agents";
-            jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-
-            JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
-            AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
-            DataAccessController dal = new DataAccessController(jsonLoader, algorithmLoader);
-            VaadinWebServlet.service = new Service(dal);
-            VaadinWebServlet.uiHandler = new UiHandler(service);
+//            String jsonPath = "src/test/testResources/jsons";
+//            jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+//            String algorithmsPath = "target/classes/FinalProject/BL/Agents";
+//            jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+//
+//            JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
+//            AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
+//            DataAccessController dal = new DataAccessController(jsonLoader, algorithmLoader);
+//            VaadinWebServlet.service = new Service(dal);
+//            VaadinWebServlet.uiHandler = new UiHandler(service);
         }
     }
 
