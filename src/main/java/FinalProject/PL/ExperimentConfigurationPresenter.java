@@ -2,28 +2,30 @@ package FinalProject.PL;
 
 import FinalProject.Service;
 import com.vaadin.data.provider.DataProvider;
-import com.vaadin.server.VaadinRequest;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 
 import java.util.Iterator;
 
-public class ExperimentConfigurationPresenter extends UI {
+public class ExperimentConfigurationPresenter extends Panel implements View {
 
     private VerticalLayout _algorithmsContainer;
     private VerticalLayout _problemsContainer;
 
     private Service service;
 
-
     @Override
-    protected void init(VaadinRequest vaadinRequest) {
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
 
-        //TODO gal for final iteration prevent use of more than one browser tab
-        this.service = UiHandler.VaadinWebServlet.service;
 
-        final VerticalLayout mainLayout = new VerticalLayout();
+    //TODO gal for final iteration prevent use of more than one browser tab
         _algorithmsContainer = new VerticalLayout();
         _problemsContainer = new VerticalLayout();
+
+        this.service = UiHandler.service;
+
+        VerticalLayout mainLayout = new VerticalLayout();
 
         generateAlgorithmsSection();
         generateProblemsSection();
@@ -47,7 +49,10 @@ public class ExperimentConfigurationPresenter extends UI {
         setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
 
         setContent(mainLayout);
+
+        setSizeFull();
     }
+
 
     private void generateAlgorithmsSection()
     {

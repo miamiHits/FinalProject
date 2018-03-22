@@ -1,6 +1,9 @@
 package FinalProject.PL;
 
 import FinalProject.PL.JFreeChart.JFreeChartUtils;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.ui.Panel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 
@@ -17,10 +20,11 @@ import org.vaadin.addon.JFreeChartWrapper;
 import java.awt.*;
 
 
-public class ExperimentResultsPresenter extends UI{
+public class ExperimentResultsPresenter extends Panel implements View{
 
     @Override
-    protected void init(VaadinRequest request) {
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+
 
         JFreeChartUtils.ALGORITHM_COUNT = 3;
 
