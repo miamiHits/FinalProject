@@ -30,7 +30,7 @@ public class DataCollector {
             if (data.getIterNum() == 0){ //need to calculate epeak
                 List<AgentPrice> prices = tempIAP.getIterationToAgentsPrice().get(0);
                 List<double[]> schedules = prices.stream().
-                        map(price -> price.getSchedule()).collect(Collectors.toList());
+                        map(AgentPrice::getSchedule).collect(Collectors.toList());
                 data.setePeak(PowerConsumptionUtils.calculateEPeak(schedules));
                 addNeighborhoodIfNotExist(data, tempPA);
             }
