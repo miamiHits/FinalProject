@@ -24,8 +24,8 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static Service service;
+    public static Navigator navigator;
 
-    Navigator navigator;
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
 
@@ -53,9 +53,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
         navigator = new Navigator(this, this);
 
         // Create and register the views
-//        navigator.addView("", new ExperimentConfigurationPresenter());
-        navigator.addView("", new ExperimentResultsPresenter());
-//            navigator.addView(MAINVIEW, new MainView());
+        ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter();
+        navigator.addView("", experimentConfigurationPresenter);
+        navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);
+        navigator.addView(EXPERIMENT_RESULTS, new ExperimentResultsPresenter());
     }
 
     @Override
@@ -104,7 +105,6 @@ public class UiHandler extends UI implements UiHandlerInterface {
         }
         System.out.println('\n');
 
-//        showMainScreen();
     }
 
     @Override
@@ -129,20 +129,8 @@ public class UiHandler extends UI implements UiHandlerInterface {
         public void init() throws ServletException {
             super.init();
 
-
             // initializing simulator backend
             org.apache.log4j.BasicConfigurator.configure();
-
-//            String jsonPath = "src/test/testResources/jsons";
-//            jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-//            String algorithmsPath = "target/classes/FinalProject/BL/Agents";
-//            jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-//
-//            JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
-//            AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
-//            DataAccessController dal = new DataAccessController(jsonLoader, algorithmLoader);
-//            VaadinWebServlet.service = new Service(dal);
-//            VaadinWebServlet.uiHandler = new UiHandler(service);
         }
     }
 
