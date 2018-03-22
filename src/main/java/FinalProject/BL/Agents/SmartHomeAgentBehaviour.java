@@ -241,7 +241,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             aclMsg.setContentObject(msgContent);
             agent.send(aclMsg);
         } catch (IOException e) {
-            logger.error(e.getMessage());
+//            logger.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -360,7 +361,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 double temp = newPowerConsumption[tick];
                 newPowerConsumption[tick] = Double.sum(temp, prop.getPowerConsumedInWork());
             }
-            double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), newPowerConsumption, prevPowerConsumption
+            double res = calculateTotalConsumptionWithPenalty(agent.getPriceSum(), newPowerConsumption, prevPowerConsumption
                     ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
 
             if (res <= helper.totalPriceConsumption && res <= bestPrice) {
@@ -431,7 +432,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 //        IterationCollectedData agentIterSum = new IterationCollectedData(
 //                iterationNum, agent.getName(), agentIterationData.getPrice(),
 //                agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
-//                agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getcSum());
+//                agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getPriceSum());
 //        this.agentIterationCollected = agentIterSum;
 //        sendIterationToCollector();
 //    }
@@ -508,7 +509,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()) +
                 "with contents: " + receivedMessage.getContent());
         try {
-            this.agent.setcSum(Double.parseDouble(receivedMessage.getContent()));
+            this.agent.setPriceSum(Double.parseDouble(receivedMessage.getContent()));
         } catch(Exception e){
             logger.error("could not parse cSum sent from the data collector", e);
         }

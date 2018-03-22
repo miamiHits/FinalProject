@@ -30,6 +30,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info("Starting work on Iteration: " + currentNumberOfIter);
             List<ACLMessage> messageList = waitForNeighbourMessages();
             readNeighboursMsgs(messageList);
+            helper.calcPowerConsumptionForAllNeighbours(); //TODO added
             improveSchedule();
         }
         beforeIterationIsDone();
@@ -43,17 +44,17 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         AgentIterationData prevIterData = new AgentIterationData(agentIterationData);
         AgentIterationData prevCurrIterData = new AgentIterationData(agent.getCurrIteration());
         IterationCollectedData prevCollectedData = new IterationCollectedData(agentIterationCollected);
-        double prevCsum = calcCsum();
-        helper.calcTotalPowerConsumption(prevCsum);
-        double prevTotalCost = helper.totalPriceConsumption;
+        double oldPrice = calcPrice(prevIterPowerConsumption);
+        double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice); //also sets helper's epeak
+        double prevAgentPriceSum = agent.getPriceSum();
+        agent.setPriceSum(oldPrice);
 
         helper.resetProperties();
-        buildScheduleBasic();
+        buildScheduleBasic(); //using Ci as priceSum
 
         //calculate improvement
-        double newCsum = calcCsum();
-        helper.calcTotalPowerConsumption(newCsum);
-        double newTotalCost = helper.totalPriceConsumption;
+        double newPrice = calcPrice(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
+        double newTotalCost = helper.calcTotalPowerConsumption(newPrice);
         double improvement = newTotalCost - prevTotalCost;
 
         List<ImprovementMsg> receivedImprovements = sendAndReceiveImprovement(improvement);
@@ -61,37 +62,39 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         maxImprovementMsg = max;
         if (max == null) {
             logger.error("max is null! Something went wrong!!!!!!!");
-            resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevCsum, prevTotalCost, prevIterPowerConsumption);
+            //TODO: maybe use oldPrice instead of prevAgentPriceSum
+            resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
         }
-        else if (max.agentName.equals(agent.getName())) { //take new schedule
-            logger.error(agent.getName() + "'s improvement: " + max.improvement + " WAS THE GREATEST");
-            agent.setcSum(prevCsum);
+        else if (max.getAgentName().equals(agent.getName())) { //take new schedule
+            logger.info(agent.getName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
+            agent.setPriceSum(newPrice);
         }
         else { //take prev schedule
-            logger.error(agent.getName() + " got max improvement: " + max.improvement + " from agent " + max.agentName);
-            resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevCsum, prevTotalCost, prevIterPowerConsumption);
+            logger.info(agent.getName() + " got max improvement: " + max.getImprovement() + " from agent " + max.getAgentName());
+            //TODO: maybe use oldPrice instead of prevAgentPriceSum
+            resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
         }
 
     }
 
     //TODO: test this well!
     private void resetToPrevIterationData(AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
-                                          AgentIterationData prevCurrIterData, double prevCsum,
+                                          AgentIterationData prevCurrIterData, double prevPriceSum,
                                           double prevTotalCost, double[] prevIterPowerConsumption) {
         this.agentIterationData = prevIterData;
         this.agentIterationCollected = prevCollectedData;
         this.agent.setCurrIteration(prevCurrIterData);
-        agent.setcSum(prevCsum);
+        agent.setPriceSum(prevPriceSum);
         helper.totalPriceConsumption = prevTotalCost;
         this.iterationPowerConsumption = prevIterPowerConsumption;
     }
 
     private List<ImprovementMsg> sendAndReceiveImprovement(double improvement) {
         logger.info(agent.getName() + " sending improvement to neighbours");
-        ImprovementMsg toSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum());
-        sendMsgToAllNeighbors(toSend);
-        List<ACLMessage> receivedMesgs = waitForNeighbourMessages();
-        List<ImprovementMsg> improvements = receivedMesgs.stream()
+        ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum());
+        sendMsgToAllNeighbors(improvementToSend);
+        List<ACLMessage> receivedMsgs = waitForNeighbourMessages();
+        List<ImprovementMsg> improvements = receivedMsgs.stream()
                 .map(msg -> {
                     try {
                         return (ImprovementMsg) msg.getContentObject();
@@ -113,24 +116,22 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
     @Override
     protected void countIterationCommunication() {
-        int count = 2; //2 for agentIterationCollected and agentIterationData
+        int count = 1;
 
         //calc data sent to neighbours
         long totalSize = 0;
         long iterationDataSize = Utils.getSizeOfObj(agentIterationData);
         int neighboursSize = agent.getAgentData().getNeighbors().size();
         iterationDataSize *= neighboursSize;
+        totalSize += iterationDataSize;
+        count += neighboursSize;
+
         if (currentNumberOfIter > 0) {
             long improvementMsgSize = Utils.getSizeOfObj(maxImprovementMsg);
             improvementMsgSize *= neighboursSize;
             totalSize += improvementMsgSize;
             count += neighboursSize;
         }
-        count += neighboursSize;
-        totalSize += iterationDataSize;
-
-        //calc data sent to DC:
-        totalSize += Utils.getSizeOfObj(agentIterationCollected);
 
         //calc messages to devices:
         final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
@@ -157,53 +158,4 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         return newInstance;
     }
 
-    private class ImprovementMsg implements Serializable, Comparable{
-        private String agentName;
-        private double improvement;
-        private int iterNum;
-
-        public ImprovementMsg(String agentName, double improvement, int iterNum) {
-            this.agentName = agentName;
-            this.improvement = improvement;
-            this.iterNum = iterNum;
-        }
-
-        public String getAgentName() {
-            return agentName;
-        }
-
-        public void setAgentName(String agentName) {
-            this.agentName = agentName;
-        }
-
-        public double getImprovement() {
-            return improvement;
-        }
-
-        public void setImprovement(double improvement) {
-            this.improvement = improvement;
-        }
-
-        public int getIterNum() {
-            return iterNum;
-        }
-
-        public void setIterNum(int iterNum) {
-            this.iterNum = iterNum;
-        }
-
-        @Override
-        public int compareTo(Object other) {
-            if (other instanceof ImprovementMsg) {
-                ImprovementMsg otherCast = (ImprovementMsg) other;
-                double compare = this.improvement - otherCast.improvement;
-                if (compare == 0) {
-                    return this.agentName.compareTo(otherCast.agentName);
-                }
-                return compare > 0 ? 1 : -1;
-            }
-            logger.warn("ImprovementMsg.compareTo called to compare with non-ImprovementMsg, returning 0");
-            return 0;
-        }
-    }
 }

@@ -283,16 +283,20 @@ public class AlgorithmDataHelper
         return neighboursPriceConsumption;
     }
 
-    public void calcTotalPowerConsumption(double cSum) {
+    public void calcAndSetTotalPowerConsumption(double cSum) {
+        this.totalPriceConsumption = calcTotalPowerConsumption(cSum);
+        logger.info("TOTAL power consumption is : " + this.totalPriceConsumption);
+
+    }
+
+    public double calcTotalPowerConsumption(double cSum) {
         logger.info("Calculating total power consumption - stage 2");
 
         List<double[]> scheds = new ArrayList<>(this.neighboursPriceConsumption);
         double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
         scheds.add(myPowerCons);
         this.ePeak = calculateEPeak(scheds);
-        this.totalPriceConsumption = getAC() * cSum + getAE() * ePeak;
-        logger.info("TOTAL power consumption is : " + this.totalPriceConsumption);
-
+        return getAC() * cSum + getAE() * ePeak;
     }
 
     public void checkForPassiveRules() {

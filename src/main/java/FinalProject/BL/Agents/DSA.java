@@ -60,8 +60,8 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void updatePowerConsumption() {
         helper.calcPowerConsumptionForAllNeighbours();
-        agent.setcSum(calcCsum());
-        helper.calcTotalPowerConsumption(agent.getcSum());
+        agent.setPriceSum(calcCsum());
+        helper.calcAndSetTotalPowerConsumption(agent.getPriceSum());
 //        updateAgentIterationData(currentNumberOfIter - 1);
     }
 
@@ -92,16 +92,13 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     @Override
     protected void countIterationCommunication() {
-        int count = 2; //2 for agentIterationCollected and agentIterationData
+        int count = 1;
 
         //calc data sent to neighbours
         long totalSize = Utils.getSizeOfObj(agentIterationData);
         int neighboursSize = agent.getAgentData().getNeighbors().size();
         count += neighboursSize;
         totalSize *= neighboursSize;
-
-        //calc data sent to DC:
-        totalSize += Utils.getSizeOfObj(agentIterationCollected);
 
         //calc messages to devices:
         final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;

@@ -31,13 +31,13 @@ public class SmartHomeAgent extends Agent implements Serializable{
     private int IterationNum = 0;
     private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
     private boolean stop = false;
-    private double cSum;
+    private double priceSum;
     private String problemId;
     private String algoId;
     private long iterationMessageSize = 0;
     private int iterationMessageCount = 0;
 
-    private Logger logger = Logger.getLogger(SmartHomeAgent.class);
+    private final static Logger logger = Logger.getLogger(SmartHomeAgent.class);
 
     public AgentData getAgentData() {
         return agentData;
@@ -85,12 +85,12 @@ public class SmartHomeAgent extends Agent implements Serializable{
 
     public boolean getStop() {return this.stop;}
 
-    public double getcSum() {
-        return cSum;
+    public double getPriceSum() {
+        return priceSum;
     }
 
-    public void setcSum(double cSum) {
-        this.cSum = cSum;
+    public void setPriceSum(double priceSum) {
+        this.priceSum = priceSum;
     }
 
     public void setStop(boolean stop) {
