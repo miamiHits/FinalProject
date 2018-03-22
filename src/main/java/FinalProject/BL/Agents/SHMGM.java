@@ -41,6 +41,9 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     private void improveSchedule() {
         //backup prev values
         //TODO: test backup well!
+
+        printData();
+
         double[] prevIterPowerConsumption = helper.cloneArray(iterationPowerConsumption);
         AgentIterationData prevIterData = new AgentIterationData(agentIterationData);
         AgentIterationData prevCurrIterData = new AgentIterationData(agent.getCurrIteration());
@@ -69,9 +72,11 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
             return;
         }
+
         String agentName = beautifyAgentName(agent.getName());
         String maxName = beautifyAgentName(max.getAgentName());
         logger.info("agent is: " + agentName +" max is: " + maxName + " iter num: " + this.currentNumberOfIter);
+
         if (maxName.equals(agentName)) { //take new schedule
             logger.info(agent.getName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
             agent.setPriceSum(newPrice);
@@ -82,6 +87,12 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
         }
 
+        printData();
+    }
+
+    private void printData() {
+        logger.debug("************** " + beautifyAgentName(agent.getName()) + " printing data!!!!");
+        logger.debug(beautifyAgentName(agent.getName()) + " iterData: " + agentIterationData + ", iterPowerCons " + iterationPowerConsumption + " agent price sum: " + agent.getPriceSum());
     }
 
     private String beautifyAgentName(String name) {
