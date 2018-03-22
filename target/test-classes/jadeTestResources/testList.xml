@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Relative reference to the DTD file does not work when the test suite is in a jar file
+<!DOCTYPE TestsList SYSTEM "../common/xml/listTests.dtd" [
+	<!ENTITY % inline "#PCDATA|em|br|UL|LI|b">
+	]>
+-->
+<TestsList>
+    <Test name="Test Agents Waiting For Neighbours" skip="false">
+        <TestClassName>FinalProject.Experiment.TestAgentsWaitingForNeighbours</TestClassName>
+        <WhatTest> Test that non of the agents starts an iteration before the other agents.</WhatTest>
+        <HowWorkTest>messages received by the data collector are monitored,
+            once all agents sent their end of iteration message the test behaviour send a fake C_sum and waits for the next iteration messages</HowWorkTest>
+        <WhenTestPass> The test passes if the experiment ended and all of the messages were of the correct iteration</WhenTestPass>
+    </Test>
+
+    <Test name="Test Agents Waiting For DataCollector" skip="false">
+        <TestClassName>FinalProject.Experiment.TestAgentsWaitingForDataCollector</TestClassName>
+        <WhatTest> Test that non of the agents starts an iteration before the data collector sent them the end of iteration message.</WhatTest>
+        <HowWorkTest>the test will simulate an agent and the data collector,
+            the data collector and the test home agent will not send their messages immediately
+            the test home agent will monitor messages received by its neighbours</HowWorkTest>
+        <WhenTestPass>the test home agent did not receive a message from its neighbours until the data collector sent the end of iteration message</WhenTestPass>
+    </Test>
+
+    <Test name="Test Agent Receiving Messages From Data Collector" skip="false">
+        <TestClassName>FinalProject.Experiment.TestAgentReceivingMessagesFromDataCollector</TestClassName>
+        <WhatTest>verify that the data collector sends its messages</WhatTest>
+        <HowWorkTest>
+            the test will simulate an agent taking its part in an algorithm run, waiting for the message from the data collector with 10 seconds timeout.
+            the main goal of the test is to find possible deadlock scenarios in the system and should be applied a significant amount of times for it to be effective
+        </HowWorkTest>
+        <WhenTestPass>during the whole simulated experiment in the test, the test home agent received the required messages from the data collector</WhenTestPass>
+    </Test>
+
+
+</TestsList>

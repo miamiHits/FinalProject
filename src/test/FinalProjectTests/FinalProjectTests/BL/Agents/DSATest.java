@@ -1,22 +1,22 @@
-package FinalProjectTests.BL.Agents;
+package FinalProjectTests.FinalProjectTests.BL.Agents;
 
 import FinalProject.BL.Agents.*;
 import FinalProject.BL.DataObjects.*;
+import FinalProject.BL.IterationData.AgentIterationData;
+import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProjectTests.DAL.DalTestUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import FinalProject.BL.*;
-
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DSATest {
+
+    //TODO: exception when running the tests!
 
     private Problem dm_7_1_2;
     private DSA dsa;
@@ -36,13 +36,13 @@ public class DSATest {
         String problemId = dm_7_1_2.getId();
         try
         {
-            ReflectiveUtils.setFiledValue(agentData, "priceScheme", dm_7_1_2.getPriceScheme());
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agentData, "priceScheme", dm_7_1_2.getPriceScheme());
 
             //agent.setup() will not be called so we'll do it manually
-            ReflectiveUtils.setFiledValue(agent, "agentData", agentData);
-            ReflectiveUtils.setFiledValue(agent, "problemId", problemId);
-            ReflectiveUtils.setFiledValue(agent, "algoId", "DSA");
-            ReflectiveUtils.setFiledValue(agent, "isZEROIteration", true);
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "agentData", agentData);
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "problemId", problemId);
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "algoId", "DSA");
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "isZEROIteration", true);
 
         } catch (Exception e)
         {
@@ -139,7 +139,7 @@ public class DSATest {
         this.dsa.doIteration();
         try
         {
-            ReflectiveUtils.invokeMethod(dsa, "buildScheduleFromScratch");
+            FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "buildScheduleFromScratch");
             Assert.assertTrue(props.get(0).getSensor().getCurrentState()> props.get(0).getMin());
             Assert.assertTrue(props.get(0).getSensor().getCurrentState()<= props.get(0).getMax());
             Assert.assertTrue(props.get(1).getSensor().getCurrentState()> props.get(1).getMin());
@@ -199,7 +199,7 @@ public class DSATest {
         this.agent.getAgentData().setGranularity(120);
         try
         {
-            ReflectiveUtils.invokeMethod(dsa, "buildScheduleFromScratch");
+            FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "buildScheduleFromScratch");
 
 
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
@@ -216,9 +216,9 @@ public class DSATest {
         prepareGround();
         try
         {
-            ReflectiveUtils.invokeMethod(dsa, "buildScheduleFromScratch");
+            FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "buildScheduleFromScratch");
             this.dsa.agent.setZEROIteration(false);
-            ReflectiveUtils.invokeMethod(dsa, "tryBuildSchedule");
+            FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "resetAndBuildSchedule");
             Assert.assertTrue(props.get(0).getSensor().getCurrentState()> props.get(0).getMin());
             Assert.assertTrue(props.get(0).getSensor().getCurrentState()<= props.get(0).getMax());
             Assert.assertTrue(props.get(1).getSensor().getCurrentState()> props.get(1).getMin());
@@ -231,5 +231,26 @@ public class DSATest {
 
     }
 
-    
+    @Test
+    public void countIterationCommunicationTest() {
+        try {
+            Set<String> neighborhood = agent.getAgentData().getNeighbors().stream()
+                    .map(AgentData::getName)
+                    .collect(Collectors.toSet());
+            AgentIterationData aid = new AgentIterationData(0, "name", 10.5, new double[]{});
+            IterationCollectedData icd = new IterationCollectedData(0, "name", 10.5, new double[]{},
+                    "testProblem", "testAlgo", neighborhood, 10, 1, 1);
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(dsa, "agentIterationCollected", icd);
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(dsa, "agentIterationData", aid);
+            FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "initHelper");
+            FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "countIterationCommunication");
+            long size = agent.getIterationMessageSize();
+            int count = agent.getIterationMessageCount();
+            Assert.assertEquals(size,1675);
+            Assert.assertEquals(count, 16);
+        } catch (Exception e) {
+            System.out.println(e);
+            Assert.fail();
+        }
+    }
 }

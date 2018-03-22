@@ -6,11 +6,17 @@ import java.lang.reflect.Method;
 
 public class ReflectiveUtils {
 
-    public static <InstanceType, FieldType> void setFiledValue(InstanceType instance, String fieldName,
+    public static <InstanceType, FieldType> void setFieldValue(InstanceType instance, String fieldName,
                                                                FieldType value)
-            throws Exception
+            throws IllegalAccessException, NoSuchFieldException
+
     {
-        Field field = instance.getClass().getDeclaredField(fieldName);
+        Field field;
+        try {
+            field = instance.getClass().getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            field = instance.getClass().getSuperclass().getDeclaredField(fieldName);
+        }
         boolean accessible = field.isAccessible();
         field.setAccessible(true);
         field.set(instance, value);
@@ -18,14 +24,18 @@ public class ReflectiveUtils {
     }
 
     public static <T> Object invokeMethod(T instance, String methodName, Object... params)
-            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException
-    {
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         Class<?>[] classes = new Class[params.length];
         for (int i = 0; i < classes.length; i++)
         {
             classes[i] = params[i].getClass();
         }
-        Method method = instance.getClass().getDeclaredMethod(methodName, classes);
+        Method method;
+        try {
+            method = instance.getClass().getDeclaredMethod(methodName, classes);
+        } catch (NoSuchMethodException e) {
+            method = instance.getClass().getSuperclass().getDeclaredMethod(methodName);
+        }
         boolean accessible = method.isAccessible();
         method.setAccessible(true);
         Object returned = null;

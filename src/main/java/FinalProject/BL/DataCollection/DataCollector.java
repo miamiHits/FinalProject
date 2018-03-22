@@ -21,23 +21,15 @@ public class DataCollector {
         this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
     }
 
-    public double addData (IterationCollectedData data){
+    public double addData (IterationCollectedData data) {
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
-        IterationAgentsPrice tempIAP = probAlgoToItAgentPrice.get(tempPA);
+        IterationAgentsPrice tempIAP = addAgentPrice(data, tempPA);
+        addNeighborhoodIfNotExist(data, tempPA);
 
-        if (isIterationFinished(tempPA, tempIAP, data)){
-            addNeighborhoodIfNotExist(data, tempPA);
-            if(tempIAP.ePeakCalculated(data.getIterNum())){ //last agent finished part 2
-                pupulateTotalGradeForIteration(data, tempPA, tempIAP);
-                return -1.0;
-            }
-        }else{
-            tempIAP = addAgentPrice(data, tempPA);
-            if (isIterationFinished(tempPA, tempIAP, data)){ //last agent finished part 1
-                addProbResult(tempPA, tempIAP, data);
-                return calculateCsumForAllAgents(tempPA, tempIAP, data.getIterNum());
-            }
-            return 0;
+        if (isIterationFinished(tempPA, tempIAP, data)) { //last agent finished iteration
+            addProbResult(tempPA, tempIAP, data);
+            pupulateTotalGradeForIteration(data, tempPA, tempIAP);
+            return -1.0;
         }
         return 0;
     }
@@ -51,6 +43,7 @@ public class DataCollector {
         //now we add all the ePeaks
         totalGrade += iap.getTotalEpeakInIter(data.getIterNum());
         apr.setTotalGradeToIter(data.getIterNum(), totalGrade);
+        apr.setTotalMsgsInIter(data.getIterNum(), iap);
         if (totalGrade < apr.getBestGrade()){
             apr.setBestGrade(totalGrade);
             apr.setIterationsTillBestPrice(data.getIterNum());
@@ -67,12 +60,12 @@ public class DataCollector {
             tempIAP = probAlgoToItAgentPrice.get(tempPA);
             tempIAP.addAgentPrice(data.getIterNum(),
                     new AgentPrice(data.getAgentName(), data.getPrice(),
-                            data.getPowerConsumptionPerTick()));
+                            data.getPowerConsumptionPerTick(), data.getMessagesSize(), data.getMsgCount()));
         }else{
             tempIAP = new IterationAgentsPrice();
             tempIAP.addAgentPrice(data.getIterNum(),
                     new AgentPrice(data.getAgentName(), data.getPrice(),
-                            data.getPowerConsumptionPerTick()));
+                            data.getPowerConsumptionPerTick(), data.getMessagesSize(), data.getMsgCount()));
             probAlgoToItAgentPrice.put(tempPA, tempIAP);
         }
         return tempIAP;
@@ -91,7 +84,7 @@ public class DataCollector {
             logger.warn("IAP is null when adding Neighborhood");
             return;
         }
-        IAP.addNeighborhoodAndEpeak(data.getIterNum(), data.getEpeak(), neighborhood);
+        IAP.addNeighborhoodAndEpeak(data.getIterNum(), data.getePeak(), neighborhood);
     }
 
     private void setAvgPriceInIter(ProblemAlgorithm PA, AlgorithmProblemResult result, int iterNum) {
@@ -155,7 +148,7 @@ public class DataCollector {
         List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
         Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
         if (prices != null && numOfAgents != null &&
-                prices.size() == numOfAgents){ //iteration is over  with no epeak calculated
+                prices.size() == numOfAgents){ //iteration is over
             return true;
         }
         return false;
@@ -169,7 +162,7 @@ public class DataCollector {
         List<AgentPrice> prices = IAP.getAgentsPrices(data.getIterNum());
         Integer numOfAgents = numOfAgentsInProblems.get(PA.getProblemId());
         if (prices != null && numOfAgents != null &&
-                prices.size() == numOfAgents){ //iteration is over  with no epeak calculated
+                prices.size() == numOfAgents){ //iteration is over
             if (!probAlgoToResult.containsKey(PA)){ //no prob result yet
                 AlgorithmProblemResult result = new AlgorithmProblemResult(PA);
                 result.setIterationsTillBestPrice(data.getIterNum());

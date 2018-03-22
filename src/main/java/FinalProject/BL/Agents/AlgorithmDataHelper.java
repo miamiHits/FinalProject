@@ -7,18 +7,17 @@ import org.apache.log4j.Logger;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.*;
 
 public class AlgorithmDataHelper
 {
-    public double totalPriceConsumption=0;
+    public double totalPriceConsumption = 0;
+    public double ePeak = 0;
     private  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
     private List<PropertyWithData> allProperties;
     private SmartHomeAgent agent;
     private List<double[]> neighboursPriceConsumption = new ArrayList<>();
-    private List<Integer> rushTicks = new ArrayList<>();
     private final static Logger logger = Logger.getLogger(AlgorithmDataHelper.class);
-    private double [] powerConsumption;
 
     public AlgorithmDataHelper (SmartHomeAgent agent)
     {
@@ -83,8 +82,6 @@ public class AlgorithmDataHelper
 
         }
     }
-
-
 
     public void SetActuatorsAndSensors()
     {
@@ -236,14 +233,12 @@ public class AlgorithmDataHelper
         return res;
     }
 
-    public void calcPriceSchemeForAllNeighbours()
-    {
+    public void calcPowerConsumptionForAllNeighbours() {
         neighboursPriceConsumption.clear();
         logger.info("Saving all my neighbors sched - stage 1");
         List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
-        for (AgentIterationData agentData : myNeighborsShed)
-        {
-            double [] neighbourConsumption = clonArray(agentData.getPowerConsumptionPerTick());
+        for (AgentIterationData agentData : myNeighborsShed) {
+            double [] neighbourConsumption = cloneArray(agentData.getPowerConsumptionPerTick());
             neighboursPriceConsumption.add(neighbourConsumption);
         }
     }
@@ -288,23 +283,14 @@ public class AlgorithmDataHelper
         return neighboursPriceConsumption;
     }
 
-    public void setPowerConsumption(double[] powerConsumption) {
-        double[] arr = new double[powerConsumption.length];
-        for (int i=0; i<powerConsumption.length; ++i)
-        {
-            arr[i] = powerConsumption[i];
-        }
-        this.powerConsumption =arr;
-    }
-
     public void calcTotalPowerConsumption(double cSum) {
         logger.info("Calculating total power consumption - stage 2");
 
-        List<double[]> toCalc = new ArrayList<>();
-        toCalc.addAll(this.neighboursPriceConsumption);
-        double [] myPowerCons = clonArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        toCalc.add(myPowerCons);
-        this.totalPriceConsumption =calculateTotalConsumptionWithPenalty(cSum, toCalc);
+        List<double[]> scheds = new ArrayList<>(this.neighboursPriceConsumption);
+        double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        scheds.add(myPowerCons);
+        this.ePeak = calculateEPeak(scheds);
+        this.totalPriceConsumption = getAC() * cSum + getAE() * ePeak;
         logger.info("TOTAL power consumption is : " + this.totalPriceConsumption);
 
     }
@@ -319,7 +305,7 @@ public class AlgorithmDataHelper
         }
     }
 
-    public double[] clonArray(double[] old)
+    public double[] cloneArray(double[] old)
     {
         double[] newList = Arrays.copyOf(old, old.length);
 
@@ -333,10 +319,9 @@ public class AlgorithmDataHelper
         return newList;
     }
 
-    public void goBackToStartValues() {
+    public void resetProperties() {
         for (PropertyWithData prop : this.allProperties)
             prop.getSensor().setCurrentState(prop.getCachedSensorState());
     }
-
 
 }
