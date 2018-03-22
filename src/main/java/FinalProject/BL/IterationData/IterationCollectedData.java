@@ -1,5 +1,6 @@
 package FinalProject.BL.IterationData;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class IterationCollectedData extends AgentIterationData {
@@ -26,7 +27,7 @@ public class IterationCollectedData extends AgentIterationData {
         super(other.getIterNum(), other.getAgentName(), other.getPrice(), other.getPowerConsumptionPerTick());
         this.problemId = other.problemId;
         this.algorithm = other.algorithm;
-        this.neighborhood = other.neighborhood;
+        this.neighborhood = new HashSet<>(other.neighborhood);
         this.ePeak = other.getePeak();
         this.messagesSize = other.messagesSize;
         this.msgCount = other.msgCount;
@@ -81,4 +82,15 @@ public class IterationCollectedData extends AgentIterationData {
         this.msgCount = msgCount;
     }
 
+    @Override
+    public String toString() {
+        return "IterationCollectedData{" +
+                "problemId='" + problemId + '\'' +
+                ", algorithm='" + algorithm + '\'' +
+                ", neighborhood=" + neighborhood +
+                ", ePeak=" + ePeak +
+                ", messagesSize=" + messagesSize +
+                ", msgCount=" + msgCount +
+                '}';
+    }
 }

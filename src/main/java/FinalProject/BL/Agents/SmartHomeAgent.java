@@ -28,7 +28,7 @@ public class SmartHomeAgent extends Agent implements Serializable{
     private AgentIterationData currIteration;
     private SmartHomeAgentBehaviour algorithm;
     private boolean isZEROIteration;
-    private int IterationNum = 0;
+    private int iterationNum = 0;
     private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
     private boolean stop = false;
     private double priceSum;
@@ -38,6 +38,24 @@ public class SmartHomeAgent extends Agent implements Serializable{
     private int iterationMessageCount = 0;
 
     private final static Logger logger = Logger.getLogger(SmartHomeAgent.class);
+
+    public SmartHomeAgent() {}
+
+    public SmartHomeAgent(SmartHomeAgent other) {
+        this.agentData = new AgentData(other.getAgentData());
+//        this.bestIteration = new AgentIterationData(other.bestIteration);
+        this.currIteration = new AgentIterationData(other.getCurrIteration());
+        this.algorithm = other.algorithm.cloneBehaviour();
+        this.isZEROIteration = other.isZEROIteration;
+        this.iterationNum = other.iterationNum;
+        this.myNeighborsShed = new ArrayList<>(other.myNeighborsShed);
+        this.stop = other.stop;
+        this.priceSum = other.priceSum;
+        this.problemId = other.problemId;
+        this.algoId = other.algoId;
+        this.iterationMessageSize = other.iterationMessageSize;
+        this.iterationMessageCount = other.iterationMessageCount;
+    }
 
     public AgentData getAgentData() {
         return agentData;
@@ -80,7 +98,7 @@ public class SmartHomeAgent extends Agent implements Serializable{
     }
 
     public int getIterationNum() {
-        return IterationNum;
+        return iterationNum;
     }
 
     public boolean getStop() {return this.stop;}

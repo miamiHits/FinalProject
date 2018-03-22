@@ -58,4 +58,13 @@ public class AgentIterationData implements Serializable {
     }
 
 
+    @Override
+    public String toString() {
+        return "AgentIterationData{" +
+                "iterNum=" + iterNum +
+                ", agentName='" + agentName + '\'' +
+                ", price=" + price +
+                ", powerConsumptionPerTick=" + Arrays.toString(powerConsumptionPerTick) +
+                '}';
+    }
 }

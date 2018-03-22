@@ -44,11 +44,13 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
         printData();
 
+        AlgorithmDataHelper helperBackup = new AlgorithmDataHelper(helper);
         double[] prevIterPowerConsumption = helper.cloneArray(iterationPowerConsumption);
         AgentIterationData prevIterData = new AgentIterationData(agentIterationData);
         AgentIterationData prevCurrIterData = new AgentIterationData(agent.getCurrIteration());
         IterationCollectedData prevCollectedData = new IterationCollectedData(agentIterationCollected);
         double oldPrice = calcPrice(prevIterPowerConsumption);
+        double oldEpeak = helper.ePeak;
         double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice); //also sets helper's epeak
         double prevAgentPriceSum = agent.getPriceSum();
         agent.setPriceSum(oldPrice);
@@ -69,7 +71,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         if (max == null) {
             logger.error("max is null! Something went wrong!!!!!!!");
             //TODO: maybe use oldPrice instead of prevAgentPriceSum
-            resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
+            resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
             return;
         }
 
@@ -84,7 +86,8 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         else { //take prev schedule
             logger.info(agent.getName() + " got max improvement: " + max.getImprovement() + " from agent " + max.getAgentName());
             //TODO: maybe use oldPrice instead of prevAgentPriceSum
-            resetToPrevIterationData(prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
+            helper.ePeak = oldEpeak;
+            resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
         }
 
         printData();
@@ -92,7 +95,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
     private void printData() {
         logger.debug("************** " + beautifyAgentName(agent.getName()) + " printing data!!!!");
-        logger.debug(beautifyAgentName(agent.getName()) + " iterData: " + agentIterationData + ", iterPowerCons " + iterationPowerConsumption + " agent price sum: " + agent.getPriceSum());
+        logger.debug(beautifyAgentName(agent.getName()) + " iterData: " + agentIterationData + ", iterPowerCons " + iterationPowerConsumption.toString() + " agent price sum: " + agent.getPriceSum());
     }
 
     private String beautifyAgentName(String name) {
@@ -104,9 +107,10 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     }
 
     //TODO: test this well!
-    private void resetToPrevIterationData(AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
+    private void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
                                           AgentIterationData prevCurrIterData, double prevPriceSum,
                                           double prevTotalCost, double[] prevIterPowerConsumption) {
+        this.helper = helperBackup;
         this.agentIterationData = prevIterData;
         this.agentIterationCollected = prevCollectedData;
         this.agent.setCurrIteration(prevCurrIterData);

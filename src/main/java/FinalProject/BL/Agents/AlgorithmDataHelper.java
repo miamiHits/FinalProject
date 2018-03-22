@@ -13,7 +13,7 @@ public class AlgorithmDataHelper
 {
     public double totalPriceConsumption = 0;
     public double ePeak = 0;
-    private  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
+    private  Map<Actuator, List<Integer>> deviceToTicks = new HashMap<>();
     private List<PropertyWithData> allProperties;
     private SmartHomeAgent agent;
     private List<double[]> neighboursPriceConsumption = new ArrayList<>();
@@ -23,6 +23,15 @@ public class AlgorithmDataHelper
     {
         this.agent = agent;
         allProperties = new ArrayList<>();
+    }
+
+    public AlgorithmDataHelper(AlgorithmDataHelper other) {
+        this.totalPriceConsumption = other.totalPriceConsumption;
+        this.allProperties = new ArrayList<>(other.allProperties);
+        this.ePeak = other.ePeak;
+        this.deviceToTicks = new HashMap<>(other.deviceToTicks);
+        this.agent = new SmartHomeAgent(other.agent);
+        this.neighboursPriceConsumption = new ArrayList<>(other.neighboursPriceConsumption);
     }
 
     public void buildNewPropertyData(Rule rule, boolean isPassive) {
@@ -276,7 +285,7 @@ public class AlgorithmDataHelper
     }
 
     public Map<Actuator, List<Integer>> getDeviceToTicks() {
-        return DeviceToTicks;
+        return deviceToTicks;
     }
 
     public List<double[]> getNeighboursPriceConsumption() {
