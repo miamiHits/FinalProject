@@ -28,7 +28,7 @@ public class Experiment implements ExperimentInterface {
     private List<Problem> problems;
     private List<SmartHomeAgentBehaviour> algorithms;
     private List<AlgorithmProblemResult> algorithmProblemResults;
-
+    private Map<String, Long> probToAlgoTotalTime = new HashMap<>();
     private boolean experimentCompleted = false;
     private CyclicBarrier waitingBarrier;// used by the experiment thread to wait for the current configuration to end before starting a new one
     private static final int WAITING_BARRIER_PARTIES_COUNT = 3;
@@ -185,7 +185,8 @@ public class Experiment implements ExperimentInterface {
                                                 "problem: %s",
                                         currentAlgorithmBehaviour.getBehaviourName(),
                                         currentProblem.getId()));
-
+                                String algoProblem = currentAlgorithmBehaviour.getBehaviourName() +"_"+ currentProblem.getId();
+                                probToAlgoTotalTime.put(algoProblem, System.currentTimeMillis());
                                 assert currentProblem.getAgentsData()
                                         .stream()
                                         .map(ad -> ad.getName())
@@ -297,7 +298,20 @@ public class Experiment implements ExperimentInterface {
             {
                 logger.info("Experiment ended");
                 killJade();
-                service.experimentEnded(algorithmProblemResults);
+                Long finalTime = System.currentTimeMillis();
+                //lets get the problem-algo pair and add the final time
+                for(AlgorithmProblemResult apr : algorithmProblemResults)
+                {
+                    String algoToProbString = apr.getAlgorithm() +"_"+ apr.getProblem();
+                    logger.info("DEBUG YARDEN: NAME IS--->>>" + algoToProbString);
+                    Long startTime = probToAlgoTotalTime.get(algoToProbString);
+                    logger.info("DEBUG YARDEN: START TIME WAS FOUND AND IS--->>>" + startTime);
+                    probToAlgoTotalTime.put(algoToProbString, finalTime-startTime);
+                    Long newRes = finalTime-startTime;
+                    logger.info("DEBUG YARDEN: CALCULATED TIME IS--->>>" + newRes);
+                }
+
+                service.experimentEnded(algorithmProblemResults, probToAlgoTotalTime);
             }
             assert !experimentConfigurationRunning.get() :
                     "experimentConfigurationRunning should be false when experiment has ended";

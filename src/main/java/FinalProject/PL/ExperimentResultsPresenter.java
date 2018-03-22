@@ -25,6 +25,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private DefaultStatisticalCategoryDataset powerConsumptionGrapth;
     private DefaultStatisticalCategoryDataset highestAgentGrapth;
     private DefaultStatisticalCategoryDataset lowestAgentGrapth;
+    private DefaultCategoryDataset averageExperimentTime;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -35,10 +36,10 @@ public class ExperimentResultsPresenter extends Panel implements View{
         final VerticalLayout layout = new VerticalLayout();
 
         layout.addComponent(generateLineGraphWithErrorBars("Average Cost By Iteration #", "Iteration #", "Average Cost", powerConsumptionGrapth, false));
-        layout.addComponent(generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", JFreeChartUtils.createLineChartDataset(), false));
-        layout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", JFreeChartUtils.createLineChartDataset(), false));
+        layout.addComponent(generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGrapth, false));
+        layout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGrapth, false));
 
-        layout.addComponent(generateBarChart("Runtime Statistics", null, null, JFreeChartUtils.createBarChartDataset()));
+        layout.addComponent(generateBarChart("Runtime Average time Statistics", null, null, averageExperimentTime));
 
         setContent(layout);
     }
@@ -55,7 +56,12 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
     public void setLowestAgentGrapthGrapth(DefaultStatisticalCategoryDataset lowestAgent)
     {
-        this.highestAgentGrapth = lowestAgent;
+        this.lowestAgentGrapth = lowestAgent;
+    }
+
+    public void setAverageExperimentTime(DefaultCategoryDataset aveTime)
+    {
+        this.averageExperimentTime = aveTime;
     }
 
 

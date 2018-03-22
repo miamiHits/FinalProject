@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 public class UiHandler extends UI implements UiHandlerInterface {
@@ -26,12 +27,13 @@ public class UiHandler extends UI implements UiHandlerInterface {
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static Service service;
     public static Navigator navigator;
-    private ExperimentResultsPresenter resultsPresenter = new ExperimentResultsPresenter();
+    private ExperimentResultsPresenter resultsPresenter;
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
 
     public UiHandler()
     {
+        resultsPresenter = new ExperimentResultsPresenter();
         String jsonPath = "src/test/testResources/jsons";
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
         String algorithmsPath = "target/classes/FinalProject/BL/Agents";
@@ -99,7 +101,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
     }
 
     @Override
-    public void showResultScreen(List<AlgorithmProblemResult> experimentResults) {
+    public void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Long> probToAlgoTotalTime) {
         for (AlgorithmProblemResult res : experimentResults)
         {
             System.out.println(res.toString());
@@ -108,12 +110,12 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
         //just for check the csv - we can change it later
         csvHandler csv = new csvHandler("results.csv");
-        StatisticsHandler sth = new StatisticsHandler(experimentResults);
+        StatisticsHandler sth = new StatisticsHandler(experimentResults, probToAlgoTotalTime);
         resultsPresenter.setPowerConsumptionGrapth(sth.totalConsumption());
         resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
         resultsPresenter.setLowestAgentGrapthGrapth(sth.lowestAgent());
-
-        navigator.navigateTo(EXPERIMENT_RESULTS);
+        resultsPresenter.setAverageExperimentTime(sth.averageTime());
+        //navigator.navigateTo(EXPERIMENT_RESULTS);
         try {
             csv.saveExpirmentResult(experimentResults);
         } catch (IOException e) {
@@ -124,10 +126,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
     }
 
     @Override
-    public void notifyExperimentEnded(List<AlgorithmProblemResult> results)
+    public void notifyExperimentEnded(List<AlgorithmProblemResult> results, Map<String, Long> probToAlgoTotalTime)
     {
         System.out.println("Experiment Ended!");
-        showResultScreen(results);
+        showResultScreen(results, probToAlgoTotalTime);
     }
 
     @Override

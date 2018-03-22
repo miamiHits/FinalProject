@@ -14,9 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -98,8 +96,9 @@ public class ServiceTest {
     public void experimentEnded() throws Exception
     {
         List<AlgorithmProblemResult> someList = new ArrayList<>();
-        service.experimentEnded(someList);
-        verify(ui).notifyExperimentEnded(someList);
+        Map<String, Long> probToAlgoTotalTime = new HashMap<>();
+        service.experimentEnded(someList, probToAlgoTotalTime);
+        verify(ui).notifyExperimentEnded(someList, probToAlgoTotalTime);
     }
 
     @Test

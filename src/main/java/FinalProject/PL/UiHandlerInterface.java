@@ -3,15 +3,16 @@ package FinalProject.PL;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UiHandlerInterface {
     void showMainScreen();
 
     void showExperimentRunningScreen();
 
-    void showResultScreen(List<AlgorithmProblemResult> arg);
+    void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Long> probToAlgoTotalTime);
 
-    void notifyExperimentEnded(List<AlgorithmProblemResult> results);
+    void notifyExperimentEnded(List<AlgorithmProblemResult> results, Map<String, Long> probToAlgoTotalTime);
 
     void notifyError(String msg);
 }

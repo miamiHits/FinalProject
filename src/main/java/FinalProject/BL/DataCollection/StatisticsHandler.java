@@ -1,43 +1,42 @@
 package FinalProject.BL.DataCollection;
 
+import FinalProject.BL.Experiment;
+import org.apache.log4j.Logger;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class StatisticsHandler {
 
     private List<AlgorithmProblemResult> experimentResultsNotSort;
+    private Map<String, Long> probNAlgToTotalTime;
     private Map<String, List<AlgorithmProblemResult>> experimentResults = new HashMap<>();
     private int ITER_NUM;
-    public StatisticsHandler (List<AlgorithmProblemResult> experimentResults)
+    private static Logger logger = Logger.getLogger(StatisticsHandler.class);
+    public StatisticsHandler(List<AlgorithmProblemResult> experimentResults, Map<String, Long> probToAlgoTotalTime)
     {
         this.experimentResultsNotSort = experimentResults;
         ITER_NUM = experimentResults.get(0).getAvgPricePerIteration().size();
+        this.probNAlgToTotalTime = probToAlgoTotalTime;
         sortResultsByAlgorithm();
     }
 
     private void sortResultsByAlgorithm()
     {
-         for (AlgorithmProblemResult algo : this.experimentResultsNotSort)
-         {
-             String algoName = algo.getAlgorithm();
-             if (!experimentResults.containsKey(algoName))
-             {
-                 experimentResults.put(algoName, new ArrayList<>());
-                 List<AlgorithmProblemResult> tempLst = experimentResults.get(algoName);
-                 tempLst.add(algo);
-                 experimentResults.put(algoName, tempLst);
-             }
-             else{
-                 List<AlgorithmProblemResult> tempLst = experimentResults.get(algoName);
-                 tempLst.add(algo);
-                 experimentResults.put(algoName, tempLst);
-             }
-         }
+        this.experimentResultsNotSort.forEach(algo -> {
+            String algoName = algo.getAlgorithm();
+            if (!experimentResults.containsKey(algoName)) {
+                experimentResults.put(algoName, new ArrayList<>());
+                List<AlgorithmProblemResult> tempLst = experimentResults.get(algoName);
+                tempLst.add(algo);
+                experimentResults.put(algoName, tempLst);
+            } else {
+                List<AlgorithmProblemResult> tempLst = experimentResults.get(algoName);
+                tempLst.add(algo);
+                experimentResults.put(algoName, tempLst);
+            }
+        });
     }
 
     public DefaultStatisticalCategoryDataset totalConsumption()
@@ -64,33 +63,30 @@ public class StatisticsHandler {
 
     private void calcDataSet(graphType command, DefaultStatisticalCategoryDataset dataset)
    {
-       for(Map.Entry<String, List<AlgorithmProblemResult>> entry : experimentResults.entrySet())
-       {
-           int size = entry.getValue().size();
-           double average =0;
-           double [] arr = new double [size];
-           for (int j=0; j<=ITER_NUM; j++)
-           {
-               for (int i=0; i<size; i++)
-               {
-                   switch (command)
-                   {
+       experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
+           int size = value.size();
+           double average = 0;
+           double[] arr = new double[size];
+           for (int j = 0; j < ITER_NUM; j++) {
+               for (int i = 0; i < size; i++) {
+                   switch (command) {
                        case LowestPrice:
-                           arr[i] = entry.getValue().get(i).getLowestCostForAgentInBestIteration().get(j);
+                           arr[i] = value.get(i).getLowestCostForAgentInBestIteration().get(j);
                            break;
                        case HighestPrice:
-                           arr[i] = entry.getValue().get(i).getHighestCostForAgentInBestIteration().get(j);
+                           arr[i] = value.get(i).getHighestCostForAgentInBestIteration().get(j);
                            break;
                        case TotalConsumption:
-                           arr[i] = entry.getValue().get(i).getTotalGradePerIteration().get(j);
+                           //logger.info("DEBUG YARDEN: entry.getValue().get(i) of TotalConsumption is: " + entry.getValue().get(i).getAvgPricePerIteration().get(j));
+                           arr[i] = value.get(i).getAvgPricePerIteration().get(j);
                            break;
                    }
 
-                   average+= arr[i];
+                   average += arr[i];
                }
-               dataset.add(average/size, calculateSD(arr), entry.getKey(), new Integer(j));
+               dataset.add(average / size, calculateSD(arr), key, new Integer(j));
            }
-       }
+       });
    }
 
 
@@ -109,6 +105,28 @@ public class StatisticsHandler {
         }
 
         return Math.sqrt(standardDeviation/10);
+    }
+
+    public DefaultCategoryDataset averageTime()
+    {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        Set<String> algoNames = experimentResults.keySet();
+        for(String name: algoNames)
+        {
+            int counter=0;
+            Long totalTime = null;
+            for(Map.Entry<String, Long> entry : probNAlgToTotalTime.entrySet())
+            {
+                if (entry.getKey().contains(name))
+                {
+                    counter++;
+                    totalTime+=entry.getValue();
+                }
+
+            }
+            dataset.addValue(totalTime/counter, name, "Iteration Run Time (ms)");
+        }
+        return dataset;
     }
 
     private enum graphType{
