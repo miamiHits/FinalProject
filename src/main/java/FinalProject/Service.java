@@ -10,6 +10,7 @@ import FinalProject.PL.UiHandlerInterface;
 import org.apache.log4j.Logger;
 
 import java.util.List;
+import java.util.Map;
 
 public class Service {
 
@@ -81,9 +82,9 @@ public class Service {
         this.currExperiment.stopExperiment();
     }
 
-    public void experimentEnded(List<AlgorithmProblemResult> results)
+    public void experimentEnded(List<AlgorithmProblemResult> results, Map<String, Long> probToAlgoTotalTime)
     {
-        observer.notifyExperimentEnded(results);
+        observer.notifyExperimentEnded(results, probToAlgoTotalTime);
     }
 
     public void experimentEndedWithError(Exception e)
