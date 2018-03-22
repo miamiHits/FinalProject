@@ -27,6 +27,13 @@ public class DataCollector {
         addNeighborhoodIfNotExist(data, tempPA);
 
         if (isIterationFinished(tempPA, tempIAP, data)) { //last agent finished iteration
+            if (data.getIterNum() == 0){ //need to calculate epeak
+                List<AgentPrice> prices = tempIAP.getIterationToAgentsPrice().get(0);
+                List<double[]> schedules = prices.stream().
+                        map(price -> price.getSchedule()).collect(Collectors.toList());
+                data.setePeak(PowerConsumptionUtils.calculateEPeak(schedules));
+                addNeighborhoodIfNotExist(data, tempPA);
+            }
             addProbResult(tempPA, tempIAP, data);
             pupulateTotalGradeForIteration(data, tempPA, tempIAP);
             return -1.0;
