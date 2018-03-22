@@ -481,7 +481,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         List<ACLMessage> messages = new ArrayList<>();
         ACLMessage receivedMessage;
         int neighbourCount = this.agent.getAgentData().getNeighbors().size();
-        while (messages.size() < neighbourCount) {//the additional one is for the data collector's message
+        while (messages.size() < neighbourCount) {
             receivedMessage = this.agent.blockingReceive(msgTemplate);
             logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
             messages.add(receivedMessage);

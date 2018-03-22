@@ -135,8 +135,9 @@ public class SmartHomeAgent extends Agent implements Serializable{
 
         MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));
         MESSAGE_TEMPLATE_SENDER_IS_AMS = MessageTemplate.MatchSender(new AID("ams", false));
-        MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR = MessageTemplate.and(MessageTemplate.not(MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR),
+        MessageTemplate notAmsNotCollector = MessageTemplate.and(MessageTemplate.not(MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR),
                 MessageTemplate.not(MESSAGE_TEMPLATE_SENDER_IS_AMS));
+        MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR = MessageTemplate.and(notAmsNotCollector, MessageTemplate.MatchOntology(""));
 
         //Getting fields in order: Algorithm, agentData
         this.algorithm = (SmartHomeAgentBehaviour) getArguments()[0];
