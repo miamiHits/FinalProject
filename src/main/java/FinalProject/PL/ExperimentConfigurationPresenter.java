@@ -45,6 +45,8 @@ public class ExperimentConfigurationPresenter extends Panel implements View {
 
         Button startExperimentBtn = new Button("Start Experiment");
 
+        startExperimentBtn.addClickListener(clickEvent -> UiHandler.navigator.navigateTo(UiHandler.EXPERIMENT_RESULTS));
+
         mainLayout.addComponent(startExperimentBtn);
         setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
 
