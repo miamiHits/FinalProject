@@ -69,7 +69,7 @@ public class UiHandler implements UiHandlerInterface {
         System.out.println('\n');
 
         //just for check the csv - we can change it later
-        csvHandler csv = new csvHandler("Y:\\downloads\\results.csv");
+        csvHandler csv = new csvHandler("results.csv");
 
         try {
             csv.saveExpirmentResult(experimentResults);
