@@ -53,7 +53,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     private void receiveAllMessagesAndHandleThem() {
-        List<ACLMessage> messageList = waitForNeighbourMessages();
+        List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
         readNeighboursMsgs(messageList);
         updatePowerConsumption();
     }

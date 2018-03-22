@@ -4,11 +4,10 @@ import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
-import jade.util.leap.Comparable;
 import org.apache.log4j.Logger;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -18,6 +17,8 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
     private final static Logger logger = Logger.getLogger(SHMGM.class);
     private ImprovementMsg maxImprovementMsg = null; //used to calc msgs size only
+    private final String gainMsgOntology = "GAIN_MSG";
+    private MessageTemplate improvementTemplate = MessageTemplate.MatchOntology(gainMsgOntology);
 
     @Override
     protected void doIteration() {
@@ -28,7 +29,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         }
         else {
             logger.info("Starting work on Iteration: " + currentNumberOfIter);
-            List<ACLMessage> messageList = waitForNeighbourMessages();
+            List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
             readNeighboursMsgs(messageList);
             helper.calcPowerConsumptionForAllNeighbours(); //TODO added
             improveSchedule();
@@ -92,8 +93,8 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     private List<ImprovementMsg> sendAndReceiveImprovement(double improvement) {
         logger.info(agent.getName() + " sending improvement to neighbours");
         ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum());
-        sendMsgToAllNeighbors(improvementToSend);
-        List<ACLMessage> receivedMsgs = waitForNeighbourMessages();
+        sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);
+        List<ACLMessage> receivedMsgs = waitForNeighbourMessages(improvementTemplate);
         List<ImprovementMsg> improvements = receivedMsgs.stream()
                 .map(msg -> {
                     try {
