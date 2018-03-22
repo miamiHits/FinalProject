@@ -30,18 +30,23 @@ public class ExperimentResultsPresenter extends Panel implements View{
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
+        try {
 
-        JFreeChartUtils.ALGORITHM_COUNT = 3;
+            final VerticalLayout layout = new VerticalLayout();
 
-        final VerticalLayout layout = new VerticalLayout();
+            layout.addComponent(generateLineGraphWithErrorBars("Average Cost By Iteration #", "Iteration #", "Average Cost", powerConsumptionGrapth, false));
+            layout.addComponent(generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGrapth, false));
+            layout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGrapth, false));
 
-        layout.addComponent(generateLineGraphWithErrorBars("Average Cost By Iteration #", "Iteration #", "Average Cost", powerConsumptionGrapth, false));
-        layout.addComponent(generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGrapth, false));
-        layout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGrapth, false));
+//        layout.addComponent(generateBarChart("Runtime Average time Statistics", null, null, averageExperimentTime));
 
-        layout.addComponent(generateBarChart("Runtime Average time Statistics", null, null, averageExperimentTime));
-
-        setContent(layout);
+            setContent(layout);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            UiHandler.navigator.navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
+        }
     }
 
     public void setPowerConsumptionGrapth(DefaultStatisticalCategoryDataset powerCons)

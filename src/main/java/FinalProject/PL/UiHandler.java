@@ -115,7 +115,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
         resultsPresenter.setLowestAgentGrapthGrapth(sth.lowestAgent());
         resultsPresenter.setAverageExperimentTime(sth.averageTime());
-        //navigator.navigateTo(EXPERIMENT_RESULTS);
+        navigator.navigateTo(EXPERIMENT_RESULTS);
         try {
             csv.saveExpirmentResult(experimentResults);
         } catch (IOException e) {

@@ -323,7 +323,7 @@ public class Experiment implements ExperimentInterface {
             rt = Runtime.instance();
 
             // Exit the JVM when there are no more containers around
-            rt.setCloseVM(true);
+            rt.setCloseVM(false);
 
             // Create a default profile
             Profile profile = new ProfileImpl(true);
