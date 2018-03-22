@@ -27,6 +27,8 @@ public class UiHandler extends UI implements UiHandlerInterface {
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static Service service;
     public static Navigator navigator;
+    private ExperimentRunningPresenter experimentRunningPresenter;
+
     private ExperimentResultsPresenter resultsPresenter;
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
@@ -57,7 +59,9 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
         // Create and register the views
         ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter();
-        navigator.addView("", experimentConfigurationPresenter);
+        experimentRunningPresenter = new ExperimentRunningPresenter();
+//        experimentConfigurationPresenter.setExperimentRunningPresenter(experimentRunningPresenter);
+        navigator.addView("", experimentRunningPresenter);
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RESULTS, resultsPresenter);
     }
@@ -136,6 +140,13 @@ public class UiHandler extends UI implements UiHandlerInterface {
     public void notifyError(String msg)
     {
         System.out.println(msg);
+    }
+
+    @Override
+    public void algorithmProblemIterEnded(String algo, String problem, float changePercentage) {
+        if (experimentRunningPresenter != null) {
+            experimentRunningPresenter.incProgBar(problem, algo, changePercentage);
+        }
     }
 
 

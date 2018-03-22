@@ -61,6 +61,11 @@ public class Experiment implements ExperimentInterface {
         this.experimentThread.start();
     }
 
+    public void algorithmProblemIterEnded(String algo, String problem) {
+        logger.info("Iter ended in <" + algo + "," + problem + ">. Updating with " + (1 / maximumIterations) + "%");
+        service.algorithmProblemIterEnded(algo, problem, 1 / maximumIterations);
+    }
+
     // gal: this one should be invoked by the data collection agent notifying all data
     // resulted from the algorithm-problem configuration run was fully processed
     // IMPORTANT - the method is blocking and should be invoked when the data collector has done all that is needed for the current configuration
