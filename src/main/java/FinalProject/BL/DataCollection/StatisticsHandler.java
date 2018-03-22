@@ -113,13 +113,18 @@ public class StatisticsHandler {
         Set<String> algoNames = experimentResults.keySet();
         for(String name: algoNames)
         {
+           logger.info("DEBUG YARDEN: looking for algo name: " + name);
+
             int counter=0;
-            Long totalTime = null;
+            long totalTime = 0;
             for(Map.Entry<String, Long> entry : probNAlgToTotalTime.entrySet())
             {
+                logger.info("DEBUG YARDEN: looking for algoProb name: " + entry.getKey());
+                logger.info("DEBUG YARDEN: is it contains: " +entry.getKey().contains(name));
                 if (entry.getKey().contains(name))
                 {
                     counter++;
+                    logger.info("DEBUG YARDEN: the value is: " +entry.getValue());
                     totalTime+=entry.getValue();
                 }
 
