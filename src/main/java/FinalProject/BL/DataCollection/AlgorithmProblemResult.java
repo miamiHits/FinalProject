@@ -3,6 +3,7 @@ package FinalProject.BL.DataCollection;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AlgorithmProblemResult {
@@ -17,12 +18,14 @@ public class AlgorithmProblemResult {
     private double highestCostForAgentInBestIteration;
     private String highestCostForAgentInBestIterationAgentName;
     private static final Logger logger = Logger.getLogger(AlgorithmProblemResult.class);
+    private Map<Integer, MsgInfo> totalMessagesInIter;
 
     public AlgorithmProblemResult(ProblemAlgorithm probAlgo) {
         problem = probAlgo.getProblemId();
         algorithm = probAlgo.getAlgorithmName();
         avgPricePerIteration = new HashMap<Integer, Double>();
         totalGradePerIteration = new HashMap<Integer, Double>();
+        totalMessagesInIter = new HashMap<Integer, MsgInfo>();
         iterationsTillBestPrice = 0;
         bestGrade = Double.MAX_VALUE;
     }
@@ -123,6 +126,17 @@ public class AlgorithmProblemResult {
         totalGradePerIteration.put(iterNum, totalGrade);
     }
 
+    public void setTotalMsgsInIter(int iterNum, IterationAgentsPrice iap) {
+        long totalMsgSize = 0;
+        int totalMsgNum = 0;
+        List<AgentPrice> prices = iap.getIterationToAgentsPrice().get(iterNum);
+        for (AgentPrice ap : prices){
+            totalMsgNum += ap.getMsgsNum();
+            totalMsgSize += ap.getMsgLength();
+        }
+        totalMessagesInIter.put(iterNum, new MsgInfo(totalMsgNum, totalMsgSize));
+    }
+
     @Override
     public String toString()
     {
@@ -133,11 +147,11 @@ public class AlgorithmProblemResult {
                 ", totalGradePerIteration=" + totalGradePerIteration + "\n" +
                 ", iterationsTillBestPrice=" + iterationsTillBestPrice + "\n" +
                 ", bestGrade=" + bestGrade + "\n" +
+                ", messagesInIter=" + totalMessagesInIter + "\n" +
                 ", lowestCostForAgentInBestIteration=" + lowestCostForAgentInBestIteration + "\n" +
                 ", lowestCostForAgentInBestIterationAgentName='" + lowestCostForAgentInBestIterationAgentName + '\'' + "\n" +
                 ", highestCostForAgentInBestIteration=" + highestCostForAgentInBestIteration + "\n" +
                 ", highestCostForAgentInBestIterationAgentName='" + highestCostForAgentInBestIterationAgentName + '\'' +"\n" +
                 '}';
     }
-
 }
