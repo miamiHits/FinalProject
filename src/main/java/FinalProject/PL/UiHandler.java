@@ -2,6 +2,7 @@ package FinalProject.PL;
 
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
+import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.DAL.*;
 import FinalProject.Service;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -25,7 +26,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static Service service;
     public static Navigator navigator;
-
+    private ExperimentResultsPresenter resultsPresenter = new ExperimentResultsPresenter();
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
 
@@ -56,7 +57,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter();
         navigator.addView("", experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);
-        navigator.addView(EXPERIMENT_RESULTS, new ExperimentResultsPresenter());
+        navigator.addView(EXPERIMENT_RESULTS, resultsPresenter);
     }
 
     @Override
@@ -107,7 +108,12 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
         //just for check the csv - we can change it later
         csvHandler csv = new csvHandler("results.csv");
+        StatisticsHandler sth = new StatisticsHandler(experimentResults);
+        resultsPresenter.setPowerConsumptionGrapth(sth.totalConsumption());
+        resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
+        resultsPresenter.setLowestAgentGrapthGrapth(sth.lowestAgent());
 
+        navigator.navigateTo(EXPERIMENT_RESULTS);
         try {
             csv.saveExpirmentResult(experimentResults);
         } catch (IOException e) {
