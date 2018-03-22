@@ -95,6 +95,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         doIteration();
         sendIterationToCollector();
         sendMsgToAllNeighbors(agent.getCurrIteration());
+        logger.info("agent + " + agent.getName() + " FINISHED ITER " + (currentNumberOfIter - 1));
     }
 
     @Override

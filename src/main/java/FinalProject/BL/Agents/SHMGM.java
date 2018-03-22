@@ -25,9 +25,9 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info("Starting work on Iteration: 0");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
-            logger.info("FINISH ITER 0");
         }
         else {
+            logger.info("Starting work on Iteration: " + currentNumberOfIter);
             List<ACLMessage> messageList = waitForNeighbourMessages();
             readNeighboursMsgs(messageList);
             improveSchedule();
