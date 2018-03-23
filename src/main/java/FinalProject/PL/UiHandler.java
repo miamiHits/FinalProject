@@ -27,11 +27,12 @@ public class UiHandler extends UI implements UiHandlerInterface {
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static Service service;
     public static Navigator navigator;
-    private ExperimentRunningPresenter experimentRunningPresenter;
+    public static ExperimentRunningPresenter experimentRunningPresenter;
 
     private ExperimentResultsPresenter resultsPresenter;
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
+    protected static final String EXPERIMENT_RUNNING = "EXPERIMENT_RUNNING";
 
     public UiHandler()
     {
@@ -61,7 +62,8 @@ public class UiHandler extends UI implements UiHandlerInterface {
         ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter();
         experimentRunningPresenter = new ExperimentRunningPresenter();
 //        experimentConfigurationPresenter.setExperimentRunningPresenter(experimentRunningPresenter);
-        navigator.addView("", experimentRunningPresenter);
+        navigator.addView("", experimentConfigurationPresenter);
+        navigator.addView(EXPERIMENT_RUNNING, experimentRunningPresenter);
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RESULTS, resultsPresenter);
     }

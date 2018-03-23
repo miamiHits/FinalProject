@@ -1,5 +1,6 @@
 package FinalProject.PL;
 
+import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.Service;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.event.selection.MultiSelectionEvent;
@@ -25,6 +26,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private final List<String> selectedProblems = new ArrayList<>();
 
     private Service service;
+    private ExperimentRunningPresenter experimentRunningPresenter;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -35,6 +37,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         _problemsContainer = new VerticalLayout();
 
         this.service = UiHandler.service;
+        this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
 
         VerticalLayout mainLayout = new VerticalLayout();
 
@@ -171,9 +174,13 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         int numberOfIterations = parseIterationNumber();
 
+        setExperimentRunningPairs();
+
         service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
         service.setProblemsToExperiment(selectedProblems);
         service.runExperiment();
+
+        getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);
 
     }
 
@@ -194,5 +201,14 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         }
 
         return result;
+    }
+
+    private void setExperimentRunningPairs() {
+        List<ProblemAlgoPair> problemAlgoPairs = new ArrayList<>(selectedAlgorithms.size() * selectedProblems.size());
+        selectedAlgorithms.forEach(algo -> {
+            selectedProblems.forEach(problem -> problemAlgoPairs.add(new ProblemAlgoPair(algo, problem)));
+        });
+
+        experimentRunningPresenter.setAlgorithmProblemPairs(problemAlgoPairs);
     }
 }

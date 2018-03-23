@@ -62,8 +62,8 @@ public class Experiment implements ExperimentInterface {
     }
 
     public void algorithmProblemIterEnded(String algo, String problem) {
-        logger.info("Iter ended in <" + algo + "," + problem + ">. Updating with " + (1 / maximumIterations) + "%");
-        service.algorithmProblemIterEnded(algo, problem, 1 / maximumIterations);
+        logger.info("Iter ended in <" + algo + "," + problem + ">. Updating with " + (1.0 / maximumIterations) + "%");
+        service.algorithmProblemIterEnded(algo, problem, 1.0f / maximumIterations);
     }
 
     // gal: this one should be invoked by the data collection agent notifying all data

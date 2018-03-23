@@ -15,13 +15,15 @@ public class ExperimentRunningPresenter extends Panel implements View{
     private Grid<ProblemAlgoPair> problemAlgoPairGrid;
     private final Map<ProblemAlgoPair, ProgressBar> pairToProgressBarMap = new HashMap<>();
     private Button goToResScreenBtn;
+    private boolean gridWasSet = false;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
-        problemAlgoPairGrid = new Grid<>(ProblemAlgoPair.class);
-        initGrid();
+//        problemAlgoPairGrid = new Grid<>(ProblemAlgoPair.class);
+//        initGrid();
 
+//        getUI().setPollInterval(100);
         Button updateProgBar = new Button("update progress bar", clickEvent -> {
             pairToProgressBarMap.values().forEach(bar -> incProgBar("dm_7_shit", "DSA", 0.2f));
         });
@@ -50,7 +52,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
 
     private void checkIfAllAlgosAreDone() {
         long notDoneBars = pairToProgressBarMap.values().stream()
-                .filter(bar -> bar.getValue() < 0.1f)
+                .filter(bar -> bar.getValue() < 1.0f)
                 .count();
         if (notDoneBars == 0) {
             goToResScreenBtn.setEnabled(true);
@@ -63,18 +65,25 @@ public class ExperimentRunningPresenter extends Panel implements View{
     }
 
     private void initGrid() {
-//        problemAlgoPairGrid.setItems(new ProblemAlgoPair("DSA", "dm_7_shit"));
+        if (!gridWasSet) {
+            if (problemAlgoPairGrid == null) {
+                problemAlgoPairGrid = new Grid<>(ProblemAlgoPair.class);
+            }
 
-        problemAlgoPairGrid.addColumn(pair -> {
-            ProgressBar progBar = new ProgressBar(0.0f);
-            progBar.setSizeFull();
-            pairToProgressBarMap.put(pair, progBar);
-            return progBar;
-            },
-                new ComponentRenderer())
-                .setCaption("Progress")
-                .setId("progress");
+            problemAlgoPairGrid.setItems(pairToProgressBarMap.keySet());
 
-        problemAlgoPairGrid.setSizeFull();
+            problemAlgoPairGrid.addColumn(pair -> {
+                ProgressBar progBar = new ProgressBar(0.0f);
+                progBar.setSizeFull();
+                pairToProgressBarMap.put(pair, progBar);
+                return progBar;
+                },
+                    new ComponentRenderer())
+                    .setCaption("Progress")
+                    .setId("progress");
+
+            problemAlgoPairGrid.setSizeFull();
+            gridWasSet = true;
+        }
     }
 }
