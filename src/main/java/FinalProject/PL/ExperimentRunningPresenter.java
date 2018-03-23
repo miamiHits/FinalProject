@@ -44,7 +44,13 @@ public class ExperimentRunningPresenter extends Panel implements View{
         if (problemAlgoPair != null) {
             ProgressBar progressBar = pairToProgressBarMap.get(problemAlgoPair);
             float current = progressBar.getValue();
-            progressBar.setValue(current + toIncBy);
+            getUI().access(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setValue(current + toIncBy);
+                }
+            });
+
 
             checkIfAllAlgosAreDone();
         }

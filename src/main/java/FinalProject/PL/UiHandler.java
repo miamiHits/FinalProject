@@ -5,6 +5,7 @@ import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.DAL.*;
 import FinalProject.Service;
+import com.vaadin.annotations.Push;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+@Push
 public class UiHandler extends UI implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));

@@ -68,6 +68,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-push</artifactId>
+			<version>${vaadin.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.vaadin.addon</groupId>
 			<artifactId>jfreechartwrapper</artifactId>
 			<version>4.0.0</version>
