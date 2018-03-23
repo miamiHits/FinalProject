@@ -6,6 +6,7 @@ import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.DAL.*;
 import FinalProject.Service;
 import com.vaadin.annotations.Push;
+import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 @Push
+@Theme("mytheme")
 public class UiHandler extends UI implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -123,7 +125,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
         resultsPresenter.setLowestAgentGrapthGrapth(sth.lowestAgent());
         resultsPresenter.setAverageExperimentTime(sth.averageTime());
-        navigator.navigateTo(EXPERIMENT_RESULTS);
+        experimentRunningPresenter.enableGoToResScreenBtn();
         try {
             csv.saveExpirmentResult(experimentResults);
         } catch (IOException e) {

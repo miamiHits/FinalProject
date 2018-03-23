@@ -9,6 +9,8 @@ import java.util.*;
 
 public class StatisticsHandler {
 
+    public static int displayedErrorBarsCount = 10;
+
     private List<AlgorithmProblemResult> experimentResultsNotSort;
     private Map<String, Long> probNAlgToTotalTime;
     private Map<String, List<AlgorithmProblemResult>> experimentResults = new HashMap<>();
@@ -65,9 +67,10 @@ public class StatisticsHandler {
    {
        experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
            int size = value.size();
-           double average = 0;
+           double average;
            double[] arr = new double[size];
            for (int j = 0; j < ITER_NUM; j++) {
+               average = 0;
                for (int i = 0; i < size; i++) {
                    switch (command) {
                        case LowestPrice:
@@ -84,7 +87,10 @@ public class StatisticsHandler {
 
                    average += arr[i];
                }
-               dataset.add(average / size, calculateSD(arr), key, new Integer(j));
+               Number std = j < displayedErrorBarsCount || j % (ITER_NUM / displayedErrorBarsCount) == 0 ? //disaply only displayedErrorBarsCount error bars for each algorithms
+                       calculateSD(arr) :
+                       null;
+               dataset.add(average / size, std, key, new Integer(j));
            }
        });
    }

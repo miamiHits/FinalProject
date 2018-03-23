@@ -20,19 +20,11 @@ public class ExperimentRunningPresenter extends Panel implements View{
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
-//        problemAlgoPairGrid = new Grid<>(ProblemAlgoPair.class);
-//        initGrid();
-
-//        getUI().setPollInterval(100);
-        Button updateProgBar = new Button("update progress bar", clickEvent -> {
-            pairToProgressBarMap.values().forEach(bar -> incProgBar("dm_7_shit", "DSA", 0.2f));
-        });
-
         goToResScreenBtn = new Button("Go to results screen!", clickEvent ->
                 getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RESULTS));
         goToResScreenBtn.setEnabled(false);
 
-        VerticalLayout layout = new VerticalLayout(problemAlgoPairGrid, updateProgBar, goToResScreenBtn);
+        VerticalLayout layout = new VerticalLayout(problemAlgoPairGrid, goToResScreenBtn);
         setContent(layout);
 
     }
@@ -50,19 +42,17 @@ public class ExperimentRunningPresenter extends Panel implements View{
                     progressBar.setValue(current + toIncBy);
                 }
             });
-
-
-            checkIfAllAlgosAreDone();
         }
     }
 
-    private void checkIfAllAlgosAreDone() {
-        long notDoneBars = pairToProgressBarMap.values().stream()
-                .filter(bar -> bar.getValue() < 1.0f)
-                .count();
-        if (notDoneBars == 0) {
-            goToResScreenBtn.setEnabled(true);
-        }
+    public void enableGoToResScreenBtn()
+    {
+        getUI().access(new Runnable() {
+            @Override
+            public void run() {
+                goToResScreenBtn.setEnabled(true);
+            }
+        });
     }
 
     public void setAlgorithmProblemPairs(List<ProblemAlgoPair> pairs) {
@@ -79,11 +69,11 @@ public class ExperimentRunningPresenter extends Panel implements View{
             problemAlgoPairGrid.setItems(pairToProgressBarMap.keySet());
 
             problemAlgoPairGrid.addColumn(pair -> {
-                ProgressBar progBar = new ProgressBar(0.0f);
-                progBar.setSizeFull();
-                pairToProgressBarMap.put(pair, progBar);
-                return progBar;
-                },
+                        ProgressBar progBar = new ProgressBar(0.0f);
+                        progBar.setSizeFull();
+                        pairToProgressBarMap.put(pair, progBar);
+                        return progBar;
+                    },
                     new ComponentRenderer())
                     .setCaption("Progress")
                     .setId("progress");
