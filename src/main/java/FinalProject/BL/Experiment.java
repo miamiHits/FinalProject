@@ -83,7 +83,7 @@ public class Experiment implements ExperimentInterface {
      //   assert result.getHighestCostForAgentInBestIteration().entrySet().stream().forEach((k -> k.getValue().compareTo(result.getLowestCostForAgentInBestIteration().get(k))) > 0):
                // "result - in best iteration, the highest cost for an agent must be greater than the lowest one";
         assert result.getIterationsTillBestPrice() <= Experiment.maximumIterations :
-                "result.getIterationsTillBestPrice() was greater than the maximum iteration caount";
+                "result.getIterationsTillBestPrice() was greater than the maximum iteration count";
 
         algorithmProblemResults.add(result);
 
@@ -231,7 +231,8 @@ public class Experiment implements ExperimentInterface {
                                         "some of the agents did not have have unique name (StaleProxyException might have been thrown)";
 
 
-                                this.aliveAgents = this.agentControllers.size();
+//                                this.aliveAgents = this.agentControllers.size();
+                                this.aliveAgents = currentProblem.getAgentsData().size();
                                 if (waitingBarrier.isBroken())
                                 {//barrier was broken in the previous run. restart the barrier
                                     waitingBarrier.reset();
@@ -424,8 +425,7 @@ public class Experiment implements ExperimentInterface {
             logger.debug(platformEvent.getAgentGUID() + " agent died");
 
             this.aliveAgents--;
-            if (experimentConfigurationRunning.get() &&
-                    this.aliveAgents == 0)
+            if (experimentConfigurationRunning.get() && this.aliveAgents == 0)
             {//all agents are dead(completed their run)
                 logger.info("all agents died, will start running next problem-algorithm configuration once data collector sends results");
                 assert this.agentControllers
