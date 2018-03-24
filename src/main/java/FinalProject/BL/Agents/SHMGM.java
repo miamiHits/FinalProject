@@ -63,7 +63,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
         //calculate improvement
         double newPrice = calcPrice(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
-        double newTotalCost = helper.calcTotalPowerConsumption(newPrice);
+        double newTotalCost = helper.calcTotalPowerConsumption(newPrice, iterationPowerConsumption);
 
         double improvement =  prevTotalCost - newTotalCost;
         System.out.println(agent.getLocalName() + "'s iter " + currentNumberOfIter + " prevTotalCost: " + prevTotalCost + ", newTotalCost: " + newTotalCost + ", oldPrice: " + oldPrice +", newPrice: " + newPrice + ", impro: " + improvement);

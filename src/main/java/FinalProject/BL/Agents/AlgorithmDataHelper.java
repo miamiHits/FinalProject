@@ -298,7 +298,7 @@ public class AlgorithmDataHelper
 
     }
 
-    public double calcTotalPowerConsumption(double cSum) {
+    public double calcTotalPowerConsumption(double cSum, double[] myPowerConsumption) {
         logger.info("Calculating total power consumption - stage 2");
 
         List<double[]> scheds = new ArrayList<>(this.neighboursPriceConsumption);
@@ -306,6 +306,11 @@ public class AlgorithmDataHelper
         scheds.add(myPowerCons);
         this.ePeak = calculateEPeak(scheds);
         return getAC() * cSum + getAE() * ePeak;
+    }
+
+    public double calcTotalPowerConsumption(double cSum) {
+        double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        return calcTotalPowerConsumption(cSum, myPowerCons);
     }
 
     public void checkForPassiveRules() {
