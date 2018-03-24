@@ -119,6 +119,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      */
     protected void buildScheduleBasic() {
         this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
+        addBackgroundLoadToPowerConsumption(iterationPowerConsumption);
         List<PropertyWithData> helperNonPassiveOnlyProps = helper.getAllProperties().stream()
                 .filter(p -> !p.isPassiveOnly())
                 .collect(Collectors.toList());
@@ -436,7 +437,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void beforeIterationIsDone() {
-        addBackgroundLoadToPowerConsumption(this.iterationPowerConsumption);
+        //addBackgroundLoadToPowerConsumption(this.iterationPowerConsumption);
         double price = calcPrice(this.iterationPowerConsumption);
         double[] arr = helper.cloneArray(this.iterationPowerConsumption);
         logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
