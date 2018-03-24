@@ -174,19 +174,19 @@ public class PropertyWithData {
 
         double currState = sensor.getCurrentState();
         double newState;
-        if (isFromStart)
-            newState = currState +  ((targetTick - targetTickToCount) * deltaWhenWorkOffline);
-        else
+        if (isFromStart) {
+            newState = currState + ((targetTick - targetTickToCount) * deltaWhenWorkOffline);
+        }
+        else {
             newState = currState + ((targetTickToCount - targetTick) * deltaWhenWorkOffline);
+        }
 
-        if (newState == currState)
-        {
-            return ;
+        if (newState == currState) {
+            return ; //no offline work on these ticks
         }
         else{
             int i, counter;
-            if (isFromStart)
-            {   //because AFTER we include the hour. so the count before we'll not include it.
+            if (isFromStart) {   //because AFTER we include the hour. so the count before we'll not include it.
 
                 i=0;
                 double target = prefix.equals(Prefix.BEFORE) ? targetTick : targetTick-1;
@@ -197,17 +197,14 @@ public class PropertyWithData {
                 i = (int) target;
                 counter = (int) targetTickToCount;
             }
-            for ( ; i<= counter; ++i)
-            {
-                if (currState < minVal)
-                {
+            for ( ; i<= counter; ++i) {
+                if (currState < minVal) {
                     //lets go back tick before the change.
                     i--;
                     currState -=deltaWhenWorkOffline;
                     //now lets charge it to the maximum point
                     double ticksToCharge = Math.ceil((max - currState) / deltaWhenWork);
-                    if (ticksToCharge + i > (powerConsumption.length-1))
-                    {
+                    if (ticksToCharge + i > (powerConsumption.length-1)) {
                          ticksToCharge = (powerConsumption.length-1) - i ;
                     }
                     currState = updateValueToSensor(powerConsumption, currState, ticksToCharge, i, isFromStart);
@@ -240,8 +237,8 @@ public class PropertyWithData {
     {
         for (int j = 1; j <= ticksToCharge; ++j) {
             //update the powerCons array
-            iterationPowerConsumption[j + idxTicks] = Double.sum(iterationPowerConsumption[j + idxTicks], powerConsumedInWork);
-            newState = Double.sum(newState, deltaWhenWork);
+            iterationPowerConsumption[j + idxTicks] = iterationPowerConsumption[j + idxTicks] + powerConsumedInWork;
+            newState = newState + deltaWhenWork;
             if(!offlineWork) {
                 this.activeTicks.add(j + idxTicks);
             }

@@ -78,7 +78,7 @@ public class SmartHomeAgent extends Agent implements Serializable{
     }
 
     public void setCurrIteration(AgentIterationData currIteration) {
-        this.currIteration = currIteration;
+        this.currIteration = new AgentIterationData(currIteration);
     }
 
     public boolean isZEROIteration() {

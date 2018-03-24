@@ -15,7 +15,7 @@ public class AgentIterationData implements Serializable {
         this.iterNum = iterNum;
         this.agentName = agentName;
         this.price = price;
-        this.powerConsumptionPerTick = powerConsPerDevice;
+        this.powerConsumptionPerTick = Arrays.copyOf(powerConsPerDevice, powerConsPerDevice.length);
     }
 
     public AgentIterationData(AgentIterationData other) {

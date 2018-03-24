@@ -27,6 +27,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info("Starting work on Iteration: 0");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
+            agent.setPriceSum(calcPrice(iterationPowerConsumption));
             beforeIterationIsDone();
         }
         else {
@@ -86,6 +87,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         if (maxName.equals(agentName)) { //take new schedule
             logger.info(agent.getName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
             agent.setPriceSum(newPrice);
+            helper.totalPriceConsumption = newTotalCost;
             beforeIterationIsDone(); //TODO check if its good
         }
         else { //take prev schedule

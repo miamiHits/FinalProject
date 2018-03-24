@@ -11,7 +11,7 @@ import static FinalProject.BL.DataCollection.PowerConsumptionUtils.*;
 
 public class AlgorithmDataHelper
 {
-    public double totalPriceConsumption = 0;
+    public double totalPriceConsumption = Double.MAX_VALUE;
     public double ePeak = 0;
     private  Map<Actuator, List<Integer>> deviceToTicks = new HashMap<>();
     private List<PropertyWithData> allProperties;
