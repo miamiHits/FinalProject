@@ -1,15 +1,25 @@
 package FinalProject.BL.Agents;
 
+import FinalProject.BL.IterationData.AgentIterationData;
+import FinalProject.BL.IterationData.IterationCollectedData;
+import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SHMGM extends SmartHomeAgentBehaviour{
 
     private final static Logger logger = Logger.getLogger(SHMGM.class);
+    private ImprovementMsg maxImprovementMsg = null; //used to calc msgs size only
+    private final String gainMsgOntology = "GAIN_MSG";
+    private MessageTemplate improvementTemplate = MessageTemplate.MatchOntology(gainMsgOntology);
 
     @Override
     protected void doIteration() {
@@ -17,12 +27,13 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info("Starting work on Iteration: 0");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
-            logger.info("FINISH ITER 0");
         }
         else {
-            List<ACLMessage> messageList = waitForNeighbourMessages();
+            logger.info("Starting work on Iteration: " + currentNumberOfIter);
+            List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
             readNeighboursMsgs(messageList);
-            helper.calcTotalPowerConsumption(agent.getcSum());
+            helper.calcPowerConsumptionForAllNeighbours(); //TODO added
+            improveSchedule();
         }
         beforeIterationIsDone(); //TODO check if its good
         this.currentNumberOfIter++;
@@ -133,26 +144,51 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
     @Override
     protected void onTermination() {
-
+        logger.info(agent.getName() + " for problem " + agent.getProblemId() + "and algo SH-MGM is TERMINATING!");
     }
 
     @Override
     protected void countIterationCommunication() {
+        int count = 1;
 
+        //calc data sent to neighbours
+        long totalSize = 0;
+        long iterationDataSize = Utils.getSizeOfObj(agentIterationData);
+        int neighboursSize = agent.getAgentData().getNeighbors().size();
+        iterationDataSize *= neighboursSize;
+        totalSize += iterationDataSize;
+        count += neighboursSize;
+
+        if (currentNumberOfIter > 0) {
+            long improvementMsgSize = Utils.getSizeOfObj(maxImprovementMsg);
+            improvementMsgSize *= neighboursSize;
+            totalSize += improvementMsgSize;
+            count += neighboursSize;
+        }
+
+        //calc messages to devices:
+        final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
+        addMessagesSentToDevicesAndSetInAgent(count, totalSize, constantNumOfMsgs);
     }
 
     @Override
     protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Double> sensorsToCharge) {
-
+        if (agent.isZEROIteration()) {
+            startWorkZERO(prop, sensorsToCharge, ticksToWork);
+        }
+        else {
+            startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork);
+        }
     }
 
     @Override
-    public DSA cloneBehaviour() {
-        DSA newInstance = new DSA();
+    public SmartHomeAgentBehaviour cloneBehaviour() {
+        SHMGM newInstance = new SHMGM();
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;
         newInstance.FINAL_TICK = this.FINAL_TICK;
         newInstance.agentIterationData = null; //will be created as part of the behaviour run(see buildScheduleFromScratch)
         return newInstance;
     }
+
 }

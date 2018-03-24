@@ -24,21 +24,38 @@ public class SmartHomeAgent extends Agent implements Serializable{
     public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR;
 
     private AgentData agentData;
-    private AgentIterationData bestIteration;
+    private AgentIterationData bestIteration; //TODO: maybe can be removed
     private AgentIterationData currIteration;
     private SmartHomeAgentBehaviour algorithm;
     private boolean isZEROIteration;
-    private int IterationNum = 0;
+    private int iterationNum = 0;
     private List<AgentIterationData> myNeighborsShed = new ArrayList<>();
     private boolean stop = false;
-    private double cSum;
+    private double priceSum;
     private String problemId;
     private String algoId;
-
     private long iterationMessageSize = 0;
     private int iterationMessageCount = 0;
 
-    private Logger logger = Logger.getLogger(SmartHomeAgent.class);
+    private final static Logger logger = Logger.getLogger(SmartHomeAgent.class);
+
+    public SmartHomeAgent() {}
+
+    public SmartHomeAgent(SmartHomeAgent other) {
+        this.agentData = new AgentData(other.getAgentData());
+//        this.bestIteration = new AgentIterationData(other.bestIteration);
+        this.currIteration = new AgentIterationData(other.getCurrIteration());
+        this.algorithm = other.algorithm.cloneBehaviour();
+        this.isZEROIteration = other.isZEROIteration;
+        this.iterationNum = other.iterationNum;
+        this.myNeighborsShed = new ArrayList<>(other.myNeighborsShed);
+        this.stop = other.stop;
+        this.priceSum = other.priceSum;
+        this.problemId = other.problemId;
+        this.algoId = other.algoId;
+        this.iterationMessageSize = other.iterationMessageSize;
+        this.iterationMessageCount = other.iterationMessageCount;
+    }
 
     public AgentData getAgentData() {
         return agentData;
@@ -81,17 +98,17 @@ public class SmartHomeAgent extends Agent implements Serializable{
     }
 
     public int getIterationNum() {
-        return IterationNum;
+        return iterationNum;
     }
 
     public boolean getStop() {return this.stop;}
 
-    public double getcSum() {
-        return cSum;
+    public double getPriceSum() {
+        return priceSum;
     }
 
-    public void setcSum(double cSum) {
-        this.cSum = cSum;
+    public void setPriceSum(double priceSum) {
+        this.priceSum = priceSum;
     }
 
     public void setStop(boolean stop) {
@@ -136,8 +153,9 @@ public class SmartHomeAgent extends Agent implements Serializable{
 
         MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR = MessageTemplate.MatchSender(new AID(DataCollectionCommunicator.SERVICE_NAME, false));
         MESSAGE_TEMPLATE_SENDER_IS_AMS = MessageTemplate.MatchSender(new AID("ams", false));
-        MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR = MessageTemplate.and(MessageTemplate.not(MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR),
+        MessageTemplate notAmsNotCollector = MessageTemplate.and(MessageTemplate.not(MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR),
                 MessageTemplate.not(MESSAGE_TEMPLATE_SENDER_IS_AMS));
+        MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR = MessageTemplate.and(notAmsNotCollector, MessageTemplate.MatchOntology(""));
 
         //Getting fields in order: Algorithm, agentData
         this.algorithm = (SmartHomeAgentBehaviour) getArguments()[0];

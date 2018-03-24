@@ -212,7 +212,7 @@ public class DSATest {
     public void dsaIterBuildSched(){
         this.props.clear();
         this.props = new ArrayList<>();
-        this.dsa.agent.setcSum(1000);
+        this.dsa.agent.setPriceSum(1000);
         prepareGround();
         try
         {

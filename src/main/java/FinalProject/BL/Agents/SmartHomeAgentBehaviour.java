@@ -17,6 +17,7 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
@@ -94,7 +95,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         logger.debug("action method invoked");
         doIteration();
         sendIterationToCollector();
-        sendMsgToAllNeighbors(agent.getCurrIteration());
+        sendMsgToAllNeighbors(agent.getCurrIteration(), "");
+        logger.info("agent + " + agent.getName() + " FINISHED ITER " + (currentNumberOfIter - 1));
     }
 
     @Override
@@ -113,6 +115,21 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     //-------------PROTECTED METHODS:-------------------
+
+    protected void addMessagesSentToDevicesAndSetInAgent(int count, long totalSize, int constantNumOfMsgs) {
+        final int MSG_TO_DEVICE_SIZE = 4;
+        for (PropertyWithData prop : helper.getAllProperties()) {
+            int numOfTimes = constantNumOfMsgs + prop.getRelatedSensorsDelta().size();
+            if (prop.getPrefix() != null && prop.getPrefix().equals(Prefix.BEFORE)) {
+                numOfTimes++;
+            }
+            totalSize += numOfTimes * MSG_TO_DEVICE_SIZE;
+            count += numOfTimes;
+        }
+
+        agent.setIterationMessageCount(count);
+        agent.setIterationMessageSize(totalSize);
+    }
 
     /**
      * Go through all properties and generate schedule for them
@@ -214,10 +231,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     }
 
-    protected void sendMsgToAllNeighbors(Serializable msgContent) {
+    protected void sendMsgToAllNeighbors(Serializable msgContent, String ontology) {
         logger.debug(String.format("%s sends msg to its neighbours", this.agent.getAgentData().getName()));
 
         ACLMessage aclMsg = new ACLMessage(ACLMessage.REQUEST);
+        aclMsg.setOntology(ontology);
         agent.getAgentData().getNeighbors().stream()
                 .map(neighbor -> new AID(neighbor.getName(), AID.ISLOCALNAME))
                 .forEach(aclMsg::addReceiver);
@@ -226,7 +244,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             aclMsg.setContentObject(msgContent);
             agent.send(aclMsg);
         } catch (IOException e) {
-            logger.error(e.getMessage());
+//            logger.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -345,7 +364,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 double temp = newPowerConsumption[tick];
                 newPowerConsumption[tick] = Double.sum(temp, prop.getPowerConsumedInWork());
             }
-            double res = calculateTotalConsumptionWithPenalty(agent.getcSum(), newPowerConsumption, prevPowerConsumption
+            double res = calculateTotalConsumptionWithPenalty(agent.getPriceSum(), newPowerConsumption, prevPowerConsumption
                     ,helper.getNeighboursPriceConsumption(), agent.getAgentData().getPriceScheme());
 
             if (res <= helper.totalPriceConsumption && res <= bestPrice) {
@@ -416,7 +435,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 //        IterationCollectedData agentIterSum = new IterationCollectedData(
 //                iterationNum, agent.getName(), agentIterationData.getPrice(),
 //                agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
-//                agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getcSum());
+//                agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getPriceSum());
 //        this.agentIterationCollected = agentIterSum;
 //        sendIterationToCollector();
 //    }
@@ -452,30 +471,19 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 agent.getAlgoId(), neighboursNames, helper.ePeak, agent.getIterationMessageSize(), agent.getIterationMessageCount());
     }
 
-    //TODO: not called. Maybe should be deleted!
-    /**
-     * a blocking method that waits far receiving messages from all neighbours and collector,
-     * and and clears all AMS messages
-     * @return List of messages from all neighbours
-     */
-    protected List<ACLMessage> waitForNeighbourAndCollectorMessages() {
-        List<ACLMessage> messages = waitForNeighbourMessages();
-
-        waitForCollectorMessage();
-        return messages;
-    }
 
     /**
      *a blocking method that waits far receiving messages from all neighbours,
      * and and clears all AMS messages
      * @return List of messages from all neighbours
+     * @param msgTemplate
      */
-    protected List<ACLMessage> waitForNeighbourMessages() {
+    protected List<ACLMessage> waitForNeighbourMessages(MessageTemplate msgTemplate) {
         List<ACLMessage> messages = new ArrayList<>();
         ACLMessage receivedMessage;
         int neighbourCount = this.agent.getAgentData().getNeighbors().size();
-        while (messages.size() < neighbourCount) {//the additional one is for the data collector's message
-            receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
+        while (messages.size() < neighbourCount) {
+            receivedMessage = this.agent.blockingReceive(msgTemplate);
             logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
             messages.add(receivedMessage);
         }
@@ -493,7 +501,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()) +
                 "with contents: " + receivedMessage.getContent());
         try {
-            this.agent.setcSum(Double.parseDouble(receivedMessage.getContent()));
+            this.agent.setPriceSum(Double.parseDouble(receivedMessage.getContent()));
         } catch(Exception e){
             logger.error("could not parse cSum sent from the data collector", e);
         }

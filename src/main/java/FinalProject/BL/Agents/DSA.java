@@ -1,5 +1,4 @@
 package FinalProject.BL.Agents;
-import FinalProject.BL.DataObjects.Prefix;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
@@ -44,7 +43,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     @Override
-    public DSA cloneBehaviour() {
+    public SmartHomeAgentBehaviour cloneBehaviour() {
         DSA newInstance = new DSA(); //TODO: maybe should pass an agent?
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;
@@ -54,15 +53,15 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     private void receiveAllMessagesAndHandleThem() {
-        List<ACLMessage> messageList = waitForNeighbourMessages();
+        List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
         readNeighboursMsgs(messageList);
         updatePowerConsumption();
     }
 
     private void updatePowerConsumption() {
         helper.calcPowerConsumptionForAllNeighbours();
-        agent.setcSum(calcCsum());
-        helper.calcTotalPowerConsumption(agent.getcSum());
+        agent.setPriceSum(calcCsum());
+        helper.calcAndSetTotalPowerConsumption(agent.getPriceSum());
 //        updateAgentIterationData(currentNumberOfIter - 1);
     }
 
@@ -93,8 +92,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     @Override
     protected void countIterationCommunication() {
-        final int MSG_TO_DEVICE_SIZE = 4;
-        int count = 2; //2 for agentIterationCollected and agentIterationData
+        int count = 1;
 
         //calc data sent to neighbours
         long totalSize = Utils.getSizeOfObj(agentIterationData);
@@ -102,21 +100,9 @@ public class DSA extends SmartHomeAgentBehaviour {
         count += neighboursSize;
         totalSize *= neighboursSize;
 
-        //calc data sent to DC:
-        totalSize += Utils.getSizeOfObj(agentIterationCollected);
-
         //calc messages to devices:
-        int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
-        for (PropertyWithData prop : helper.getAllProperties()) {
-            int numOfTimes = constantNumOfMsgs + prop.getRelatedSensorsDelta().size();
-            if (prop.getPrefix() != null && prop.getPrefix().equals(Prefix.BEFORE)) {
-                numOfTimes++;
-            }
-            totalSize += numOfTimes * MSG_TO_DEVICE_SIZE;
-            count += numOfTimes;
-        }
+        final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
 
-        agent.setIterationMessageCount(count);
-        agent.setIterationMessageSize(totalSize);
+        addMessagesSentToDevicesAndSetInAgent(count, totalSize, constantNumOfMsgs);
     }
 }

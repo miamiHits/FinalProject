@@ -30,12 +30,11 @@ public class PropertyWithData {
     public  Map<String,Double> relatedSensorsWhenWorkOfflineDelta = new HashMap<>();
     public List<Integer> activeTicks = new ArrayList<>();
     private final static Logger logger = Logger.getLogger(PropertyWithData.class);
+    private double cachedSensorState;
 
     public double getCachedSensorState() {
         return cachedSensorState;
     }
-
-    private double cachedSensorState;
 
     public String getName() {
         return name;
