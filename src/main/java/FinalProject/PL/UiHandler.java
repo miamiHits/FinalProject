@@ -121,7 +121,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         //just for check the csv - we can change it later
         csvHandler csv = new csvHandler("results.csv");
         StatisticsHandler sth = new StatisticsHandler(experimentResults, probToAlgoTotalTime);
-        resultsPresenter.setPowerConsumptionGrapth(sth.totalConsumption());
+        resultsPresenter.setPowerConsumptionGraph(sth.totalConsumption());
         resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
         resultsPresenter.setLowestAgentGrapthGrapth(sth.lowestAgent());
         resultsPresenter.setAverageExperimentTime(sth.averageTime());
