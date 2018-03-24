@@ -238,7 +238,7 @@ public class AlgorithmDataHelper
 
     public List<Set<Integer>> getSubsets(List<Integer> superSet, int k) {
         List<Set<Integer>> res = new ArrayList<>();
-        getSubsets(superSet, k, 0, new HashSet<Integer>(), res);
+        getSubsets(superSet, k, 0, new HashSet<>(), res);
         return res;
     }
 

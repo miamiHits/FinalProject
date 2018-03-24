@@ -96,7 +96,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
         List<String> algoList = new ArrayList<>();
         algoList.add(SHMGM.class.getName());
-        service.addAlgorithmsToExperiment(algoList, numOfIter);
+        service.setAlgorithmsToExperiment(algoList, numOfIter);
         List<String> problem = new ArrayList<>();
         problem.add("dm_7_1_2");
         service.setProblemsToExperiment(problem);

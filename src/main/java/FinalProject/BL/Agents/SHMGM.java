@@ -27,6 +27,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info("Starting work on Iteration: 0");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
+            beforeIterationIsDone();
         }
         else {
             logger.info("Starting work on Iteration: " + currentNumberOfIter);
@@ -35,14 +36,15 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             helper.calcPowerConsumptionForAllNeighbours(); //TODO added
             improveSchedule();
         }
-        beforeIterationIsDone(); //TODO check if its good
+//        beforeIterationIsDone(); //TODO check if its good
         this.currentNumberOfIter++;
     }
 
     private void improveSchedule() {
         //backup prev values
         //TODO: test backup well!
-        System.out.println("^^^^^^^^^^^^^^" + agent.getName() + Arrays.toString(iterationPowerConsumption));
+
+        System.out.println(agent.getLocalName() + "'s iter " + currentNumberOfIter + " sched BEFORE is: " + Arrays.toString(iterationPowerConsumption) + " $$$ " + Arrays.toString(agent.getCurrIteration().getPowerConsumptionPerTick()));
 
         AlgorithmDataHelper helperBackup = new AlgorithmDataHelper(helper);
         double[] prevIterPowerConsumption = helper.cloneArray(iterationPowerConsumption);
@@ -61,9 +63,11 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         //calculate improvement
         double newPrice = calcPrice(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
         double newTotalCost = helper.calcTotalPowerConsumption(newPrice);
-        double improvement =  prevTotalCost - newTotalCost;
 
-        ImprovementMsg impMsg = sendImprovmentToNeighbours(improvement);
+        double improvement =  prevTotalCost - newTotalCost;
+        System.out.println(agent.getLocalName() + "'s iter " + currentNumberOfIter + " prevTotalCost: " + prevTotalCost + ", newTotalCost: " + newTotalCost + ", oldPrice: " + oldPrice +", newPrice: " + newPrice + ", impro: " + improvement);
+
+        ImprovementMsg impMsg = sendImprovementToNeighbours(improvement);
         List<ImprovementMsg> receivedImprovements = receiveImprovements();
         receivedImprovements.add(impMsg);
         ImprovementMsg max = receivedImprovements.stream().max(ImprovementMsg::compareTo).orElse(null);
@@ -82,7 +86,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         if (maxName.equals(agentName)) { //take new schedule
             logger.info(agent.getName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
             agent.setPriceSum(newPrice);
-            System.out.println("^^^^^^!!^^^^^^" + agent.getName() + Arrays.toString(iterationPowerConsumption));
             beforeIterationIsDone(); //TODO check if its good
         }
         else { //take prev schedule
@@ -90,8 +93,11 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             //TODO: maybe use oldPrice instead of prevAgentPriceSum
             helper.ePeak = oldEpeak;
             resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
-            System.out.println("^^^^^^^^^^^^^^" + agent.getName() + Arrays.toString(iterationPowerConsumption));
+            agentIterationCollected.setIterNum(currentNumberOfIter);
         }
+
+        System.out.println(agent.getLocalName() + "'s iter " + currentNumberOfIter + " sched AFTER is: " + Arrays.toString(iterationPowerConsumption) + " $$$ " + Arrays.toString(agent.getCurrIteration().getPowerConsumptionPerTick()));
+
 
     }
 
@@ -135,7 +141,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         return improvements;
     }
 
-    private ImprovementMsg sendImprovmentToNeighbours(double improvement) {
+    private ImprovementMsg sendImprovementToNeighbours(double improvement) {
         logger.info(agent.getName() + " sending improvement to neighbours");
         ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum());
         sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);

@@ -45,7 +45,8 @@ public class ImprovementMsg implements Serializable, Comparable {
             ImprovementMsg otherCast = (ImprovementMsg) other;
             double compare = Math.abs(this.improvement) - Math.abs(otherCast.improvement);
             if (compare == 0) {
-                return this.agentName.compareTo(otherCast.agentName);
+                final int strCompare = this.agentName.compareTo(otherCast.agentName);
+                return strCompare * -1;
             }
             return compare > 0 ? 1 : -1;
         }

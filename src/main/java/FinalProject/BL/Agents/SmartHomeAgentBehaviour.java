@@ -92,7 +92,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     //-------------OVERRIDING METHODS:-------------------
     @Override
     public void action() {
-        logger.debug("action method invoked");
         doIteration();
         sendIterationToCollector();
         sendMsgToAllNeighbors(agent.getCurrIteration(), "");
@@ -103,8 +102,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     public boolean done() {
         boolean agentFinishedExperiment = currentNumberOfIter > Experiment.maximumIterations;
         if (agentFinishedExperiment) {
-            logger.info(Utils.parseAgentName(this.agent) + " ended its final iteration");
-            logger.info(Utils.parseAgentName(this.agent) + " about to send data to DataCollector");
 
             //impl by child
             onTermination();
@@ -169,7 +166,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 .findFirst()
                 .orElse(null);
         if (prop == null) {
-            logger.warn(agent.getAgentData().getName() + " Try to look for the related sensors, but not found like this");
+//            logger.warn(agent.getAgentData().getName() + " Try to look for the related sensors, but not found like this");
             return -1;
         }
 
@@ -194,8 +191,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void sendIterationToCollector() {
-        logger.debug(String.format("%s sends its iteration to the data collector", this.agent.getAgentData().getName()));
-
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
         sd.setType(DataCollectionCommunicator.SERVICE_TYPE);
@@ -206,10 +201,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             //find data collector
             DFAgentDescription[] result = DFService.search(this.agent, template);
             if (result.length > 0) {
-                logger.debug(String.format("found %d %s agents, this first one's AID is %s",
-                        result.length,
-                        DataCollectionCommunicator.SERVICE_TYPE,
-                        result[0].getName().toString()));
 
                 //send the msg
                 ACLMessage message = new ACLMessage(ACLMessage.REQUEST);
@@ -232,8 +223,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void sendMsgToAllNeighbors(Serializable msgContent, String ontology) {
-        logger.debug(String.format("%s sends msg to its neighbours", this.agent.getAgentData().getName()));
-
         ACLMessage aclMsg = new ACLMessage(ACLMessage.REQUEST);
         aclMsg.setOntology(ontology);
         agent.getAgentData().getNeighbors().stream()
@@ -309,6 +298,22 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
         List<Integer> myTicks = generateRandomTicksForProp(prop, ticksToWork);
         updateTotals(prop, myTicks, sensorsToCharge);
+    }
+
+    protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
+        prop.activeTicks.clear();
+
+        List<Set<Integer>> subsets;
+        if (ticksToWork <= 0) {
+            subsets = checkAllSubsetOptions(prop);
+            if (subsets == null) { return; }
+        }
+        else {
+            List<Integer> rangeForWork = calcRangeOfWork(prop);
+            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
+        }
+        List<Integer> newTicks = calcBestPrice(prop, subsets);
+        updateTotals(prop, newTicks, sensorsToCharge);
     }
 
     protected boolean flipCoin(float probabilityForTrue) {
@@ -404,23 +409,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return helper.getSubsets(rangeForWork, ticksToWork);
     }
 
-    protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
-        prop.activeTicks.clear();
-        List<Set<Integer>> subsets;
-        List<Integer> newTicks;
-
-        if (ticksToWork <= 0) {
-            subsets = checkAllSubsetOptions(prop);
-            if (subsets == null) { return; }
-        }
-        else {
-            List<Integer> rangeForWork = calcRangeOfWork(prop);
-            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
-        }
-        newTicks = calcBestPrice(prop, subsets);
-        updateTotals(prop, newTicks, sensorsToCharge);
-    }
-
     protected double calcCsum() {
         List<double[]> scheds = agent.getMyNeighborsShed().stream()
                 .map(AgentIterationData::getPowerConsumptionPerTick)
@@ -439,21 +427,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 //        this.agentIterationCollected = agentIterSum;
 //        sendIterationToCollector();
 //    }
-
-    //TODO: REMOVED send to collector
-    protected void updateAgentIterationData(int iterationNum) {
-        Set<String> neighborhood = agent.getAgentData().getNeighbors().stream()
-                .map(AgentData::getName)
-                .collect(Collectors.toSet());
-        countIterationCommunication();
-        IterationCollectedData agentIterSum = new IterationCollectedData(
-                iterationNum, agent.getName(), agentIterationData.getPrice(),
-                agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
-                agent.getAlgoId(), neighborhood, helper.ePeak,
-                agent.getIterationMessageSize(), agent.getIterationMessageCount());
-        this.agentIterationCollected = agentIterSum;
-//        sendIterationToCollector();
-    }
 
     protected void beforeIterationIsDone() {
         //addBackgroundLoadToPowerConsumption(this.iterationPowerConsumption);
@@ -484,7 +457,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         int neighbourCount = this.agent.getAgentData().getNeighbors().size();
         while (messages.size() < neighbourCount) {
             receivedMessage = this.agent.blockingReceive(msgTemplate);
-            logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()));
             messages.add(receivedMessage);
         }
 
@@ -492,19 +464,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         clearAmsMessages();
 
         return messages;
-    }
-
-    //TODO: not called. Maybe should be deleted!
-    protected void waitForCollectorMessage() {
-        ACLMessage receivedMessage;
-        receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR);
-        logger.debug(Utils.parseAgentName(this.agent) + " received a message from " + Utils.parseAgentName(receivedMessage.getSender()) +
-                "with contents: " + receivedMessage.getContent());
-        try {
-            this.agent.setPriceSum(Double.parseDouble(receivedMessage.getContent()));
-        } catch(Exception e){
-            logger.error("could not parse cSum sent from the data collector", e);
-        }
     }
 
     protected void readNeighboursMsgs(List<ACLMessage> messageList) {
