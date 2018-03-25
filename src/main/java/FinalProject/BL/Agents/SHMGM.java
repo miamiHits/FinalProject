@@ -53,8 +53,8 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         AgentIterationData prevCurrIterData = new AgentIterationData(agent.getCurrIteration());
         IterationCollectedData prevCollectedData = new IterationCollectedData(agentIterationCollected);
         double oldPrice = calcPrice(prevIterPowerConsumption);
-        double oldEpeak = helper.ePeak;
         double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice); //also sets helper's epeak
+        double oldEpeak = helper.ePeak;
         double prevAgentPriceSum = agent.getPriceSum();
         agent.setPriceSum(oldPrice);
 
@@ -96,6 +96,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             helper.ePeak = oldEpeak;
             resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
             agentIterationCollected.setIterNum(currentNumberOfIter);
+            agentIterationCollected.setePeak(oldEpeak);
         }
 
         System.out.println(agent.getLocalName() + "'s iter " + currentNumberOfIter + " sched AFTER is: " + Arrays.toString(iterationPowerConsumption) + " $$$ " + Arrays.toString(agent.getCurrIteration().getPowerConsumptionPerTick()));

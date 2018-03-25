@@ -301,6 +301,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
+        System.out.println(agent.getLocalName() + "'s ticks in prev iter for prop " + prop.getName() + " are " + prop.activeTicks.toString());
         prop.activeTicks.clear();
 
         List<Set<Integer>> subsets;
@@ -313,6 +314,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
         }
         List<Integer> newTicks = calcBestPrice(prop, subsets);
+        System.out.println(agent.getLocalName() + "'s NEW ticks iter for prop " + prop.getName() + " are " + newTicks);
         updateTotals(prop, newTicks, sensorsToCharge);
     }
 
