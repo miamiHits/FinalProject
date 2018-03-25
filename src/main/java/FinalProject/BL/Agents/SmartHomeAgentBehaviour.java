@@ -301,13 +301,16 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Double> sensorsToCharge, double ticksToWork) {
-        System.out.println(agent.getLocalName() + "'s ticks in prev iter for prop " + prop.getName() + " are " + prop.activeTicks.toString());
         prop.activeTicks.clear();
 
         List<Set<Integer>> subsets;
         if (ticksToWork <= 0) {
+            System.out.println(agent.getLocalName() + " ticks to work is " + ticksToWork);
             subsets = checkAllSubsetOptions(prop);
-            if (subsets == null) { return; }
+            if (subsets == null) {
+                logger.error("subsets is null!");
+                return;
+            }
         }
         else {
             List<Integer> rangeForWork = calcRangeOfWork(prop);
