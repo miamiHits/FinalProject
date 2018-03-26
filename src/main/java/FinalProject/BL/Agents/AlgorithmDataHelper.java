@@ -308,6 +308,17 @@ public class AlgorithmDataHelper
         return getAC() * cSum + getAE() * ePeak;
     }
 
+    //TODO taken from static class
+    public double calculateEPeak(List<double[]> schedules) {
+        double eSqrSum = 0;
+        for (double[] sched : schedules) {
+            for (double aSched : sched) {
+                eSqrSum += Math.pow(aSched, 2);
+            }
+        }
+        return eSqrSum * getAE();
+    }
+
     public double calcTotalPowerConsumption(double cSum) {
         double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
         return calcTotalPowerConsumption(cSum, myPowerCons);

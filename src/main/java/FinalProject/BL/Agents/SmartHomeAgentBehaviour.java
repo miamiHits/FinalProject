@@ -355,16 +355,16 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets) {
         double bestPrice = helper.totalPriceConsumption;
         List<Integer> newTicks = new ArrayList<>();
-        double [] prevPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
         double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
         List<double[]> allScheds = agent.getMyNeighborsShed().stream()
                 .map(AgentIterationData::getPowerConsumptionPerTick)
                 .collect(Collectors.toList());
+        int index = allScheds.size();;
         //get the specific tick this device work in
         List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
         //remove them from the array
         for (Integer tick : prevTicks) {
-            newPowerConsumption[tick] = newPowerConsumption[tick] -  prop.getPowerConsumedInWork();
+            newPowerConsumption[tick] -= prop.getPowerConsumedInWork();
         }
 
         double [] copyOfNew = helper.cloneArray(newPowerConsumption);
@@ -374,12 +374,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         for(Set<Integer> ticks : subsets) {
             //Adding the ticks to array
             for (Integer tick : ticks) {
-                double temp = newPowerConsumption[tick];
-                newPowerConsumption[tick] = Double.sum(temp, prop.getPowerConsumedInWork());
+                newPowerConsumption[tick] += prop.getPowerConsumedInWork();
             }
             double price = calcPrice(newPowerConsumption);
             allScheds.add(newPowerConsumption);
-            double res = calculateTotalConsumptionWithPenalty(price, allScheds);
+            double res = price + helper.calculateEPeak(allScheds);
 
             if (res <= helper.totalPriceConsumption && res <= bestPrice) {
                 bestPrice = res;
@@ -390,7 +389,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
             //goBack
             newPowerConsumption = helper.cloneArray(copyOfNew);
-            allScheds.remove(allScheds.size() - 1); //remove this new sched
+            allScheds.remove(index); //remove this new sched
         }
 
         if(!improved) {

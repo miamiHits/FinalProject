@@ -21,6 +21,14 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     private final String gainMsgOntology = "GAIN_MSG";
     private MessageTemplate improvementTemplate = MessageTemplate.MatchOntology(gainMsgOntology);
 
+    public SHMGM() {super();}
+
+    public SHMGM(SmartHomeAgent agent) {
+        super(agent);
+        this.agent = agent;
+        helper = new AlgorithmDataHelper(agent);
+    }
+
     @Override
     protected void doIteration() {
         if (agent.isZEROIteration()) {
@@ -117,13 +125,14 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     private void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
                                           AgentIterationData prevCurrIterData, double prevPriceSum,
                                           double prevTotalCost, double[] prevIterPowerConsumption) {
-        this.helper = helperBackup;
-        this.agentIterationData = prevIterData;
-        this.agentIterationCollected = prevCollectedData;
-        this.agent.setCurrIteration(prevCurrIterData);
+        helper = helperBackup;
+        agentIterationData = prevIterData;
+        agentIterationCollected = prevCollectedData;
+        agent.setCurrIteration(prevCurrIterData);
+        agent.getCurrIteration().setIterNum(currentNumberOfIter);
         agent.setPriceSum(prevPriceSum);
         helper.totalPriceConsumption = prevTotalCost;
-        this.iterationPowerConsumption = prevIterPowerConsumption;
+        iterationPowerConsumption = prevIterPowerConsumption;
     }
 
     private List<ImprovementMsg> receiveImprovements() {
@@ -145,7 +154,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     }
 
     private ImprovementMsg sendImprovementToNeighbours(double improvement) {
-        logger.info(agent.getName() + " sending improvement to neighbours");
+        logger.info(agent.getLocalName() + " sending improvement to neighbours");
         ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum());
         sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);
         return improvementToSend;
