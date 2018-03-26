@@ -9,7 +9,6 @@ import FinalProject.BL.DataObjects.Sensor;
 import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
-import FinalProject.Utils;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
@@ -43,6 +42,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     private final static Logger logger = Logger.getLogger(SmartHomeAgentBehaviour.class);
     protected boolean finished = false;
     protected double[] iterationPowerConsumption;
+    protected double tempBestPriceConsumption = -1;
 
     public SmartHomeAgentBehaviour() {}
 
@@ -132,7 +132,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      * Go through all properties and generate schedule for them
      */
     protected void buildScheduleBasic() {
-        this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
+        tempBestPriceConsumption = helper.totalPriceConsumption;
+        this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length]; //TODO: check to iterationPowerConsumption.length
         addBackgroundLoadToPowerConsumption(iterationPowerConsumption);
         List<PropertyWithData> helperNonPassiveOnlyProps = helper.getAllProperties().stream()
                 .filter(p -> !p.isPassiveOnly())
@@ -267,6 +268,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         for (int i = 0; i < myTicks.size(); ++i) {
             iterationPowerConsumption[myTicks.get(i)] = this.iterationPowerConsumption[myTicks.get(i)] + prop.getPowerConsumedInWork();
             if (!sensorsToCharge.isEmpty()) {
+                //TODO: in dm_7_1_2 never enters here
                 for (Map.Entry<String,Double> entry : sensorsToCharge.entrySet()) {
                     PropertyWithData brother = helper.getAllProperties().stream()
                             .filter(property -> property.getName().equals(entry.getKey()))
@@ -353,7 +355,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets) {
-        double bestPrice = helper.totalPriceConsumption;
+//        double bestPrice = helper.totalPriceConsumption;
         List<Integer> newTicks = new ArrayList<>();
         double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
         List<double[]> allScheds = agent.getMyNeighborsShed().stream()
@@ -380,8 +382,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             allScheds.add(newPowerConsumption);
             double res = price + helper.calculateEPeak(allScheds);
 
-            if (res <= helper.totalPriceConsumption && res <= bestPrice) {
-                bestPrice = res;
+            if (res <= helper.totalPriceConsumption && res <= tempBestPriceConsumption) {
+                tempBestPriceConsumption = res;
                 newTicks.clear();
                 newTicks.addAll(ticks);
                 improved = true;

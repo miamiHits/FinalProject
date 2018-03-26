@@ -22,6 +22,7 @@ public class DataCollector {
     }
 
     public double addData (IterationCollectedData data) {
+        logger.info("Collector got data: " + data.toString());
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
         IterationAgentsPrice tempIAP = addAgentPrice(data, tempPA);
         addNeighborhoodIfNotExist(data, tempPA);

@@ -10,11 +10,15 @@ public class ImprovementMsg implements Serializable, Comparable {
     private String agentName;
     private double improvement;
     private int iterNum;
+    private double[] imprevedSched;
+    private double[] prevSched;
 
-    public ImprovementMsg(String agentName, double improvement, int iterNum) {
+    public ImprovementMsg(String agentName, double improvement, int iterNum, double[] improvedSched, double[] prevSched) {
         this.agentName = agentName;
         this.improvement = improvement;
         this.iterNum = iterNum;
+        this.imprevedSched = improvedSched;
+        this.prevSched = prevSched;
     }
 
     public String getAgentName() {
@@ -39,6 +43,22 @@ public class ImprovementMsg implements Serializable, Comparable {
 
     public void setIterNum(int iterNum) {
         this.iterNum = iterNum;
+    }
+
+    public double[] getImprevedSched() {
+        return imprevedSched;
+    }
+
+    public void setImprevedSched(double[] imprevedSched) {
+        this.imprevedSched = imprevedSched;
+    }
+
+    public double[] getPrevSched() {
+        return prevSched;
+    }
+
+    public void setPrevSched(double[] prevSched) {
+        this.prevSched = prevSched;
     }
 
     @Override

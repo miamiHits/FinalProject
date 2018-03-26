@@ -71,12 +71,13 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
         //calculate improvement
         double newPrice = calcPrice(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
-        double newTotalCost = helper.calcTotalPowerConsumption(newPrice, iterationPowerConsumption);
+        double newTotalCost = tempBestPriceConsumption;
+//        double newTotalCost = helper.calcTotalPowerConsumption(newPrice, iterationPowerConsumption);
 
         double improvement =  prevTotalCost - newTotalCost;
         System.out.println(agent.getLocalName() + "'s iter " + currentNumberOfIter + " prevTotalCost: " + prevTotalCost + ", newTotalCost: " + newTotalCost + ", oldPrice: " + oldPrice +", newPrice: " + newPrice + ", impro: " + improvement);
 
-        ImprovementMsg impMsg = sendImprovementToNeighbours(improvement);
+        ImprovementMsg impMsg = sendImprovementToNeighbours(improvement, prevIterPowerConsumption);
         List<ImprovementMsg> receivedImprovements = receiveImprovements();
         receivedImprovements.add(impMsg);
         ImprovementMsg max = receivedImprovements.stream().max(ImprovementMsg::compareTo).orElse(null);
@@ -84,7 +85,8 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         if (max == null) {
             logger.error("max is null! Something went wrong!!!!!!!");
             //TODO: maybe use oldPrice instead of prevAgentPriceSum
-            resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
+            resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
+                    prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption, null, null);
             return;
         }
 
@@ -96,22 +98,23 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info(agent.getName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
             agent.setPriceSum(newPrice);
             helper.totalPriceConsumption = newTotalCost;
-            beforeIterationIsDone(); //TODO check if its good
+            beforeIterationIsDone();
         }
         else { //take prev schedule
             logger.info(agent.getName() + " got max improvement: " + max.getImprovement() + " from agent " + max.getAgentName());
-            helper.ePeak = oldEpeak;
             //TODO: maybe use oldPrice instead of prevAgentPriceSum
-            resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
+            resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
+                    prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption, max.getImprevedSched(), max.getPrevSched());
             agentIterationCollected.setIterNum(currentNumberOfIter);
-            agentIterationCollected.setePeak(oldEpeak);
+            double epeakAfterImpro = oldEpeak - max.getImprovement();
+            helper.ePeak = epeakAfterImpro;
+            agentIterationCollected.setePeak(epeakAfterImpro);
         }
 
         System.out.println(agent.getLocalName() + "'s iter " + currentNumberOfIter + " sched AFTER is: " + Arrays.toString(iterationPowerConsumption) + " $$$ " + Arrays.toString(agent.getCurrIteration().getPowerConsumptionPerTick()));
 
 
     }
-
 
     private String beautifyAgentName(String name) {
         int shtrudel = name.indexOf('@');
@@ -121,18 +124,22 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         return name;
     }
 
-    //TODO: test this well!
+    //TODO: rename params
     private void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
                                           AgentIterationData prevCurrIterData, double prevPriceSum,
-                                          double prevTotalCost, double[] prevIterPowerConsumption) {
+                                          double prevTotalCost, double[] prevIterPowerConsumption, double[] newBestSched, double[] prevBestSched) {
         helper = helperBackup;
+        helper.correctEpeak(newBestSched, prevBestSched);
         agentIterationData = prevIterData;
         agentIterationCollected = prevCollectedData;
+        agentIterationCollected.setIterNum(currentNumberOfIter);
+        agentIterationCollected.setePeak(helper.ePeak);
         agent.setCurrIteration(prevCurrIterData);
         agent.getCurrIteration().setIterNum(currentNumberOfIter);
         agent.setPriceSum(prevPriceSum);
-        helper.totalPriceConsumption = prevTotalCost;
+        agentIterationData.setIterNum(currentNumberOfIter);
         iterationPowerConsumption = prevIterPowerConsumption;
+
     }
 
     private List<ImprovementMsg> receiveImprovements() {
@@ -153,9 +160,10 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         return improvements;
     }
 
-    private ImprovementMsg sendImprovementToNeighbours(double improvement) {
+    private ImprovementMsg sendImprovementToNeighbours(double improvement, double[] prevSched) {
         logger.info(agent.getLocalName() + " sending improvement to neighbours");
-        ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum());
+        ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum(),
+                iterationPowerConsumption, prevSched);
         sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);
         return improvementToSend;
     }

@@ -324,6 +324,15 @@ public class AlgorithmDataHelper
         return calcTotalPowerConsumption(cSum, myPowerCons);
     }
 
+    public void correctEpeak(double[] improvedSched, double[] prevSched) {
+        for (double tick : improvedSched) {
+            ePeak += Math.pow(tick, 2);
+        }
+        for (double tick : prevSched) {
+            ePeak -= Math.pow(tick, 2);
+        }
+    }
+
     public void checkForPassiveRules() {
         for (PropertyWithData prop : allProperties)
         {
