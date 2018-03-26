@@ -302,8 +302,8 @@ public class AlgorithmDataHelper
         logger.info("Calculating total power consumption - stage 2");
 
         List<double[]> scheds = new ArrayList<>(this.neighboursPriceConsumption);
-        double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        scheds.add(myPowerCons);
+//        double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        scheds.add(myPowerConsumption);
         this.ePeak = calculateEPeak(scheds);
         return getAC() * cSum + getAE() * ePeak;
     }

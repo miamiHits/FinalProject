@@ -34,7 +34,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info("Starting work on Iteration: " + currentNumberOfIter);
             List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
             readNeighboursMsgs(messageList);
-            helper.calcPowerConsumptionForAllNeighbours(); //TODO added
+            helper.calcPowerConsumptionForAllNeighbours();
             improveSchedule();
         }
 //        beforeIterationIsDone(); //TODO check if its good
@@ -48,12 +48,12 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         System.out.println(agent.getLocalName() + "'s iter " + currentNumberOfIter + " sched BEFORE is: " + Arrays.toString(iterationPowerConsumption) + " $$$ " + Arrays.toString(agent.getCurrIteration().getPowerConsumptionPerTick()));
 
         AlgorithmDataHelper helperBackup = new AlgorithmDataHelper(helper);
-        double[] prevIterPowerConsumption = helper.cloneArray(iterationPowerConsumption);
+        double[] prevIterPowerConsumption = helper.cloneArray(iterationPowerConsumption); //equals to agent.getCurrIteration().powerConsumptionPerTick
         AgentIterationData prevIterData = new AgentIterationData(agentIterationData);
         AgentIterationData prevCurrIterData = new AgentIterationData(agent.getCurrIteration());
         IterationCollectedData prevCollectedData = new IterationCollectedData(agentIterationCollected);
         double oldPrice = calcPrice(prevIterPowerConsumption);
-        double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice); //also sets helper's epeak
+        double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice, iterationPowerConsumption); //also sets helper's epeak
         double oldEpeak = helper.ePeak;
         double prevAgentPriceSum = agent.getPriceSum();
         agent.setPriceSum(oldPrice);
@@ -92,8 +92,8 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         }
         else { //take prev schedule
             logger.info(agent.getName() + " got max improvement: " + max.getImprovement() + " from agent " + max.getAgentName());
-            //TODO: maybe use oldPrice instead of prevAgentPriceSum
             helper.ePeak = oldEpeak;
+            //TODO: maybe use oldPrice instead of prevAgentPriceSum
             resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData, prevAgentPriceSum, prevTotalCost, prevIterPowerConsumption);
             agentIterationCollected.setIterNum(currentNumberOfIter);
             agentIterationCollected.setePeak(oldEpeak);
