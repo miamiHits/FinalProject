@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateCSum;
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
 
 public abstract class SmartHomeAgentBehaviour extends Behaviour implements Serializable{
@@ -211,6 +212,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
                 message.setContentObject(agentIterationCollected);
                 logger.debug(String.format("sending iteration #%d data to data collector", agentIterationCollected.getIterNum()));
+                logger.debug(String.format("%s's sent epeak to collector is: " + agentIterationCollected.getePeak(), agentIterationCollected.getAgentName()));
+
                 agent.send(message);
             }
             else {
@@ -361,7 +364,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         List<double[]> allScheds = agent.getMyNeighborsShed().stream()
                 .map(AgentIterationData::getPowerConsumptionPerTick)
                 .collect(Collectors.toList());
-        int index = allScheds.size();;
+        int index = allScheds.size();
         //get the specific tick this device work in
         List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
         //remove them from the array
@@ -378,9 +381,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             for (Integer tick : ticks) {
                 newPowerConsumption[tick] += prop.getPowerConsumedInWork();
             }
-            double price = calcPrice(newPowerConsumption);
+            double price = calcPrice(newPowerConsumption); // TODO: change for DSA, pass function. DSA needs cSum
             allScheds.add(newPowerConsumption);
-            double res = price + helper.calculateEPeak(allScheds);
+            double res = price + calculateEPeak(allScheds);
 
             if (res <= helper.totalPriceConsumption && res <= tempBestPriceConsumption) {
                 tempBestPriceConsumption = res;
@@ -445,6 +448,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         double[] arr = helper.cloneArray(this.iterationPowerConsumption);
         logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
         logger.info("my PRICE is: " + price);
+        logger.info("my EPEAK is: " + helper.ePeak);
+        logger.info("my ITER is: " + currentNumberOfIter);
         agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(), price, arr);
         agent.setCurrIteration(agentIterationData);
         Set<String> neighboursNames = agent.getAgentData().getNeighbors().stream()
