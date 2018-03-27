@@ -59,6 +59,8 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         startExperimentBtn.addClickListener(this);
 
+        mainLayout.addComponent(numberOfIterationsTxt);
+        mainLayout.addComponent(addNewAlgorithmBtn);
         mainLayout.addComponent(startExperimentBtn);
         setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
 
@@ -88,15 +90,10 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Button addAllAlgorithmsBtn = new Button("Add All");
         addAllAlgorithmsBtn.addClickListener(generateAddAllClickListener(availableAlgorithms, algorithmSelector));
 
-        Button loadSelectedAlgorithmsBtn = new Button("Load Algorithms");
-
         _algorithmsContainer.addComponent(algorithmSelector);
+        _algorithmsContainer.setComponentAlignment(algorithmSelector, Alignment.TOP_CENTER);
         _algorithmsContainer.addComponent(addAllAlgorithmsBtn);
-        _algorithmsContainer.addComponent(numberOfIterationsTxt);
-        _algorithmsContainer.addComponent(loadSelectedAlgorithmsBtn);
-        _algorithmsContainer.addComponent(addNewAlgorithmBtn);
-
-        setAlignemntToAllComponents(_algorithmsContainer, Alignment.MIDDLE_CENTER);
+        _algorithmsContainer.setComponentAlignment(addAllAlgorithmsBtn, Alignment.MIDDLE_RIGHT);
 
     }
 
@@ -121,17 +118,13 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Button addAllProblemsBtn = new Button("Add All");
         addAllProblemsBtn.addClickListener(generateAddAllClickListener(availableProblems, problemSelector));
 
-        Button loadSelectedProblemsBtn = new Button("Load Problems");
-
         _problemsContainer.addComponent(problemSelector);
+        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
         _problemsContainer.addComponent(addAllProblemsBtn);
-        _problemsContainer.addComponent(loadSelectedProblemsBtn);
-        _problemsContainer.addComponent(addAllProblemsBtn);
-
-        setAlignemntToAllComponents(_problemsContainer, Alignment.MIDDLE_CENTER);
+        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
     }
 
-    private static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {
+    public static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {
         Iterator<Component> componentIterator = layout.iterator();
         while (componentIterator.hasNext())
         {
@@ -180,7 +173,9 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         service.setProblemsToExperiment(selectedProblems);
         service.runExperiment();
 
-        getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);
+        getUI().access(() -> {
+            getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);
+        });
 
     }
 
