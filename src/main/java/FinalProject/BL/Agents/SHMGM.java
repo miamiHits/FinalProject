@@ -43,7 +43,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
             readNeighboursMsgs(messageList);
             List<double[]> neighboursSched = agent.getMyNeighborsShed().stream().map(AgentIterationData::getPowerConsumptionPerTick).collect(Collectors.toList());
-            neighboursSched.add(iterationPowerConsumption);
+//            neighboursSched.add(iterationPowerConsumption);
             helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
             improveSchedule();
         }
@@ -109,7 +109,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 //            neighboursSched.add(iterationPowerConsumption);
             helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
             helper.calcTotalPowerConsumption(newPrice, iterationPowerConsumption);
-            //TODO: helper.epeak >> (newTotalCost - newPrice)
             System.out.println(agent.getLocalName() + "is BEST! " + currentNumberOfIter + " prevTotalCost: " + prevTotalCost +
                     ", newTotalCost: " + newTotalCost + ", oldPrice: " + oldPrice +", newPrice: " +
                     newPrice + ", impro: " + improvement + ", new actual epeak: " + (newTotalCost - newPrice) + ", helper epeak: " + helper.ePeak);
