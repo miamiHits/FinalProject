@@ -42,7 +42,9 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info("Starting work on Iteration: " + currentNumberOfIter);
             List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
             readNeighboursMsgs(messageList);
-            List<double[]> neighboursSched = agent.getMyNeighborsShed().stream().map(AgentIterationData::getPowerConsumptionPerTick).collect(Collectors.toList());
+            List<double[]> neighboursSched = agent.getMyNeighborsShed().stream()
+                    .map(AgentIterationData::getPowerConsumptionPerTick)
+                    .collect(Collectors.toList());
 //            neighboursSched.add(iterationPowerConsumption);
             helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
             improveSchedule();
@@ -57,7 +59,8 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
         System.out.println(agent.getLocalName() + "'s iter " + currentNumberOfIter + " sched BEFORE is: " + Arrays.toString(iterationPowerConsumption) + " $$$ " + Arrays.toString(agent.getCurrIteration().getPowerConsumptionPerTick()));
 
-        //TODO: actual_epeak is different between agents
+        //TODO: actual_epeak is different between agents (?)
+        //TODO: jump in inter 8, maybe related to actual epeak diff to helper.epeak in BEST log
         AlgorithmDataHelper helperBackup = new AlgorithmDataHelper(helper);
         double[] prevIterPowerConsumption = helper.cloneArray(iterationPowerConsumption); //equals to agent.getCurrIteration().powerConsumptionPerTick
         AgentIterationData prevIterData = new AgentIterationData(agentIterationData);

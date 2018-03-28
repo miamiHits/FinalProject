@@ -150,6 +150,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     private Class loadClassFromFile(String className)
     {
         Class toReturn = null;
+        //TODO: to run with jetty: uncomment commented block and comment uncommented block
 //        try
 //        {
 //            toReturn = SmartHomeAgentBehaviour.class.getClassLoader().loadClass("FinalProject.BL.Agents." + className);
