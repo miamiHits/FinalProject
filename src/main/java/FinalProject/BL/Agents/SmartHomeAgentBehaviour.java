@@ -157,6 +157,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
             });
             generateScheduleForProp(prop, ticksToWork, sensorsToCharge);
+            if (currentNumberOfIter > 0) {
+                tempBestPriceConsumption = helper.calcTotalPowerConsumption(calcPrice(iterationPowerConsumption), iterationPowerConsumption); //TODO added
+            }
         }
     }
 
@@ -272,6 +275,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             iterationPowerConsumption[myTicks.get(i)] += prop.getPowerConsumedInWork();
             if (!sensorsToCharge.isEmpty()) {
                 //TODO: in dm_7_1_2 never enters here
+                System.out.println(agent.getLocalName() + " iter " + currentNumberOfIter + " inside updateTotals if!");
                 for (Map.Entry<String,Double> entry : sensorsToCharge.entrySet()) {
                     PropertyWithData brother = helper.getAllProperties().stream()
                             .filter(property -> property.getName().equals(entry.getKey()))
@@ -402,16 +406,14 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 .map(AgentIterationData::getPowerConsumptionPerTick)
                 .collect(Collectors.toList());
         int index = allScheds.size();
-        //get the specific tick this device work in
         List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
         //remove them from the array
         for (Integer tick : prevTicks) {
             newPowerConsumption[tick] -= prop.getPowerConsumedInWork();
         }
+        double[] copyOfNew = helper.cloneArray(newPowerConsumption);
 
-        double [] copyOfNew = helper.cloneArray(newPowerConsumption);
         boolean improved = false;
-
         //find the best option
         for(Set<Integer> ticks : subsets) {
             //Adding the ticks to array
