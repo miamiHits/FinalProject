@@ -269,7 +269,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         List<Integer> activeTicks = helper.cloneList(myTicks);
         helper.getDeviceToTicks().put(prop.getActuator(), activeTicks);
         for (int i = 0; i < myTicks.size(); ++i) {
-            iterationPowerConsumption[myTicks.get(i)] = this.iterationPowerConsumption[myTicks.get(i)] + prop.getPowerConsumedInWork();
+            iterationPowerConsumption[myTicks.get(i)] += prop.getPowerConsumedInWork();
             if (!sensorsToCharge.isEmpty()) {
                 //TODO: in dm_7_1_2 never enters here
                 for (Map.Entry<String,Double> entry : sensorsToCharge.entrySet()) {
@@ -322,8 +322,18 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
         }
         List<Integer> newTicks = calcBestPrice(prop, subsets);
-        System.out.println(agent.getLocalName() + "'s NEW ticks iter for prop " + prop.getName() + " are " + newTicks);
-        updateTotals(prop, newTicks, sensorsToCharge);
+        updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
+        updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
+    }
+
+    private void updateAgentCurrIter(PropertyWithData prop, List<Integer> newTicks) {
+        List<Integer> activeTicks = helper.cloneList(newTicks);
+        List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        final double[] agentPowerConsumptionPerTick = agent.getCurrIteration().getPowerConsumptionPerTick();
+        for (int i = 0; i < activeTicks.size(); i++) {
+            agentPowerConsumptionPerTick[prevTicks.get(i)] -= prop.getPowerConsumedInWork(); //remove consumption from the prev tick
+            agentPowerConsumptionPerTick[activeTicks.get(i)] += prop.getPowerConsumedInWork(); //add consumption to new tick
+        }
     }
 
     protected boolean flipCoin(float probabilityForTrue) {
