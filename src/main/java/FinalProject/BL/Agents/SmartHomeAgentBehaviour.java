@@ -445,17 +445,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         scheds.add(sched);
         return calculateCSum(scheds, agent.getAgentData().getPriceScheme());
     }
-//    protected void updateAgentIterationData(int iterationNum) {
-//        Set<String> neighborhood = agent.getAgentData().getNeighbors().stream()
-//                .map(AgentData::getName)
-//                .collect(Collectors.toSet());
-//        IterationCollectedData agentIterSum = new IterationCollectedData(
-//                iterationNum, agent.getName(), agentIterationData.getPrice(),
-//                agentIterationData.getPowerConsumptionPerTick(), agent.getProblemId(),
-//                agent.getAlgoId(), neighborhood, helper.totalPriceConsumption - this.agent.getPriceSum());
-//        this.agentIterationCollected = agentIterSum;
-//        sendIterationToCollector();
-//    }
 
     protected void beforeIterationIsDone() {
         //addBackgroundLoadToPowerConsumption(this.iterationPowerConsumption);
