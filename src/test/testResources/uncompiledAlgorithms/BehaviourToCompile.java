@@ -4,8 +4,6 @@ import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import java.util.List;
 import java.util.Map;
 
-import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
-
 public class BehaviourToCompile extends SmartHomeAgentBehaviour {
 
     @Override
@@ -20,7 +18,7 @@ public class BehaviourToCompile extends SmartHomeAgentBehaviour {
     }
 
     @Override
-    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Double> sensorsToCharge) {
+    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge) {
 
     }
 
