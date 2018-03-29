@@ -8,7 +8,6 @@ import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,12 +22,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
     public SHMGM() {super();}
 
-    public SHMGM(SmartHomeAgent agent) {
-        super(agent);
-        this.agent = agent;
-        helper = new AlgorithmDataHelper(agent);
-    }
-
     @Override
     protected void doIteration() {
         if (agent.isZEROIteration()) {
@@ -40,18 +33,23 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         }
         else {
             logger.info("Starting work on Iteration: " + currentNumberOfIter);
-            List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
-            readNeighboursMsgs(messageList);
-            List<double[]> neighboursSched = agent.getMyNeighborsShed().stream()
-                    .map(AgentIterationData::getPowerConsumptionPerTick)
-                    .collect(Collectors.toList());
-            helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
+            receiveNeighboursIterDataAndHandleIt();
             improveSchedule();
         }
         this.currentNumberOfIter++;
     }
 
+    private void receiveNeighboursIterDataAndHandleIt() {
+        List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
+        readNeighboursMsgs(messageList);
+        List<double[]> neighboursSched = agent.getMyNeighborsShed().stream()
+                .map(AgentIterationData::getPowerConsumptionPerTick)
+                .collect(Collectors.toList());
+        helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
+    }
+
     private void improveSchedule() {
+        //backup prev iter's data
         AlgorithmDataHelper helperBackup = new AlgorithmDataHelper(helper);
         double[] prevIterPowerConsumption = helper.cloneArray(iterationPowerConsumption); //equals to agent.getCurrIteration().powerConsumptionPerTick
         AgentIterationData prevIterData = new AgentIterationData(agentIterationData);
@@ -61,10 +59,10 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice, iterationPowerConsumption); //also sets helper's epeak
         helper.totalPriceConsumption = prevTotalCost;
         System.out.println(agent.getLocalName() + " MY prev total cost is: " + prevTotalCost + ", actual_epeak: " + (prevTotalCost - oldPrice) + ", helper epeak: " + helper.ePeak);
-
         double prevAgentPriceSum = agent.getPriceSum();
         agent.setPriceSum(oldPrice);
 
+        //calc try to improve sched
         helper.resetProperties();
         buildScheduleBasic(); //using Ci as priceSum
 
@@ -85,15 +83,11 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             return;
         }
 
-        String agentName = beautifyAgentName(agent.getName());
-        String maxName = beautifyAgentName(max.getAgentName());
+        String maxName = Utils.cleanShtrudelFromAgentName(max.getAgentName());
 
-        if (maxName.equals(agentName)) { //take new schedule
-            logger.info(agent.getName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
-            agent.setPriceSum(newPrice);
-            helper.totalPriceConsumption = tempBestPriceConsumption;
-            helper.ePeak = actualEpeak;
-            beforeIterationIsDone();
+        if (maxName.equals(agent.getLocalName())) { //take new schedule
+            logger.info(agent.getLocalName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
+            takeNewSched(newPrice, actualEpeak);
         }
         else { //take prev schedule
             resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
@@ -101,15 +95,14 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         }
     }
 
-    private String beautifyAgentName(String name) {
-        int shtrudel = name.indexOf('@');
-        if (shtrudel != -1){
-            name = name.substring(0, shtrudel);
-        }
-        return name;
+    private void takeNewSched(double newPrice, double actualEpeak) {
+        agent.setPriceSum(newPrice);
+        helper.totalPriceConsumption = tempBestPriceConsumption;
+        helper.ePeak = actualEpeak;
+        beforeIterationIsDone();
     }
 
-    //TODO: rename params
+
     private void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
                                           AgentIterationData prevCurrIterData, double prevPriceSum,
                                           double[] prevIterPowerConsumption, double[] newBestSched, double[] prevBestSched) {
@@ -133,7 +126,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     private List<ImprovementMsg> receiveImprovements() {
 
         List<ACLMessage> receivedMsgs = waitForNeighbourMessages(improvementTemplate);
-        List<ImprovementMsg> improvements = receivedMsgs.stream()
+        return receivedMsgs.stream()
                 .map(msg -> {
                     try {
                         return (ImprovementMsg) msg.getContentObject();
@@ -144,12 +137,9 @@ public class SHMGM extends SmartHomeAgentBehaviour{
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        logger.info(agent.getName() + " got improvement to neighbours");
-        return improvements;
     }
 
     private ImprovementMsg sendImprovementToNeighbours(double improvement, double[] prevSched) {
-        logger.info(agent.getLocalName() + " sending improvement to neighbours");
         ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum(),
                 iterationPowerConsumption, prevSched);
         sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);

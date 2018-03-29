@@ -274,8 +274,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         for (int i = 0; i < myTicks.size(); ++i) {
             iterationPowerConsumption[myTicks.get(i)] += prop.getPowerConsumedInWork();
             if (!sensorsToCharge.isEmpty()) {
-                //TODO: in dm_7_1_2 never enters here
-                System.out.println(agent.getLocalName() + " iter " + currentNumberOfIter + " inside updateTotals if!");
                 for (Map.Entry<String,Double> entry : sensorsToCharge.entrySet()) {
                     PropertyWithData brother = helper.getAllProperties().stream()
                             .filter(property -> property.getName().equals(entry.getKey()))

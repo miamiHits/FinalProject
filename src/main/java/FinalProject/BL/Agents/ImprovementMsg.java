@@ -1,6 +1,5 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.DataCollection.PowerConsumptionUtils;
 import jade.util.leap.Comparable;
 import org.apache.log4j.Logger;
 
@@ -20,14 +19,6 @@ public class ImprovementMsg implements Serializable, Comparable {
         this.iterNum = iterNum;
         this.imprevedSched = improvedSched;
         this.prevSched = prevSched;
-    }
-
-    public double getEpeakDiff(double[] priceScheme) {
-        double oldPrice = calcPrice(prevSched, priceScheme);
-        double newPrice = calcPrice(imprevedSched, priceScheme);
-
-        //improvement = (oldPrice * AC) + (oldEpeak * AE) - (newPrice * AC) - (newEpeak * AE)
-        return (improvement + (newPrice - oldPrice) * PowerConsumptionUtils.getAC()) / PowerConsumptionUtils.getAE();
     }
 
     private double calcPrice(double[] sched, double[] priceScheme) {
@@ -100,7 +91,6 @@ public class ImprovementMsg implements Serializable, Comparable {
             }
             return compare > 0 ? 1 : -1;
         }
-//            logger.warn("ImprovementMsg.compareTo called to compare with non-ImprovementMsg, returning 0");
         return 0;
     }
 }
