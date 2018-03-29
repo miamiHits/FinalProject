@@ -68,6 +68,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         IterationCollectedData prevCollectedData = new IterationCollectedData(agentIterationCollected);
         double oldPrice = calcPrice(prevIterPowerConsumption);
         double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice, iterationPowerConsumption); //also sets helper's epeak
+        helper.totalPriceConsumption = prevTotalCost;
         System.out.println(agent.getLocalName() + " MY prev total cost is: " + prevTotalCost + ", actual_epeak: " + (prevTotalCost - oldPrice) );
 
         double oldEpeak = helper.ePeak;
