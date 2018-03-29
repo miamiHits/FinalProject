@@ -71,18 +71,13 @@ public class ImprovementMsg implements Serializable, Comparable {
             }
             else if (otherCast.improvement < 0) {
                 logger.info("OTHER: " + otherCast.getAgentName() + "'s impro is: NEGATIVE!! " + otherCast.improvement);
-
             }
             double compare = this.improvement - otherCast.improvement;
             if (compare == 0) {
                 final int strCompare = this.agentName.compareTo(otherCast.agentName);
-                final int returned = strCompare * -1;
-                logger.info(agentName + "'s impro is: " + improvement + " other's impro is:" + otherCast.improvement + " other's name is: " + otherCast.getAgentName() + ". returning BY NAME: " + returned);
-                return returned;
+                return strCompare * -1;
             }
-            final int returned = compare > 0 ? 1 : -1;
-            logger.info(agentName + "'s impro is: " + improvement + " other's impro is:" + otherCast.improvement + ". returning: " + returned);
-            return returned;
+            return compare > 0 ? 1 : -1;
         }
 //            logger.warn("ImprovementMsg.compareTo called to compare with non-ImprovementMsg, returning 0");
         return 0;
