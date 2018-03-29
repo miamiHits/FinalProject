@@ -28,13 +28,9 @@ public class DataCollector {
         addNeighborhoodIfNotExist(data, tempPA);
 
         if (isIterationFinished(tempPA, tempIAP, data)) { //last agent finished iteration
-            //TODO: added by oded from here
-
             if (data.getIterNum() == 0 && data.getePeak() == 0) { //epeak was not sent because it's iter 0
                 tempIAP.calcEpeakForIter0();
             }
-
-            //TODO: to here
 
             addProbResult(tempPA, tempIAP, data);
             populateTotalGradeForIteration(data, tempPA, tempIAP);

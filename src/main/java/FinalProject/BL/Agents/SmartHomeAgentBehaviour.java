@@ -68,11 +68,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      */
     protected abstract void countIterationCommunication();
 
-    public void buildScheduleFromScratch() {
-        initHelper();
-        buildScheduleBasic();
-    }
-
     /**
      * generate schedule for the {@code prop} and update the sensors
      * @param prop the property to which the schedule should be generated
@@ -81,14 +76,19 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      */
     protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge);
 
-    public AlgorithmDataHelper getHelper() {
-        return helper;
-    }
-
-    public double[] getPowerConsumption() { return this.iterationPowerConsumption;}
-
+    /**
+     *
+     * @return a deep copy of this {@link Behaviour}
+     */
     public abstract SmartHomeAgentBehaviour cloneBehaviour();
 
+    /**
+     * Used by calcBestPrice method to calculate the grade of a schedule option in order to decide
+     * whether or not to choose it
+     * @param newPowerConsumption the option for a schedule
+     * @param allScheds a list of all schedules of neighbors and this agent
+     * @return the grade of this option / schedule
+     */
     protected abstract double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds);
 
     //-------------OVERRIDING METHODS:-------------------
@@ -114,6 +114,17 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     //-------------PROTECTED METHODS:-------------------
+
+    public AlgorithmDataHelper getHelper() {
+        return helper;
+    }
+
+    public double[] getPowerConsumption() { return this.iterationPowerConsumption;}
+
+    public void buildScheduleFromScratch() {
+        initHelper();
+        buildScheduleBasic();
+    }
 
     protected void addMessagesSentToDevicesAndSetInAgent(int count, long totalSize, int constantNumOfMsgs) {
         final int MSG_TO_DEVICE_SIZE = 4;
@@ -337,11 +348,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected boolean flipCoin(float probabilityForTrue) {
-//        int[] notRandomNumbers = new int [] {0,0,0,0,1,1,1,1,1,1};
-//        double idx = Math.floor(Math.random() * notRandomNumbers.length);
-//        return notRandomNumbers[(int) idx] == 1;
-
-        return randGenerator.nextFloat() < probabilityForTrue;
+        final boolean res = randGenerator.nextFloat() < probabilityForTrue;
+        System.out.println("res is: " + res);
+        return res;
     }
 
     protected List<Integer> calcRangeOfWork(PropertyWithData prop) {

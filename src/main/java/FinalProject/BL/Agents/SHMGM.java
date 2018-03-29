@@ -50,6 +50,14 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
     }
 
+    /**
+     * Main logic of SH-MGM algo.
+     * Calculate the best option for a schedule based on
+     * neighbours schedule received, send the improvement to
+     * all neighbours and receive theirs.
+     * ONLY THE AGENT WITH THE GREATEST IMPROVEMENT SWITCHES TO THE NEW SCHEDULE!
+     * Ties are solved using lexicographical ordering of agent's names.
+     */
     private void improveSchedule() {
         //backup prev iter's data
         AlgorithmDataHelper helperBackup = new AlgorithmDataHelper(helper);
@@ -103,7 +111,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         helper.ePeak = actualEpeak;
         beforeIterationIsDone();
     }
-
 
     private void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
                                           AgentIterationData prevCurrIterData, double prevPriceSum,
