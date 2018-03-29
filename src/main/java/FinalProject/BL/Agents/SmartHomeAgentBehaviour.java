@@ -90,6 +90,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     public abstract SmartHomeAgentBehaviour cloneBehaviour();
 
+    protected abstract double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds);
+
     //-------------OVERRIDING METHODS:-------------------
     @Override
     public void action() {
@@ -418,9 +420,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             for (Integer tick : ticks) {
                 newPowerConsumption[tick] += prop.getPowerConsumedInWork();
             }
-            double price = calcPrice(newPowerConsumption); // TODO: change for DSA, pass function. DSA needs cSum
             allScheds.add(newPowerConsumption);
-            double res = price + calculateEPeak(allScheds);
+            double res = calcImproveOptionGrade(newPowerConsumption, allScheds);
 
             if (res <= helper.totalPriceConsumption && res <= tempBestPriceConsumption) {
                 tempBestPriceConsumption = res;
@@ -460,11 +461,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return helper.getSubsets(rangeForWork, ticksToWork);
     }
 
-    protected double calcCsum() {
+    protected double calcCsum(double[] sched) {
         List<double[]> scheds = agent.getMyNeighborsShed().stream()
                 .map(AgentIterationData::getPowerConsumptionPerTick)
                 .collect(Collectors.toList());
-        scheds.add(iterationPowerConsumption);
+        scheds.add(sched);
         return calculateCSum(scheds, agent.getAgentData().getPriceScheme());
     }
 //    protected void updateAgentIterationData(int iterationNum) {

@@ -1,7 +1,10 @@
 import FinalProject.BL.Agents.PropertyWithData;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 
+import java.util.List;
 import java.util.Map;
+
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
 
 public class BehaviourToCompile extends SmartHomeAgentBehaviour {
 
@@ -47,6 +50,11 @@ public class BehaviourToCompile extends SmartHomeAgentBehaviour {
 
     @Override
     protected void countIterationCommunication() {
+    }
+
+    @Override
+    protected double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds) {
+        return -1;
     }
 
 }

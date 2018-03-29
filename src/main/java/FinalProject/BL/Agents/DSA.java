@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
 
 public class DSA extends SmartHomeAgentBehaviour {
@@ -44,12 +45,18 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     @Override
     public SmartHomeAgentBehaviour cloneBehaviour() {
-        DSA newInstance = new DSA(); //TODO: maybe should pass an agent?
+        DSA newInstance = new DSA();
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;
         newInstance.FINAL_TICK = this.FINAL_TICK;
         newInstance.agentIterationData = null; //will be created as part of the behaviour run(see buildScheduleFromScratch)
         return newInstance;
+    }
+
+    @Override
+    protected double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds) {
+        double price = calcCsum(newPowerConsumption);
+        return price + calculateEPeak(allScheds);
     }
 
     private void receiveAllMessagesAndHandleThem() {
@@ -60,9 +67,8 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void updatePowerConsumption() {
         helper.calcPowerConsumptionForAllNeighbours();
-        agent.setPriceSum(calcCsum());
+        agent.setPriceSum(calcCsum(iterationPowerConsumption));
         helper.calcAndSetTotalPowerConsumption(agent.getPriceSum());
-//        updateAgentIterationData(currentNumberOfIter - 1);
     }
 
     private void resetAndBuildSchedule() {

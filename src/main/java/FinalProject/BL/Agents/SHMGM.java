@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
+
 public class SHMGM extends SmartHomeAgentBehaviour{
 
     private final static Logger logger = Logger.getLogger(SHMGM.class);
@@ -193,6 +195,12 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         newInstance.FINAL_TICK = this.FINAL_TICK;
         newInstance.agentIterationData = null; //will be created as part of the behaviour run(see buildScheduleFromScratch)
         return newInstance;
+    }
+
+    @Override
+    protected double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds) {
+        double price = calcPrice(newPowerConsumption);
+        return price + calculateEPeak(allScheds);
     }
 
 }
