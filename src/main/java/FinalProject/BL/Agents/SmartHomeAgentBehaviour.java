@@ -158,7 +158,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             });
             generateScheduleForProp(prop, ticksToWork, sensorsToCharge);
             if (currentNumberOfIter > 0) {
-                tempBestPriceConsumption = helper.calcTotalPowerConsumption(calcPrice(iterationPowerConsumption), iterationPowerConsumption); //TODO added
+                tempBestPriceConsumption = helper.calcTotalPowerConsumption(calcPrice(iterationPowerConsumption), iterationPowerConsumption);
             }
         }
     }
