@@ -111,10 +111,11 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             List<double[]> neighboursSched = agent.getMyNeighborsShed().stream().map(AgentIterationData::getPowerConsumptionPerTick).collect(Collectors.toList());
 //            neighboursSched.add(iterationPowerConsumption);
             helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
-            helper.calcTotalPowerConsumption(newPrice, iterationPowerConsumption);
+            double bestTotalCons = helper.calcTotalPowerConsumption(newPrice, iterationPowerConsumption);
+            helper.totalPriceConsumption = bestTotalCons;
             System.out.println(agent.getLocalName() + "is BEST! " + currentNumberOfIter + " prevTotalCost: " + prevTotalCost +
                     ", newTotalCost: " + newTotalCost + ", oldPrice: " + oldPrice +", newPrice: " +
-                    newPrice + ", impro: " + improvement + ", new actual epeak: " + (newTotalCost - newPrice) + ", helper epeak: " + helper.ePeak);
+                    newPrice + ", impro: " + improvement + " bestTotalCost: " + bestTotalCons + ", new actual epeak: " + (newTotalCost - newPrice) + ", helper epeak: " + helper.ePeak);
             beforeIterationIsDone();
         }
         else { //take prev schedule
