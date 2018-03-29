@@ -201,7 +201,7 @@ public class PropertyWithData {
                 if (currState < minVal) {
                     //lets go back tick before the change.
                     i--;
-                    currState -=deltaWhenWorkOffline;
+                    currState -= deltaWhenWorkOffline;
                     //now lets charge it to the maximum point
                     double ticksToCharge = Math.ceil((max - currState) / deltaWhenWork);
                     if (ticksToCharge + i > (powerConsumption.length-1)) {
@@ -230,21 +230,20 @@ public class PropertyWithData {
      * @param newState - current sensor's state what will be updated in the method
      * @param ticksToCharge - how many additional ticks of activation are required
      * @param idxTicks - the base index on the horizon from which the additional activations will be added
-     * @param offlineWork - ??? TODO gal what is the meaning of this argument?
+     * @param offlineWork - is the work offline (work done to compensate for negative deltas)
      * @return the new state of the sensor after the latest activation(the same as newState if no additional activation was required)
      */
-    public double updateValueToSensor (double [] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork)
+    public double updateValueToSensor (double[] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork)
     {
         for (int j = 1; j <= ticksToCharge; ++j) {
             //update the powerCons array
-            iterationPowerConsumption[j + idxTicks] = iterationPowerConsumption[j + idxTicks] + powerConsumedInWork;
-            newState = newState + deltaWhenWork;
+            iterationPowerConsumption[j + idxTicks] += powerConsumedInWork;
+            newState += deltaWhenWork;
             if(!offlineWork) {
                 this.activeTicks.add(j + idxTicks);
             }
         }
-
-        if (newState > max) {//TODO gal yarden are we ignoring the scenario where the extra activations break the passive rule of max?
+        if (newState > max) {
             newState = max;
         }
 
