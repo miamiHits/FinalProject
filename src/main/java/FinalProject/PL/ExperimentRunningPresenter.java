@@ -60,7 +60,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
     }
 
     public void setAlgorithmProblemPairs(List<ProblemAlgoPair> pairs) {
-        pairs.clear();
+        pairToProgressBarMap.clear();
         pairs.forEach(pair -> pairToProgressBarMap.put(pair, new ProgressBar(0.0f)));
         initGrid();
     }
