@@ -20,11 +20,9 @@ public class ExperimentRunningPresenter extends Panel implements View{
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
-        goToResScreenBtn = new Button("Go to results screen!", (clickEvent) ->
-        {
-
-            getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RESULTS);
-        });
+        goToResScreenBtn = new Button("Go to results screen!", clickEvent ->
+            getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RESULTS)
+        );
 
         goToResScreenBtn.setEnabled(false);
 
