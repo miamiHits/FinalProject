@@ -1,3 +1,5 @@
+package FinalProject.BL.Agents;
+
 import FinalProject.BL.Agents.PropertyWithData;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 

@@ -126,9 +126,12 @@ public class AlgorithmLoaderTest {
     public void addAlgoToSystemGood() throws Exception
     {
         String fileName = "BehaviourToCompile";
+        String packagePath = "/FinalProject/BL/Agents/";
+        String classFilePath = compiledDirPath + packagePath + fileName + ".class".replaceAll("/", Matcher.quoteReplacement(File.separator));
+
         loader.addAlgoToSystem(uncompiledDirPath, fileName + ".java");
 
-        File classFile = new File(compiledDirPath + Matcher.quoteReplacement(File.separator) + fileName + ".class");
+        File classFile = new File(classFilePath);
         Assert.assertTrue(classFile.exists());
 
         classesToDelete.add(fileName);

@@ -5,6 +5,8 @@ import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.DAL.*;
 import FinalProject.Service;
+import com.vaadin.annotations.Push;
+import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
@@ -22,14 +24,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+@Push
+@Theme("mytheme")
 public class UiHandler extends UI implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static Service service;
     public static Navigator navigator;
+    public static ExperimentRunningPresenter experimentRunningPresenter;
+
     private ExperimentResultsPresenter resultsPresenter;
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
+    protected static final String EXPERIMENT_RUNNING = "EXPERIMENT_RUNNING";
 
     public UiHandler()
     {
@@ -57,7 +64,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
         // Create and register the views
         ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter();
+        experimentRunningPresenter = new ExperimentRunningPresenter();
+//        experimentConfigurationPresenter.setExperimentRunningPresenter(experimentRunningPresenter);
         navigator.addView("", experimentConfigurationPresenter);
+        navigator.addView(EXPERIMENT_RUNNING, experimentRunningPresenter);
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RESULTS, resultsPresenter);
     }
@@ -111,12 +121,15 @@ public class UiHandler extends UI implements UiHandlerInterface {
         //just for check the csv - we can change it later
         csvHandler csv = new csvHandler("results.csv");
         StatisticsHandler sth = new StatisticsHandler(experimentResults, probToAlgoTotalTime);
-        resultsPresenter.setPowerConsumptionGrapth(sth.totalConsumption());
+        resultsPresenter.setPowerConsumptionGraph(sth.totalConsumption());
         resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
         resultsPresenter.setLowestAgentGrapthGrapth(sth.lowestAgent());
         resultsPresenter.setAverageExperimentTime(sth.averageTime());
-        resultsPresenter.setAverageExperimentTime(sth.messageSendPerIteration());
+       resultsPresenter.setAverageExperimentTime(sth.messageSendPerIteration());
         //navigator.navigateTo(EXPERIMENT_RESULTS);
+
+        experimentRunningPresenter.enableGoToResScreenBtn();
+
         try {
             csv.saveExpirmentResult(experimentResults);
         } catch (IOException e) {
@@ -137,6 +150,13 @@ public class UiHandler extends UI implements UiHandlerInterface {
     public void notifyError(String msg)
     {
         System.out.println(msg);
+    }
+
+    @Override
+    public void algorithmProblemIterEnded(String algo, String problem, float changePercentage) {
+        if (experimentRunningPresenter != null) {
+            experimentRunningPresenter.incProgBar(problem, algo, changePercentage);
+        }
     }
 
 

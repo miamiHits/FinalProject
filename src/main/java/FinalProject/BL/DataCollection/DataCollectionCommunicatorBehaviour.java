@@ -37,6 +37,9 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
                             agent.getExperiment().algorithmProblemComboRunEnded(
                                     agent.getCollector().getAlgoProblemResult(ICD.getProblemId(), ICD.getAlgorithm()));
                         }
+                        else {
+                            agent.getExperiment().algorithmProblemIterEnded(ICD.getAlgorithm(), ICD.getProblemId());
+                        }
                     }
                 } catch (UnreadableException e) {
                     logger.error(e);

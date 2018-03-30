@@ -1,8 +1,10 @@
 package FinalProject.BL.DataCollection;
 
+import FinalProject.Utils;
 import org.apache.log4j.Logger;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class IterationAgentsPrice {
     private Map<Integer, List<AgentPrice>> iterationToAgentsPrice;
@@ -85,7 +87,7 @@ public class IterationAgentsPrice {
         List<NeighborhoodEpeak> neigEpeak = iterationsToNeighborhoodsPeak.get(iterationNum);
         boolean exist = false;
         if (neigEpeak == null){
-            neigEpeak = new LinkedList<NeighborhoodEpeak>();
+            neigEpeak = new LinkedList<>();
             neigEpeak.add(new NeighborhoodEpeak(neighborhood, epeak));
             iterationsToNeighborhoodsPeak.put(iterationNum, neigEpeak);
         }
@@ -134,5 +136,28 @@ public class IterationAgentsPrice {
             totalEpeak += n.getEpeak();
         }
         return totalEpeak;
+    }
+
+    public void calcEpeakForIter0() {
+        List<AgentPrice> iterZeroAPs = iterationToAgentsPrice.get(0);
+        List<NeighborhoodEpeak> iterZeroHoodEpeaks = iterationsToNeighborhoodsPeak.get(0);
+        if (iterZeroAPs == null || iterZeroAPs.isEmpty() || iterZeroHoodEpeaks == null || iterZeroHoodEpeaks.isEmpty()) {
+            logger.error("No AgentPrices or NeighborhoodEpeaks for iteration 0!");
+            return;
+        }
+        iterZeroHoodEpeaks.forEach(hood -> {
+            Set<String> agents = hood.getNeighborhood();
+            List<AgentPrice> hoodAPs = iterZeroAPs.stream()
+                    .filter(ap -> agents.contains(Utils.cleanShtrudelFromAgentName(ap.getAgentName())))
+                    .collect(Collectors.toList());
+            List<double[]> hoodScheds = hoodAPs.stream()
+                    .map(AgentPrice::getSchedule)
+                    .collect(Collectors.toList());
+
+            double hoodEpeak = PowerConsumptionUtils.calculateEPeak(hoodScheds);
+            hood.setEpeak(hoodEpeak);
+            hood.setCountEpeaks(hood.getNeighborhood().size());
+        });
+
     }
 }

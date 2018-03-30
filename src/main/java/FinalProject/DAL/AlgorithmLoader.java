@@ -9,11 +9,7 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +45,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         {
             return algoNames.parallelStream()
                     .distinct()
-                    .map(name -> loadClassFromFile(compiledDir.getPath(), name))
+                    .map(name -> loadClassFromFile(name))
                     .filter(this::verifyClassIsAlgorithm)
                     .map(cls ->
                          {
@@ -136,37 +132,27 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 
     private boolean verifyClassIsAlgorithm(String fileName)
     {
-        Class compiledClass = loadClassFromFile(compiledDir.getPath(), fileName);
+        Class compiledClass = loadClassFromFile(fileName);
         return  verifyClassIsAlgorithm(compiledClass);
 
     }
 
     /**
      * load class from compiled .class file
-     * @param pathStr
      * @param className
      * @return
      * @throws ClassNotFoundException
      */
-    private static Class loadClassFromFile(String pathStr, String className)
+    private Class loadClassFromFile(String className)
     {
         Class toReturn = null;
-        if (pathStr != null && className != null)
+        try
         {
-            Path path = Paths.get(pathStr);
-            try
-            {
-                URL[] urls = {path.toAbsolutePath().toUri().toURL()};
-                URLClassLoader loader = URLClassLoader.newInstance(urls);
-                toReturn = loader.loadClass(className);
-
-            } catch (MalformedURLException e)
-            {
-                logger.error("URL from path " + pathStr + " is malformed", e);
-            } catch (ClassNotFoundException e)
-            {
-                logger.error("could not find class " + className + " in path " + pathStr, e);
-            }
+            toReturn = SmartHomeAgentBehaviour.class.getClassLoader().loadClass("FinalProject.BL.Agents." + className);
+        }
+        catch (ClassNotFoundException | NoClassDefFoundError e)
+        {
+            logger.error("Failed Loading the Algorithm " + className, e);
         }
         return toReturn;
     }
