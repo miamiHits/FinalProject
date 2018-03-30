@@ -20,6 +20,7 @@ public class AlgorithmProblemResult {
     private static final Logger logger = Logger.getLogger(AlgorithmProblemResult.class);
     private Map<Integer, MsgInfo> totalMessagesInIter;
 
+
     public AlgorithmProblemResult(ProblemAlgorithm probAlgo) {
         problem = probAlgo.getProblemId();
         algorithm = probAlgo.getAlgorithmName();

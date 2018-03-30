@@ -89,7 +89,6 @@ public class StatisticsHandler {
        });
    }
 
-
     public static double calculateSD(double numArray[])
     {
         double sum = 0.0, standardDeviation = 0.0;
@@ -130,6 +129,20 @@ public class StatisticsHandler {
 
             }
             dataset.addValue(totalTime/counter, name, "Iteration Run Time (ms)");
+        }
+        return dataset;
+    }
+
+    public DefaultCategoryDataset messageSendPerIteration()
+    {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        for(Map.Entry<String, List<AlgorithmProblemResult>> entry : experimentResults.entrySet())
+        {
+            int total=0;
+            for (int i=0; i<ITER_NUM; i++)
+            {
+
+            }
         }
         return dataset;
     }

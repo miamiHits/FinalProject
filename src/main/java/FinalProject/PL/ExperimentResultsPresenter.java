@@ -26,6 +26,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private DefaultStatisticalCategoryDataset highestAgentGrapth;
     private DefaultStatisticalCategoryDataset lowestAgentGrapth;
     private DefaultCategoryDataset averageExperimentTime;
+    private DefaultCategoryDataset messagesSentPerIteration;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -40,6 +41,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
         layout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGrapth, false));
 
         layout.addComponent(generateBarChart("Runtime Average time Statistics", null, null, averageExperimentTime));
+        layout.addComponent(generateBarChart("Messages Sent For Iteration ", null, null, messagesSentPerIteration));
 
         setContent(layout);
     }
@@ -62,6 +64,11 @@ public class ExperimentResultsPresenter extends Panel implements View{
     public void setAverageExperimentTime(DefaultCategoryDataset aveTime)
     {
         this.averageExperimentTime = aveTime;
+    }
+
+    public void setMessagesSentPerIteration(DefaultCategoryDataset messagesSentPerIteration)
+    {
+        this.messagesSentPerIteration = messagesSentPerIteration;
     }
 
 
