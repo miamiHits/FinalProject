@@ -194,7 +194,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         {
             //TODO gal implement error message
         }
-
+        numberOfIterationsTxt.clear();
         return result;
     }
 
