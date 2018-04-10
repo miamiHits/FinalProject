@@ -1,8 +1,6 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.DataObjects.Prefix;
-import FinalProject.BL.DataObjects.Problem;
-import FinalProject.BL.DataObjects.Rule;
+import FinalProject.BL.DataObjects.*;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProjectTests.BL.Agents.ReflectiveUtils;
 import FinalProjectTests.DAL.DalTestUtils;
@@ -64,7 +62,71 @@ public class SmartHomeAgentBehaviourTest {
     }
 
     @Test
-    public void updateTotals() {
+    public void updateTotalsTestNoTicks() {
+        PropertyWithData prop = new PropertyWithData();
+        Actuator act = new Actuator("act", "subtype", "location", new ArrayList<>());
+        prop.setDeltaWhenWork(10);
+        prop.setActuator(act);
+        final double sensInitState = 0.0;
+        Sensor sens = new Sensor("name", "subtype", "location",
+                sensInitState, new ArrayList<>());
+        prop.setSensor(sens);
+        prop.setMax(100);
+        smab.iterationPowerConsumption = new double[dm_7_1_2.getHorizon()];
+        double[] initConsArr = Arrays.copyOf(smab.iterationPowerConsumption, dm_7_1_2.getHorizon());
+
+        //empty ticks lst, empty sensors map
+        smab.updateTotals(prop, new ArrayList<>(), new HashMap<>());
+
+        //nothing should change:
+        Assert.assertEquals(sensInitState, sens.getCurrentState(), 0);
+        Assert.assertArrayEquals(initConsArr, smab.iterationPowerConsumption, 0);
+    }
+
+    @Test
+    public void updateTotalsTestNoSensorsSensPassMaxShouldEqualMax() {
+        PropertyWithData prop = new PropertyWithData();
+        Actuator act = new Actuator("act", "subtype", "location", new ArrayList<>());
+        prop.setActuator(act);
+        prop.setDeltaWhenWork(11);
+        prop.setPowerConsumedInWork(10);
+        final double sensInitState = 0.0;
+        Sensor sens = new Sensor("sens name", "subtype", "location",
+                sensInitState, new ArrayList<>());
+        prop.setSensor(sens);
+        prop.setMax(10);
+        List<Integer> ticks = Arrays.asList(1, 2, 3);
+
+
+        //empty ticks lst, empty sensors map
+        smab.iterationPowerConsumption = new double[dm_7_1_2.getHorizon()];
+        smab.updateTotals(prop, ticks, new HashMap<>());
+
+        Assert.assertEquals(prop.getMax(), sens.getCurrentState(), 0);
+    }
+
+
+    @Test
+    public void updateTotalsTestNoSensors() {
+        PropertyWithData prop = new PropertyWithData();
+        Actuator act = new Actuator("act", "subtype", "location", new ArrayList<>());
+        prop.setActuator(act);
+        prop.setDeltaWhenWork(11);
+        final double sensInitState = 0.0;
+        Sensor sens = new Sensor("sens name", "subtype", "location",
+                sensInitState, new ArrayList<>());
+        prop.setSensor(sens);
+        prop.setMax(100);
+        smab.iterationPowerConsumption = new double[dm_7_1_2.getHorizon()];
+        List<Integer> ticks = Arrays.asList(1, 2, 3);
+
+        //empty ticks lst, empty sensors map
+        smab.updateTotals(prop, ticks, new HashMap<>());
+
+        Assert.assertEquals(ticks.size() * prop.getDeltaWhenWork(), sens.getCurrentState(), 0);
+        Assert.assertEquals(prop.getPowerConsumedInWork(), smab.iterationPowerConsumption[1], 0);
+        Assert.assertEquals(prop.getPowerConsumedInWork(), smab.iterationPowerConsumption[2], 0);
+        Assert.assertEquals(prop.getPowerConsumedInWork(), smab.iterationPowerConsumption[3], 0);
     }
 
     @Test
