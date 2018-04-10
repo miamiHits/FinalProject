@@ -1,6 +1,8 @@
 package FinalProject.BL.Agents;
 
+import FinalProject.BL.DataObjects.Prefix;
 import FinalProject.BL.DataObjects.Problem;
+import FinalProject.BL.DataObjects.Rule;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProjectTests.BL.Agents.ReflectiveUtils;
 import FinalProjectTests.DAL.DalTestUtils;
@@ -11,8 +13,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import sun.misc.GC;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
 
@@ -50,9 +53,6 @@ public class SmartHomeAgentBehaviourTest {
     public void calcHowManyTicksNeedToCharge() {
     }
 
-    @Test
-    public void initHelper() {
-    }
 
     @Test
     public void drawRandomNumIsInRangeTest() {
@@ -80,11 +80,44 @@ public class SmartHomeAgentBehaviourTest {
     }
 
     @Test
-    public void calcRangeOfWork() {
+    public void calcRangeOfWorkTestBefore() {
+        List<Integer> expected = IntStream.range(0, 10).boxed().collect(Collectors.toList());
+
+        PropertyWithData prop = new PropertyWithData();
+        prop.setTargetTick(10);
+        prop.setPrefix(Prefix.BEFORE);
+        List<Integer> result = smab.calcRangeOfWork(prop);
+
+        Assert.assertEquals(expected, result);
+    }
+
+    @Test
+    public void calcRangeOfWorkTestAfter() {
+        List<Integer> expected = IntStream.range(3, dm_7_1_2.getHorizon()).boxed().collect(Collectors.toList());
+
+        PropertyWithData prop = new PropertyWithData();
+        prop.setTargetTick(3);
+        prop.setPrefix(Prefix.AFTER);
+        List<Integer> result = smab.calcRangeOfWork(prop);
+
+        Assert.assertEquals(expected, result);
+    }
+
+    @Test
+    public void calcRangeOfWorkTestAt() {
+        List<Integer> expected = Collections.singletonList(3);
+
+        PropertyWithData prop = new PropertyWithData();
+        prop.setTargetTick(3);
+        prop.setPrefix(Prefix.AT);
+        List<Integer> result = smab.calcRangeOfWork(prop);
+
+        Assert.assertEquals(expected, result);
     }
 
     @Test
     public void calcBestPrice() {
+        //TODO: maybe should be in sub classes
     }
 
     @Test
