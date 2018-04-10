@@ -30,12 +30,11 @@ public class PropertyWithData {
     public  Map<String,Double> relatedSensorsWhenWorkOfflineDelta = new HashMap<>();
     public List<Integer> activeTicks = new ArrayList<>();
     private final static Logger logger = Logger.getLogger(PropertyWithData.class);
+    private double cachedSensorState;
 
     public double getCachedSensorState() {
         return cachedSensorState;
     }
-
-    private double cachedSensorState;
 
     public String getName() {
         return name;
@@ -175,19 +174,19 @@ public class PropertyWithData {
 
         double currState = sensor.getCurrentState();
         double newState;
-        if (isFromStart)
-            newState = currState +  ((targetTick - targetTickToCount) * deltaWhenWorkOffline);
-        else
+        if (isFromStart) {
+            newState = currState + ((targetTick - targetTickToCount) * deltaWhenWorkOffline);
+        }
+        else {
             newState = currState + ((targetTickToCount - targetTick) * deltaWhenWorkOffline);
+        }
 
-        if (newState == currState)
-        {
-            return ;
+        if (newState == currState) {
+            return ; //no offline work on these ticks
         }
         else{
             int i, counter;
-            if (isFromStart)
-            {   //because AFTER we include the hour. so the count before we'll not include it.
+            if (isFromStart) {   //because AFTER we include the hour. so the count before we'll not include it.
 
                 i=0;
                 double target = prefix.equals(Prefix.BEFORE) ? targetTick : targetTick-1;
@@ -198,17 +197,14 @@ public class PropertyWithData {
                 i = (int) target;
                 counter = (int) targetTickToCount;
             }
-            for ( ; i<= counter; ++i)
-            {
-                if (currState < minVal)
-                {
+            for ( ; i<= counter; ++i) {
+                if (currState < minVal) {
                     //lets go back tick before the change.
                     i--;
-                    currState -=deltaWhenWorkOffline;
+                    currState -= deltaWhenWorkOffline;
                     //now lets charge it to the maximum point
                     double ticksToCharge = Math.ceil((max - currState) / deltaWhenWork);
-                    if (ticksToCharge + i > (powerConsumption.length-1))
-                    {
+                    if (ticksToCharge + i > (powerConsumption.length-1)) {
                          ticksToCharge = (powerConsumption.length-1) - i ;
                     }
                     currState = updateValueToSensor(powerConsumption, currState, ticksToCharge, i, isFromStart);
@@ -234,21 +230,20 @@ public class PropertyWithData {
      * @param newState - current sensor's state what will be updated in the method
      * @param ticksToCharge - how many additional ticks of activation are required
      * @param idxTicks - the base index on the horizon from which the additional activations will be added
-     * @param offlineWork - ??? TODO gal what is the meaning of this argument?
+     * @param offlineWork - is the work offline (work done to compensate for negative deltas)
      * @return the new state of the sensor after the latest activation(the same as newState if no additional activation was required)
      */
-    public double updateValueToSensor (double [] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork)
+    public double updateValueToSensor (double[] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork)
     {
         for (int j = 1; j <= ticksToCharge; ++j) {
             //update the powerCons array
-            iterationPowerConsumption[j + idxTicks] = Double.sum(iterationPowerConsumption[j + idxTicks], powerConsumedInWork);
-            newState = Double.sum(newState, deltaWhenWork);
+            iterationPowerConsumption[j + idxTicks] += powerConsumedInWork;
+            newState += deltaWhenWork;
             if(!offlineWork) {
                 this.activeTicks.add(j + idxTicks);
             }
         }
-
-        if (newState > max) {//TODO gal yarden are we ignoring the scenario where the extra activations break the passive rule of max?
+        if (newState > max) {
             newState = max;
         }
 

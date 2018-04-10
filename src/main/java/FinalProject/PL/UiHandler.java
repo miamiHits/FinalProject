@@ -1,6 +1,7 @@
 package FinalProject.PL;
 
 import FinalProject.BL.Agents.DSA;
+import FinalProject.BL.Agents.SHMGM;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.DAL.*;
@@ -94,10 +95,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
         }
 
         List<String> algoList = new ArrayList<>();
-        algoList.add(DSA.class.getName());
+        algoList.add(SHMGM.class.getName());
         service.setAlgorithmsToExperiment(algoList, numOfIter);
         List<String> problem = new ArrayList<>();
-        problem.add("dm_7_1_2");
+        problem.add("dm_7_1_3");
         service.setProblemsToExperiment(problem);
 
         System.out.println("Starting Experiment!");

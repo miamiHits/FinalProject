@@ -44,6 +44,7 @@ public class PowerConsumptionUtils {
         return cSum + calculateEPeak(schedules);
     }
 
+    //TODO used only in tests -> maybe delete
     public static double calculateTotalConsumptionWithPenalty(double cSum, double[] newSchedule, double[] oldSchedule,
                                                               List<double[]> otherSchedules, double[] priceScheme)
     {

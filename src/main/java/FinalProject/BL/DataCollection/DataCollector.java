@@ -22,18 +22,15 @@ public class DataCollector {
     }
 
     public double addData (IterationCollectedData data) {
+        logger.info("Collector got epeak: " + data.getePeak() + ", price: " + data.getPrice() + ", iter: " + data.getIterNum() + ", agent: " + data.getAgentName());
         ProblemAlgorithm tempPA = new ProblemAlgorithm(data.getProblemId(), data.getAlgorithm());
         IterationAgentsPrice tempIAP = addAgentPrice(data, tempPA);
         addNeighborhoodIfNotExist(data, tempPA);
 
         if (isIterationFinished(tempPA, tempIAP, data)) { //last agent finished iteration
-            //TODO: added by oded from here
-
             if (data.getIterNum() == 0 && data.getePeak() == 0) { //epeak was not sent because it's iter 0
                 tempIAP.calcEpeakForIter0();
             }
-
-            //TODO: to here
 
             addProbResult(tempPA, tempIAP, data);
             populateTotalGradeForIteration(data, tempPA, tempIAP);

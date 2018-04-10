@@ -1,6 +1,7 @@
 package FinalProject.BL.DataObjects;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +45,18 @@ public class AgentData implements Serializable{
     {
         this.name = name;
         this.granularity = granularity;
+    }
+
+    public AgentData(AgentData other) {
+        this.name = other.name;
+        this.neighbors = new ArrayList<>(other.neighbors);
+        this.backgroundLoad = Arrays.copyOf(other.backgroundLoad, other.backgroundLoad.length);
+        this.houseType = other.houseType;
+        this.rules = new ArrayList<>(other.rules);
+        this.sensors = new ArrayList<>(other.sensors);
+        this.numOfIterations = other.numOfIterations;
+        this.priceScheme = other.getPriceScheme();
+        this.granularity = other.granularity;
     }
 
     public String getName()
