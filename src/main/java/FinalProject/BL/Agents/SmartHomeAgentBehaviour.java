@@ -259,16 +259,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     protected void initHelper() {
         //classifying the rules by activeness, start creating the prop object
-        List<Rule> passiveRules = new ArrayList<>();
-        List <Rule> activeRules = new ArrayList<>();
-        agent.getAgentData().getRules().forEach(rule -> {
-            if (rule.isActive()) {
-                activeRules.add(rule);
-            }
-            else {
-                passiveRules.add(rule);
-            }
-        });
+        List<Rule> passiveRules = agent.getAgentData().getRules().stream()
+                .filter(rule -> !rule.isActive())
+                .collect(Collectors.toList());
+        List <Rule> activeRules = agent.getAgentData().getRules().stream()
+                .filter(Rule::isActive)
+                .collect(Collectors.toList());
 
         passiveRules.forEach(pRule -> helper.buildNewPropertyData(pRule, true));
         activeRules.forEach(rRule -> helper.buildNewPropertyData(rRule, false));
