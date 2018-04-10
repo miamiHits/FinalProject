@@ -1,4 +1,4 @@
-package FinalProjectTests.FinalProjectTests.BL.Agents;
+package FinalProjectTests.BL.Agents;
 
 import FinalProject.BL.Agents.*;
 import FinalProject.BL.DataObjects.*;
@@ -246,8 +246,8 @@ public class DSATest {
             FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "countIterationCommunication");
             long size = agent.getIterationMessageSize();
             int count = agent.getIterationMessageCount();
-            Assert.assertEquals(size,1675);
-            Assert.assertEquals(count, 16);
+            Assert.assertEquals(size,1190);
+            Assert.assertEquals(count, 15);
         } catch (Exception e) {
             System.out.println(e);
             Assert.fail();
