@@ -30,24 +30,7 @@ public class DSATest {
 
         //create a problem obj
         dm_7_1_2 = DalTestUtils.getProblemDm_7_1_2();
-        agent = new SmartHomeAgent();
-
-        AgentData agentData = dm_7_1_2.getAgentsData().get(0);
-        String problemId = dm_7_1_2.getId();
-        try
-        {
-            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agentData, "priceScheme", dm_7_1_2.getPriceScheme());
-
-            //agent.setup() will not be called so we'll do it manually
-            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "agentData", agentData);
-            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "problemId", problemId);
-            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "algoId", "DSA");
-            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "isZEROIteration", true);
-
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        agent = ReflectiveUtils.initSmartHomeAgentForTest(dm_7_1_2);
         dsa = new DSA(agent);
     }
 
