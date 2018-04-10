@@ -1,6 +1,7 @@
 package FinalProject.BL.Agents;
 
 import FinalProject.BL.DataObjects.Problem;
+import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProjectTests.BL.Agents.ReflectiveUtils;
 import FinalProjectTests.DAL.DalTestUtils;
 import org.junit.After;
@@ -9,6 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import sun.misc.GC;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -84,7 +88,35 @@ public class SmartHomeAgentBehaviourTest {
     }
 
     @Test
-    public void calcCsum() {
+    public void calcCsumTestAllZeros() {
+        double[] mySched = getHorizonSizedArrWithSameVals(0);
+        int neighboursSize = agent.getAgentData().getNeighbors().size();
+        agent.setMyNeighborsShed(new ArrayList<>(neighboursSize));
+        for (int i = 0; i < neighboursSize; i++) {
+            //get an AgentIterationData with all zeros in sched.
+            AgentIterationData iterData = new AgentIterationData(0, "bla", 0,
+                    getHorizonSizedArrWithSameVals(0));
+            agent.getMyNeighborsShed().add(iterData);
+        }
+        double cSum = smab.calcCsum(mySched);
+        Assert.assertEquals(0, cSum, 0);
+    }
+
+    @Test
+    public void calcCsumTestAllOnes() {
+        double[] mySched = getHorizonSizedArrWithSameVals(1);
+        int neighboursSize = agent.getAgentData().getNeighbors().size();
+        agent.setMyNeighborsShed(new ArrayList<>(neighboursSize));
+        for (int i = 0; i < neighboursSize; i++) {
+            //get an AgentIterationData with all 1 in sched.
+            AgentIterationData iterData = new AgentIterationData(0, "bla",
+                    dm_7_1_2.getHorizon(), getHorizonSizedArrWithSameVals(1));
+            agent.getMyNeighborsShed().add(iterData);
+        }
+        double cSum = smab.calcCsum(mySched);
+        //each house pays the same
+        double expected = Arrays.stream(dm_7_1_2.getPriceScheme()).sum() * (neighboursSize + 1);
+        Assert.assertEquals(expected, cSum, 0.0000001);
     }
 
     @Test
