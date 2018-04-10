@@ -164,6 +164,7 @@ public class DSATest {
         Assert.assertTrue(counter > 0);
     }
 
+    //TODO fix this
     @Test
     public void DevicesGetTicks(){
         this.props.clear();
@@ -229,8 +230,8 @@ public class DSATest {
             FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "countIterationCommunication");
             long size = agent.getIterationMessageSize();
             int count = agent.getIterationMessageCount();
-            Assert.assertEquals(size,1190);
-            Assert.assertEquals(count, 15);
+            Assert.assertEquals(1190,size);
+            Assert.assertEquals(15, count);
         } catch (Exception e) {
             System.out.println(e);
             Assert.fail();
