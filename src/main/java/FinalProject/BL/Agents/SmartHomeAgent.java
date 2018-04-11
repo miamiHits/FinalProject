@@ -196,12 +196,10 @@ public class SmartHomeAgent extends Agent implements Serializable{
         try
         {
             DFService.register(this, dfd);
-
         }
         catch (FIPAException e)
         {
             e.printStackTrace();
         }
-
     }
 }
