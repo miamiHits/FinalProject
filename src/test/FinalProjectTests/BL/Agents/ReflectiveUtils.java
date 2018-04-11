@@ -1,10 +1,18 @@
 package FinalProjectTests.BL.Agents;
 
+import FinalProject.BL.Agents.SHMGM;
+import FinalProject.BL.Agents.SmartHomeAgent;
+import FinalProject.BL.DataObjects.AgentData;
+import FinalProject.BL.DataObjects.Problem;
+import org.apache.log4j.Logger;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ReflectiveUtils {
+
+    private final static Logger logger = Logger.getLogger(ReflectiveUtils.class);
 
     public static <InstanceType, FieldType> void setFieldValue(InstanceType instance, String fieldName,
                                                                FieldType value)
@@ -56,4 +64,27 @@ public class ReflectiveUtils {
         return returned;
     }
 
+
+    public static SmartHomeAgent initSmartHomeAgentForTest(Problem problem) {
+
+        SmartHomeAgent agent = new SmartHomeAgent();
+        AgentData agentData = problem.getAgentsData().get(0);
+        String problemId = problem.getId();
+        try
+        {
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agentData, "priceScheme", problem.getPriceScheme());
+
+            //agent.setup() will not be called so we'll do it manually
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "agentData", agentData);
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "problemId", problemId);
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "algoId", "DSA");
+            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "isZEROIteration", true);
+
+        } catch (Exception e)
+        {
+            logger.error("Could not init agent for problem " + problemId + ".", e);
+            return null;
+        }
+        return agent;
+    }
 }

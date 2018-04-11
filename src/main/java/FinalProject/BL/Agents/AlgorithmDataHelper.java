@@ -11,9 +11,9 @@ import static FinalProject.BL.DataCollection.PowerConsumptionUtils.*;
 
 public class AlgorithmDataHelper
 {
-    public double totalPriceConsumption = 0;
+    public double totalPriceConsumption = Double.MAX_VALUE;
     public double ePeak = 0;
-    private  Map<Actuator, List<Integer>> DeviceToTicks = new HashMap<>();
+    private  Map<Actuator, List<Integer>> deviceToTicks = new HashMap<>();
     private List<PropertyWithData> allProperties;
     private SmartHomeAgent agent;
     private List<double[]> neighboursPriceConsumption = new ArrayList<>();
@@ -23,6 +23,15 @@ public class AlgorithmDataHelper
     {
         this.agent = agent;
         allProperties = new ArrayList<>();
+    }
+
+    public AlgorithmDataHelper(AlgorithmDataHelper other) {
+        this.totalPriceConsumption = other.totalPriceConsumption;
+        this.allProperties = new ArrayList<>(other.allProperties);
+        this.ePeak = other.ePeak;
+        this.deviceToTicks = new HashMap<>(other.deviceToTicks);
+        this.agent = new SmartHomeAgent(other.agent);
+        this.neighboursPriceConsumption = new ArrayList<>(other.neighboursPriceConsumption);
     }
 
     public void buildNewPropertyData(Rule rule, boolean isPassive) {
@@ -59,7 +68,7 @@ public class AlgorithmDataHelper
                     break;
             }
         }
-        else //is active
+        else //is passive
         {
             prop.setPrefix(rule.getPrefix());
             prop.setRt(rule.getPrefixType());
@@ -229,7 +238,7 @@ public class AlgorithmDataHelper
 
     public List<Set<Integer>> getSubsets(List<Integer> superSet, int k) {
         List<Set<Integer>> res = new ArrayList<>();
-        getSubsets(superSet, k, 0, new HashSet<Integer>(), res);
+        getSubsets(superSet, k, 0, new HashSet<>(), res);
         return res;
     }
 
@@ -241,6 +250,17 @@ public class AlgorithmDataHelper
             double [] neighbourConsumption = cloneArray(agentData.getPowerConsumptionPerTick());
             neighboursPriceConsumption.add(neighbourConsumption);
         }
+    }
+
+    public void calcPowerConsumptionForAllNeighbours(List<double[]> allScheds) {
+        neighboursPriceConsumption.clear();
+//        logger.info("Saving all my neighbors sched - stage 1");
+//        List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
+//        for (AgentIterationData agentData : myNeighborsShed) {
+//            double [] neighbourConsumption = cloneArray(agentData.getPowerConsumptionPerTick());
+//            neighboursPriceConsumption.add(neighbourConsumption);
+//        }
+        neighboursPriceConsumption.addAll(allScheds);
     }
 
     public double calcHowLongDeviceNeedToWork(PropertyWithData prop) {
@@ -276,23 +296,52 @@ public class AlgorithmDataHelper
     }
 
     public Map<Actuator, List<Integer>> getDeviceToTicks() {
-        return DeviceToTicks;
+        return deviceToTicks;
     }
 
     public List<double[]> getNeighboursPriceConsumption() {
         return neighboursPriceConsumption;
     }
 
-    public void calcTotalPowerConsumption(double cSum) {
+    public void calcAndSetTotalPowerConsumption(double cSum) {
+        this.totalPriceConsumption = calcTotalPowerConsumption(cSum);
+        logger.info("TOTAL power consumption is : " + this.totalPriceConsumption);
+
+    }
+
+    public double calcTotalPowerConsumption(double cSum, double[] myPowerConsumption) {
         logger.info("Calculating total power consumption - stage 2");
 
         List<double[]> scheds = new ArrayList<>(this.neighboursPriceConsumption);
-        double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        scheds.add(myPowerCons);
+//        double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        scheds.add(myPowerConsumption);
         this.ePeak = calculateEPeak(scheds);
-        this.totalPriceConsumption = getAC() * cSum + getAE() * ePeak;
-        logger.info("TOTAL power consumption is : " + this.totalPriceConsumption);
+        return getAC() * cSum + getAE() * ePeak;
+    }
 
+//    //TODO taken from static class
+//    public double calculateEPeak(List<double[]> schedules) {
+//        double eSqrSum = 0;
+//        for (double[] sched : schedules) {
+//            for (double aSched : sched) {
+//                eSqrSum += Math.pow(aSched, 2);
+//            }
+//        }
+//        return eSqrSum * getAE();
+//    }
+
+    public double calcTotalPowerConsumption(double cSum) {
+        double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        return calcTotalPowerConsumption(cSum, myPowerCons);
+    }
+
+    public void correctEpeak(double[] improvedSched, double[] prevSched) {
+        for (double tick : improvedSched) {
+            ePeak += Math.pow(tick, 2);
+        }
+        for (double tick : prevSched) {
+            ePeak -= Math.pow(tick, 2);
+        }
     }
 
     public void checkForPassiveRules() {

@@ -34,5 +34,17 @@
 @mixin mytheme {
   @include valo;
 
-  // Insert your own theme rules here
+  .conf-start-btn {
+    color: green;
+  }
+
+  .conf-title {
+    font-weight: 400;
+  }
+
+  .conf-subtitle {
+    font-weight: 400;
+  }
+
+
 }

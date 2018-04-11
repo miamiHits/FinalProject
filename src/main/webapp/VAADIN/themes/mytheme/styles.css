@@ -15052,3 +15052,15 @@ div.v-layout.v-horizontal.v-widget {
 	width: 19px;
 	overflow: hidden;
 }
+
+.mytheme .conf-start-btn {
+	color: green;
+}
+
+.mytheme .conf-title {
+	font-weight: 400;
+}
+
+.mytheme .conf-subtitle {
+	font-weight: 400;
+}

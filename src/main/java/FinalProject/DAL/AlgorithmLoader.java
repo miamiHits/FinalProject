@@ -9,7 +9,11 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -146,6 +150,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     private Class loadClassFromFile(String className)
     {
         Class toReturn = null;
+        //TODO: to run with jetty: uncomment commented block and comment uncommented block
         try
         {
             toReturn = SmartHomeAgentBehaviour.class.getClassLoader().loadClass("FinalProject.BL.Agents." + className);
@@ -154,6 +159,23 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         {
             logger.error("Failed Loading the Algorithm " + className, e);
         }
+//        if (className != null)
+//        {
+//            Path path = Paths.get(className);
+//            try
+//            {
+//                URL[] urls = {path.toAbsolutePath().toUri().toURL()};
+//                URLClassLoader loader = URLClassLoader.newInstance(urls);
+//                toReturn = loader.loadClass(className);
+//
+//            } catch (MalformedURLException e)
+//            {
+//                logger.error("URL from path " + className + " is malformed", e);
+//            } catch (ClassNotFoundException e)
+//            {
+//                logger.error("could not find class " + className + " in path " + className, e);
+//            }
+//        }
         return toReturn;
     }
 

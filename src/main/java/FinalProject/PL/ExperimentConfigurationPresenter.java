@@ -49,8 +49,13 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         configurationLayout.addComponent(_algorithmsContainer);
 
         Label mainTitleLbl = new Label("SHAS");
+        mainTitleLbl.addStyleName("v-label-h1");
+        mainTitleLbl.addStyleName("conf-title");
+
 
         Label subtitleLbl = new Label("Smart Home Agent Simulator");
+        subtitleLbl.addStyleName("v-label-h2");
+        subtitleLbl.addStyleName("conf-subtitle");
 
         mainLayout.addComponent(mainTitleLbl);
         mainLayout.addComponent(subtitleLbl);
@@ -58,11 +63,13 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         mainLayout.addComponent(configurationLayout);
 
         startExperimentBtn.addClickListener(this);
+        startExperimentBtn.addStyleName("conf-start-btn");
 
         mainLayout.addComponent(numberOfIterationsTxt);
         mainLayout.addComponent(addNewAlgorithmBtn);
         mainLayout.addComponent(startExperimentBtn);
         setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
+        mainLayout.addStyleName("conf-main-layout");
 
         setContent(mainLayout);
 
@@ -194,7 +201,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         {
             //TODO gal implement error message
         }
-
+        numberOfIterationsTxt.clear();
         return result;
     }
 

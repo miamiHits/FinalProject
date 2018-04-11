@@ -1,11 +1,11 @@
 package FinalProject.BL.Agents;
-import FinalProject.BL.DataObjects.Prefix;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
 
 import java.util.*;
 
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTotalConsumptionWithPenalty;
 
 public class DSA extends SmartHomeAgentBehaviour {
@@ -44,8 +44,8 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     @Override
-    public DSA cloneBehaviour() {
-        DSA newInstance = new DSA(); //TODO: maybe should pass an agent?
+    public SmartHomeAgentBehaviour cloneBehaviour() {
+        DSA newInstance = new DSA();
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;
         newInstance.FINAL_TICK = this.FINAL_TICK;
@@ -53,17 +53,22 @@ public class DSA extends SmartHomeAgentBehaviour {
         return newInstance;
     }
 
+    @Override
+    protected double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds) {
+        double price = calcCsum(newPowerConsumption);
+        return price + calculateEPeak(allScheds);
+    }
+
     private void receiveAllMessagesAndHandleThem() {
-        List<ACLMessage> messageList = waitForNeighbourMessages();
+        List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
         readNeighboursMsgs(messageList);
         updatePowerConsumption();
     }
 
     private void updatePowerConsumption() {
         helper.calcPowerConsumptionForAllNeighbours();
-        agent.setcSum(calcCsum());
-        helper.calcTotalPowerConsumption(agent.getcSum());
-//        updateAgentIterationData(currentNumberOfIter - 1);
+        agent.setPriceSum(calcCsum(iterationPowerConsumption));
+        helper.calcAndSetTotalPowerConsumption(agent.getPriceSum());
     }
 
     private void resetAndBuildSchedule() {
@@ -72,7 +77,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     @Override
-    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Double> sensorsToCharge) {
+    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge) {
         float PROBABILITY = 0.6f;
         if (agent.isZEROIteration()) {
             startWorkZERO(prop, sensorsToCharge, ticksToWork);
@@ -93,8 +98,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     @Override
     protected void countIterationCommunication() {
-        final int MSG_TO_DEVICE_SIZE = 4;
-        int count = 2; //2 for agentIterationCollected and agentIterationData
+        int count = 1;
 
         //calc data sent to neighbours
         long totalSize = Utils.getSizeOfObj(agentIterationData);
@@ -102,21 +106,9 @@ public class DSA extends SmartHomeAgentBehaviour {
         count += neighboursSize;
         totalSize *= neighboursSize;
 
-        //calc data sent to DC:
-        totalSize += Utils.getSizeOfObj(agentIterationCollected);
-
         //calc messages to devices:
-        int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
-        for (PropertyWithData prop : helper.getAllProperties()) {
-            int numOfTimes = constantNumOfMsgs + prop.getRelatedSensorsDelta().size();
-            if (prop.getPrefix() != null && prop.getPrefix().equals(Prefix.BEFORE)) {
-                numOfTimes++;
-            }
-            totalSize += numOfTimes * MSG_TO_DEVICE_SIZE;
-            count += numOfTimes;
-        }
+        final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
 
-        agent.setIterationMessageCount(count);
-        agent.setIterationMessageSize(totalSize);
+        addMessagesSentToDevicesAndSetInAgent(count, totalSize, constantNumOfMsgs);
     }
 }

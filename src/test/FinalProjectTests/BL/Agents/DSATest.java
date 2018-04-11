@@ -1,4 +1,4 @@
-package FinalProjectTests.FinalProjectTests.BL.Agents;
+package FinalProjectTests.BL.Agents;
 
 import FinalProject.BL.Agents.*;
 import FinalProject.BL.DataObjects.*;
@@ -30,24 +30,7 @@ public class DSATest {
 
         //create a problem obj
         dm_7_1_2 = DalTestUtils.getProblemDm_7_1_2();
-        agent = new SmartHomeAgent();
-
-        AgentData agentData = dm_7_1_2.getAgentsData().get(0);
-        String problemId = dm_7_1_2.getId();
-        try
-        {
-            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agentData, "priceScheme", dm_7_1_2.getPriceScheme());
-
-            //agent.setup() will not be called so we'll do it manually
-            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "agentData", agentData);
-            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "problemId", problemId);
-            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "algoId", "DSA");
-            FinalProjectTests.BL.Agents.ReflectiveUtils.setFieldValue(agent, "isZEROIteration", true);
-
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        agent = ReflectiveUtils.initSmartHomeAgentForTest(dm_7_1_2);
         dsa = new DSA(agent);
     }
 
@@ -181,6 +164,7 @@ public class DSATest {
         Assert.assertTrue(counter > 0);
     }
 
+    //TODO fix this
     @Test
     public void DevicesGetTicks(){
         this.props.clear();
@@ -212,7 +196,7 @@ public class DSATest {
     public void dsaIterBuildSched(){
         this.props.clear();
         this.props = new ArrayList<>();
-        this.dsa.agent.setcSum(1000);
+        this.dsa.agent.setPriceSum(1000);
         prepareGround();
         try
         {
@@ -246,8 +230,8 @@ public class DSATest {
             FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "countIterationCommunication");
             long size = agent.getIterationMessageSize();
             int count = agent.getIterationMessageCount();
-            Assert.assertEquals(size,1675);
-            Assert.assertEquals(count, 16);
+            Assert.assertEquals(1190,size);
+            Assert.assertEquals(15, count);
         } catch (Exception e) {
             System.out.println(e);
             Assert.fail();

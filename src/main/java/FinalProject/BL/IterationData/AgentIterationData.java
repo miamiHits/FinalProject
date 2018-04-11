@@ -1,6 +1,7 @@
 package FinalProject.BL.IterationData;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class AgentIterationData implements Serializable {
 
@@ -14,7 +15,14 @@ public class AgentIterationData implements Serializable {
         this.iterNum = iterNum;
         this.agentName = agentName;
         this.price = price;
-        this.powerConsumptionPerTick = powerConsPerDevice;
+        this.powerConsumptionPerTick = Arrays.copyOf(powerConsPerDevice, powerConsPerDevice.length);
+    }
+
+    public AgentIterationData(AgentIterationData other) {
+        this.iterNum = other.iterNum;
+        this.agentName = other.agentName;
+        this.price = other.price;
+        this.powerConsumptionPerTick = Arrays.copyOf(other.powerConsumptionPerTick, other.powerConsumptionPerTick.length);
     }
 
     public int getIterNum() {
@@ -50,4 +58,13 @@ public class AgentIterationData implements Serializable {
     }
 
 
+    @Override
+    public String toString() {
+        return "AgentIterationData{" +
+                "iterNum=" + iterNum +
+                ", agentName='" + agentName + '\'' +
+                ", price=" + price +
+                ", powerConsumptionPerTick=" + Arrays.toString(powerConsumptionPerTick) +
+                '}';
+    }
 }
