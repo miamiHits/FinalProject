@@ -81,7 +81,7 @@ public class StatisticsHandler {
                            break;
                        case TotalConsumption:
                            //logger.info("DEBUG YARDEN: entry.getValue().get(i) of TotalConsumption is: " + entry.getValue().get(i).getAvgPricePerIteration().get(j));
-                           arr[i] = value.get(i).getAvgPricePerIteration().get(j);
+                           arr[i] = value.get(i).getTotalGradePerIteration().get(j);
                            break;
                    }
 
