@@ -53,6 +53,7 @@ public class Rule implements Serializable
 
     private Device parseDevice(String name, List<Device> deviceDict)
     {
+        
         for (Device dev : deviceDict)
         {
             if (name.equals(dev.getName()))
