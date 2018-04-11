@@ -48,9 +48,24 @@ public class SmartHomeAgentBehaviourTest {
     }
 
     @Test
-    public void calcHowManyTicksNeedToCharge() {
-    }
+    public void calcHowManyTicksNeedToChargeTest() {
+        PropertyWithData prop = new PropertyWithData();
+        prop.setDeltaWhenWork(10);
+        prop.setMax(100);
+        prop.setMin(0);
+        prop.setName("test prop");
+        Sensor sens = new Sensor("bla", "bla", "bla",
+                0.0, new ArrayList<>());
+        sens.setCurrentState(-20);
+        prop.setSensor(sens);
+        smab.getHelper().getAllProperties().add(prop);
 
+        int res = smab.calcHowManyTicksNeedToCharge(prop.getName(), prop.getDeltaWhenWork(), 3);
+        int expected = 2;
+
+        Assert.assertEquals(expected, res);
+
+    }
 
     @Test
     public void drawRandomNumIsInRangeTest() {
