@@ -190,18 +190,14 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         double currState = prop.getSensor().getCurrentState();
         //lets see how many time we'll need to charge it.
         for (int i=0 ; i < ticksToWork; ++i) {
-            currState += delta;
             if (currState < prop.getMin()) {
+                currState += delta;
                 ticks++;
-                currState = prop.getMax();
+//                currState = prop.getMax();
             }
         }
-
-        //no need to charge it between the work. lets just update the sensor
-        if (ticks == 0) {
-            Map<Sensor, Double> toSend = new HashMap<>();
-            toSend.put(prop.getSensor(), currState);
-            prop.getActuator().act(toSend);
+        if (currState < prop.getMin()) {
+            logger.warn("state is less than min!!!");
         }
 
         return ticks;
@@ -259,16 +255,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     protected void initHelper() {
         //classifying the rules by activeness, start creating the prop object
-        List<Rule> passiveRules = new ArrayList<>();
-        List <Rule> activeRules = new ArrayList<>();
-        agent.getAgentData().getRules().forEach(rule -> {
-            if (rule.isActive()) {
-                activeRules.add(rule);
-            }
-            else {
-                passiveRules.add(rule);
-            }
-        });
+        List<Rule> passiveRules = agent.getAgentData().getRules().stream()
+                .filter(rule -> !rule.isActive())
+                .collect(Collectors.toList());
+        List <Rule> activeRules = agent.getAgentData().getRules().stream()
+                .filter(Rule::isActive)
+                .collect(Collectors.toList());
 
         passiveRules.forEach(pRule -> helper.buildNewPropertyData(pRule, true));
         activeRules.forEach(rRule -> helper.buildNewPropertyData(rRule, false));

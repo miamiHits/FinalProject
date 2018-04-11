@@ -68,7 +68,7 @@ public class AlgorithmDataHelper
                     break;
             }
         }
-        else //is active
+        else //is passive
         {
             prop.setPrefix(rule.getPrefix());
             prop.setRt(rule.getPrefixType());
