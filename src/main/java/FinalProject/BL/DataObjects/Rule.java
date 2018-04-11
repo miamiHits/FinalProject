@@ -53,6 +53,9 @@ public class Rule implements Serializable
 
     private Device parseDevice(String name, List<Device> deviceDict)
     {
+        if (deviceDict == null){
+            waitForDictionary();
+        }
         for (Device dev : deviceDict)
         {
             if (name.equals(dev.getName()))
@@ -61,6 +64,14 @@ public class Rule implements Serializable
             }
         }
         return null;
+    }
+
+    private void waitForDictionary() {
+        try {
+            wait(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private Prefix parsePrefix(String prefixStr)
