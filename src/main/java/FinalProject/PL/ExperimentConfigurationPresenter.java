@@ -73,6 +73,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         setContent(mainLayout);
 
+        
         setSizeFull();
     }
 
