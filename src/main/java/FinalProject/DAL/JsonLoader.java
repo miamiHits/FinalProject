@@ -108,8 +108,7 @@ public class JsonLoader implements JsonLoaderInterface {
             problem.setAllDevices(new HashMap<>(deviceDict));
 
             JsonObject agentsObj = fullJsonObj.get("agents").getAsJsonObject();
-            List<AgentData> agents = parseAgentDataObjects(agentsObj, problem.getPriceScheme(),
-                    problem.getGranularity(), problemName);
+            List<AgentData> agents = parseAgentDataObjects(agentsObj, problem.getPriceScheme(), problem.getGranularity());
             problem.setAllHomes(agents);
         } catch (UnsupportedEncodingException e)
         {
@@ -151,7 +150,7 @@ public class JsonLoader implements JsonLoaderInterface {
         });
     }
 
-    private List<AgentData> parseAgentDataObjects(JsonObject agentsObj, double[] priceSchema, int granularity, String problemName)
+    private List<AgentData> parseAgentDataObjects(JsonObject agentsObj, double[] priceSchema, int granularity)
     {
         List<TempAgentData> tempList = new ArrayList<>(agentsObj.size());
         List<AgentData> agents = new ArrayList<>(agentsObj.size());
@@ -160,7 +159,7 @@ public class JsonLoader implements JsonLoaderInterface {
         agentsObj.entrySet().forEach(entry -> {
 
             TempAgentData temp = gson.fromJson(entry.getValue(), TempAgentData.class);
-            temp.name = entry.getKey() + problemName;
+            temp.name = entry.getKey();
             tempList.add(temp);
             final AgentData agentData = new AgentData(temp.name, granularity);
             agents.add(agentData);
