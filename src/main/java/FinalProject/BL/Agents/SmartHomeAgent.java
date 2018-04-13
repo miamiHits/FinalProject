@@ -201,5 +201,10 @@ public class SmartHomeAgent extends Agent implements Serializable{
         {
             e.printStackTrace();
         }
+        catch (Exception e)
+        {
+            System.out.println("Exception while trying to register: " + e);
+            createAlgorithmAgent();
+        }
     }
 }
