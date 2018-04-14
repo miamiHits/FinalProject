@@ -118,18 +118,14 @@ public class StatisticsHandler {
         Set<String> algoNames = experimentResults.keySet();
         for(String name: algoNames)
         {
-           logger.info("DEBUG YARDEN: looking for algo name: " + name);
-
             int counter=0;
             long totalTime = 0;
             for(Map.Entry<String, Long> entry : probNAlgToTotalTime.entrySet())
             {
-                logger.info("DEBUG YARDEN: looking for algoProb name: " + entry.getKey());
-                logger.info("DEBUG YARDEN: is it contains: " +entry.getKey().contains(name));
                 if (entry.getKey().contains(name))
                 {
                     counter++;
-                    logger.info("DEBUG YARDEN: the value is: " +entry.getValue());
+
                     totalTime+=entry.getValue();
                 }
 
@@ -142,15 +138,51 @@ public class StatisticsHandler {
     public DefaultCategoryDataset messageSendPerIteration()
     {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        for(Map.Entry<String, List<AlgorithmProblemResult>> entry : experimentResults.entrySet())
+        Map<String, Integer> messagesToAlgo = new HashMap<>();
+        Map<String, Integer> problemsToAlgo = new HashMap<>();
+        for(int j=0; j< experimentResultsNotSort.size(); j++)
         {
-            int total=0;
-            for (int i=0; i<ITER_NUM; i++)
+            String name= experimentResultsNotSort.get(j).getAlgorithm();
+            if (!messagesToAlgo.containsKey(name))
+            {
+                messagesToAlgo.put(name, 0);
+            }
+            if (!problemsToAlgo.containsKey(name))
+            {
+                problemsToAlgo.put(name, 1);
+            }
+            else
             {
 
+                int currNumberOfProblems = problemsToAlgo.get(name);
+                currNumberOfProblems++;
+                problemsToAlgo.put(name, currNumberOfProblems);
             }
         }
+
+        for(Map.Entry<String, List<AlgorithmProblemResult>> entry : experimentResults.entrySet())
+        {
+            for (AlgorithmProblemResult res : entry.getValue())
+            {
+                 int total = 0;
+                 for(int i=0; i<ITER_NUM; i++)
+                 {
+                     total+= res.getTotalMessagesInIter(i).getMsgsNum();
+                 }
+                  int currTotalMessages = messagesToAlgo.get(entry.getKey());
+                 currTotalMessages+=total;
+                 messagesToAlgo.put(entry.getKey(), currTotalMessages);
+            }
+        }
+
+        for(Map.Entry<String, Integer> entry : messagesToAlgo.entrySet())
+        {
+            int totalMessages = entry.getValue();
+            int totalProblems = problemsToAlgo.get(entry.getKey());
+            dataset.addValue(totalProblems!=0? totalMessages/totalProblems : totalMessages, entry.getKey(), "Messages Per Iteration");
+        }
         return dataset;
+
     }
 
     private enum graphType{
