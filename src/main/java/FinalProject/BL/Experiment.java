@@ -91,7 +91,7 @@ public class Experiment implements ExperimentInterface {
         {
             try
             {
-                this.waitingBarrier.await();// TODO gal make it non-blocking
+                this.waitingBarrier.await();
             }
             catch (InterruptedException e)
             {

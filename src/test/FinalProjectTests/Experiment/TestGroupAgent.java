@@ -7,13 +7,19 @@ import test.common.TestException;
 import test.common.TestGroup;
 import test.common.TesterAgent;
 
+import java.io.File;
+import java.util.regex.Matcher;
+
 public class TestGroupAgent extends TesterAgent
 {
 
     @Override
     protected TestGroup getTestGroup()
     {
-        TestGroup tg = new TestGroup("testList.xml")
+        String testListPath = "jadeTestResources/testList.xml";
+        testListPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+
+        TestGroup tg = new TestGroup(testListPath)
         {
             AgentContainer mainContainer;
             // Re-define the initialize() method to perform initializations common to all
