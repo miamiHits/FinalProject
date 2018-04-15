@@ -130,6 +130,13 @@ public class AlgorithmProblemResult {
         }
         totalGradePerIteration.put(iterNum, totalGrade);
     }
+    public Map<Integer, MsgInfo> getTotalMessages()
+    {return this.totalMessagesInIter;}
+
+    public MsgInfo getTotalMessagesInIter(int iterNum)
+    {
+        return this.totalMessagesInIter.get(iterNum);
+    }
 
     public void setTotalMsgsInIter(int iterNum, IterationAgentsPrice iap) {
         long totalMsgSize = 0;
