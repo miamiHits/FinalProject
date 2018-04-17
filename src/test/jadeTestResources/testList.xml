@@ -5,16 +5,47 @@
 	]>
 -->
 <TestsList>
-    <Test name="Test Agents Waiting For Neighbours" skip="false">
-        <TestClassName>FinalProjectTests.Experiment.TestAgentsWaitingForNeighbours</TestClassName>
-        <WhatTest> Test that non of the agents starts an iteration before the other agents.</WhatTest>
-        <HowWorkTest>messages received by the data collector are monitored,
+    <Test name="Test Agents Waiting For Neighbours" skip="true">
+        <TestClassName>
+            FinalProjectTests.Experiment.TestAgentsWaitingForNeighbours.TestAgentsWaitingForNeighbours
+        </TestClassName>
+        <WhatTest>
+            Test that non of the agents starts an iteration before the other agents
+            .</WhatTest>
+        <HowWorkTest>
+            messages received by the data collector are monitored,
             once all agents sent their end of iteration message the test behaviour send a fake C_sum and waits for the next iteration messages</HowWorkTest>
-        <WhenTestPass> The test passes if the experiment ended and all of the messages were of the correct iteration</WhenTestPass>
+        <WhenTestPass>
+            The test passes if the experiment ended and all of the messages were of the correct iteration
+        </WhenTestPass>
     </Test>
 
-    <Test name="Test Agents Waiting For DataCollector" skip="false">
-        <TestClassName>FinalProjectTests.Experiment.TestAgentsWaitingForDataCollector</TestClassName>
+    <Test name="Test Agents Waiting For Neighbours when neighbour message delayed" skip="false">
+        <TestClassName>
+            FinalProjectTests.Experiment.TestAgentsWaitingForNeighbours.TestAgentsWaitingForNeighbours
+        </TestClassName>
+        <WhatTest>
+            Test that non of the agents starts an iteration before all of its neighbours has sent the iteration data message.
+        </WhatTest>
+        <HowWorkTest>
+            three of the agents in the simulation will used as test agents and will delay sending end of iteration message to their neighbours
+            test agent 1 will delay message of iteration # devided by 2
+            test agent 2 will delay message of iteration # devided by 3
+            test agent 3 will delay message of iteration # devided by 5
+            the data collector and the three test agents will verify that all start the next iteration once the previous one completed
+        </HowWorkTest>
+        <WhenTestPass>
+            The experiment ended and all of the messages were of the correct iteration
+            No agent started the next iteration before receiving end of iteration from all of it's neighbours
+        </WhenTestPass>
+    </Test>
+
+
+
+    <!--deprecated!!!-->
+    <Test name="Test Agents Waiting For DataCollector" skip="true">
+        <!--TODO gal delete in the future, test case not valid anymore, the agents dont wait for the data collector anymore-->
+        <TestClassName>FinalProjectTests.Experiment.DeprecatedTests.TestAgentsWaitingForDataCollector</TestClassName>
         <WhatTest> Test that non of the agents starts an iteration before the data collector sent them the end of iteration message.</WhatTest>
         <HowWorkTest>the test will simulate an agent and the data collector,
             the data collector and the test home agent will not send their messages immediately
@@ -22,8 +53,9 @@
         <WhenTestPass>the test home agent did not receive a message from its neighbours until the data collector sent the end of iteration message</WhenTestPass>
     </Test>
 
-    <Test name="Test Agent Receiving Messages From Data Collector" skip="false">
-        <TestClassName>FinalProjectTests.Experiment.TestAgentReceivingMessagesFromDataCollector</TestClassName>
+    <Test name="Test Agent Receiving Messages From Data Collector" skip="true">
+        <!--TODO gal delete in the future, test case not valid anymore, the agents calculate the epeak themseves and dont get it from the data collector-->
+        <TestClassName>FinalProjectTests.Experiment.DeprecatedTests.TestAgentReceivingMessagesFromDataCollector</TestClassName>
         <WhatTest>verify that the data collector sends its messages</WhatTest>
         <HowWorkTest>
             the test will simulate an agent taking its part in an algorithm run, waiting for the message from the data collector with 10 seconds timeout.

@@ -1,4 +1,4 @@
-package FinalProjectTests.Experiment;
+package FinalProjectTests.Experiment.DeprecatedTests;
 
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SmartHomeAgent;

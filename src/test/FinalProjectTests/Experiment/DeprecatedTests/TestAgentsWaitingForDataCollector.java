@@ -1,4 +1,4 @@
-package FinalProjectTests.Experiment;
+package FinalProjectTests.Experiment.DeprecatedTests;
 
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SmartHomeAgent;
@@ -6,6 +6,9 @@ import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.DataCollection.DataCollectionCommunicatorBehaviour;
 import FinalProject.BL.DataObjects.AgentData;
 import FinalProject.BL.IterationData.IterationCollectedData;
+import FinalProjectTests.Experiment.AbstractJadeIntegrationTest;
+import FinalProjectTests.Experiment.ExperimentTestUtils;
+import FinalProjectTests.Experiment.TestAgentsWaitingForNeighbours.TestAgentsWaitingForNeighbours;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -16,6 +19,7 @@ import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
+import org.apache.log4j.Logger;
 import test.common.TestException;
 
 import java.io.IOException;
@@ -28,10 +32,12 @@ import java.util.stream.Collectors;
 
 public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTest
 {
-    private Map<String, TestAgentsWaitingForNeighbours.AgentMessageType> messagesReceivedFromAgents;
+    private Map<String, AgentMessageType> messagesReceivedFromAgents;
     private AtomicBoolean testHomeAgentShouldNeighbourReceiveMessage;
 
     private static int currentIterationNumber = 0;
+
+    private final static Logger logger = Logger.getLogger(TestAgentsWaitingForDataCollector.class);
 
 
     @Override
@@ -105,7 +111,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
                 ACLMessage m;
                 while ((m = myAgent.receive()) != null)
                 {
-                    System.out.println("test data collector received a message from " + m.getSender().getLocalName());
+                    logger.debug("test data collector received a message from " + m.getSender().getLocalName());
                     IterationCollectedData ICD = (IterationCollectedData) m.getContentObject();
                     examineMessage(ICD, m);
                     if (ICD.getIterNum() != currentIterationNumber)
@@ -115,7 +121,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
                                 ICD.getIterNum(),
                                 currentIterationNumber));
                     }
-                    TestAgentsWaitingForNeighbours.AgentMessageType updatedType = ICD.getePeak() == -1 ? TestAgentsWaitingForNeighbours.AgentMessageType.NO_EPEAK : TestAgentsWaitingForNeighbours.AgentMessageType.WITH_EPEAK;
+                    AgentMessageType updatedType = ICD.getePeak() == 0 ? TestAgentsWaitingForNeighbours.AgentMessageType.NO_EPEAK : TestAgentsWaitingForNeighbours.AgentMessageType.WITH_EPEAK;
                     messagesReceivedFromAgents.put(m.getSender().getLocalName(), updatedType);
 
                     if (didReceiveFirstMessageFromAllAgents())
@@ -146,7 +152,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
 
         private void sendCSumToAllAgents()
         {
-            System.out.println("test DC about to sleep for 1 sec");
+            logger.info("test DC about to sleep for 1 sec");
             try
             {//create a delay, making sure the other agents don't start the next iteration until the message was sent
                 Thread.sleep(1000);
@@ -154,7 +160,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
             {
                 e.printStackTrace();
             }
-            System.out.println("test DC about to send csum to all agents");
+            logger.info("test DC about to send csum to all agents");
             testHomeAgentShouldNeighbourReceiveMessage.set(true);
             ExperimentTestUtils.sendCSumToAllAgents(messagesReceivedFromAgents.keySet(), 10, myAgent);
         }
@@ -163,7 +169,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
         {
             messagesReceivedFromAgents.replaceAll((k, v) -> AgentMessageType.NONE);
             currentIterationNumber++;
-            System.out.println("starting iteration #" + currentIterationNumber);
+            logger.info("starting iteration #" + currentIterationNumber);
 //            sendCSumToAllAgents();
         }
 
@@ -204,7 +210,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
                 }
             }
             else
-            {//this is a message that should be sent once all agent
+            {//this is a message that should be sent once to all agent
                 if (messagesReceivedFromAgents.get(m.getSender().getLocalName()) == TestAgentsWaitingForNeighbours.AgentMessageType.WITH_EPEAK)
                 {
                     failed("agent " + m.getSender().getLocalName() + " sent more than once the end of iteration, after epeak calculation message");
@@ -217,7 +223,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
     {
         private void sendFakeIterationToCollector()
         {
-            System.out.println("test home agent sends fake iteration data to the data collector");
+            logger.info("test home agent sends fake iteration data to the data collector");
             DFAgentDescription template = new DFAgentDescription();
             ServiceDescription sd = new ServiceDescription();
             sd.setType(DataCollectionCommunicator.SERVICE_TYPE);
@@ -251,14 +257,15 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
 
         private void sendFakeIterationToNeighbors()
         {
-            System.out.println("test home agent sends fake iteration data to its neighbours");
+            logger.info("test home agent sends fake iteration data to its neighbours");
             ACLMessage aclmsg = new ACLMessage(ACLMessage.REQUEST);
+            aclmsg.setOntology("");//TODO gal convert into constant
             agent.getAgentData().getNeighbors().stream()
                     .map(neighbor -> new AID(neighbor.getName(), AID.ISLOCALNAME))
                     .forEach(aclmsg::addReceiver);
 
             try {
-                System.out.println("test home agent about to send the message " + aclmsg.toString());
+                logger.debug("test home agent about to send the message " + aclmsg.toString());
                 aclmsg.setContentObject(this.agentIterationCollected);
                 agent.send(aclmsg);
             } catch (IOException e) {
@@ -275,7 +282,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
             {
                 receivedMessage = this.agent.blockingReceive(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
                 messages.add(receivedMessage);
-                System.out.println("test home agent received message from " + receivedMessage.getSender().getLocalName());
+                logger.debug("test home agent received message from " + receivedMessage.getSender().getLocalName());
             }
             testHomeAgentShouldNeighbourReceiveMessage.set(false);
         }
@@ -298,7 +305,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
         @Override
         public void action()
         {
-            System.out.println("test home agent starts new iteration");
+            logger.info("test home agent starts new iteration");
             this.collectNeighboursMessages();
             verifyNeighboursDidNotStartNewIteration();
             this.agentIterationCollected = new IterationCollectedData(
@@ -309,7 +316,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
                     agent.getProblemId(),
                     agent.getAlgoId(),
                     (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())),
-                    -1, 1, 1); //TODO: set real messageSize, count
+                    0, 1, 1); //TODO: set real messageSize, count
 
             this.sendFakeIterationToNeighbors();
             this.verifyNeighboursDidNotStartNewIteration();

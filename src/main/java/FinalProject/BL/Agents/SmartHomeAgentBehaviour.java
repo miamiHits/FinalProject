@@ -341,7 +341,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     protected boolean flipCoin(float probabilityForTrue) {
         final boolean res = randGenerator.nextFloat() < probabilityForTrue;
-        System.out.println("res is: " + res);
+        logger.debug("flipped a coin with result: " + res);
         return res;
     }
 

@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 
 public abstract class AbstractJadeIntegrationTest extends Test
 {
-    protected enum AgentMessageType
+    public enum AgentMessageType
     {
         NONE,
         NO_EPEAK,
@@ -50,7 +50,7 @@ public abstract class AbstractJadeIntegrationTest extends Test
     public void loadExperimentConfiguration()
     {
         List<String> algoNameList = new ArrayList<>();
-        algoNameList.add(DSA.class.getName());
+        algoNameList.add(DSA.class.getSimpleName());
         List<String> problemNameList = new ArrayList<>();
         problemNameList.add("dm_7_1_2");
         String jsonPath = "src/test/testResources/jsons";
@@ -95,6 +95,15 @@ public abstract class AbstractJadeIntegrationTest extends Test
         }
     }
 
+    public void notifyTestFailed(String message)
+    {
+        failed(message);
+    }
+
+    public void notifyTestPassed(String message)
+    {
+        passed(message);
+    }
 
 
 }
