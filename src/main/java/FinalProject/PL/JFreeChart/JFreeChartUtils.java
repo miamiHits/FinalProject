@@ -137,7 +137,7 @@ public class JFreeChartUtils {
 
         // get a reference to the plot for further customisation...
         CategoryPlot plot = (CategoryPlot) chart.getPlot();
-        plot.setBackgroundPaint(Color.lightGray);
+        plot.setBackgroundPaint(Color.black);
         plot.setDomainGridlinePaint(Color.white);
         plot.setDomainGridlinesVisible(true);
         plot.setRangeGridlinePaint(Color.white);
@@ -154,7 +154,7 @@ public class JFreeChartUtils {
         final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-        // disable bar outlines...
+        // d nisable bar outlines...
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
         // renderer.setDrawBarOutline(false);
 
