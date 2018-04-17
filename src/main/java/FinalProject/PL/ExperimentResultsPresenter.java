@@ -9,13 +9,17 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.StatisticalLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
 import org.vaadin.addon.JFreeChartWrapper;
 
-import java.awt.Color;
+import java.awt.*;
+
+
 
 public class ExperimentResultsPresenter extends Panel implements View{
 
@@ -40,8 +44,8 @@ public class ExperimentResultsPresenter extends Panel implements View{
                 leftGraphsLayout.addComponent(generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph, false));
                 leftGraphsLayout.addComponent(generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph, false));
                 rightGraphsLayout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph, false));
-                rightGraphsLayout.addComponent(generateBarChart("Average run time per iteration #", null, null, averageExperimentTime));
-                rightGraphsLayout.addComponent(generateBarChart("Average messages per iteration #", null, null, messagesSentPerIteration));
+                rightGraphsLayout.addComponent(generateBarChart("Average run time per Algorithm #", null, null, averageExperimentTime));
+                rightGraphsLayout.addComponent(generateBarChart("Average sending messages per Algorithm #", null, null, messagesSentPerIteration));
 
                 allGraphsLayout.addComponent(leftGraphsLayout);
                 allGraphsLayout.addComponent(rightGraphsLayout);
@@ -58,15 +62,16 @@ public class ExperimentResultsPresenter extends Panel implements View{
                 });
 
 
-       // layout.addComponent(generateBarChart("Runtime Average time Statistics", null, null, averageExperimentTime));
-       // layout.addComponent(generateBarChart("Messages Sent For Iteration ", null, null, messagesSentPerIteration));
-
                 mainLayout.addComponent(allGraphsLayout);
                 mainLayout.addComponent(endExperimentBtn);
 
                 ExperimentConfigurationPresenter.setAlignemntToAllComponents(mainLayout, Alignment.TOP_CENTER);
+                //mainLayout.setHeight("70%");
+                mainLayout.setWidth("100%");
 
                 setContent(mainLayout);
+                setSizeFull();
+
             }
             catch (Exception e)
             {
@@ -108,16 +113,57 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
     private Component generateLineGraphWithErrorBars(String title, String xAxisLabel, String yAxisLabel, DefaultStatisticalCategoryDataset dataset, boolean shapesIsVisible)
     {
-        JFreeChart plot = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, false, false);
+        JFreeChart plot = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);
         StatisticalLineAndShapeRenderer statisticalRenderer = new StatisticalLineAndShapeRenderer(true, shapesIsVisible);
-        statisticalRenderer.setErrorIndicatorPaint(Color.black);
+        statisticalRenderer.setErrorIndicatorPaint(Color.white);
         plot.getCategoryPlot().setRenderer(statisticalRenderer);
+
+        //Design
+        // set the background color for the chart...
+        plot.setBackgroundPaint(Color.white);
+
+
+        // get a reference to the plot for further customisation...
+        CategoryPlot plot1 = (CategoryPlot) plot.getPlot();
+        plot1.setBackgroundPaint(Color.black);
+        plot1.setDomainGridlinePaint(Color.white);
+        plot1.setDomainGridlinesVisible(true);
+        plot1.setRangeGridlinePaint(Color.white);
+        plot1.setDomainGridlinePaint(Color.black);
+
+        CategoryItemRenderer renderer = plot1.getRenderer();
+        GradientPaint gp0 = new GradientPaint(50f, 50f, Color.CYAN, 50f, 50f, Color.green);
+        //GradientPaint gp1 = new GradientPaint(0.0f, 0.0f, Color.green, 0.0f,
+               // 0.0f, new Color(0, 64, 0));
+        //GradientPaint gp2 = new GradientPaint(0.0f, 0.0f, Color.red, 0.0f,
+              //  0.0f, new Color(64, 0, 0));
+
+
+
+        renderer.setSeriesPaint(0, gp0);
+        //renderer.setSeriesPaint(1, gp1);
+        //renderer.setSeriesPaint(2, gp2);
+
+        //CategoryAxis domainAxis = plot1.getDomainAxis();
+        //domainAxis.setCategoryLabelPositions(CategoryLabelPositions
+                //.createUpRotationLabelPositions(Math.PI / 6.0));
+
+
+
         return new JFreeChartWrapper(plot);
     }
 
     private Component generateBarChart(String title, String xAxisLabel, String yAxisLabel, DefaultCategoryDataset dataset)
     {
         JFreeChart barChart = ChartFactory.createBarChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, false, false);
+        barChart.setBackgroundPaint(Color.white);
+        barChart.setBorderPaint(Color.white);
+        CategoryPlot plot1 = (CategoryPlot) barChart.getPlot();
+        plot1.setBackgroundPaint(Color.black);
+        plot1.setDomainGridlinePaint(Color.white);
+        plot1.setDomainGridlinesVisible(true);
+        plot1.setRangeGridlinePaint(Color.white);
+        plot1.setDomainGridlinePaint(Color.black);
         return new JFreeChartWrapper(barChart);
     }
 }
