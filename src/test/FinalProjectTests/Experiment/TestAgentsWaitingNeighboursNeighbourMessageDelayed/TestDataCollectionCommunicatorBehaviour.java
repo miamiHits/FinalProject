@@ -1,6 +1,7 @@
 package FinalProjectTests.Experiment.TestAgentsWaitingNeighboursNeighbourMessageDelayed;
 
 import FinalProject.BL.DataCollection.DataCollectionCommunicatorBehaviour;
+import FinalProject.BL.DataObjects.AgentData;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProjectTests.Experiment.AbstractJadeIntegrationTest;
 import jade.domain.DFService;
@@ -16,14 +17,11 @@ public class TestDataCollectionCommunicatorBehaviour extends DataCollectionCommu
     TestAgentsWaitingNeighboursNeighbourMessageDelayed testDriver;
     private Map<String, Boolean> isIterationMessageReceivedByAgentName;
 
-    private final static Logger logger = Logger.getLogger(FinalProjectTests.Experiment.TestAgentsWaitingForNeighbours.TestDataCollectionCommunicatorBehaviour.class);
+    private final static Logger logger = Logger.getLogger(FinalProjectTests.Experiment.TestAgentsWaitingNeighboursNeighbourMessageDelayed.TestDataCollectionCommunicatorBehaviour.class);
 
     public TestDataCollectionCommunicatorBehaviour(TestAgentsWaitingNeighboursNeighbourMessageDelayed testAgentsWaitingForNeighbours) {
         this.testDriver = testAgentsWaitingForNeighbours;
         this.isIterationMessageReceivedByAgentName = new HashMap<>();
-        for (Map.Entry<String, Boolean> entry : isIterationMessageReceivedByAgentName.entrySet()) {
-            isIterationMessageReceivedByAgentName.put(entry.getKey(), false);
-        }
     }
 
     @Override
@@ -31,15 +29,22 @@ public class TestDataCollectionCommunicatorBehaviour extends DataCollectionCommu
     {
         try
         {
+            logger.info("started new iteration");
             if (!testDriver.initializationApplied)
             {
+                logger.info("first iteration - applying agent initialization");
                 testDriver.initializationApplied = true;
                 testDriver.initializeAgents(myAgent);
+                for (AgentData agentData : testDriver.problem.getAgentsData())
+                {
+                    isIterationMessageReceivedByAgentName.put(agentData.getName(), false);
+                }
             }
 
             ACLMessage m;
             while ((m = myAgent.receive()) != null)
             {
+                logger.info("receieved a message from " + m.getSender().getName());
                 IterationCollectedData ICD = (IterationCollectedData) m.getContentObject();
                 if (ICD.getIterNum() != this.currentIterationNumber)
                 {
@@ -48,15 +53,23 @@ public class TestDataCollectionCommunicatorBehaviour extends DataCollectionCommu
                             ICD.getIterNum(),
                             this.currentIterationNumber));
                 }
+                if (this.isIterationMessageReceivedByAgentName.get(m.getSender().getLocalName()))
+                {
+                    testDriver.notifyTestFailed("received more than one message in one iteration from agent " + m.getSender().getLocalName());
+                }
+                this.isIterationMessageReceivedByAgentName.put(m.getSender().getLocalName(), true);
             }
             if (didReceiveMessageFromAllAgents())
             {
+                logger.info("received messages from all agents");
                 if (this.currentIterationNumber < AbstractJadeIntegrationTest.MAXIMUM_ITERATIONS)
                 {
+                    logger.info("current iteration #"+ currentIterationNumber + " completed");
                     startNextIteration();
                 }
                 else
                 {
+                    logger.info("completed all iterations");
                     DFService.deregister(myAgent);
                     testDriver.notifyTestPassed(String.format("simulated %d iterations where all of the agents kept the same iteration", AbstractJadeIntegrationTest.MAXIMUM_ITERATIONS));
                 }
@@ -71,8 +84,9 @@ public class TestDataCollectionCommunicatorBehaviour extends DataCollectionCommu
 
     private void startNextIteration()
     {
-        for (Map.Entry<String, Boolean> entry : isIterationMessageReceivedByAgentName.entrySet()) {
-            isIterationMessageReceivedByAgentName.put(entry.getKey(), false);
+        for (AgentData agentData : testDriver.problem.getAgentsData())
+        {
+            isIterationMessageReceivedByAgentName.put(agentData.getName(), false);
         }
         this.currentIterationNumber++;
     }

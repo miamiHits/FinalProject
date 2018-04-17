@@ -35,10 +35,9 @@ public class TestAgentsWaitingForNeighbours extends AbstractJadeIntegrationTest
         super.clean(a);
     }
 
-    @Override
     public void initializeAgents(Agent initializationAgent)
     {
-        super.initializeAgents(initializationAgent);
+        super.initializeAgents(initializationAgent, this.algorithm, null);
         for (AgentData agentData : problem.getAgentsData())
         {
             messagesReceivedFromAgents.put(agentData.getName(), AgentMessageType.NONE);

@@ -52,7 +52,6 @@ public class TestAgentReceivingMessagesFromDataCollector extends FinalProjectTes
         super.clean(a);
     }
 
-    @Override
     public void initializeAgents(Agent initializationAgent)
     {
         try
@@ -81,7 +80,7 @@ public class TestAgentReceivingMessagesFromDataCollector extends FinalProjectTes
 
             registerAgent();
 
-            super.initializeAgents(initializationAgent);
+            super.initializeAgents(initializationAgent, this.algorithm, null);
         } catch (StaleProxyException e)
         {
             failed("could not initialize test");

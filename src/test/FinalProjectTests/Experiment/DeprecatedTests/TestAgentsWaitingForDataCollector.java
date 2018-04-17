@@ -58,7 +58,6 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
         super.clean(a);
     }
 
-    @Override
     public void initializeAgents(Agent initializationAgent)
     {
         // override the behaviour of the first agent
@@ -77,7 +76,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
             AgentController agentController = initializationAgent.getContainerController().createNewAgent(overriddenAgentData.getName(),
                     SmartHomeAgent.class.getName(),
                     agentInitializationArgs);
-            super.initializeAgents(initializationAgent);
+            super.initializeAgents(initializationAgent, this.algorithm, null);
             agentController.start();
         } catch (StaleProxyException e)
         {

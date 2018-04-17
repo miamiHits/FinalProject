@@ -22,7 +22,7 @@
 
     <Test name="Test Agents Waiting For Neighbours when neighbour message delayed" skip="false">
         <TestClassName>
-            FinalProjectTests.Experiment.TestAgentsWaitingForNeighbours.TestAgentsWaitingForNeighbours
+            FinalProjectTests.Experiment.TestAgentsWaitingNeighboursNeighbourMessageDelayed.TestAgentsWaitingNeighboursNeighbourMessageDelayed
         </TestClassName>
         <WhatTest>
             Test that non of the agents starts an iteration before all of its neighbours has sent the iteration data message.
