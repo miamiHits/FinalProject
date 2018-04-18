@@ -98,29 +98,42 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     }
 
     public void addAlgoToSystem(String path, String fileName) throws IOException {
-        if (fileName.endsWith(COMPILED_FILE_TYPE))
-        {
+        if (fileName.endsWith(COMPILED_FILE_TYPE)) {
             throw new IOException("Could not compile a .class file!");
         }
-        if (fileName.endsWith(UNCOMPILED_FILE_TYPE))
-        {
+        if (fileName.endsWith(UNCOMPILED_FILE_TYPE)) {
             fileName = fileName.substring(0, fileName.indexOf(UNCOMPILED_FILE_TYPE));
         }
 
         boolean compilationSuccess = compile(path + Matcher.quoteReplacement(File.separator) + fileName + UNCOMPILED_FILE_TYPE);
-        if (!compilationSuccess)
-        {
+        if (!compilationSuccess) {
             throw new IOException("Could not compile class " + fileName);
         }
 
-        if (!verifyClassIsAlgorithm(fileName))
-        {
+        if (!verifyClassIsAlgorithm(fileName)) {
             File file = new File(compiledBaseDir.getPath() + Matcher.quoteReplacement(File.separator) + fileName + COMPILED_FILE_TYPE);
 
             if(!file.delete())
             {
                 System.err.println("could not delete file " + fileName);
             }
+        }
+        deleteJavaFile(fileName);
+    }
+
+    private void deleteJavaFile(String fileName) {
+        if (fileName.endsWith(COMPILED_FILE_TYPE)) {
+            return;
+        }
+        if (fileName.endsWith(UNCOMPILED_FILE_TYPE)) {
+            fileName = fileName.substring(0, fileName.indexOf(UNCOMPILED_FILE_TYPE));
+        }
+
+        String pathStr = compiledBaseDir.getPath() + "/" + fileName + ".java"
+                .replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+        File file = new File(pathStr);
+        if (!file.exists() || !file.delete()) {
+            logger.warn("could not delete java file " + pathStr);
         }
     }
 
@@ -207,7 +220,10 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 //        return toReturn;
 //        ************************************************
         try {
-            URL dirUrl = new File("target/classes/FinalProject/BL/Agents/").toURI().toURL();
+
+            String dirPathStr = "target/classes/FinalProject/BL/Agents/"
+                    .replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+            URL dirUrl = new File(dirPathStr).toURI().toURL();
             URLClassLoader cl = (URLClassLoader) Thread.currentThread().getContextClassLoader();
             Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
             method.setAccessible(true);
