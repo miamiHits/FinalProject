@@ -11,6 +11,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.StreamVariable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.dnd.FileDropTarget;
+import com.vaadin.ui.themes.ValoTheme;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -181,10 +182,12 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private void addNewAlgoClicked() {
         Window algoAddPopup = new Window("Drop your file here!");
         Label dropArea = new Label("Drop your algorithm file here");
+        dropArea.setSizeUndefined();
+        dropArea.addStyleNames(ValoTheme.LABEL_HUGE, ValoTheme.LABEL_BOLD);
 
         final String COMPILED_ALGO_DIR = "target/classes/FinalProject/BL/Agents";
         VerticalLayout layout = new VerticalLayout(dropArea);
-        layout.setStyleName("drop-area");
+        layout.addStyleNames(ValoTheme.DRAG_AND_DROP_WRAPPER_NO_HORIZONTAL_DRAG_HINTS, ValoTheme.LAYOUT_WELL);
         layout.setComponentAlignment(dropArea, Alignment.MIDDLE_CENTER);
         new FileDropTarget<>(layout, event -> {
             Collection<Html5File> files = event.getFiles();
