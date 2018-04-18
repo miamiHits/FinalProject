@@ -188,6 +188,29 @@
 					<scanIntervalSeconds>2</scanIntervalSeconds>
 				</configuration>
 			</plugin>
+
+            <!--used to copy compiled algo files into  resource/comiled_algorithms-->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources-from-parent</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal> <!-- happens before test phase -->
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/resources/compiled_algorithms
+                            </outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/target/classes/FinalProject/BL/Agents</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 

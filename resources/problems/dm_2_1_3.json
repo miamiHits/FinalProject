@@ -1,0 +1,102 @@
+{
+  "horizon": 12,
+  "granularity": 60,
+  "priceSchema": [
+    0.198,
+    0.198,
+    0.198,
+    0.198,
+    0.225,
+    0.225,
+    0.249,
+    0.849,
+    0.849,
+    0.225,
+    0.225,
+    0.198
+  ],
+  "agents": {
+    "h1": {
+      "neighbors": [
+        "h2"
+      ],
+      "backgroundLoad": [
+        0.03,
+        0.12,
+        0.1,
+        0.23,
+        0.11,
+        0.02,
+        0.28,
+        0.14,
+        0.05,
+        0.08,
+        0.21,
+        0.28
+      ],
+      "houseType": 0,
+      "rules": [
+        "1 Kenmore_665.13242K900 dish_wash eq 60 at 10",
+        "0 Kenmore_665.13242K900 dish_wash geq 0",
+        "0 Kenmore_665.13242K900 dish_wash leq 60",
+        "1 water_tank water_temp gt 58 before 9",
+        "0 water_tank water_temp geq 37",
+        "0 water_tank water_temp leq 78",
+        "1 Tesla_S charge geq 75 before 6",
+        "0 Tesla_S charge geq 0",
+        "0 Tesla_S charge leq 100"
+      ],
+      "actuators": [
+        "Kenmore_665.13242K900",
+        "Rheem_XE40M12ST45U1",
+        "Tesla_S"
+      ],
+      "sensors": [
+        "Kenmore_665_sensor",
+        "water_heat_sensor",
+        "Tesla_S_battery"
+      ]
+    },
+    "h2": {
+      "neighbors": [
+        "h1"
+      ],
+      "backgroundLoad": [
+        0.17,
+        0.27,
+        0.26,
+        0.17,
+        0.21,
+        0.25,
+        0.08,
+        0.28,
+        0.03,
+        0,
+        0.07,
+        0.04
+      ],
+      "houseType": 0,
+      "rules": [
+        "1 water_tank water_temp lt 52 before 5",
+        "0 water_tank water_temp geq 37",
+        "0 water_tank water_temp leq 78",
+        "1 Tesla_S charge geq 70 after 2",
+        "0 Tesla_S charge geq 0",
+        "0 Tesla_S charge leq 100",
+        "1 GE_WSM2420D3WW_dry laundry_dry eq 60 after 6",
+        "0 GE_WSM2420D3WW_dry laundry_dry geq 0",
+        "0 GE_WSM2420D3WW_dry laundry_dry leq 60"
+      ],
+      "actuators": [
+        "Rheem_XE40M12ST45U1",
+        "Tesla_S",
+        "GE_WSM2420D3WW_dry"
+      ],
+      "sensors": [
+        "water_heat_sensor",
+        "Tesla_S_battery",
+        "GE_WSM2420D3WW_dry_sensor"
+      ]
+    }
+  }
+}
