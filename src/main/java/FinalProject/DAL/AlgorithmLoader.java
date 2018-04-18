@@ -9,11 +9,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
@@ -97,28 +95,33 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
                 .collect(Collectors.toList());
     }
 
-    public void addAlgoToSystem(String path, String fileName) throws IOException {
+    public String addAlgoToSystem(String path, String fileName) {
         if (fileName.endsWith(COMPILED_FILE_TYPE)) {
-            throw new IOException("Could not compile a .class file!");
+            return "Only .java files are valid algorithm files!";
         }
         if (fileName.endsWith(UNCOMPILED_FILE_TYPE)) {
             fileName = fileName.substring(0, fileName.indexOf(UNCOMPILED_FILE_TYPE));
         }
 
-        boolean compilationSuccess = compile(path + Matcher.quoteReplacement(File.separator) + fileName + UNCOMPILED_FILE_TYPE);
+        boolean compilationSuccess;
+        try {
+            compilationSuccess = compile(path + Matcher.quoteReplacement(File.separator) + fileName + UNCOMPILED_FILE_TYPE);
+        } catch (IOException e) {
+            return "Could not compile file " + fileName + ", an exception accrued!";
+        }
         if (!compilationSuccess) {
-            throw new IOException("Could not compile class " + fileName);
+            return "Could not compile file " + fileName;
         }
 
         if (!verifyClassIsAlgorithm(fileName)) {
             File file = new File(compiledBaseDir.getPath() + Matcher.quoteReplacement(File.separator) + fileName + COMPILED_FILE_TYPE);
-
-            if(!file.delete())
-            {
+            if(!file.delete()) {
                 System.err.println("could not delete file " + fileName);
             }
+            return "File " + fileName +" is not a valid algorithm file!";
         }
         deleteJavaFile(fileName);
+        return "Success";
     }
 
     private void deleteJavaFile(String fileName) {

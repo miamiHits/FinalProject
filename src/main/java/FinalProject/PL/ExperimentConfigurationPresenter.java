@@ -8,6 +8,7 @@ import com.vaadin.event.selection.MultiSelectionEvent;
 import com.vaadin.event.selection.MultiSelectionListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.Page;
 import com.vaadin.server.StreamVariable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.dnd.FileDropTarget;
@@ -240,8 +241,8 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 // Called when upload failed
                 @Override
                 public void streamingFailed(StreamingErrorEvent event) {
-                    Notification.show("Stream failed, fileName="
-                            + event.getFileName());
+                    new Notification("Upload failed!", "Could not upload file " + event.getFileName(),
+                            Notification.Type.ERROR_MESSAGE).show(Page.getCurrent());
                 }
                 @Override
                 public boolean isInterrupted() {
@@ -249,19 +250,13 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 }
 
                 private void algoUploadFinished(String fileName) {
-                    try {
-                        service.addNewAlgo(COMPILED_ALGO_DIR, fileName);
+                    String result = service.addNewAlgo(COMPILED_ALGO_DIR, fileName);
+                    if (result.equalsIgnoreCase("success")) {
                         refreshAlgorithms();
                         Notification.show(fileName + " was added successfully!");
-                        //TODO clean catches
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (InstantiationException e) {
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        System.err.println(e.getMessage());
+                    }
+                    else {
+                        new Notification("Failed!", result, Notification.Type.ERROR_MESSAGE).show(Page.getCurrent());
                     }
                 }
             }));

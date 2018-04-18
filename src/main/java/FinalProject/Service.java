@@ -103,8 +103,7 @@ public class Service {
         observer.algorithmProblemIterEnded(algo, problem, changePercentage);
     }
 
-    public void addNewAlgo(String path, String fileName)
-            throws IllegalAccessException, IOException, InstantiationException {
-        dalController.addAlgorithmToSystem(path, fileName);
+    public String addNewAlgo(String path, String fileName) {
+        return dalController.addAlgorithmToSystem(path, fileName);
     }
 }
