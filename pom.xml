@@ -200,7 +200,8 @@
                             <goal>copy-resources</goal> <!-- happens before test phase -->
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.basedir}/resources/compiled_algorithms
+                            <outputDirectory>
+                                ${project.basedir}/resources/compiled_algorithms/FinalProject/BL/Agents
                             </outputDirectory>
                             <resources>
                                 <resource>

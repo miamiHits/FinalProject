@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import javax.tools.*;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -18,23 +20,29 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+import static org.jfree.util.ObjectUtilities.getClassLoader;
+
 public class AlgorithmLoader implements AlgoLoaderInterface {
 
     private final static Logger logger = Logger.getLogger(AlgorithmLoader.class);
     private final static String UNCOMPILED_FILE_TYPE = ".java";
     private final static String COMPILED_FILE_TYPE = ".class";
     private final static String DEFAULT_COMPILED_PATH = ""; //TODO
-    private File compiledDir;
+    private File compiledBaseDir;
+    private File compiledPackegedDir;
 
     public AlgorithmLoader(String compiledFolderPath)
     {
         if (Files.exists(Paths.get(compiledFolderPath)))
         {
-            compiledDir = new File(compiledFolderPath);
+            compiledBaseDir = new File(compiledFolderPath);
+            String withPackage = compiledFolderPath + "/" + SmartHomeAgentBehaviour.class.getPackage().getName().replace('.', '/');
+            withPackage = withPackage.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+            compiledPackegedDir = new File(withPackage);
         }
         else
         {
-            compiledDir = new File(DEFAULT_COMPILED_PATH);
+            compiledBaseDir = new File(DEFAULT_COMPILED_PATH);
             logger.warn("cannot find given path. using default path instead");
         }
     }
@@ -45,7 +53,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         {
             return algoNames.parallelStream()
                     .distinct()
-                    .map(name -> loadClassFromFile(name))
+                    .map(this::loadClassFromFile)
                     .filter(this::verifyClassIsAlgorithm)
                     .map(cls ->
                          {
@@ -67,8 +75,8 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 
     public List<String> getAllAlgoNames()
     {
-        if (compiledDir == null) {
-            logger.error("compiledDir is null!");
+        if (compiledPackegedDir == null) {
+            logger.error("compiledPackagedDir is null!");
             return null;
         }
         Set<String> ignoredNames = new HashSet<>(Arrays.asList("SmartHomeAgentBehaviour", "AlgorithmDataHelper",
@@ -84,7 +92,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
           }
           return true;
         };
-        List<File> allInFolder = Arrays.asList(compiledDir.listFiles());
+        List<File> allInFolder = Arrays.asList(compiledPackegedDir.listFiles());
         return allInFolder.stream()
                 .map(File::getName)
                 .filter(name -> name.endsWith(COMPILED_FILE_TYPE))
@@ -111,7 +119,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 
         if (!verifyClassIsAlgorithm(fileName))
         {
-            File file = new File(compiledDir.getPath() + Matcher.quoteReplacement(File.separator) + fileName + COMPILED_FILE_TYPE);
+            File file = new File(compiledPackegedDir.getPath() + Matcher.quoteReplacement(File.separator) + fileName + COMPILED_FILE_TYPE);
 
             if(!file.delete())
             {
@@ -144,7 +152,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     private boolean verifyClassIsAlgorithm(String fileName)
     {
         Class compiledClass = loadClassFromFile(fileName);
-        return  verifyClassIsAlgorithm(compiledClass);
+        return verifyClassIsAlgorithm(compiledClass);
 
     }
 
@@ -158,14 +166,16 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     {
         Class toReturn = null;
         //TODO: to run with jetty: uncomment commented block and comment uncommented block
-        try
-        {
-            toReturn = SmartHomeAgentBehaviour.class.getClassLoader().loadClass("FinalProject.BL.Agents." + className);
-        }
-        catch (ClassNotFoundException | NoClassDefFoundError e)
-        {
-            logger.error("Failed Loading the Algorithm " + className, e);
-        }
+//        try
+//        {
+//            toReturn = SmartHomeAgentBehaviour.class.getClassLoader().loadClass("FinalProject.BL.Agents." + className);
+//        }
+//        catch (ClassNotFoundException | NoClassDefFoundError e)
+//        {
+//            logger.error("Failed Loading the Algorithm " + className, e);
+//        }
+
+//        ************************************************
 //        if (className != null)
 //        {
 //            Path path = Paths.get(className);
@@ -183,6 +193,47 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 //                logger.error("could not find class " + className + " in path " + className, e);
 //            }
 //        }
+//        return toReturn;
+//        ************************************************
+
+//        try {
+//            URL dirUrl = new File("resources/compiled_algorithms/FinalProject/BL/Agents/").getCanonicalFile().toURI().toURL();
+//            URLClassLoader cl = new URLClassLoader(new URL[] {dirUrl}, VaadinService.getCurrent().getClassLoader());
+//            Class loadedClass = cl.loadClass("FinalProject.BL.Agents." + className);
+//            toReturn = loadedClass;
+//        } catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return toReturn;
+//        ************************************************
+        try {
+            URL dirUrl = new File("target/classes/FinalProject/BL/Agents/").toURI().toURL();
+            URLClassLoader vaadinCl = (URLClassLoader) Thread.currentThread().getContextClassLoader();
+            Class clClass = vaadinCl.getClass();
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
+            method.setAccessible(true);
+            method.invoke(vaadinCl, new Object[]{dirUrl});
+            method.setAccessible(false);
+
+            Class c = vaadinCl.loadClass("FinalProject.BL.Agents." + className);
+            toReturn = c;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoClassDefFoundError e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         return toReturn;
     }
 
@@ -192,7 +243,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticsCollector,  null, null);
         Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Collections.singletonList(pathStr));
         String classPathStr = getClassPathStr();
-        List<String> options = Arrays.asList("-d", compiledDir.getPath(), "-classpath", classPathStr);
+        List<String> options = Arrays.asList("-d", "target/classes", "-classpath", classPathStr);
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, options, null, compilationUnits);
         boolean success = task.call();
         fileManager.close();

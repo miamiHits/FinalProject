@@ -1,3 +1,5 @@
+package FinalProject.BL.Agents;
+
 public class SomeClassToCompile{
 
     private int intField;
