@@ -1,12 +1,10 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import com.vaadin.server.VaadinService;
 import org.apache.log4j.Logger;
 
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
+import javax.tools.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -95,9 +93,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
                 .collect(Collectors.toList());
     }
 
-    public void addAlgoToSystem(String path, String fileName)
-            throws IOException, InstantiationException, IllegalAccessException
-    {
+    public void addAlgoToSystem(String path, String fileName) throws IOException {
         if (fileName.endsWith(COMPILED_FILE_TYPE))
         {
             throw new IOException("Could not compile a .class file!");
@@ -190,16 +186,27 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         return toReturn;
     }
 
-    private boolean compile(String pathStr) throws IOException
-    {
+    private boolean compile(String pathStr) throws IOException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        //DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<>();
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null/*diagnosticsCollector*/, null, null);
+        DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<>();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticsCollector,  null, null);
         Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Collections.singletonList(pathStr));
-        List<String> options = Arrays.asList("-d", compiledDir.getPath());
-        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null/*diagnosticsCollector*/, options, null, compilationUnits);
+        String classPathStr = getClassPathStr();
+        List<String> options = Arrays.asList("-d", compiledDir.getPath(), "-classpath", classPathStr);
+        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, options, null, compilationUnits);
         boolean success = task.call();
         fileManager.close();
         return success;
+    }
+    
+    private String getClassPathStr() {
+        URL[] urls = ((URLClassLoader) VaadinService.getCurrent().getClassLoader()).getURLs();
+        String separator = System.getProperty("path.separator");
+        StringBuilder builder = new StringBuilder();
+        for (URL url : urls) {
+            builder.append(url).append(separator);
+        }
+        builder.deleteCharAt(builder.length() - 1);
+        return builder.toString();
     }
 }

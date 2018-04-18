@@ -7,11 +7,16 @@ import com.vaadin.event.selection.MultiSelectionEvent;
 import com.vaadin.event.selection.MultiSelectionListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.StreamVariable;
 import com.vaadin.ui.*;
+import com.vaadin.ui.dnd.FileDropTarget;
 
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener {
 
@@ -64,6 +69,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         startExperimentBtn.addClickListener(this);
         startExperimentBtn.addStyleName("conf-start-btn");
+        addNewAlgorithmBtn.addClickListener(this);
 
         mainLayout.addComponent(numberOfIterationsTxt);
         mainLayout.addComponent(addNewAlgorithmBtn);
@@ -163,10 +169,101 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         {
             startExperimentClicked();
         }
-        else if (clickedButton.equals(addNewAlgorithmBtn))
-        {
-
+        else if (clickedButton.equals(addNewAlgorithmBtn)) {
+            addNewAlgoClicked();
         }
+    }
+
+    private void addNewAlgoClicked() {
+        Window algoAddPopup = new Window("Drop your file here!");
+        Label dropArea = new Label("Drop your algorithm file here");
+
+        final String COMPILED_ALGO_DIR = "resources/compiled_algorithms";
+        VerticalLayout layout = new VerticalLayout(dropArea);
+        layout.setStyleName("drop-area");
+        layout.setComponentAlignment(dropArea, Alignment.MIDDLE_CENTER);
+        new FileDropTarget<>(layout, event -> {
+            Collection<Html5File> files = event.getFiles();
+            files.forEach(file -> file.setStreamVariable(new StreamVariable() {
+
+                FileOutputStream fileOutputStream = null;
+
+                // Output stream to write the file to
+                @Override
+                public OutputStream getOutputStream() {
+                    String path = (COMPILED_ALGO_DIR + "/" + file.getFileName())
+                            .replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+                    try{
+                        fileOutputStream = new FileOutputStream(path);
+                        return fileOutputStream;
+                    }catch (FileNotFoundException e) {
+                        Notification.show("Cannot find file " + path);
+                    }
+                    return null;
+                }
+
+                // Returns whether onProgress() is called during upload
+                @Override
+                public boolean listenProgress() {
+                    return false;
+                }
+
+                // Called periodically during upload
+                @Override
+                public void onProgress(StreamingProgressEvent event) {
+//                        Notification.show("Progress, bytesReceived="
+//                                + event.getBytesReceived());
+                    //nothing to do here
+                }
+
+                // Called when upload started
+                @Override
+                public void streamingStarted(StreamingStartEvent event) {
+//                    Notification.show("Stream started, fileName=" + event.getFileName());
+                }
+
+                // Called when upload finished
+                @Override
+                public void streamingFinished(StreamingEndEvent event) {
+                    Notification.show("upload finished");
+                    algoUploadFinished(event.getFileName(), fileOutputStream);
+                    algoAddPopup.close();
+                }
+
+                // Called when upload failed
+                @Override
+                public void streamingFailed(StreamingErrorEvent event) {
+                    Notification.show("Stream failed, fileName="
+                            + event.getFileName());
+                }
+                @Override
+                public boolean isInterrupted() {
+                    return false;
+                }
+
+                private void algoUploadFinished(String fileName, FileOutputStream fileOutputStream) {
+                    try {
+                        service.addNewAlgo(COMPILED_ALGO_DIR, fileName);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InstantiationException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                    }
+                }
+            }));
+        });
+
+        algoAddPopup.setContent(layout);
+        algoAddPopup.setResizable(true);
+        algoAddPopup.setSizeUndefined();
+        algoAddPopup.setClosable(true);
+        algoAddPopup.center();
+        algoAddPopup.setVisible(true);
+        UI.getCurrent().addWindow(algoAddPopup);
     }
 
     private void startExperimentClicked()

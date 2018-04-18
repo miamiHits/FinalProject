@@ -9,6 +9,7 @@ import FinalProject.DAL.DataAccessControllerInterface;
 import FinalProject.PL.UiHandlerInterface;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -98,8 +99,12 @@ public class Service {
         //TODO implement
     }
 
-
     public void algorithmProblemIterEnded(String algo, String problem, float changePercentage) {
         observer.algorithmProblemIterEnded(algo, problem, changePercentage);
+    }
+
+    public void addNewAlgo(String path, String fileName)
+            throws IllegalAccessException, IOException, InstantiationException {
+        dalController.addAlgorithmToSystem(path, fileName);
     }
 }
