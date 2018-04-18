@@ -27,6 +27,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
         goToResScreenBtn.setEnabled(false);
 
         VerticalLayout layout = new VerticalLayout(problemAlgoPairGrid, goToResScreenBtn);
+        layout.setComponentAlignment(goToResScreenBtn, Alignment.MIDDLE_CENTER);
         setContent(layout);
 
     }

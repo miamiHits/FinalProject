@@ -20,6 +20,7 @@ public class AlgorithmProblemResult {
     private static final Logger logger = Logger.getLogger(AlgorithmProblemResult.class);
     private Map<Integer, MsgInfo> totalMessagesInIter;
 
+
     public AlgorithmProblemResult(ProblemAlgorithm probAlgo) {
         problem = probAlgo.getProblemId();
         algorithm = probAlgo.getAlgorithmName();
@@ -128,6 +129,13 @@ public class AlgorithmProblemResult {
             logger.warn("already had totalGrade on iter: " + iterNum);
         }
         totalGradePerIteration.put(iterNum, totalGrade);
+    }
+    public Map<Integer, MsgInfo> getTotalMessages()
+    {return this.totalMessagesInIter;}
+
+    public MsgInfo getTotalMessagesInIter(int iterNum)
+    {
+        return this.totalMessagesInIter.get(iterNum);
     }
 
     public void setTotalMsgsInIter(int iterNum, IterationAgentsPrice iap) {
