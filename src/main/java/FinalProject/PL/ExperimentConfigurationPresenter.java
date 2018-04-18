@@ -3,6 +3,7 @@ package FinalProject.PL;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.Service;
 import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.selection.MultiSelectionEvent;
 import com.vaadin.event.selection.MultiSelectionListener;
 import com.vaadin.navigator.View;
@@ -32,6 +33,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private Service service;
     private ExperimentRunningPresenter experimentRunningPresenter;
+    private TwinColSelect<String> algorithmSelector;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -85,19 +87,14 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private void generateAlgorithmsSection()
     {
-
-        final TwinColSelect<String> algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
+        algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
-        final List<String> availableAlgorithms = this.service.getAvailableAlgorithms();
-        algorithmSelector.setDataProvider(DataProvider.ofCollection(availableAlgorithms));
+        final List<String> availableAlgorithms = refreshAlgorithms();
 
-        algorithmSelector.addSelectionListener(new MultiSelectionListener<String>() {
-            @Override
-            public void selectionChange(MultiSelectionEvent<String> event) {
-                selectedAlgorithms.clear();
-                selectedAlgorithms.addAll(event.getAllSelectedItems());
-            }
+        algorithmSelector.addSelectionListener((MultiSelectionListener<String>) event -> {
+            selectedAlgorithms.clear();
+            selectedAlgorithms.addAll(event.getAllSelectedItems());
         });
 
         Button addAllAlgorithmsBtn = new Button("Add All");
@@ -108,6 +105,13 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         _algorithmsContainer.addComponent(addAllAlgorithmsBtn);
         _algorithmsContainer.setComponentAlignment(addAllAlgorithmsBtn, Alignment.MIDDLE_RIGHT);
 
+    }
+
+    private List<String> refreshAlgorithms() {
+        final List<String> availableAlgorithms = this.service.getAvailableAlgorithms();
+        ListDataProvider<String> dataProvider = DataProvider.ofCollection(availableAlgorithms);
+        algorithmSelector.setDataProvider(dataProvider);
+        return availableAlgorithms;
     }
 
     private void generateProblemsSection()
@@ -178,7 +182,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Window algoAddPopup = new Window("Drop your file here!");
         Label dropArea = new Label("Drop your algorithm file here");
 
-        final String COMPILED_ALGO_DIR = "resources/compiled_algorithms";
+        final String COMPILED_ALGO_DIR = "target/classes/FinalProject/BL/Agents";
         VerticalLayout layout = new VerticalLayout(dropArea);
         layout.setStyleName("drop-area");
         layout.setComponentAlignment(dropArea, Alignment.MIDDLE_CENTER);
@@ -226,7 +230,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 @Override
                 public void streamingFinished(StreamingEndEvent event) {
                     Notification.show("upload finished");
-                    algoUploadFinished(event.getFileName(), fileOutputStream);
+                    algoUploadFinished(event.getFileName());
                     algoAddPopup.close();
                 }
 
@@ -241,9 +245,12 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                     return false;
                 }
 
-                private void algoUploadFinished(String fileName, FileOutputStream fileOutputStream) {
+                private void algoUploadFinished(String fileName) {
                     try {
                         service.addNewAlgo(COMPILED_ALGO_DIR, fileName);
+                        refreshAlgorithms();
+                        Notification.show(fileName + " was added successfully!");
+                        //TODO clean catches
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     } catch (IOException e) {

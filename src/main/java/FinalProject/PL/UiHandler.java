@@ -45,8 +45,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
 //        String jsonPath = "src/test/testResources/jsons";
         String jsonPath = "resources/problems";
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-//        String algorithmsPath = "target/classes/FinalProject/BL/Agents";
-        String algorithmsPath = "resources/compiled_algorithms";
+        String algorithmsPath = "target/classes/FinalProject/BL/Agents/";
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);

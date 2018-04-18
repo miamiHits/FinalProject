@@ -29,16 +29,12 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     private final static String COMPILED_FILE_TYPE = ".class";
     private final static String DEFAULT_COMPILED_PATH = ""; //TODO
     private File compiledBaseDir;
-    private File compiledPackegedDir;
 
     public AlgorithmLoader(String compiledFolderPath)
     {
         if (Files.exists(Paths.get(compiledFolderPath)))
         {
             compiledBaseDir = new File(compiledFolderPath);
-            String withPackage = compiledFolderPath + "/" + SmartHomeAgentBehaviour.class.getPackage().getName().replace('.', '/');
-            withPackage = withPackage.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-            compiledPackegedDir = new File(withPackage);
         }
         else
         {
@@ -75,7 +71,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 
     public List<String> getAllAlgoNames()
     {
-        if (compiledPackegedDir == null) {
+        if (compiledBaseDir == null) {
             logger.error("compiledPackagedDir is null!");
             return null;
         }
@@ -92,7 +88,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
           }
           return true;
         };
-        List<File> allInFolder = Arrays.asList(compiledPackegedDir.listFiles());
+        List<File> allInFolder = Arrays.asList(compiledBaseDir.listFiles());
         return allInFolder.stream()
                 .map(File::getName)
                 .filter(name -> name.endsWith(COMPILED_FILE_TYPE))
@@ -119,7 +115,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 
         if (!verifyClassIsAlgorithm(fileName))
         {
-            File file = new File(compiledPackegedDir.getPath() + Matcher.quoteReplacement(File.separator) + fileName + COMPILED_FILE_TYPE);
+            File file = new File(compiledBaseDir.getPath() + Matcher.quoteReplacement(File.separator) + fileName + COMPILED_FILE_TYPE);
 
             if(!file.delete())
             {
@@ -213,14 +209,13 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         try {
             URL dirUrl = new File("target/classes/FinalProject/BL/Agents/").toURI().toURL();
             URLClassLoader vaadinCl = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-            Class clClass = vaadinCl.getClass();
             Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
             method.setAccessible(true);
             method.invoke(vaadinCl, new Object[]{dirUrl});
             method.setAccessible(false);
 
-            Class c = vaadinCl.loadClass("FinalProject.BL.Agents." + className);
-            toReturn = c;
+            toReturn = vaadinCl.loadClass("FinalProject.BL.Agents." + className);
+            //TODO clean caches
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
