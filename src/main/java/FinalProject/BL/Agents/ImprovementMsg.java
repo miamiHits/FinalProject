@@ -4,6 +4,8 @@ import jade.util.leap.Comparable;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class ImprovementMsg implements Serializable, Comparable {
     private final static Logger logger = Logger.getLogger(ImprovementMsg.class);
@@ -92,5 +94,26 @@ public class ImprovementMsg implements Serializable, Comparable {
             return compare > 0 ? 1 : -1;
         }
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ImprovementMsg that = (ImprovementMsg) o;
+        return Double.compare(that.improvement, improvement) == 0 &&
+                iterNum == that.iterNum &&
+                agentName.equals(that.agentName) &&
+                Arrays.equals(imprevedSched, that.imprevedSched) &&
+                Arrays.equals(prevSched, that.prevSched);
+    }
+
+    @Override
+    public int hashCode() {
+
+        int result = Objects.hash(agentName, improvement, iterNum);
+        result = 31 * result + Arrays.hashCode(imprevedSched);
+        result = 31 * result + Arrays.hashCode(prevSched);
+        return result;
     }
 }

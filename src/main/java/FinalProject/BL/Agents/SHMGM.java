@@ -210,4 +210,20 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         return price + calculateEPeak(allScheds);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SHMGM shmgm = (SHMGM) o;
+
+        return super.equals(shmgm) && (maxImprovementMsg == null && shmgm.maxImprovementMsg == null) ||
+                (maxImprovementMsg != null && shmgm.maxImprovementMsg != null &&
+                        maxImprovementMsg.equals(shmgm.maxImprovementMsg));
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(maxImprovementMsg, gainMsgOntology, improvementTemplate);
+    }
 }
