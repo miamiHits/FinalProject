@@ -208,13 +208,13 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 //        ************************************************
         try {
             URL dirUrl = new File("target/classes/FinalProject/BL/Agents/").toURI().toURL();
-            URLClassLoader vaadinCl = (URLClassLoader) Thread.currentThread().getContextClassLoader();
+            URLClassLoader cl = (URLClassLoader) Thread.currentThread().getContextClassLoader();
             Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
             method.setAccessible(true);
-            method.invoke(vaadinCl, new Object[]{dirUrl});
+            method.invoke(cl, new Object[]{dirUrl});
             method.setAccessible(false);
 
-            toReturn = vaadinCl.loadClass("FinalProject.BL.Agents." + className);
+            toReturn = cl.loadClass("FinalProject.BL.Agents." + className);
             //TODO clean caches
         } catch (IOException e) {
             e.printStackTrace();
