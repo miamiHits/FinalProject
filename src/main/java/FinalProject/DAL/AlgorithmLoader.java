@@ -15,10 +15,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -71,16 +69,29 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 
     public List<String> getAllAlgoNames()
     {
-        if (compiledDir == null)
-        {
+        if (compiledDir == null) {
             logger.error("compiledDir is null!");
             return null;
         }
+        Set<String> ignoredNames = new HashSet<>(Arrays.asList("SmartHomeAgentBehaviour", "AlgorithmDataHelper",
+                "PropertyWithData", "ImprovementMsg", "SmartHomeAgent"));
+        Predicate<String> nameNotIgnored = name -> {
+          if (ignoredNames.contains(name)) {
+              return false;
+          }
+          for (String ignored : ignoredNames) {
+              if (name.contains(ignored)) {
+                  return false;
+              }
+          }
+          return true;
+        };
         List<File> allInFolder = Arrays.asList(compiledDir.listFiles());
         return allInFolder.stream()
                 .map(File::getName)
                 .filter(name -> name.endsWith(COMPILED_FILE_TYPE))
                 .map(name -> name.substring(0, name.indexOf(COMPILED_FILE_TYPE)))
+                .filter(nameNotIgnored)
                 .collect(Collectors.toList());
     }
 
