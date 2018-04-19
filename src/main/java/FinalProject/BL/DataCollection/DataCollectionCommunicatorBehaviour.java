@@ -37,7 +37,7 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
                     if(cSumReturned == -1.0){ //iteration finished
                         if (ICD.getIterNum() == iterationNum ) { //last iteration finished (algo&prob finished)
                             logger.info("Algo: " + ICD.getAlgorithm() + " Problem: " + ICD.getProblemId() + " finished.");
-                            calcBestPricePerIterationIfNecessary(ICD);
+                            calcBestPricePerIteration(ICD);
                             agent.getExperiment().algorithmProblemComboRunEnded(
                                     agent.getCollector().getAlgoProblemResult(ICD.getProblemId(), ICD.getAlgorithm()));
                         }
@@ -56,8 +56,7 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
         }
     }
 
-    private void calcBestPricePerIterationIfNecessary(IterationCollectedData icd) {
-        if (icd.getAlgorithm() != "SHMGM"){return;}
+    private void calcBestPricePerIteration(IterationCollectedData icd) {
         AlgorithmProblemResult pr = agent.getCollector().getAlgoProblemResult
                 (icd.getProblemId(), icd.getAlgorithm());
         Map<Integer, Double> results = pr.getTotalGradePerIteration();
