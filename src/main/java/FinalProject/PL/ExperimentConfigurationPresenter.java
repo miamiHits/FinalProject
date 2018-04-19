@@ -3,15 +3,23 @@ package FinalProject.PL;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.Service;
 import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.selection.MultiSelectionEvent;
 import com.vaadin.event.selection.MultiSelectionListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.Page;
+import com.vaadin.server.StreamVariable;
 import com.vaadin.ui.*;
+import com.vaadin.ui.dnd.FileDropTarget;
+import com.vaadin.ui.themes.ValoTheme;
 
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener {
 
@@ -27,6 +35,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private Service service;
     private ExperimentRunningPresenter experimentRunningPresenter;
+    private TwinColSelect<String> algorithmSelector;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -64,6 +73,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         startExperimentBtn.addClickListener(this);
         startExperimentBtn.addStyleName("conf-start-btn");
+        addNewAlgorithmBtn.addClickListener(this);
 
         mainLayout.addComponent(numberOfIterationsTxt);
         mainLayout.addComponent(addNewAlgorithmBtn);
@@ -79,19 +89,14 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private void generateAlgorithmsSection()
     {
-
-        final TwinColSelect<String> algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
+        algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
-        final List<String> availableAlgorithms = this.service.getAvailableAlgorithms();
-        algorithmSelector.setDataProvider(DataProvider.ofCollection(availableAlgorithms));
+        final List<String> availableAlgorithms = refreshAlgorithms();
 
-        algorithmSelector.addSelectionListener(new MultiSelectionListener<String>() {
-            @Override
-            public void selectionChange(MultiSelectionEvent<String> event) {
-                selectedAlgorithms.clear();
-                selectedAlgorithms.addAll(event.getAllSelectedItems());
-            }
+        algorithmSelector.addSelectionListener((MultiSelectionListener<String>) event -> {
+            selectedAlgorithms.clear();
+            selectedAlgorithms.addAll(event.getAllSelectedItems());
         });
 
         Button addAllAlgorithmsBtn = new Button("Add All");
@@ -102,6 +107,13 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         _algorithmsContainer.addComponent(addAllAlgorithmsBtn);
         _algorithmsContainer.setComponentAlignment(addAllAlgorithmsBtn, Alignment.MIDDLE_RIGHT);
 
+    }
+
+    private List<String> refreshAlgorithms() {
+        final List<String> availableAlgorithms = this.service.getAvailableAlgorithms();
+        ListDataProvider<String> dataProvider = DataProvider.ofCollection(availableAlgorithms);
+        algorithmSelector.setDataProvider(dataProvider);
+        return availableAlgorithms;
     }
 
     private void generateProblemsSection()
@@ -163,10 +175,100 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         {
             startExperimentClicked();
         }
-        else if (clickedButton.equals(addNewAlgorithmBtn))
-        {
-
+        else if (clickedButton.equals(addNewAlgorithmBtn)) {
+            addNewAlgoClicked();
         }
+    }
+
+    private void addNewAlgoClicked() {
+        Window algoAddPopup = new Window("Drop your file here!");
+        Label dropArea = new Label("Drop your algorithm file here");
+        dropArea.setSizeUndefined();
+        dropArea.addStyleNames(ValoTheme.LABEL_HUGE, ValoTheme.LABEL_BOLD);
+
+        final String COMPILED_ALGO_DIR = "target/classes/FinalProject/BL/Agents";
+        VerticalLayout layout = new VerticalLayout(dropArea);
+        layout.addStyleNames(ValoTheme.DRAG_AND_DROP_WRAPPER_NO_HORIZONTAL_DRAG_HINTS, ValoTheme.LAYOUT_WELL);
+        layout.setComponentAlignment(dropArea, Alignment.MIDDLE_CENTER);
+        new FileDropTarget<>(layout, event -> {
+            Collection<Html5File> files = event.getFiles();
+            files.forEach(file -> file.setStreamVariable(new StreamVariable() {
+
+                FileOutputStream fileOutputStream = null;
+
+                // Output stream to write the file to
+                @Override
+                public OutputStream getOutputStream() {
+                    String path = (COMPILED_ALGO_DIR + "/" + file.getFileName())
+                            .replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+                    try{
+                        fileOutputStream = new FileOutputStream(path);
+                        return fileOutputStream;
+                    }catch (FileNotFoundException e) {
+                        Notification.show("Cannot find file " + path);
+                    }
+                    return null;
+                }
+
+                // Returns whether onProgress() is called during upload
+                @Override
+                public boolean listenProgress() {
+                    return false;
+                }
+
+                // Called periodically during upload
+                @Override
+                public void onProgress(StreamingProgressEvent event) {
+//                        Notification.show("Progress, bytesReceived="
+//                                + event.getBytesReceived());
+                    //nothing to do here
+                }
+
+                // Called when upload started
+                @Override
+                public void streamingStarted(StreamingStartEvent event) {
+//                    Notification.show("Stream started, fileName=" + event.getFileName());
+                }
+
+                // Called when upload finished
+                @Override
+                public void streamingFinished(StreamingEndEvent event) {
+                    Notification.show("upload finished");
+                    algoUploadFinished(event.getFileName());
+                    algoAddPopup.close();
+                }
+
+                // Called when upload failed
+                @Override
+                public void streamingFailed(StreamingErrorEvent event) {
+                    new Notification("Upload failed!", "Could not upload file " + event.getFileName(),
+                            Notification.Type.ERROR_MESSAGE).show(Page.getCurrent());
+                }
+                @Override
+                public boolean isInterrupted() {
+                    return false;
+                }
+
+                private void algoUploadFinished(String fileName) {
+                    String result = service.addNewAlgo(COMPILED_ALGO_DIR, fileName);
+                    if (result.equalsIgnoreCase("success")) {
+                        refreshAlgorithms();
+                        Notification.show(fileName + " was added successfully!");
+                    }
+                    else {
+                        new Notification("Failed!", result, Notification.Type.ERROR_MESSAGE).show(Page.getCurrent());
+                    }
+                }
+            }));
+        });
+
+        algoAddPopup.setContent(layout);
+        algoAddPopup.setResizable(true);
+        algoAddPopup.setSizeUndefined();
+        algoAddPopup.setClosable(true);
+        algoAddPopup.center();
+        algoAddPopup.setVisible(true);
+        UI.getCurrent().addWindow(algoAddPopup);
     }
 
     private void startExperimentClicked()

@@ -1,6 +1,5 @@
 package FinalProject.PL;
 
-import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SHMGM;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
@@ -11,6 +10,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 
@@ -44,9 +44,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
     public UiHandler()
     {
         resultsPresenter = new ExperimentResultsPresenter();
-        String jsonPath = "src/test/testResources/jsons";
+//        String jsonPath = "src/test/testResources/jsons";
+        String jsonPath = "resources/problems";
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-        String algorithmsPath = "target/classes/FinalProject/BL/Agents";
+        String algorithmsPath = "target/classes/FinalProject/BL/Agents/";
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);

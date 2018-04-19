@@ -1,0 +1,427 @@
+{
+  "horizon": 12,
+  "granularity": 60,
+  "priceSchema": [
+    0.198,
+    0.198,
+    0.198,
+    0.198,
+    0.225,
+    0.225,
+    0.249,
+    0.849,
+    0.849,
+    0.225,
+    0.225,
+    0.198
+  ],
+  "agents": {
+    "h1": {
+      "neighbors": [
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "h7"
+      ],
+      "backgroundLoad": [
+        0.14,
+        0.06,
+        0.15,
+        0.26,
+        0.22,
+        0.08,
+        0.27,
+        0.19,
+        0.23,
+        0.29,
+        0.03,
+        0.06
+      ],
+      "houseType": 0,
+      "rules": [
+        "1 room temperature_heat gt 21 before 6",
+        "0 room temperature_heat geq 8",
+        "0 room temperature_heat leq 35",
+        "1 water_tank water_temp geq 53 before 8",
+        "0 water_tank water_temp geq 37",
+        "0 water_tank water_temp leq 78",
+        "1 GE_WSM2420D3WW_dry laundry_dry eq 60 at 7",
+        "0 GE_WSM2420D3WW_dry laundry_dry geq 0",
+        "0 GE_WSM2420D3WW_dry laundry_dry leq 60",
+        "1 Kenmore_790.91312013 bake eq 120 after 8",
+        "0 Kenmore_790.91312013 bake geq 0",
+        "0 Kenmore_790.91312013 bake leq 120",
+        "1 GE_WSM2420D3WW_wash laundry_wash eq 60 after 6",
+        "0 GE_WSM2420D3WW_wash laundry_wash geq 0",
+        "0 GE_WSM2420D3WW_wash laundry_wash leq 60"
+      ],
+      "actuators": [
+        "Dyson_AM09",
+        "Rheem_XE40M12ST45U1",
+        "GE_WSM2420D3WW_dry",
+        "Kenmore_790.91312013",
+        "GE_WSM2420D3WW_wash"
+      ],
+      "sensors": [
+        "thermostat_heat",
+        "water_heat_sensor",
+        "GE_WSM2420D3WW_dry_sensor",
+        "Kenmore_790_sensor",
+        "GE_WSM2420D3WW_wash_sensor"
+      ]
+    },
+    "h2": {
+      "neighbors": [
+        "h1",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "h7"
+      ],
+      "backgroundLoad": [
+        0,
+        0.18,
+        0.07,
+        0.25,
+        0.22,
+        0.1,
+        0.01,
+        0.03,
+        0.2,
+        0.07,
+        0.11,
+        0.14
+      ],
+      "houseType": 0,
+      "rules": [
+        "1 GE_WSM2420D3WW_dry laundry_dry eq 60 after 2",
+        "0 GE_WSM2420D3WW_dry laundry_dry geq 0",
+        "0 GE_WSM2420D3WW_dry laundry_dry leq 60",
+        "1 GE_WSM2420D3WW_wash laundry_wash eq 60 after 5",
+        "0 GE_WSM2420D3WW_wash laundry_wash geq 0",
+        "0 GE_WSM2420D3WW_wash laundry_wash leq 60",
+        "1 Kenmore_665.13242K900 dish_wash eq 60 after 1",
+        "0 Kenmore_665.13242K900 dish_wash geq 0",
+        "0 Kenmore_665.13242K900 dish_wash leq 60",
+        "1 water_tank water_temp gt 51 before 11",
+        "0 water_tank water_temp geq 37",
+        "0 water_tank water_temp leq 78",
+        "1 room cleanliness gt 73 before 6",
+        "0 room cleanliness geq 0",
+        "0 room cleanliness leq 100",
+        "0 Roomba_880 charge geq 0",
+        "0 Roomba_880 charge leq 100"
+      ],
+      "actuators": [
+        "GE_WSM2420D3WW_dry",
+        "GE_WSM2420D3WW_wash",
+        "Kenmore_665.13242K900",
+        "Rheem_XE40M12ST45U1",
+        "Roomba_880"
+      ],
+      "sensors": [
+        "GE_WSM2420D3WW_dry_sensor",
+        "GE_WSM2420D3WW_wash_sensor",
+        "Kenmore_665_sensor",
+        "water_heat_sensor",
+        "dust_sensor",
+        "iRobot_651_battery"
+      ]
+    },
+    "h3": {
+      "neighbors": [
+        "h1",
+        "h2",
+        "h4",
+        "h5",
+        "h6",
+        "h7"
+      ],
+      "backgroundLoad": [
+        0.05,
+        0.12,
+        0.06,
+        0.3,
+        0.19,
+        0.02,
+        0.25,
+        0.23,
+        0.24,
+        0.28,
+        0.07,
+        0.06
+      ],
+      "houseType": 0,
+      "rules": [
+        "1 Kenmore_790.91312013 bake eq 120 at 5",
+        "0 Kenmore_790.91312013 bake geq 0",
+        "0 Kenmore_790.91312013 bake leq 120",
+        "1 room temperature_heat geq 24 after 1",
+        "0 room temperature_heat geq 8",
+        "0 room temperature_heat leq 35",
+        "1 room cleanliness gt 58 after 3",
+        "0 room cleanliness geq 0",
+        "0 room cleanliness leq 100",
+        "0 Roomba_880 charge geq 0",
+        "0 Roomba_880 charge leq 100",
+        "1 Kenmore_665.13242K900 dish_wash eq 60 after 8",
+        "0 Kenmore_665.13242K900 dish_wash geq 0",
+        "0 Kenmore_665.13242K900 dish_wash leq 60",
+        "1 water_tank water_temp leq 61 before 4",
+        "0 water_tank water_temp geq 37",
+        "0 water_tank water_temp leq 78"
+      ],
+      "actuators": [
+        "Kenmore_790.91312013",
+        "Dyson_AM09",
+        "Roomba_880",
+        "Kenmore_665.13242K900",
+        "Rheem_XE40M12ST45U1"
+      ],
+      "sensors": [
+        "Kenmore_790_sensor",
+        "thermostat_heat",
+        "dust_sensor",
+        "iRobot_651_battery",
+        "Kenmore_665_sensor",
+        "water_heat_sensor"
+      ]
+    },
+    "h4": {
+      "neighbors": [
+        "h1",
+        "h2",
+        "h3",
+        "h5",
+        "h6",
+        "h7"
+      ],
+      "backgroundLoad": [
+        0.12,
+        0.18,
+        0.22,
+        0.02,
+        0.23,
+        0,
+        0.29,
+        0.3,
+        0.12,
+        0.13,
+        0.08,
+        0.07
+      ],
+      "houseType": 1,
+      "rules": [
+        "1 GE_WSM2420D3WW_wash laundry_wash eq 60 after 4",
+        "0 GE_WSM2420D3WW_wash laundry_wash geq 0",
+        "0 GE_WSM2420D3WW_wash laundry_wash leq 60",
+        "1 GE_WSM2420D3WW_dry laundry_dry eq 60 at 9",
+        "0 GE_WSM2420D3WW_dry laundry_dry geq 0",
+        "0 GE_WSM2420D3WW_dry laundry_dry leq 60",
+        "1 Kenmore_665.13242K900 dish_wash eq 60 at 8",
+        "0 Kenmore_665.13242K900 dish_wash geq 0",
+        "0 Kenmore_665.13242K900 dish_wash leq 60",
+        "1 water_tank water_temp leq 54 after 9",
+        "0 water_tank water_temp geq 37",
+        "0 water_tank water_temp leq 78",
+        "1 Kenmore_790.91312013 bake eq 120 at 7",
+        "0 Kenmore_790.91312013 bake geq 0",
+        "0 Kenmore_790.91312013 bake leq 120"
+      ],
+      "actuators": [
+        "GE_WSM2420D3WW_wash",
+        "GE_WSM2420D3WW_dry",
+        "Kenmore_665.13242K900",
+        "Rheem_XE40M12ST45U1",
+        "Kenmore_790.91312013"
+      ],
+      "sensors": [
+        "GE_WSM2420D3WW_wash_sensor",
+        "GE_WSM2420D3WW_dry_sensor",
+        "Kenmore_665_sensor",
+        "water_heat_sensor",
+        "Kenmore_790_sensor"
+      ]
+    },
+    "h5": {
+      "neighbors": [
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h6",
+        "h7"
+      ],
+      "backgroundLoad": [
+        0.09,
+        0.27,
+        0.15,
+        0.17,
+        0.12,
+        0.22,
+        0.1,
+        0.2,
+        0.19,
+        0.23,
+        0.08,
+        0.03
+      ],
+      "houseType": 1,
+      "rules": [
+        "1 Kenmore_790.91312013 bake eq 120 after 7",
+        "0 Kenmore_790.91312013 bake geq 0",
+        "0 Kenmore_790.91312013 bake leq 120",
+        "1 GE_WSM2420D3WW_wash laundry_wash eq 60 after 8",
+        "0 GE_WSM2420D3WW_wash laundry_wash geq 0",
+        "0 GE_WSM2420D3WW_wash laundry_wash leq 60",
+        "1 room cleanliness geq 57 after 2",
+        "0 room cleanliness geq 0",
+        "0 room cleanliness leq 100",
+        "0 Roomba_880 charge geq 0",
+        "0 Roomba_880 charge leq 100",
+        "1 Kenmore_665.13242K900 dish_wash eq 60 after 5",
+        "0 Kenmore_665.13242K900 dish_wash geq 0",
+        "0 Kenmore_665.13242K900 dish_wash leq 60",
+        "1 GE_WSM2420D3WW_dry laundry_dry eq 60 at 10",
+        "0 GE_WSM2420D3WW_dry laundry_dry geq 0",
+        "0 GE_WSM2420D3WW_dry laundry_dry leq 60"
+      ],
+      "actuators": [
+        "Kenmore_790.91312013",
+        "GE_WSM2420D3WW_wash",
+        "Roomba_880",
+        "Kenmore_665.13242K900",
+        "GE_WSM2420D3WW_dry"
+      ],
+      "sensors": [
+        "Kenmore_790_sensor",
+        "GE_WSM2420D3WW_wash_sensor",
+        "dust_sensor",
+        "iRobot_651_battery",
+        "Kenmore_665_sensor",
+        "GE_WSM2420D3WW_dry_sensor"
+      ]
+    },
+    "h6": {
+      "neighbors": [
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h7"
+      ],
+      "backgroundLoad": [
+        0.3,
+        0.27,
+        0.08,
+        0.18,
+        0.17,
+        0.02,
+        0.2,
+        0.29,
+        0.13,
+        0.17,
+        0.2,
+        0.22
+      ],
+      "houseType": 2,
+      "rules": [
+        "1 Tesla_S charge lt 58 before 2",
+        "0 Tesla_S charge geq 0",
+        "0 Tesla_S charge leq 100",
+        "1 GE_WSM2420D3WW_dry laundry_dry eq 60 after 9",
+        "0 GE_WSM2420D3WW_dry laundry_dry geq 0",
+        "0 GE_WSM2420D3WW_dry laundry_dry leq 60",
+        "1 GE_WSM2420D3WW_wash laundry_wash eq 60 before 8",
+        "0 GE_WSM2420D3WW_wash laundry_wash geq 0",
+        "0 GE_WSM2420D3WW_wash laundry_wash leq 60",
+        "1 room cleanliness gt 52 before 9",
+        "0 room cleanliness geq 0",
+        "0 room cleanliness leq 100",
+        "0 Roomba_880 charge geq 0",
+        "0 Roomba_880 charge leq 100",
+        "1 room temperature_heat leq 20 after 8",
+        "0 room temperature_heat geq 8",
+        "0 room temperature_heat leq 35"
+      ],
+      "actuators": [
+        "Tesla_S",
+        "GE_WSM2420D3WW_dry",
+        "GE_WSM2420D3WW_wash",
+        "Roomba_880",
+        "Dyson_AM09"
+      ],
+      "sensors": [
+        "Tesla_S_battery",
+        "GE_WSM2420D3WW_dry_sensor",
+        "GE_WSM2420D3WW_wash_sensor",
+        "dust_sensor",
+        "iRobot_651_battery",
+        "thermostat_heat"
+      ]
+    },
+    "h7": {
+      "neighbors": [
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6"
+      ],
+      "backgroundLoad": [
+        0.24,
+        0.19,
+        0.14,
+        0.1,
+        0.03,
+        0.01,
+        0.29,
+        0.26,
+        0.18,
+        0.05,
+        0.14,
+        0.19
+      ],
+      "houseType": 2,
+      "rules": [
+        "1 GE_WSM2420D3WW_dry laundry_dry eq 60 after 4",
+        "0 GE_WSM2420D3WW_dry laundry_dry geq 0",
+        "0 GE_WSM2420D3WW_dry laundry_dry leq 60",
+        "1 GE_WSM2420D3WW_wash laundry_wash eq 60 before 11",
+        "0 GE_WSM2420D3WW_wash laundry_wash geq 0",
+        "0 GE_WSM2420D3WW_wash laundry_wash leq 60",
+        "1 room cleanliness gt 54 before 10",
+        "0 room cleanliness geq 0",
+        "0 room cleanliness leq 100",
+        "0 Roomba_880 charge geq 0",
+        "0 Roomba_880 charge leq 100",
+        "1 Kenmore_790.91312013 bake eq 150 after 7",
+        "0 Kenmore_790.91312013 bake geq 0",
+        "0 Kenmore_790.91312013 bake leq 150",
+        "1 room temperature_heat gt 21 before 8",
+        "0 room temperature_heat geq 8",
+        "0 room temperature_heat leq 35"
+      ],
+      "actuators": [
+        "GE_WSM2420D3WW_dry",
+        "GE_WSM2420D3WW_wash",
+        "Roomba_880",
+        "Kenmore_790.91312013",
+        "Dyson_AM09"
+      ],
+      "sensors": [
+        "GE_WSM2420D3WW_dry_sensor",
+        "GE_WSM2420D3WW_wash_sensor",
+        "dust_sensor",
+        "iRobot_651_battery",
+        "Kenmore_790_sensor",
+        "thermostat_heat"
+      ]
+    }
+  }
+}

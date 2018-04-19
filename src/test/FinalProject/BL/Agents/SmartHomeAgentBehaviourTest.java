@@ -45,6 +45,7 @@ public class SmartHomeAgentBehaviourTest {
 
     @Test
     public void buildScheduleFromScratch() {
+        //TODO: write tests for this! should be tested WELL
     }
 
     @Test
