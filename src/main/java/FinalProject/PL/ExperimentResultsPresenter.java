@@ -2,9 +2,12 @@ package FinalProject.PL;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.Responsive;
+import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import org.jfree.chart.ChartFactory;
@@ -18,7 +21,7 @@ import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
 import org.vaadin.addon.JFreeChartWrapper;
 
 import java.awt.*;
-
+import java.awt.GridLayout;
 
 
 public class ExperimentResultsPresenter extends Panel implements View{
@@ -38,17 +41,34 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
                 final VerticalLayout leftGraphsLayout = new VerticalLayout();
                 final VerticalLayout rightGraphsLayout = new VerticalLayout();
-                final HorizontalLayout allGraphsLayout = new HorizontalLayout();
-                final VerticalLayout mainLayout = new VerticalLayout();
+                VerticalLayout veryLeftGraphsLayout = new VerticalLayout();
 
+                final HorizontalSplitPanel allGraphsLayout = new HorizontalSplitPanel();
+                final VerticalLayout mainLayout = new VerticalLayout();
+                Component c1 = generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph, false);
+                Component c2 = generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph, false);
                 leftGraphsLayout.addComponent(generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph, false));
                 leftGraphsLayout.addComponent(generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph, false));
                 rightGraphsLayout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph, false));
                 rightGraphsLayout.addComponent(generateBarChart("Average run time per Algorithm #", null, null, averageExperimentTime));
                 rightGraphsLayout.addComponent(generateBarChart("Average sending messages per Algorithm #", null, null, messagesSentPerIteration));
+                //allGraphsLayout.addComponents(c1);
+                //allGraphsLayout.setExpandRatio(c1, 0.0f);
+                //allGraphsLayout.addComponents(c2);
+                //allGraphsLayout.setExpandRatio(c2, 3.0f);
+                leftGraphsLayout.setWidth("100%");
+                rightGraphsLayout.setWidth("100%");
+                //veryLeftGraphsLayout.setWidth("100%");
+                //allGraphsLayout.addComponent(leftGraphsLayout);
 
-                allGraphsLayout.addComponent(leftGraphsLayout);
-                allGraphsLayout.addComponent(rightGraphsLayout);
+                //allGraphsLayout.addComponent(rightGraphsLayout);
+                allGraphsLayout.setFirstComponent(leftGraphsLayout);
+                allGraphsLayout.setSecondComponent(rightGraphsLayout);
+                allGraphsLayout.setSplitPosition(50, Sizeable.UNITS_PERCENTAGE);
+
+                //allGraphsLayout.setWidth("100%");
+                //allGraphsLayout.setSizeFull();
+
 
                 Button endExperimentBtn = new Button("End Experiment");
                 endExperimentBtn.addClickListener(new Button.ClickListener() {
@@ -62,15 +82,33 @@ public class ExperimentResultsPresenter extends Panel implements View{
                 });
 
 
-                mainLayout.addComponent(allGraphsLayout);
+                mainLayout.addComponents(allGraphsLayout);
                 mainLayout.addComponent(endExperimentBtn);
-
+                mainLayout.setSpacing(false);
                 ExperimentConfigurationPresenter.setAlignemntToAllComponents(mainLayout, Alignment.TOP_CENTER);
-                //mainLayout.setHeight("70%");
                 mainLayout.setWidth("100%");
 
-                setContent(mainLayout);
-                setSizeFull();
+                VerticalLayout layout = new VerticalLayout();
+                Panel panelGraphs = new Panel("Graphs page", endExperimentBtn);
+
+// Have a horizontal split panel as its content
+                HorizontalSplitPanel hsplit = new HorizontalSplitPanel();
+                panelGraphs.setContent(hsplit);
+
+// Put a component in the left panel
+                hsplit.setFirstComponent(leftGraphsLayout);
+
+                hsplit.setSecondComponent(rightGraphsLayout);
+                //Responsive.makeResponsive(panelGraphs);
+                panelGraphs.setSizeUndefined(); // Shrink to fit content
+                layout.addComponent(panelGraphs);
+                layout.addComponent(endExperimentBtn);
+                layout.setSizeUndefined();
+                layout.setComponentAlignment(endExperimentBtn, Alignment.TOP_CENTER);
+                Responsive.makeResponsive(layout);
+
+                setContent(layout);
+
 
             }
             catch (Exception e)

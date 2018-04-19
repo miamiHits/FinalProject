@@ -1,6 +1,5 @@
 package FinalProject.PL;
 
-import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SHMGM;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
@@ -11,6 +10,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 
@@ -20,7 +20,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -42,9 +44,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
     public UiHandler()
     {
         resultsPresenter = new ExperimentResultsPresenter();
-        String jsonPath = "src/test/testResources/jsons";
+//        String jsonPath = "src/test/testResources/jsons";
+        String jsonPath = "resources/problems";
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-        String algorithmsPath = "target/classes/FinalProject/BL/Agents";
+        String algorithmsPath = "target/classes/FinalProject/BL/Agents/";
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
@@ -119,8 +122,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
         }
         System.out.println('\n');
 
+        Date date = new Date() ;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd--MM--yyyy_HH-mm") ;
         //just for check the csv - we can change it later
-        csvHandler csv = new csvHandler("results.csv");
+        csvHandler csv = new csvHandler(dateFormat.format(date)+"_results.csv");
         StatisticsHandler sth = new StatisticsHandler(experimentResults, probToAlgoTotalTime);
         resultsPresenter.setPowerConsumptionGraph(sth.totalConsumption());
         resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());

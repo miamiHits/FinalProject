@@ -9,6 +9,6 @@ public interface AlgoLoaderInterface {
 
     List<SmartHomeAgentBehaviour> loadAlgorithms(List<String> algoNames);
     List<String> getAllAlgoNames();
-    void addAlgoToSystem(String path, String fileName) throws IOException, InstantiationException, IllegalAccessException;
+    String addAlgoToSystem(String path, String fileName);
 
 }

@@ -135,15 +135,13 @@ public class DSATest {
     }
 
     @Test
-    public void buildScheduleFromScratchPropertiesTestSpecailCase() {
+    public void buildScheduleFromScratchPropertiesTestSpecialCase() {
         this.props.clear();
         this.props = new ArrayList<>();
         prepareGround2();
         this.dsa.doIteration();
-        for(Map.Entry<Actuator, List<Integer>> entry: dsa.getHelper().getDeviceToTicks().entrySet())
-        {
-            if (entry.getKey().getName().equals("Roomba"))
-            {
+        for(Map.Entry<Actuator, List<Integer>> entry: dsa.getHelper().getDeviceToTicks().entrySet()) {
+            if (entry.getKey().getName().equals("Roomba")) {
                 Assert.assertTrue(entry.getValue().contains(3));
                 Assert.assertTrue(entry.getValue().contains(2) || entry.getValue().contains(0) || entry.getValue().contains(1));
             }
