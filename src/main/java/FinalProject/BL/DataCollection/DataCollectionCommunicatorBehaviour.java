@@ -34,6 +34,7 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
                     if(cSumReturned == -1.0){ //iteration finished
                         if (ICD.getIterNum() == iterationNum ) { //last iteration finished (algo&prob finished)
                             logger.info("Algo: " + ICD.getAlgorithm() + " Problem: " + ICD.getProblemId() + " finished.");
+                            calcBestPricePerIterationIfNecessary(ICD);
                             agent.getExperiment().algorithmProblemComboRunEnded(
                                     agent.getCollector().getAlgoProblemResult(ICD.getProblemId(), ICD.getAlgorithm()));
                         }
@@ -50,6 +51,10 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
         }else{
             block();
         }
+    }
+
+    private void calcBestPricePerIterationIfNecessary(IterationCollectedData icd) {
+        
     }
 
     private void sendCsumToEveryone(ACLMessage msg, double cSumReturned) {
