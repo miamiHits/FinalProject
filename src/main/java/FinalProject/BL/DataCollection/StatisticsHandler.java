@@ -19,8 +19,11 @@ public class StatisticsHandler {
     public StatisticsHandler(List<AlgorithmProblemResult> experimentResults, Map<String, Long> probToAlgoTotalTime)
     {
         this.experimentResultsNotSort = experimentResults;
+        logger.info("experimentResults is:" + experimentResults.toString());
         ITER_NUM = experimentResults.get(0).getAvgPricePerIteration().size();
         this.probNAlgToTotalTime = probToAlgoTotalTime;
+        logger.info("probNAlgToTotalTime is:" + probNAlgToTotalTime.toString());
+
         sortResultsByAlgorithm();
     }
 
@@ -140,25 +143,8 @@ public class StatisticsHandler {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         Map<String, Integer> messagesToAlgo = new HashMap<>();
         Map<String, Integer> problemsToAlgo = new HashMap<>();
-        for(int j=0; j< experimentResultsNotSort.size(); j++)
-        {
-            String name= experimentResultsNotSort.get(j).getAlgorithm();
-            if (!messagesToAlgo.containsKey(name))
-            {
-                messagesToAlgo.put(name, 0);
-            }
-            if (!problemsToAlgo.containsKey(name))
-            {
-                problemsToAlgo.put(name, 1);
-            }
-            else
-            {
+        calcNumOfProblems(messagesToAlgo, problemsToAlgo);
 
-                int currNumberOfProblems = problemsToAlgo.get(name);
-                currNumberOfProblems++;
-                problemsToAlgo.put(name, currNumberOfProblems);
-            }
-        }
 
         for(Map.Entry<String, List<AlgorithmProblemResult>> entry : experimentResults.entrySet())
         {
@@ -183,6 +169,60 @@ public class StatisticsHandler {
         }
         return dataset;
 
+    }
+
+    public DefaultCategoryDataset messagesSize()
+    {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        Map<String, Integer> messagesToAlgo = new HashMap<>();
+        Map<String, Integer> problemsToAlgo = new HashMap<>();
+
+        calcNumOfProblems(messagesToAlgo, problemsToAlgo);
+        for(Map.Entry<String, List<AlgorithmProblemResult>> entry : experimentResults.entrySet())
+        {
+            for (AlgorithmProblemResult res : entry.getValue())
+            {
+                long total = 0;
+                for(int i=0; i<ITER_NUM; i++)
+                {
+                    total+= res.getTotalMessagesInIter(i).getMsgsSize();
+                }
+                int currTotalMessages = messagesToAlgo.get(entry.getKey());
+                currTotalMessages+=total;
+                messagesToAlgo.put(entry.getKey(), currTotalMessages);
+            }
+        }
+
+        for(Map.Entry<String, Integer> entry : messagesToAlgo.entrySet())
+        {
+            int totalMessages = entry.getValue();
+            int totalProblems = problemsToAlgo.get(entry.getKey());
+            dataset.addValue(totalProblems!=0? totalMessages/totalProblems : totalMessages, entry.getKey(), "Messages Per Iteration");
+        }
+        return dataset;
+    }
+
+    private void calcNumOfProblems(Map<String, Integer> messagesToAlgo, Map<String, Integer> problemsToAlgo)
+    {
+        for(int j=0; j< experimentResultsNotSort.size(); j++)
+        {
+            String name= experimentResultsNotSort.get(j).getAlgorithm();
+            if (!messagesToAlgo.containsKey(name))
+            {
+                messagesToAlgo.put(name, 0);
+            }
+            if (!problemsToAlgo.containsKey(name))
+            {
+                problemsToAlgo.put(name, 1);
+            }
+            else
+            {
+
+                int currNumberOfProblems = problemsToAlgo.get(name);
+                currNumberOfProblems++;
+                problemsToAlgo.put(name, currNumberOfProblems);
+            }
+        }
     }
 
     private enum graphType{
