@@ -27,7 +27,7 @@ public class AlgorithmProblemResult {
         algorithm = probAlgo.getAlgorithmName();
         avgPricePerIteration = new HashMap<Integer, Double>();
         totalGradePerIteration = new HashMap<Integer, Double>();
-        bestTotalGradePerIter = null;
+        bestTotalGradePerIter = new HashMap<Integer, Double>();
         totalMessagesInIter = new HashMap<Integer, MsgInfo>();
         lowestCostForAgentInBestIteration = new  HashMap<Integer, Double>();
         lowestCostForAgentInBestIterationAgentName =  new  HashMap<Integer, String>();
