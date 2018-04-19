@@ -38,6 +38,8 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
                 final VerticalLayout leftGraphsLayout = new VerticalLayout();
                 final VerticalLayout rightGraphsLayout = new VerticalLayout();
+                final VerticalLayout veryLeftGraphsLayout = new VerticalLayout();
+
                 final HorizontalLayout allGraphsLayout = new HorizontalLayout();
                 final VerticalLayout mainLayout = new VerticalLayout();
 
@@ -47,8 +49,12 @@ public class ExperimentResultsPresenter extends Panel implements View{
                 rightGraphsLayout.addComponent(generateBarChart("Average run time per Algorithm #", null, null, averageExperimentTime));
                 rightGraphsLayout.addComponent(generateBarChart("Average sending messages per Algorithm #", null, null, messagesSentPerIteration));
 
+
                 allGraphsLayout.addComponent(leftGraphsLayout);
+                allGraphsLayout.addComponents(veryLeftGraphsLayout);
                 allGraphsLayout.addComponent(rightGraphsLayout);
+                allGraphsLayout.setSizeFull();
+
 
                 Button endExperimentBtn = new Button("End Experiment");
                 endExperimentBtn.addClickListener(new Button.ClickListener() {
@@ -62,15 +68,15 @@ public class ExperimentResultsPresenter extends Panel implements View{
                 });
 
 
-                mainLayout.addComponent(allGraphsLayout);
+                mainLayout.addComponents(allGraphsLayout);
                 mainLayout.addComponent(endExperimentBtn);
 
                 ExperimentConfigurationPresenter.setAlignemntToAllComponents(mainLayout, Alignment.TOP_CENTER);
-                //mainLayout.setHeight("70%");
-                mainLayout.setWidth("100%");
 
+
+                mainLayout.setSizeFull();
                 setContent(mainLayout);
-                setSizeFull();
+
 
             }
             catch (Exception e)

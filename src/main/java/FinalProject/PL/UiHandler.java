@@ -20,7 +20,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -119,8 +121,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
         }
         System.out.println('\n');
 
+        Date date = new Date() ;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd--MM--yyyy_HH-mm") ;
         //just for check the csv - we can change it later
-        csvHandler csv = new csvHandler("results.csv");
+        csvHandler csv = new csvHandler(dateFormat.format(date)+"_results.csv");
         StatisticsHandler sth = new StatisticsHandler(experimentResults, probToAlgoTotalTime);
         resultsPresenter.setPowerConsumptionGraph(sth.totalConsumption());
         resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
