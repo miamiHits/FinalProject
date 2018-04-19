@@ -94,8 +94,10 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         }
 
         String maxName = Utils.cleanShtrudelFromAgentName(max.getAgentName());
-
-        if (maxName.equals(agent.getLocalName())) { //take new schedule
+        if (max.getImprovement() == 0){
+            
+        }
+        else if (maxName.equals(agent.getLocalName())) { //take new schedule
             logger.info(agent.getLocalName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
             takeNewSched(newPrice, actualEpeak);
         }
