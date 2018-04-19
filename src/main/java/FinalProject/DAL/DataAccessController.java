@@ -62,9 +62,7 @@ public class DataAccessController implements DataAccessControllerInterface{
     }
 
     @Override
-    public void addAlgorithmToSystem(String path, String name)
-            throws IllegalAccessException, IOException, InstantiationException
-    {
-        algoLoader.addAlgoToSystem(path, name);
+    public String addAlgorithmToSystem(String path, String name) {
+        return algoLoader.addAlgoToSystem(path, name);
     }
 }
