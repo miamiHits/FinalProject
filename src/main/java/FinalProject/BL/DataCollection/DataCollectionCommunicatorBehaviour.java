@@ -10,6 +10,9 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
     private DataCollectionCommunicator agent;
@@ -54,7 +57,23 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
     }
 
     private void calcBestPricePerIterationIfNecessary(IterationCollectedData icd) {
-        
+        if (icd.getAlgorithm() != "SHMGM"){return;}
+        AlgorithmProblemResult pr = agent.getCollector().getAlgoProblemResult
+                (icd.getProblemId(), icd.getAlgorithm());
+        Map<Integer, Double> results = pr.getTotalGradePerIteration();
+        Map<Integer, Double> bestResults = new HashMap<Integer, Double>();
+        Double best = results.get(0);
+        bestResults.put(0,best);
+        int i = 1;
+        double res;
+        while (results.get(i) != null){
+            res = results.get(i);
+            if (res < best){best = res;}
+            bestResults.put(i, best);
+            i++;
+        }
+        pr.setBestTotalGradePerIter(bestResults);
+
     }
 
     private void sendCsumToEveryone(ACLMessage msg, double cSumReturned) {

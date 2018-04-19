@@ -19,6 +19,7 @@ public class AlgorithmProblemResult {
     private Map<Integer, String> highestCostForAgentInBestIterationAgentName;
     private static final Logger logger = Logger.getLogger(AlgorithmProblemResult.class);
     private Map<Integer, MsgInfo> totalMessagesInIter;
+    private Map<Integer, Double> bestTotalGradePerIter;
 
 
     public AlgorithmProblemResult(ProblemAlgorithm probAlgo) {
@@ -26,6 +27,7 @@ public class AlgorithmProblemResult {
         algorithm = probAlgo.getAlgorithmName();
         avgPricePerIteration = new HashMap<Integer, Double>();
         totalGradePerIteration = new HashMap<Integer, Double>();
+        bestTotalGradePerIter = null;
         totalMessagesInIter = new HashMap<Integer, MsgInfo>();
         lowestCostForAgentInBestIteration = new  HashMap<Integer, Double>();
         lowestCostForAgentInBestIterationAgentName =  new  HashMap<Integer, String>();
@@ -149,6 +151,14 @@ public class AlgorithmProblemResult {
         totalMessagesInIter.put(iterNum, new MsgInfo(totalMsgNum, totalMsgSize));
     }
 
+    public Map<Integer, Double> getBestTotalGradePerIter() {
+        return bestTotalGradePerIter;
+    }
+
+    public void setBestTotalGradePerIter(Map<Integer, Double> bestTotalGradePerIter) {
+        this.bestTotalGradePerIter = bestTotalGradePerIter;
+    }
+
     @Override
     public String toString()
     {
@@ -166,6 +176,5 @@ public class AlgorithmProblemResult {
                 ", highestCostForAgentInBestIterationAgentName='" + highestCostForAgentInBestIterationAgentName.values() + '\'' +"\n" +
                 '}';
     }
-
 
 }
