@@ -10,6 +10,9 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
     private DataCollectionCommunicator agent;
@@ -34,6 +37,7 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
                     if(cSumReturned == -1.0){ //iteration finished
                         if (ICD.getIterNum() == iterationNum ) { //last iteration finished (algo&prob finished)
                             logger.info("Algo: " + ICD.getAlgorithm() + " Problem: " + ICD.getProblemId() + " finished.");
+                            calcBestPricePerIteration(ICD);
                             agent.getExperiment().algorithmProblemComboRunEnded(
                                     agent.getCollector().getAlgoProblemResult(ICD.getProblemId(), ICD.getAlgorithm()));
                         }
@@ -52,16 +56,22 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
         }
     }
 
-    private void sendCsumToEveryone(ACLMessage msg, double cSumReturned) {
-        logger.info("sending c_sum to all agents in the experiment");
-        DFAgentDescription[] agents = findAgents(msg.getOntology());
-        ACLMessage replay;
-        for (DFAgentDescription dfa: agents) {
-            replay = new ACLMessage(ACLMessage.INFORM);
-            replay.addReceiver(dfa.getName());
-            replay.setContent(String.valueOf(cSumReturned));
-            agent.send(replay);
+    private void calcBestPricePerIteration(IterationCollectedData icd) {
+        AlgorithmProblemResult pr = agent.getCollector().getAlgoProblemResult
+                (icd.getProblemId(), icd.getAlgorithm());
+        Map<Integer, Double> results = pr.getTotalGradePerIteration();
+        Map<Integer, Double> bestResults = new HashMap<Integer, Double>();
+        Double best = results.get(0);
+        bestResults.put(0,best);
+        int i = 1;
+        double res;
+        while (results.get(i) != null){
+            res = results.get(i);
+            if (res < best){best = res;}
+            bestResults.put(i, best);
+            i++;
         }
+        pr.setBestTotalGradePerIter(bestResults);
     }
 
     public DFAgentDescription[] findAgents(String onotology)
