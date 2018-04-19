@@ -73,19 +73,6 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
             i++;
         }
         pr.setBestTotalGradePerIter(bestResults);
-
-    }
-
-    private void sendCsumToEveryone(ACLMessage msg, double cSumReturned) {
-        logger.info("sending c_sum to all agents in the experiment");
-        DFAgentDescription[] agents = findAgents(msg.getOntology());
-        ACLMessage replay;
-        for (DFAgentDescription dfa: agents) {
-            replay = new ACLMessage(ACLMessage.INFORM);
-            replay.addReceiver(dfa.getName());
-            replay.setContent(String.valueOf(cSumReturned));
-            agent.send(replay);
-        }
     }
 
     public DFAgentDescription[] findAgents(String onotology)
