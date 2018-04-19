@@ -48,7 +48,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
                 rightGraphsLayout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph, false));
                 rightGraphsLayout.addComponent(generateBarChart("Average run time per Algorithm #", null, null, averageExperimentTime));
-                rightGraphsLayout.addComponent(generateBarChart("Average sending messages per Algorithm #", null, null, messagesNumPerAlgo));
+                rightGraphsLayout.addComponent(generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo));
                 leftGraphsLayout.setWidth("100%");
                 rightGraphsLayout.setWidth("100%");
 

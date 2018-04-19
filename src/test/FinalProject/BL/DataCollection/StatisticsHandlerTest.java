@@ -24,9 +24,11 @@ public class StatisticsHandlerTest {
 
     }
 
-    private List<AlgorithmProblemResult> createExpResObj() {
+    private List<AlgorithmProblemResult> createExpResObj()
+    {
+        ProblemAlgorithm pa1 = new ProblemAlgorithm("1", "DSA");
+        AlgorithmProblemResult dsa1 =  new AlgorithmProblemResult(pa1);
 
-        return null;
     }
 
     @After
