@@ -46,7 +46,8 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     //TODO gal for final iteration prevent use of more than one browser tab
         _algorithmsContainer = new VerticalLayout();
-        _algorithmsContainer.setWidth("100%");
+//        _algorithmsContainer.setWidth("100%");
+        Responsive.makeResponsive(_algorithmsContainer);
         VerticalLayout _problemsContainer = new VerticalLayout();
 
         this.service = UiHandler.service;
@@ -101,6 +102,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private void generateAlgorithmsSection() {
         algorithmSelector = new TwinColSelect<>();
+        Responsive.makeResponsive(algorithmSelector);
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
         final List<String> availableAlgorithms = refreshAlgorithms();
