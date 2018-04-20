@@ -193,7 +193,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             startWorkZERO(prop, sensorsToCharge, ticksToWork);
         }
         else {
-            startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork);
+            startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork, false);
         }
     }
 
