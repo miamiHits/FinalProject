@@ -4,30 +4,29 @@ import FinalProject.PL.CustomComponents.ProblemSelector;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.PL.UIEntities.SelectedProblem;
 import FinalProject.Service;
-import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.selection.MultiSelectionListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Page;
+import com.vaadin.server.Responsive;
 import com.vaadin.server.StreamVariable;
-import com.vaadin.shared.data.sort.SortDirection;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.themes.ValoTheme;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener {
+public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener, Page.BrowserWindowResizeListener {
 
     private VerticalLayout _algorithmsContainer;
-    private VerticalLayout _problemsContainer;
 
     private Button startExperimentBtn = new Button("Start Experiment");
     private TextField numberOfIterationsTxt = new TextField("Select Number of Iterations");
@@ -39,6 +38,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private Service service;
     private ExperimentRunningPresenter experimentRunningPresenter;
     private TwinColSelect<String> algorithmSelector;
+    private HorizontalLayout configurationLayout;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -46,7 +46,8 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     //TODO gal for final iteration prevent use of more than one browser tab
         _algorithmsContainer = new VerticalLayout();
-        _problemsContainer = new VerticalLayout();
+        _algorithmsContainer.setWidth("100%");
+        VerticalLayout _problemsContainer = new VerticalLayout();
 
         this.service = UiHandler.service;
         this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
@@ -54,13 +55,16 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         VerticalLayout mainLayout = new VerticalLayout();
 
         generateAlgorithmsSection();
-//        generateProblemsSection();
         ProblemSelector problemSelector = new ProblemSelector(selectedProblems, () -> service.getAvailableProblems());
+        problemSelector.addStyleName("with-min-width");
+        Responsive.makeResponsive(problemSelector);
         _problemsContainer.addComponent(problemSelector);
+        _problemsContainer.setWidth("100%");
 
-        HorizontalLayout configurationLayout = new HorizontalLayout();
+        configurationLayout = new HorizontalLayout();
         configurationLayout.addComponent(_problemsContainer);
         configurationLayout.addComponent(_algorithmsContainer);
+        configurationLayout.setWidth("100%");
 
         Label mainTitleLbl = new Label("SHAS");
         mainTitleLbl.addStyleName("v-label-h1");
@@ -68,8 +72,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
 
         Label subtitleLbl = new Label("Smart Home Agent Simulator");
-        subtitleLbl.addStyleName("v-label-h2");
-        subtitleLbl.addStyleName("conf-subtitle");
+        subtitleLbl.addStyleName(ValoTheme.LABEL_LARGE);
 
         mainLayout.addComponent(mainTitleLbl);
         mainLayout.addComponent(subtitleLbl);
@@ -87,6 +90,10 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         mainLayout.addStyleName("conf-main-layout");
 
         setContent(mainLayout);
+        mainLayout.addStyleName("myresponsivelayout");
+        Responsive.makeResponsive(mainLayout);
+
+        UI.getCurrent().getPage().addBrowserWindowResizeListener(this);
 
         setSizeFull();
     }
@@ -392,5 +399,12 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         });
 
         experimentRunningPresenter.setAlgorithmProblemPairs(problemAlgoPairs);
+    }
+
+    @Override
+    public void browserWindowResized(Page.BrowserWindowResizeEvent event) {
+        if (configurationLayout != null && event.getWidth() < configurationLayout.getWidth()) {
+            configurationLayout.setWidth(event.getWidth(), Unit.PIXELS);
+        }
     }
 }

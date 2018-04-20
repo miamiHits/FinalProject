@@ -4,6 +4,7 @@ import FinalProject.PL.UIEntities.SelectedProblem;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
+import com.vaadin.server.Responsive;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
@@ -30,9 +31,6 @@ public class ProblemSelector extends CustomComponent {
         setCompositionRoot(mainPanel);
         this.selectedProblems = selectedProblems;
         generateProblemsSection(problemsSupplier);
-
-        mainPanel.setSizeUndefined();
-        setSizeUndefined();
     }
 
     private void generateProblemsSection(Supplier<Map<Integer, List<String>>> problemsSupplier) {
@@ -43,24 +41,30 @@ public class ProblemSelector extends CustomComponent {
 
         initGrid();
 
-        Button addAllProblemsBtn = new Button("Add All");
-        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap, selectedProblemGrid));
-
-        GridLayout treeGridLayout = new GridLayout(5, 2);
+        HorizontalLayout treeGridLayout = new HorizontalLayout();
+        Responsive.makeResponsive(treeGridLayout);
+        treeGridLayout.setSizeFull();
         treeGridLayout.setSpacing(true);
-        treeGridLayout.addComponent(problemTree, 0, 0);
-        treeGridLayout.addComponent(selectedProblemGrid, 1, 0, 4, 0);
-        treeGridLayout.addComponent(addAllProblemsBtn, 4, 1);
-        treeGridLayout.setComponentAlignment(addAllProblemsBtn, Alignment.BOTTOM_RIGHT);
+        treeGridLayout.addComponent(problemTree);
+        treeGridLayout.setComponentAlignment(problemTree, Alignment.TOP_LEFT);
+        treeGridLayout.addComponent(selectedProblemGrid);
+        treeGridLayout.setComponentAlignment(selectedProblemGrid, Alignment.TOP_RIGHT);
 
         setComponentSizes();
 
         mainLayout.addComponents(treeGridLayout);
+
+        Button addAllProblemsBtn = new Button("Add All");
+        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap, selectedProblemGrid));
+        mainLayout.addComponent(addAllProblemsBtn);
+        mainLayout.setComponentAlignment(addAllProblemsBtn, Alignment.BOTTOM_RIGHT);
+        mainLayout.setSizeFull();
+        Responsive.makeResponsive(mainLayout);
     }
 
     private void setComponentSizes() {
         selectedProblemGrid.setHeight(300, Unit.PIXELS);
-        problemTree.setWidth(200, Unit.PIXELS);
+//        problemTree.setWidth("100%");
     }
 
     private void initGrid() {
