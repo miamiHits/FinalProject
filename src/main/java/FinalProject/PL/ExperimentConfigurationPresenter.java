@@ -1,11 +1,11 @@
 package FinalProject.PL;
 
+import FinalProject.PL.CustomComponents.ProblemSelector;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.PL.UIEntities.SelectedProblem;
 import FinalProject.Service;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
-import com.vaadin.data.provider.HierarchicalQuery;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.selection.MultiSelectionListener;
@@ -13,8 +13,8 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.server.StreamVariable;
-import com.vaadin.shared.Registration;
 import com.vaadin.shared.data.sort.SortDirection;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.themes.ValoTheme;
@@ -34,7 +34,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private Button addNewAlgorithmBtn = new Button("Add New Algorithm");
 
     private final List<String> selectedAlgorithms = new ArrayList<>();
-    private final List<SelectedProblem> selectedProblems = new ArrayList<>();
+    private final Set<SelectedProblem> selectedProblems = new HashSet<>();
 
     private Service service;
     private ExperimentRunningPresenter experimentRunningPresenter;
@@ -54,7 +54,9 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         VerticalLayout mainLayout = new VerticalLayout();
 
         generateAlgorithmsSection();
-        generateProblemsSection();
+//        generateProblemsSection();
+        ProblemSelector problemSelector = new ProblemSelector(selectedProblems, () -> service.getAvailableProblems());
+        _problemsContainer.addComponent(problemSelector);
 
         HorizontalLayout configurationLayout = new HorizontalLayout();
         configurationLayout.addComponent(_problemsContainer);
@@ -91,7 +93,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
 
     private void generateAlgorithmsSection() {
-        algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
+        algorithmSelector = new TwinColSelect<>();
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
         final List<String> availableAlgorithms = refreshAlgorithms();
@@ -104,10 +106,17 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Button addAllAlgorithmsBtn = new Button("Add All");
         addAllAlgorithmsBtn.addClickListener(generateAddAllClickListener(availableAlgorithms, algorithmSelector));
 
-        _algorithmsContainer.addComponent(algorithmSelector);
-        _algorithmsContainer.setComponentAlignment(algorithmSelector, Alignment.TOP_CENTER);
-        _algorithmsContainer.addComponent(addAllAlgorithmsBtn);
-        _algorithmsContainer.setComponentAlignment(addAllAlgorithmsBtn, Alignment.MIDDLE_RIGHT);
+        VerticalLayout midLayout = new VerticalLayout();
+
+        midLayout.addComponent(algorithmSelector);
+        midLayout.setComponentAlignment(algorithmSelector, Alignment.TOP_CENTER);
+        midLayout.addComponent(addAllAlgorithmsBtn);
+        midLayout.setComponentAlignment(addAllAlgorithmsBtn, Alignment.MIDDLE_RIGHT);
+
+        Panel algoPanel = new Panel();
+        algoPanel.setContent(midLayout);
+        algoPanel.setCaption("Select your algorithms");
+        _algorithmsContainer.addComponent(algoPanel);
 
     }
 
@@ -118,78 +127,94 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         return availableAlgorithms;
     }
 
-    private void generateProblemsSection() {
-        TreeData<String> treeData = new TreeData<>();
-        Tree<String> problemTree = new Tree<>("Available Problems");
-        problemTree.setDataProvider(new TreeDataProvider<>(treeData));
-        Grid<SelectedProblem> selectedProblemGrid = new Grid<>(SelectedProblem.class);
-        selectedProblemGrid.setCaption("Selected Problems");
-        selectedProblemGrid.setDataProvider(DataProvider.ofCollection(selectedProblems));
-        selectedProblemGrid.setColumnOrder("size", "name");
-        selectedProblemGrid.sort("size", SortDirection.DESCENDING);
-
-        Map<Integer, List<String>> sizeToNameMap = service.getAvailableProblems();
-        sizeToNameMap.entrySet().stream()
-                .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                .forEach(entry -> {
-                    String size = String.valueOf(entry.getKey());
-                    List<String> names = entry.getValue();
-                    treeData.addRootItems(size);
-                    treeData.addItems(size, names);
-                    problemTree.collapse();
-                });
-        problemTree.setAutoRecalculateWidth(true);
-        problemTree.addItemClickListener(itemClick -> {
-
-            String item = itemClick.getItem();
-            List<String> children = treeData.getChildren(item);
-            //is a specific problem
-            if (children == null || children.size() == 0) {
-                int parent = Integer.parseInt(treeData.getParent(item));
-                SelectedProblem selected = new SelectedProblem(item, parent);
-                selectedProblems.add(selected);
-            }
-            //is a folder
-            else {
-                List<SelectedProblem> toAdd = children.stream()
-                        .map(child -> new SelectedProblem(child, Integer.parseInt(item)))
-                        .collect(Collectors.toList());
-                selectedProblems.addAll(toAdd);
-            }
-            selectedProblemGrid.getDataProvider().refreshAll();
-            selectedProblemGrid.sort("size", SortDirection.DESCENDING);
-        });
-
-        //TODO: add selection and such to problemTree
-
-
-        HorizontalLayout treeGridLayout = new HorizontalLayout();
-        treeGridLayout.addComponents(problemTree, selectedProblemGrid);
-
-        _problemsContainer.addComponent(treeGridLayout);
-
-
-//        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
-//        problemSelector.setLeftColumnCaption("Available Problems");
-//        problemSelector.setRightColumnCaption("Selected Problems");
-//        final List<String> availableProblems = this.service.getAvailableProblems();
-//        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
+//    private void generateProblemsSection() {
+//        TreeData<String> treeData = new TreeData<>();
+//        Tree<String> problemTree = new Tree<>("Available Problems");
+//        problemTree.setDataProvider(new TreeDataProvider<>(treeData));
+//        Grid<SelectedProblem> selectedProblemGrid = new Grid<>(SelectedProblem.class);
 //
+//        selectedProblemGrid.setCaption("Selected Problems");
+//        selectedProblemGrid.setDataProvider(DataProvider.ofCollection(selectedProblems));
+//        selectedProblemGrid.setColumnOrder("size", "name");
+//        selectedProblemGrid.sort("size", SortDirection.ASCENDING);
+//        selectedProblemGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+//        selectedProblemGrid.setSizeUndefined();
 //
-//        problemSelector.addSelectionListener((MultiSelectionListener<String>) event -> {
-//            selectedProblems.clear();
-//            selectedProblems.addAll(event.getAllSelectedItems());
+//        Map<Integer, List<String>> sizeToNameMap = service.getAvailableProblems();
+//        sizeToNameMap.entrySet().stream()
+//                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+//                .forEach(entry -> {
+//                    String size = String.valueOf(entry.getKey());
+//                    List<String> names = entry.getValue();
+//                    treeData.addRootItems(size);
+//                    treeData.addItems(size, names);
+//                    problemTree.collapse();
+//                });
+//        problemTree.setContentMode(ContentMode.TEXT);
+//        problemTree.setSizeUndefined();
+//        problemTree.addItemClickListener(itemClick -> {
+//
+//            String item = itemClick.getItem();
+//            List<String> children = treeData.getChildren(item);
+//            //is a specific problem
+//            if (children == null || children.size() == 0) {
+//                int parent = Integer.parseInt(treeData.getParent(item));
+//                SelectedProblem selected = new SelectedProblem(item, parent);
+//                selectedProblems.add(selected);
+//            }
+//            //is a folder
+//            else {
+//                List<SelectedProblem> toAdd = children.stream()
+//                        .map(child -> new SelectedProblem(child, Integer.parseInt(item)))
+//                        .collect(Collectors.toList());
+//                selectedProblems.addAll(toAdd);
+//            }
+//            refreshGrid(selectedProblemGrid);
 //        });
 //
+//        selectedProblemGrid.addItemClickListener(itemClick -> {
+//            SelectedProblem item = itemClick.getItem();
+//            selectedProblems.remove(item);
+//            refreshGrid(selectedProblemGrid);
+//        });
+//
+//        HorizontalLayout treeGridLayout = new HorizontalLayout();
+//        treeGridLayout.addComponents(problemTree, selectedProblemGrid);
+//        treeGridLayout.setCaption("Select Your Problems");
+//        treeGridLayout.setComponentAlignment(problemTree, Alignment.TOP_LEFT);
+//        treeGridLayout.setComponentAlignment(selectedProblemGrid, Alignment.TOP_RIGHT);
 //
 //        Button addAllProblemsBtn = new Button("Add All");
-//        addAllProblemsBtn.addClickListener(generateAddAllClickListener(availableProblems, problemSelector));
+//        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap, selectedProblemGrid));
 //
-//        _problemsContainer.addComponent(problemSelector);
-//        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
-//        _problemsContainer.addComponent(addAllProblemsBtn);
+//        _problemsContainer.addComponents(treeGridLayout, addAllProblemsBtn);
 //        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
-    }
+//
+//
+////        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
+////        problemSelector.setLeftColumnCaption("Available Problems");
+////        problemSelector.setRightColumnCaption("Selected Problems");
+////        final List<String> availableProblems = this.service.getAvailableProblems();
+////        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
+////
+////
+////        problemSelector.addSelectionListener((MultiSelectionListener<String>) event -> {
+////            selectedProblems.clear();
+////            selectedProblems.addAll(event.getAllSelectedItems());
+////        });
+////
+////
+////
+////        _problemsContainer.addComponent(problemSelector);
+////        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
+////        _problemsContainer.addComponent(addAllProblemsBtn);
+////        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
+//    }
+
+//    private void refreshGrid(Grid<SelectedProblem> selectedProblemGrid) {
+//        selectedProblemGrid.getDataProvider().refreshAll();
+//        selectedProblemGrid.sort("size", SortDirection.ASCENDING);
+//    }
 
     public static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {
         Iterator<Component> componentIterator = layout.iterator();
@@ -202,18 +227,23 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
 
 
-    private Button.ClickListener generateAddAllClickListener(List<String> items, AbstractMultiSelect component)
-    {
-        return new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                for (String item : items)
-                {
-                    component.select(item);
-                }
+    private Button.ClickListener generateAddAllClickListener(List<String> items, AbstractMultiSelect<String> component) {
+        return (Button.ClickListener) event -> {
+            for (String item : items) {
+                component.select(item);
             }
         };
     }
+
+//    private Button.ClickListener generateAddAllClickListener(Map<Integer, List<String>> map, Grid<SelectedProblem> grid) {
+//        return (Button.ClickListener) event ->
+//                map.forEach((size, names) ->
+//                        names.forEach(name -> {
+//                        SelectedProblem selected = new SelectedProblem(name, size);
+//                        selectedProblems.add(selected);
+//                            refreshGrid(grid);
+//                        }));
+//    }
 
 
     @Override
