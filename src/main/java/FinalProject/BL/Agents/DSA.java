@@ -73,7 +73,7 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void resetAndBuildSchedule() {
         helper.resetProperties();
-        buildScheduleBasic();
+        buildScheduleBasic(false);
     }
 
     @Override
