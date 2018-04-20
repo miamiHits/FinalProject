@@ -3,8 +3,10 @@ package FinalProject.PL;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.shared.Position;
 import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.ComponentRenderer;
+import com.vaadin.ui.themes.ValoTheme;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,12 +15,14 @@ import java.util.Map;
 public class ExperimentRunningPresenter extends Panel implements View{
 
     private Grid<ProblemAlgoPair> problemAlgoPairGrid;
-    private final Map<ProblemAlgoPair, ProgressBar> pairToProgressBarMap = new HashMap<>();
+    private Map<ProblemAlgoPair, ProgressBar> pairToProgressBarMap = new HashMap<>();;
+    private ProgressBar mainProgBar = new ProgressBar(0.0f);
     private Button goToResScreenBtn;
     private boolean gridWasSet = false;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
+        mainProgBar.setValue(0);
 
         goToResScreenBtn = new Button("Go to results screen!", clickEvent ->
             getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RESULTS)
@@ -26,7 +30,8 @@ public class ExperimentRunningPresenter extends Panel implements View{
 
         goToResScreenBtn.setEnabled(false);
 
-        VerticalLayout layout = new VerticalLayout(problemAlgoPairGrid, goToResScreenBtn);
+        mainProgBar.setSizeFull();
+        VerticalLayout layout = new VerticalLayout(problemAlgoPairGrid, mainProgBar, goToResScreenBtn);
         layout.setComponentAlignment(goToResScreenBtn, Alignment.MIDDLE_CENTER);
         setContent(layout);
 
@@ -39,22 +44,27 @@ public class ExperimentRunningPresenter extends Panel implements View{
         if (problemAlgoPair != null) {
             ProgressBar progressBar = pairToProgressBarMap.get(problemAlgoPair);
             float current = progressBar.getValue();
-            getUI().access(new Runnable() {
-                @Override
-                public void run() {
-                    progressBar.setValue(current + toIncBy);
-                }
+            getUI().access(() -> {
+                progressBar.setValue(current + toIncBy);
+                float mainBarNewVal = (float) (pairToProgressBarMap.values().stream()
+                                            .mapToDouble(ProgressBar::getValue)
+                                            .sum() / pairToProgressBarMap.values().size());
+                mainProgBar.setValue(mainBarNewVal);
+
             });
         }
     }
 
     public void enableGoToResScreenBtn()
     {
-        getUI().access(new Runnable() {
-            @Override
-            public void run() {
-                goToResScreenBtn.setEnabled(true);
-            }
+        getUI().access(() -> {
+            goToResScreenBtn.setEnabled(true);
+
+            Notification notification = new Notification("Experiment Done!", "You can now view the results");
+            notification.setPosition(Position.TOP_CENTER);
+            notification.setStyleName(ValoTheme.NOTIFICATION_SUCCESS);
+            notification.show(UI.getCurrent().getPage());
+
         });
     }
 
