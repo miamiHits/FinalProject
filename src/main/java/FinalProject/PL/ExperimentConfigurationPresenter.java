@@ -1,10 +1,12 @@
 package FinalProject.PL;
 
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
+import FinalProject.PL.UIEntities.SelectedProblem;
 import FinalProject.Service;
+import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.event.selection.MultiSelectionEvent;
+import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.selection.MultiSelectionListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -15,10 +17,7 @@ import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.themes.ValoTheme;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 
 public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener {
@@ -87,8 +86,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     }
 
 
-    private void generateAlgorithmsSection()
-    {
+    private void generateAlgorithmsSection() {
         algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
@@ -116,31 +114,53 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         return availableAlgorithms;
     }
 
-    private void generateProblemsSection()
-    {
-        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
-        problemSelector.setLeftColumnCaption("Available Problems");
-        problemSelector.setRightColumnCaption("Selected Problems");
-        final List<String> availableProblems = this.service.getAvailableProblems();
-        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
+    private void generateProblemsSection() {
+        TreeData<String> treeData = new TreeData<>();
+        Tree<String> problemTree = new Tree<>("Available Problems");
+        problemTree.setDataProvider(new TreeDataProvider<>(treeData));
+
+        Map<Integer, List<String>> sizeToNameMap = service.getAvailableProblems();
+        sizeToNameMap.entrySet().stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .forEach(entry -> {
+                    String strSize = String.valueOf(entry.getKey());
+                    List<String> names = entry.getValue();
+                    treeData.addRootItems(strSize);
+                    treeData.addItems(strSize, names);
+                    problemTree.collapse(strSize);
+                });
+
+        //TODO: add selection and such to problemTree
+
+        Grid<SelectedProblem> selectedProblemGrid = new Grid<>(SelectedProblem.class);
+        selectedProblemGrid.setCaption("Selected Problems");
+
+        HorizontalLayout treeGridLayout = new HorizontalLayout();
+        treeGridLayout.addComponents(problemTree, selectedProblemGrid);
+
+        _problemsContainer.addComponent(treeGridLayout);
 
 
-        problemSelector.addSelectionListener(new MultiSelectionListener<String>() {
-            @Override
-            public void selectionChange(MultiSelectionEvent<String> event) {
-                selectedProblems.clear();
-                selectedProblems.addAll(event.getAllSelectedItems());
-            }
-        });
-
-
-        Button addAllProblemsBtn = new Button("Add All");
-        addAllProblemsBtn.addClickListener(generateAddAllClickListener(availableProblems, problemSelector));
-
-        _problemsContainer.addComponent(problemSelector);
-        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
-        _problemsContainer.addComponent(addAllProblemsBtn);
-        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
+//        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
+//        problemSelector.setLeftColumnCaption("Available Problems");
+//        problemSelector.setRightColumnCaption("Selected Problems");
+//        final List<String> availableProblems = this.service.getAvailableProblems();
+//        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
+//
+//
+//        problemSelector.addSelectionListener((MultiSelectionListener<String>) event -> {
+//            selectedProblems.clear();
+//            selectedProblems.addAll(event.getAllSelectedItems());
+//        });
+//
+//
+//        Button addAllProblemsBtn = new Button("Add All");
+//        addAllProblemsBtn.addClickListener(generateAddAllClickListener(availableProblems, problemSelector));
+//
+//        _problemsContainer.addComponent(problemSelector);
+//        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
+//        _problemsContainer.addComponent(addAllProblemsBtn);
+//        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
     }
 
     public static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {

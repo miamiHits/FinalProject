@@ -9,6 +9,6 @@ import java.util.Map;
 public interface JsonLoaderInterface {
 
     List<Problem> loadProblems(List<String> problemNames);
-    List<String> getAllProblemNames();
+    Map<Integer, List<String>> getAllProblemNames();
     Map<Integer, List<Device>> loadDevices();
 }
