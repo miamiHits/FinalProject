@@ -5,6 +5,7 @@ import FinalProject.PL.UIEntities.SelectedProblem;
 import FinalProject.Service;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.HierarchicalQuery;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.selection.MultiSelectionListener;
@@ -12,6 +13,8 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.server.StreamVariable;
+import com.vaadin.shared.Registration;
+import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.themes.ValoTheme;
@@ -19,6 +22,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener {
 
@@ -30,7 +34,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private Button addNewAlgorithmBtn = new Button("Add New Algorithm");
 
     private final List<String> selectedAlgorithms = new ArrayList<>();
-    private final List<String> selectedProblems = new ArrayList<>();
+    private final List<SelectedProblem> selectedProblems = new ArrayList<>();
 
     private Service service;
     private ExperimentRunningPresenter experimentRunningPresenter;
@@ -118,22 +122,46 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         TreeData<String> treeData = new TreeData<>();
         Tree<String> problemTree = new Tree<>("Available Problems");
         problemTree.setDataProvider(new TreeDataProvider<>(treeData));
+        Grid<SelectedProblem> selectedProblemGrid = new Grid<>(SelectedProblem.class);
+        selectedProblemGrid.setCaption("Selected Problems");
+        selectedProblemGrid.setDataProvider(DataProvider.ofCollection(selectedProblems));
+        selectedProblemGrid.setColumnOrder("size", "name");
+        selectedProblemGrid.sort("size", SortDirection.DESCENDING);
 
         Map<Integer, List<String>> sizeToNameMap = service.getAvailableProblems();
         sizeToNameMap.entrySet().stream()
                 .sorted(Comparator.comparingInt(Map.Entry::getKey))
                 .forEach(entry -> {
-                    String strSize = String.valueOf(entry.getKey());
+                    String size = String.valueOf(entry.getKey());
                     List<String> names = entry.getValue();
-                    treeData.addRootItems(strSize);
-                    treeData.addItems(strSize, names);
-                    problemTree.collapse(strSize);
+                    treeData.addRootItems(size);
+                    treeData.addItems(size, names);
+                    problemTree.collapse();
                 });
+        problemTree.setAutoRecalculateWidth(true);
+        problemTree.addItemClickListener(itemClick -> {
+
+            String item = itemClick.getItem();
+            List<String> children = treeData.getChildren(item);
+            //is a specific problem
+            if (children == null || children.size() == 0) {
+                int parent = Integer.parseInt(treeData.getParent(item));
+                SelectedProblem selected = new SelectedProblem(item, parent);
+                selectedProblems.add(selected);
+            }
+            //is a folder
+            else {
+                List<SelectedProblem> toAdd = children.stream()
+                        .map(child -> new SelectedProblem(child, Integer.parseInt(item)))
+                        .collect(Collectors.toList());
+                selectedProblems.addAll(toAdd);
+            }
+            selectedProblemGrid.getDataProvider().refreshAll();
+            selectedProblemGrid.sort("size", SortDirection.DESCENDING);
+        });
 
         //TODO: add selection and such to problemTree
 
-        Grid<SelectedProblem> selectedProblemGrid = new Grid<>(SelectedProblem.class);
-        selectedProblemGrid.setCaption("Selected Problems");
 
         HorizontalLayout treeGridLayout = new HorizontalLayout();
         treeGridLayout.addComponents(problemTree, selectedProblemGrid);
@@ -299,7 +327,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         setExperimentRunningPairs();
 
         service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
-        service.setProblemsToExperiment(selectedProblems);
+        service.setProblemsToExperiment(selectedProblems.stream().map(SelectedProblem::getName).collect(Collectors.toList()));
         service.runExperiment();
 
         getUI().access(() -> {
@@ -330,7 +358,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private void setExperimentRunningPairs() {
         List<ProblemAlgoPair> problemAlgoPairs = new ArrayList<>(selectedAlgorithms.size() * selectedProblems.size());
         selectedAlgorithms.forEach(algo -> {
-            selectedProblems.forEach(problem -> problemAlgoPairs.add(new ProblemAlgoPair(algo, problem)));
+            selectedProblems.forEach(problem -> problemAlgoPairs.add(new ProblemAlgoPair(algo, problem.getName())));
         });
 
         experimentRunningPresenter.setAlgorithmProblemPairs(problemAlgoPairs);
