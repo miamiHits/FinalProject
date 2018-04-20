@@ -123,7 +123,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     public void buildScheduleFromScratch() {
         initHelper();
-        buildScheduleBasic();
+        buildScheduleBasic(false);
     }
 
     protected void addMessagesSentToDevicesAndSetInAgent(int count, long totalSize, int constantNumOfMsgs) {
@@ -143,8 +143,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     /**
      * Go through all properties and generate schedule for them
+     * @param randomizeSched
      */
-    protected void buildScheduleBasic() {
+    protected void buildScheduleBasic(boolean randomizeSched) {
         tempBestPriceConsumption = helper.totalPriceConsumption;
         this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
         addBackgroundLoadToPowerConsumption(iterationPowerConsumption);
@@ -168,7 +169,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                     }
                 }
             });
-            generateScheduleForProp(prop, ticksToWork, sensorsToCharge);
+            if (!randomizeSched){
+                generateScheduleForProp(prop, ticksToWork, sensorsToCharge);
+            }
+            else{ //random pick
+
+            }
             if (currentNumberOfIter > 0) {
                 tempBestPriceConsumption = helper.calcTotalPowerConsumption(calcPrice(iterationPowerConsumption), iterationPowerConsumption);
             }
@@ -595,5 +601,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             }
         } while (receivedMessage != null);
     }
+
+    protected void pickRandomSched() {
+        helper.resetProperties();
+        buildScheduleBasic(true); //build random schedule
+    }
+
 
 }
