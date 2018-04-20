@@ -319,7 +319,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         updateTotals(prop, myTicks, sensorsToCharge);
     }
 
-    protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork) {
+    protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork, boolean randomChoice) {
         prop.activeTicks.clear();
 
         List<Set<Integer>> subsets;
@@ -335,8 +335,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             List<Integer> rangeForWork = calcRangeOfWork(prop);
             subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
         }
-
-        lookForBestOptionAndApplyIt(prop, sensorsToCharge, subsets);
+        if (!randomChoice) {
+            lookForBestOptionAndApplyIt(prop, sensorsToCharge, subsets);
+        }
+        else{ //random choice
+            
+        }
     }
 
     private void lookForBestOptionAndApplyIt(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
