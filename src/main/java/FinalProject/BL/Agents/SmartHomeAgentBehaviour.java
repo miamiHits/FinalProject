@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateCSum;
@@ -357,39 +358,34 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 .collect(Collectors.toList());
         int index = allScheds.size();
         List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
-        //remove them from the array
+        //remove current prop consumption
         for (Integer tick : prevTicks) {
             newPowerConsumption[tick] -= prop.getPowerConsumedInWork();
         }
         double[] copyOfNew = helper.cloneArray(newPowerConsumption);
 
-        boolean improved = false;
-        //find the best option
-        for(Set<Integer> ticks : subsets) {
-            //Adding the ticks to array
-            for (Integer tick : ticks) {
-                newPowerConsumption[tick] += prop.getPowerConsumedInWork();
-            }
-            allScheds.add(newPowerConsumption);
-            double res = calcImproveOptionGrade(newPowerConsumption, allScheds);
-
-            if (res <= helper.totalPriceConsumption && res <= tempBestPriceConsumption) {
-                tempBestPriceConsumption = res;
-                newTicks.clear();
-                newTicks.addAll(ticks);
-                improved = true;
-            }
-
-            //reset
-            newPowerConsumption = helper.cloneArray(copyOfNew);
-            allScheds.remove(index); //remove this new sched
+        //pick random option
+        Set<Integer> ticks = chooseRandomSubset(subsets);
+        //Adding the ticks to the array
+        for (Integer tick : ticks) {
+            newPowerConsumption[tick] += prop.getPowerConsumedInWork();
         }
+        allScheds.add(newPowerConsumption);
+        double res = calcImproveOptionGrade(newPowerConsumption, allScheds);
+        tempBestPriceConsumption = res;
+        newTicks.clear();
+        newTicks.addAll(ticks);
 
-        if(!improved) {
-            newTicks = helper.getDeviceToTicks().get(prop.getActuator());
-        }
-
+        //reset
+        newPowerConsumption = helper.cloneArray(copyOfNew);
+        allScheds.remove(index); //remove this new sched
         return newTicks;
+    }
+
+    private Set<Integer> chooseRandomSubset(List<Set<Integer>> subsets) {
+        int size = subsets.size();
+        int randomNum = ThreadLocalRandom.current().nextInt(0, size);
+        return subsets.get(randomNum);
     }
 
     private void lookForBestOptionAndApplyIt(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
