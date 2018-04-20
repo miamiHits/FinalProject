@@ -25,18 +25,22 @@ public class ProblemSelector extends CustomComponent {
 
 
     public ProblemSelector(Set<SelectedProblem> selectedProblems, Supplier<Map<Integer, List<String>>> problemsSupplier) {
-        Panel mainPanel = new Panel();
-        mainPanel.setCaption("Select Your Problems");
-        mainPanel.setContent(mainLayout);
-        setCompositionRoot(mainPanel);
+//        Panel mainPanel = new Panel();
+//        mainPanel.setCaption("Select Your Problems");
+//        mainPanel.setContent(mainLayout);
         this.selectedProblems = selectedProblems;
+        mainLayout.setCaption("Select Your Problems");
+        mainLayout.setSizeUndefined();
+        setCompositionRoot(mainLayout);
         generateProblemsSection(problemsSupplier);
-
+        setSizeUndefined();
     }
 
     private void generateProblemsSection(Supplier<Map<Integer, List<String>>> problemsSupplier) {
         problemTree = new Tree<>("Available Problems");
+        Responsive.makeResponsive(problemTree);
         selectedProblemGrid = new Grid<>(SelectedProblem.class);
+        Responsive.makeResponsive(selectedProblemGrid);
 
         Map<Integer, List<String>> sizeToNameMap = initTree(problemsSupplier, problemTree, selectedProblemGrid);
 
@@ -44,7 +48,7 @@ public class ProblemSelector extends CustomComponent {
 
 
         HorizontalLayout treeGridLayout = new HorizontalLayout();
-        treeGridLayout.setWidth("100%");
+//        treeGridLayout.setWidth("100%");
         treeGridLayout.setSpacing(true);
         treeGridLayout.addComponent(problemTree);
         treeGridLayout.addComponent(selectedProblemGrid);
@@ -61,6 +65,7 @@ public class ProblemSelector extends CustomComponent {
     }
 
     private void setComponentSizes() {
+        selectedProblemGrid.setSizeUndefined();
         selectedProblemGrid.setHeight(300, Unit.PIXELS);
         problemTree.setWidth("150px");
     }

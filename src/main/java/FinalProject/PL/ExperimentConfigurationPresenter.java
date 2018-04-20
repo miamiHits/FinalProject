@@ -57,7 +57,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         generateAlgorithmsSection();
         ProblemSelector problemSelector = new ProblemSelector(selectedProblems, () -> service.getAvailableProblems());
-        problemSelector.addStyleName("with-min-width");
         Responsive.makeResponsive(problemSelector);
         _problemsContainer.addComponent(problemSelector);
         _problemsContainer.setWidth("100%");
@@ -116,17 +115,16 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Button addAllAlgorithmsBtn = new Button("Add All");
         addAllAlgorithmsBtn.addClickListener(generateAddAllClickListener(availableAlgorithms, algorithmSelector));
 
-        VerticalLayout midLayout = new VerticalLayout();
+        _algorithmsContainer.addComponent(algorithmSelector);
+        _algorithmsContainer.setComponentAlignment(algorithmSelector, Alignment.TOP_CENTER);
+        _algorithmsContainer.addComponent(addAllAlgorithmsBtn);
+        _algorithmsContainer.setComponentAlignment(addAllAlgorithmsBtn, Alignment.MIDDLE_RIGHT);
 
-        midLayout.addComponent(algorithmSelector);
-        midLayout.setComponentAlignment(algorithmSelector, Alignment.TOP_CENTER);
-        midLayout.addComponent(addAllAlgorithmsBtn);
-        midLayout.setComponentAlignment(addAllAlgorithmsBtn, Alignment.MIDDLE_RIGHT);
-
-        Panel algoPanel = new Panel();
-        algoPanel.setContent(midLayout);
-        algoPanel.setCaption("Select your algorithms");
-        _algorithmsContainer.addComponent(algoPanel);
+        _algorithmsContainer.setCaption("Select your algorithms");
+//        Panel algoPanel = new Panel();
+//        algoPanel.setContent(midLayout);
+//        algoPanel.setCaption("Select your algorithms");
+//        _algorithmsContainer.addComponent(algoPanel);
 
     }
 
