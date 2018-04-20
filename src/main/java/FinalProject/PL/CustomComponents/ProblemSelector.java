@@ -19,6 +19,8 @@ public class ProblemSelector extends CustomComponent {
 
     private Set<SelectedProblem> selectedProblems;
     private final VerticalLayout mainLayout = new VerticalLayout();
+    private Grid<SelectedProblem> selectedProblemGrid;
+    private Tree<String> problemTree;
 
 
     public ProblemSelector(Set<SelectedProblem> selectedProblems, Supplier<Map<Integer, List<String>>> problemsSupplier) {
@@ -29,24 +31,54 @@ public class ProblemSelector extends CustomComponent {
         this.selectedProblems = selectedProblems;
         generateProblemsSection(problemsSupplier);
 
-        mainLayout.setSizeUndefined();
         mainPanel.setSizeUndefined();
         setSizeUndefined();
     }
 
     private void generateProblemsSection(Supplier<Map<Integer, List<String>>> problemsSupplier) {
+        problemTree = new Tree<>("Available Problems");
+        selectedProblemGrid = new Grid<>(SelectedProblem.class);
+
+        Map<Integer, List<String>> sizeToNameMap = initTree(problemsSupplier, problemTree, selectedProblemGrid);
+
+        initGrid();
+
+        Button addAllProblemsBtn = new Button("Add All");
+        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap, selectedProblemGrid));
+
+        GridLayout treeGridLayout = new GridLayout(5, 2);
+        treeGridLayout.setSpacing(true);
+        treeGridLayout.addComponent(problemTree, 0, 0);
+        treeGridLayout.addComponent(selectedProblemGrid, 1, 0, 4, 0);
+        treeGridLayout.addComponent(addAllProblemsBtn, 4, 1);
+        treeGridLayout.setComponentAlignment(addAllProblemsBtn, Alignment.BOTTOM_RIGHT);
+
+        setComponentSizes();
+
+        mainLayout.addComponents(treeGridLayout);
+    }
+
+    private void setComponentSizes() {
+        selectedProblemGrid.setHeight(300, Unit.PIXELS);
+        problemTree.setWidth(200, Unit.PIXELS);
+    }
+
+    private void initGrid() {
+            selectedProblemGrid.setCaption("Selected Problems");
+            selectedProblemGrid.setDataProvider(DataProvider.ofCollection(selectedProblems));
+            selectedProblemGrid.setColumnOrder("size", "name");
+            selectedProblemGrid.sort("size", SortDirection.ASCENDING);
+            selectedProblemGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+            selectedProblemGrid.addItemClickListener(itemClick -> {
+            SelectedProblem item = itemClick.getItem();
+            selectedProblems.remove(item);
+            refreshGrid();
+        });
+    }
+
+    private Map<Integer, List<String>> initTree(Supplier<Map<Integer, List<String>>> problemsSupplier, Tree<String> problemTree, Grid<SelectedProblem> selectedProblemGrid) {
         TreeData<String> treeData = new TreeData<>();
-        Tree<String> problemTree = new Tree<>("Available Problems");
         problemTree.setDataProvider(new TreeDataProvider<>(treeData));
-        Grid<SelectedProblem> selectedProblemGrid = new Grid<>(SelectedProblem.class);
-
-        selectedProblemGrid.setCaption("Selected Problems");
-        selectedProblemGrid.setDataProvider(DataProvider.ofCollection(selectedProblems));
-        selectedProblemGrid.setColumnOrder("size", "name");
-        selectedProblemGrid.sort("size", SortDirection.ASCENDING);
-        selectedProblemGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-        selectedProblemGrid.setSizeUndefined();
-
         Map<Integer, List<String>> sizeToNameMap = problemsSupplier.get();
         sizeToNameMap.entrySet().stream()
                 .sorted(Comparator.comparingInt(Map.Entry::getKey))
@@ -58,7 +90,6 @@ public class ProblemSelector extends CustomComponent {
                     problemTree.collapse();
                 });
         problemTree.setContentMode(ContentMode.TEXT);
-        problemTree.setSizeUndefined();
         problemTree.addItemClickListener(itemClick -> {
 
             String item = itemClick.getItem();
@@ -76,50 +107,14 @@ public class ProblemSelector extends CustomComponent {
                         .collect(Collectors.toList());
                 selectedProblems.addAll(toAdd);
             }
-            refreshGrid(selectedProblemGrid);
+            refreshGrid();
         });
-
-        selectedProblemGrid.addItemClickListener(itemClick -> {
-            SelectedProblem item = itemClick.getItem();
-            selectedProblems.remove(item);
-            refreshGrid(selectedProblemGrid);
-        });
-
-        HorizontalLayout treeGridLayout = new HorizontalLayout();
-        treeGridLayout.addComponents(problemTree, selectedProblemGrid);
-        treeGridLayout.setComponentAlignment(problemTree, Alignment.TOP_LEFT);
-        treeGridLayout.setComponentAlignment(selectedProblemGrid, Alignment.TOP_RIGHT);
-
-        Button addAllProblemsBtn = new Button("Add All");
-        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap, selectedProblemGrid));
-
-        mainLayout.addComponents(treeGridLayout, addAllProblemsBtn);
-        mainLayout.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
-
-
-//        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
-//        problemSelector.setLeftColumnCaption("Available Problems");
-//        problemSelector.setRightColumnCaption("Selected Problems");
-//        final List<String> availableProblems = this.service.getAvailableProblems();
-//        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
-//
-//
-//        problemSelector.addSelectionListener((MultiSelectionListener<String>) event -> {
-//            selectedProblems.clear();
-//            selectedProblems.addAll(event.getAllSelectedItems());
-//        });
-//
-//
-//
-//        _problemsContainer.addComponent(problemSelector);
-//        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
-//        _problemsContainer.addComponent(addAllProblemsBtn);
-//        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
+        return sizeToNameMap;
     }
 
-    private void refreshGrid(Grid<SelectedProblem> selectedProblemGrid) {
-        selectedProblemGrid.getDataProvider().refreshAll();
-        selectedProblemGrid.sort("size", SortDirection.ASCENDING);
+    private void refreshGrid() {
+        this.selectedProblemGrid.getDataProvider().refreshAll();
+        this.selectedProblemGrid.sort("size", SortDirection.ASCENDING);
     }
 
     private Button.ClickListener generateAddAllClickListener(Map<Integer, List<String>> map, Grid<SelectedProblem> grid) {
@@ -128,7 +123,7 @@ public class ProblemSelector extends CustomComponent {
                         names.forEach(name -> {
                             SelectedProblem selected = new SelectedProblem(name, size);
                             selectedProblems.add(selected);
-                            refreshGrid(grid);
+                            refreshGrid();
                         }));
     }
 }
