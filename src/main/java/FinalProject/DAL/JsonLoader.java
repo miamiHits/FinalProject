@@ -81,7 +81,6 @@ public class JsonLoader implements JsonLoaderInterface {
 
     private Problem loadSingleProblem(String problemName)
     {
-        loadDevices();
         Problem problem = null;
 //        final String filePath = problemName + FILE_TYPE;
         final String filePath = jsonsDir.getPath() + Matcher.quoteReplacement(File.separator) + problemName + FILE_TYPE;
