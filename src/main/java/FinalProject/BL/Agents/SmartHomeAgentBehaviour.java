@@ -328,7 +328,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         if (ticksToWork <= 0) {
             System.out.println(agent.getLocalName() + " ticks to work is " + ticksToWork);
             subsets = checkAllSubsetOptions(prop);
-            if (subsets == null) {
+            if (subsets == null ) {
                 logger.error("subsets is null!");
                 return;
             }
@@ -379,6 +379,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     private Set<Integer> chooseRandomSubset(List<Set<Integer>> subsets) {
         int size = subsets.size();
+        if (size == 0 ){
+            return new HashSet<Integer>();
+        }
         int randomNum = ThreadLocalRandom.current().nextInt(0, size);
         return subsets.get(randomNum);
     }

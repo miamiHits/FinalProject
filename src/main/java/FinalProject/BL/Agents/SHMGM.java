@@ -30,7 +30,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info("Starting work on Iteration: 0");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
-            agent.setPriceSum(calcPrice(iterationPowerConsumption));
+            agent.setPriceSum(calcCsum(iterationPowerConsumption));
             beforeIterationIsDone();
         }
         else {
@@ -78,7 +78,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         buildScheduleBasic(randomPick); //using Ci as priceSum
 
         //calculate improvement
-        double newPrice = calcPrice(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
+        double newPrice = calcCsum(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
         final double actualEpeak = tempBestPriceConsumption - newPrice;
 
         if(!randomPick) {
