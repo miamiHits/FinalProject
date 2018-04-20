@@ -15058,9 +15058,21 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .mytheme .conf-title {
-	font-weight: 400;
+	font-weight: 600;
 }
 
 .mytheme .conf-subtitle {
 	font-weight: 400;
+}
+
+.mytheme .with-min-width {
+	min-width: 150px;
+}
+
+.mytheme .with-max-width {
+	max-width: 200px;
+}
+
+.mytheme .with-max-hight {
+	max-height: 300px;
 }

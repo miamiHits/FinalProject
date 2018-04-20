@@ -4,6 +4,7 @@ import FinalProject.PL.UIEntities.SelectedProblem;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.TreeDataProvider;
+import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.shared.ui.ContentMode;
@@ -16,7 +17,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ProblemSelector extends CustomComponent {
+public class ProblemSelector extends CustomComponent{
 
     private Set<SelectedProblem> selectedProblems;
     private final VerticalLayout mainLayout = new VerticalLayout();
@@ -30,16 +31,17 @@ public class ProblemSelector extends CustomComponent {
 //        mainPanel.setContent(mainLayout);
         this.selectedProblems = selectedProblems;
         mainLayout.setCaption("Select Your Problems");
-        mainLayout.setSizeUndefined();
         setCompositionRoot(mainLayout);
         generateProblemsSection(problemsSupplier);
-        setSizeUndefined();
+        setWidth("100%");
     }
 
     private void generateProblemsSection(Supplier<Map<Integer, List<String>>> problemsSupplier) {
         problemTree = new Tree<>("Available Problems");
+        problemTree.addStyleNames("with-min-width", "with-max-width");
         Responsive.makeResponsive(problemTree);
         selectedProblemGrid = new Grid<>(SelectedProblem.class);
+        selectedProblemGrid.addStyleName("with-max-hight");
         Responsive.makeResponsive(selectedProblemGrid);
 
         Map<Integer, List<String>> sizeToNameMap = initTree(problemsSupplier, problemTree, selectedProblemGrid);
@@ -51,24 +53,21 @@ public class ProblemSelector extends CustomComponent {
 //        treeGridLayout.setWidth("100%");
         treeGridLayout.setSpacing(true);
         treeGridLayout.addComponent(problemTree);
+        treeGridLayout.setComponentAlignment(problemTree, Alignment.TOP_LEFT);
         treeGridLayout.addComponent(selectedProblemGrid);
-
-        setComponentSizes();
+        treeGridLayout.setComponentAlignment(selectedProblemGrid, Alignment.TOP_RIGHT);
 
         mainLayout.addComponents(treeGridLayout);
+        mainLayout.setComponentAlignment(treeGridLayout, Alignment.TOP_CENTER);
 
         Button addAllProblemsBtn = new Button("Add All");
         addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap, selectedProblemGrid));
         mainLayout.addComponent(addAllProblemsBtn);
         mainLayout.setComponentAlignment(addAllProblemsBtn, Alignment.BOTTOM_RIGHT);
-        mainLayout.setSizeFull();
+        Responsive.makeResponsive(mainLayout);
+        mainLayout.setWidth("100%");
     }
 
-    private void setComponentSizes() {
-        selectedProblemGrid.setSizeUndefined();
-        selectedProblemGrid.setHeight(300, Unit.PIXELS);
-        problemTree.setWidth("150px");
-    }
 
     private void initGrid() {
             selectedProblemGrid.setCaption("Selected Problems");

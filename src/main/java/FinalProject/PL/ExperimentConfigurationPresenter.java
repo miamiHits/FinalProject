@@ -39,6 +39,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private ExperimentRunningPresenter experimentRunningPresenter;
     private TwinColSelect<String> algorithmSelector;
     private HorizontalLayout configurationLayout;
+    private VerticalLayout problemsContainer;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -46,9 +47,10 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     //TODO gal for final iteration prevent use of more than one browser tab
         _algorithmsContainer = new VerticalLayout();
-//        _algorithmsContainer.setWidth("100%");
+        _algorithmsContainer.setWidth("100%");
         Responsive.makeResponsive(_algorithmsContainer);
-        VerticalLayout _problemsContainer = new VerticalLayout();
+        problemsContainer = new VerticalLayout();
+        Responsive.makeResponsive(problemsContainer);
 
         this.service = UiHandler.service;
         this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
@@ -58,13 +60,15 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         generateAlgorithmsSection();
         ProblemSelector problemSelector = new ProblemSelector(selectedProblems, () -> service.getAvailableProblems());
         Responsive.makeResponsive(problemSelector);
-        _problemsContainer.addComponent(problemSelector);
-        _problemsContainer.setWidth("100%");
+        problemsContainer.addComponent(problemSelector);
+        problemsContainer.setWidth("100%");
 
         configurationLayout = new HorizontalLayout();
-        configurationLayout.addComponent(_problemsContainer);
+        configurationLayout.addComponent(problemsContainer);
         configurationLayout.addComponent(_algorithmsContainer);
-        configurationLayout.setWidth("100%");
+        _algorithmsContainer.setHeight(problemsContainer.getHeight(), Unit.PIXELS);
+        Responsive.makeResponsive(configurationLayout);
+//        configurationLayout.setWidth("100%");
 
         Label mainTitleLbl = new Label("SHAS");
         mainTitleLbl.addStyleName("v-label-h1");
@@ -95,6 +99,8 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         UI.getCurrent().getPage().addBrowserWindowResizeListener(this);
 
+        _algorithmsContainer.setHeight(problemsContainer.getHeight(), Unit.PIXELS);
+
         setSizeFull();
     }
 
@@ -102,6 +108,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private void generateAlgorithmsSection() {
         algorithmSelector = new TwinColSelect<>();
         algorithmSelector.setWidth("100%");
+        algorithmSelector.setHeight("100%");
         Responsive.makeResponsive(algorithmSelector);
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
@@ -226,8 +233,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     public static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {
         Iterator<Component> componentIterator = layout.iterator();
-        while (componentIterator.hasNext())
-        {
+        while (componentIterator.hasNext()) {
             Component currentComponent = componentIterator.next();
             layout.setComponentAlignment(currentComponent, alignment);
         }
@@ -407,5 +413,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         if (configurationLayout != null && event.getWidth() < configurationLayout.getWidth()) {
             configurationLayout.setWidth(event.getWidth(), Unit.PIXELS);
         }
+        _algorithmsContainer.setHeight(problemsContainer.getHeight(), Unit.PIXELS);
     }
 }

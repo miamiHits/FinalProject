@@ -39,11 +39,22 @@
   }
 
   .conf-title {
-    font-weight: 400;
+    font-weight: 600;
   }
 
   .conf-subtitle {
     font-weight: 400;
   }
 
+  .with-min-width {
+    min-width: 150px;
+  }
+
+  .with-max-width {
+    max-width: 200px;
+  }
+
+  .with-max-hight {
+    max-height: 300px;
+  }
 }
