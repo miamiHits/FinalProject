@@ -74,7 +74,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
         //calc try to improve sched
         helper.resetProperties();
-        buildScheduleBasic(); //using Ci as priceSum
+        buildScheduleBasic(false); //using Ci as priceSum
 
         //calculate improvement
         double newPrice = calcPrice(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
@@ -94,8 +94,9 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         }
 
         String maxName = Utils.cleanShtrudelFromAgentName(max.getAgentName());
-        if (max.getImprovement() == 0){
-            
+        if (max.getImprovement() == 0.0){
+            logger.info(agent.getLocalName() + " 0 improvement, randomize schedule");
+            pickRandomSched();
         }
         else if (maxName.equals(agent.getLocalName())) { //take new schedule
             logger.info(agent.getLocalName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
