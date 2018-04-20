@@ -28,7 +28,7 @@ public class StatisticsHandlerTest {
     {
         ProblemAlgorithm pa1 = new ProblemAlgorithm("1", "DSA");
         AlgorithmProblemResult dsa1 =  new AlgorithmProblemResult(pa1);
-
+            return null;
     }
 
     @After
