@@ -102,6 +102,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private void generateAlgorithmsSection() {
         algorithmSelector = new TwinColSelect<>();
+        algorithmSelector.setWidth("100%");
         Responsive.makeResponsive(algorithmSelector);
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
