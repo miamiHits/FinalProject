@@ -77,7 +77,7 @@ public class DSA extends SmartHomeAgentBehaviour {
     }
 
     @Override
-    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge) {
+    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched) {
         float PROBABILITY = 0.6f;
         if (agent.isZEROIteration()) {
             startWorkZERO(prop, sensorsToCharge, ticksToWork);

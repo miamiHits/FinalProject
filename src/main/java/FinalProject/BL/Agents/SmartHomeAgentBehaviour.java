@@ -74,8 +74,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      * @param prop the property to which the schedule should be generated
      * @param ticksToWork number of active ticks needed
      * @param sensorsToCharge sensors affected
+     * @param randomSched
      */
-    protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge);
+    protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched);
 
     /**
      *
@@ -171,13 +172,13 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
             });
             if (!randomizeSched){
-                generateScheduleForProp(prop, ticksToWork, sensorsToCharge);
+                generateScheduleForProp(prop, ticksToWork, sensorsToCharge, false);
             }
             else{ //random pick
-
+                generateScheduleForProp(prop, ticksToWork, sensorsToCharge,true);
             }
             if (currentNumberOfIter > 0) {
-                tempBestPriceConsumption = helper.calcTotalPowerConsumption(calcPrice(iterationPowerConsumption), iterationPowerConsumption);
+                tempBestPriceConsumption = helper.calcTotalPowerConsumption(calcCsum(iterationPowerConsumption), iterationPowerConsumption);
             }
         }
     }
@@ -345,24 +346,22 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     private void applyRandomChoice(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
-        List<Integer> newTicks = pickRandomSchedule(prop, subsets);
+        List<Integer> newTicks = pickRandomScheduleForProp(prop, subsets);
         updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
         updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
     }
 
-    private List<Integer> pickRandomSchedule(PropertyWithData prop, List<Set<Integer>> subsets) {
+    private List<Integer> pickRandomScheduleForProp(PropertyWithData prop, List<Set<Integer>> subsets) {
         List<Integer> newTicks = new ArrayList<>();
         double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
         List<double[]> allScheds = agent.getMyNeighborsShed().stream()
                 .map(AgentIterationData::getPowerConsumptionPerTick)
                 .collect(Collectors.toList());
-        int index = allScheds.size();
         List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
         //remove current prop consumption
         for (Integer tick : prevTicks) {
             newPowerConsumption[tick] -= prop.getPowerConsumedInWork();
         }
-        double[] copyOfNew = helper.cloneArray(newPowerConsumption);
 
         //pick random option
         Set<Integer> ticks = chooseRandomSubset(subsets);
@@ -373,12 +372,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         allScheds.add(newPowerConsumption);
         double res = calcImproveOptionGrade(newPowerConsumption, allScheds);
         tempBestPriceConsumption = res;
-        newTicks.clear();
         newTicks.addAll(ticks);
 
-        //reset
-        newPowerConsumption = helper.cloneArray(copyOfNew);
-        allScheds.remove(index); //remove this new sched
         return newTicks;
     }
 
@@ -494,7 +489,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void beforeIterationIsDone() {
-        //addBackgroundLoadToPowerConsumption(this.iterationPowerConsumption);
         double price = calcPrice(this.iterationPowerConsumption);
         double[] arr = helper.cloneArray(this.iterationPowerConsumption);
         logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
@@ -650,11 +644,5 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             }
         } while (receivedMessage != null);
     }
-
-    protected void pickRandomSched() {
-        helper.resetProperties();
-        buildScheduleBasic(true); //build random schedule
-    }
-
 
 }
