@@ -38,8 +38,9 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private Service service;
     private ExperimentRunningPresenter experimentRunningPresenter;
     private TwinColSelect<String> algorithmSelector;
-    private HorizontalLayout configurationLayout;
     private VerticalLayout problemsContainer;
+    private Layout currConfigLayout;
+    private boolean isHorizontal = true;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -63,11 +64,12 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         problemsContainer.addComponent(problemSelector);
         problemsContainer.setWidth("100%");
 
-        configurationLayout = new HorizontalLayout();
+        HorizontalLayout configurationLayout = new HorizontalLayout();
         configurationLayout.addComponent(problemsContainer);
         configurationLayout.addComponent(_algorithmsContainer);
         _algorithmsContainer.setHeight(problemsContainer.getHeight(), Unit.PIXELS);
         Responsive.makeResponsive(configurationLayout);
+        currConfigLayout = configurationLayout;
 //        configurationLayout.setWidth("100%");
 
         Label mainTitleLbl = new Label("SHAS");
@@ -265,7 +267,8 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Button clickedButton = event.getButton();
         if (clickedButton.equals(startExperimentBtn))
         {
-            startExperimentClicked();
+//            startExperimentClicked();
+            horizontalToVerticalToggle();
         }
         else if (clickedButton.equals(addNewAlgorithmBtn)) {
             addNewAlgoClicked();
@@ -408,11 +411,32 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         experimentRunningPresenter.setAlgorithmProblemPairs(problemAlgoPairs);
     }
 
+    private void horizontalToVerticalToggle() {
+        Layout layout;
+        if (isHorizontal) {
+            layout = new VerticalLayout();
+            isHorizontal = false;
+        } else {
+            layout = new HorizontalLayout();
+            isHorizontal = true;
+        }
+        Layout parent = (Layout) currConfigLayout.getParent();
+        layout.setCaption(currConfigLayout.getCaption());
+        List<Component> components = new ArrayList<>();
+        currConfigLayout.forEach(components::add);
+//        parent.removeComponent(currConfigLayout);
+        components.forEach(layout::addComponent);
+        Layout old = currConfigLayout;
+        currConfigLayout = layout;
+        parent.replaceComponent(old, layout);
+    }
+
     @Override
     public void browserWindowResized(Page.BrowserWindowResizeEvent event) {
-        if (configurationLayout != null && event.getWidth() < configurationLayout.getWidth()) {
-            configurationLayout.setWidth(event.getWidth(), Unit.PIXELS);
-        }
+        //TODO
+//        if (configurationLayout != null && event.getWidth() < configurationLayout.getWidth()) {
+//            configurationLayout.setWidth(event.getWidth(), Unit.PIXELS);
+//        }
         _algorithmsContainer.setHeight(problemsContainer.getHeight(), Unit.PIXELS);
     }
 }
