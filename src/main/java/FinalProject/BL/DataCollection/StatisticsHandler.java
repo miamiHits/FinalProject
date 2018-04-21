@@ -83,6 +83,11 @@ public class StatisticsHandler {
                            arr[i] = value.get(i).getHighestCostForAgentInBestIteration().get(j);
                            break;
                        case TotalConsumption:
+                           if(key.equals("SHMGM"))
+                           {
+                               dataset.add(value.get(i).getBestTotalGradePerIter().get(j), null, "SHMGM best grade", j);
+
+                           }
                            //logger.info("DEBUG YARDEN: entry.getValue().get(i) of TotalConsumption is: " + entry.getValue().get(i).getAvgPricePerIteration().get(j));
                            arr[i] = value.get(i).getTotalGradePerIteration().get(j);
                            break;
@@ -92,7 +97,7 @@ public class StatisticsHandler {
                }
                //TODO
                //logger.info("DEBUG YARDEN: key is-->" + key);
-               if (key.equals("DSA"))
+               if (key.equals("SHMGM"))
                {
                    Number std = j < displayedErrorBarsCount || j % (ITER_NUM / displayedErrorBarsCount) == 0 ? //disaply only displayedErrorBarsCount error bars for each algorithms
                            calculateSD(arr) :
