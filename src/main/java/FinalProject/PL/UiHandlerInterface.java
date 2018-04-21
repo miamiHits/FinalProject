@@ -10,9 +10,9 @@ public interface UiHandlerInterface {
 
     void showExperimentRunningScreen();
 
-    void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Long> probToAlgoTotalTime);
+    void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Map<Integer, Long>>  probToAlgoTotalTime);
 
-    void notifyExperimentEnded(List<AlgorithmProblemResult> results, Map<String, Long> probToAlgoTotalTime);
+    void notifyExperimentEnded(List<AlgorithmProblemResult> results,Map<String, Map<Integer, Long>>  probToAlgoTotalTime);
 
     void notifyError(String msg);
 
