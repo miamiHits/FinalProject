@@ -124,9 +124,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
         Date date = new Date() ;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd--MM--yyyy_HH-mm") ;
-        //just for check the csv - we can change it later
-        csvHandler csv = new csvHandler(dateFormat.format(date)+"_results.csv");
         StatisticsHandler sth = new StatisticsHandler(experimentResults, probToAlgoTotalTime);
+
+        //just for check the csv - we can change it later
+        csvHandler csv = new csvHandler(dateFormat.format(date)+"_results.csv", sth.getTotalPowerConsumption());
         resultsPresenter.setPowerConsumptionGraph(sth.totalConsumption());
         resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
         resultsPresenter.setLowestAgentGrapthGrapth(sth.lowestAgent());

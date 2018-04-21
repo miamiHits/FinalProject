@@ -44,6 +44,30 @@ public class StatisticsHandler {
         });
     }
 
+    public Map<String, List<Double>> getTotalPowerConsumption()
+    {
+        Map<String, List<Double>> res = new HashMap<>();
+
+        experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
+            List<Double> iterRes = new ArrayList<>();
+            int size = value.size();
+            double total;
+            double[] arr = new double[size];
+            for (int j = 0; j < ITER_NUM; j++) {
+                total = 0;
+                for (int i = 0; i < size; i++) {
+                    arr[i] = value.get(i).getTotalGradePerIteration().get(j);
+                    total += arr[i];
+                }
+
+                iterRes.add(total/size);
+            }
+            res.put(key, iterRes);
+        });
+        logger.info("DEBUG YARDEN: gogt total :" + res.size());
+        return res;
+    }
+
     public DefaultStatisticalCategoryDataset totalConsumption()
     {
         DefaultStatisticalCategoryDataset dataset = new DefaultStatisticalCategoryDataset();
