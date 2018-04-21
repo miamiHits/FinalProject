@@ -139,7 +139,7 @@ public class StatisticsHandler {
                     }
 
                }
-                logger.info("DEBUG YARDEN: in stats class. iter " +j+ "took :" + totalTime + "there are " + counter+ " from " + name);
+                //logger.info("DEBUG YARDEN: in stats class. iter " +j+ "took :" + totalTime + "there are " + counter+ " from " + name);
                 dataset.add((totalTime/counter), null, name, j);
             }
         }
