@@ -11,6 +11,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
@@ -142,6 +143,12 @@ public class ExperimentResultsPresenter extends Panel implements View{
         statisticalRenderer.setBaseItemLabelsVisible(true);
         statisticalRenderer.setSeriesShape(0, new Rectangle2D.Double(0, 0, 0, 0));
         plot.getCategoryPlot().setRenderer(statisticalRenderer);
+        CategoryPlot chart = (CategoryPlot) plot.getPlot();
+        CategoryAxis cx = new CategoryAxis();
+        cx.setTickLabelsVisible(true);
+        cx.setTickMarksVisible(true);
+
+        chart.setDomainAxis(cx);
 
         //Design
         // set the background color for the chart...

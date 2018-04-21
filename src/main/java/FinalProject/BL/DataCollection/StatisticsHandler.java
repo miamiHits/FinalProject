@@ -64,7 +64,6 @@ public class StatisticsHandler {
             }
             res.put(key, iterRes);
         });
-        logger.info("DEBUG YARDEN: gogt total :" + res.size());
         return res;
     }
 
@@ -92,11 +91,15 @@ public class StatisticsHandler {
 
     private void calcDataSet(graphType command, DefaultStatisticalCategoryDataset dataset)
    {
+       int switchErrorBar = ITER_NUM / experimentResults.keySet().size();
+       Set<String> numberOfAlgo = experimentResults.keySet();
        experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
+           int whenToSwitch =0;
            int size = value.size();
            double total;
            double[] arr = new double[size];
            for (int j = 0; j < ITER_NUM; j++) {
+
                total = 0;
                for (int i = 0; i < size; i++) {
                    switch (command) {
@@ -119,18 +122,25 @@ public class StatisticsHandler {
 
                    total += arr[i];
                }
-               //TODO
-               //logger.info("DEBUG YARDEN: key is-->" + key);
-               if (key.equals("SHMGM"))
-               {
-                   Number std = j < displayedErrorBarsCount || j % (ITER_NUM / displayedErrorBarsCount) == 0 ? //disaply only displayedErrorBarsCount error bars for each algorithms
-                           calculateSD(arr) :
-                           null;
-                   dataset.add(total / size, std, key, j);
-               }
-               else{
-                   dataset.add(total / size, null, key, j);
-               }
+                   Number std = j < displayedErrorBarsCount || j % (ITER_NUM / displayedErrorBarsCount) == 0 ? calculateSD(arr) : null;
+
+                  if (whenToSwitch <= switchErrorBar && key.equals("DSA"))
+                   {
+
+                       dataset.add(total / size, std, key, j);
+                   }
+                   else if (whenToSwitch > switchErrorBar && key.equals("SHMGM")) {
+                       dataset.add(total / size, std, key, j);
+
+                   }
+                   else{
+                       dataset.add(total / size, null, key, j);
+                   }
+
+
+
+
+               whenToSwitch++;
 
            }
        });
