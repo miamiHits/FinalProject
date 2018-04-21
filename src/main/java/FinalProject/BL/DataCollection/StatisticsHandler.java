@@ -12,11 +12,11 @@ public class StatisticsHandler {
     public static int displayedErrorBarsCount = 10;
 
     private List<AlgorithmProblemResult> experimentResultsNotSort;
-    private Map<String, Long> probNAlgToTotalTime;
+    private Map<String, Map<Integer, Long>> probNAlgToTotalTime;
     private Map<String, List<AlgorithmProblemResult>> experimentResults = new HashMap<>();
     private int ITER_NUM;
     private static Logger logger = Logger.getLogger(StatisticsHandler.class);
-    public StatisticsHandler(List<AlgorithmProblemResult> experimentResults, Map<String, Long> probToAlgoTotalTime)
+    public StatisticsHandler(List<AlgorithmProblemResult> experimentResults, Map<String, Map<Integer, Long>>  probToAlgoTotalTime)
     {
         this.experimentResultsNotSort = experimentResults;
         logger.info("experimentResults is:" + experimentResults.toString());
@@ -70,10 +70,10 @@ public class StatisticsHandler {
    {
        experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
            int size = value.size();
-           double average;
+           double total;
            double[] arr = new double[size];
            for (int j = 0; j < ITER_NUM; j++) {
-               average = 0;
+               total = 0;
                for (int i = 0; i < size; i++) {
                    switch (command) {
                        case LowestPrice:
@@ -88,12 +88,21 @@ public class StatisticsHandler {
                            break;
                    }
 
-                   average += arr[i];
+                   total += arr[i];
                }
-               Number std = j < displayedErrorBarsCount || j % (ITER_NUM / displayedErrorBarsCount) == 0 ? //disaply only displayedErrorBarsCount error bars for each algorithms
-                       calculateSD(arr) :
-                       null;
-               dataset.add(average / size, std, key, new Integer(j));
+               //TODO
+               //logger.info("DEBUG YARDEN: key is-->" + key);
+               if (key.equals("DSA"))
+               {
+                   Number std = j < displayedErrorBarsCount || j % (ITER_NUM / displayedErrorBarsCount) == 0 ? //disaply only displayedErrorBarsCount error bars for each algorithms
+                           calculateSD(arr) :
+                           null;
+                   dataset.add(total / size, std, key, j);
+               }
+               else{
+                   dataset.add(total / size, null, key, j);
+               }
+
            }
        });
    }
@@ -115,25 +124,24 @@ public class StatisticsHandler {
         return Math.sqrt(standardDeviation/10);
     }
 
-    public DefaultCategoryDataset averageTime()
+    public DefaultStatisticalCategoryDataset averageTime()
     {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        DefaultStatisticalCategoryDataset dataset = new DefaultStatisticalCategoryDataset();
         Set<String> algoNames = experimentResults.keySet();
-        for(String name: algoNames)
-        {
-            int counter=0;
-            long totalTime = 0;
-            for(Map.Entry<String, Long> entry : probNAlgToTotalTime.entrySet())
-            {
-                if (entry.getKey().contains(name))
-                {
-                    counter++;
+        for (int j = 0; j < ITER_NUM; j++) {
+            for (String name : algoNames) {
+                int counter=0;
+                long totalTime = 0;
+                for (Map.Entry<String, Map<Integer, Long>> entry : probNAlgToTotalTime.entrySet()) {
+                    if (entry.getKey().contains(name)) {
+                        counter++;
+                        totalTime += entry.getValue().get(j);
+                    }
 
-                    totalTime+=entry.getValue();
-                }
-
+               }
+                logger.info("DEBUG YARDEN: in stats class. iter " +j+ "took :" + totalTime + "there are " + counter+ " from " + name);
+                dataset.add((totalTime/counter), null, name, j);
             }
-            dataset.addValue(totalTime/counter, name, "Iteration Run Time (ms)");
         }
         return dataset;
     }

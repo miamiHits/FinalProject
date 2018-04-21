@@ -83,7 +83,7 @@ public class Service {
         this.currExperiment.stopExperiment();
     }
 
-    public void experimentEnded(List<AlgorithmProblemResult> results, Map<String, Long> probToAlgoTotalTime)
+    public void experimentEnded(List<AlgorithmProblemResult> results, Map<String, Map<Integer, Long>>  probToAlgoTotalTime)
     {
         observer.notifyExperimentEnded(results, probToAlgoTotalTime);
     }

@@ -115,7 +115,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
     }
 
     @Override
-    public void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Long> probToAlgoTotalTime) {
+    public void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Map<Integer, Long>>  probToAlgoTotalTime) {
         for (AlgorithmProblemResult res : experimentResults)
         {
             System.out.println(res.toString());
@@ -148,7 +148,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
     }
 
     @Override
-    public void notifyExperimentEnded(List<AlgorithmProblemResult> results, Map<String, Long> probToAlgoTotalTime)
+    public void notifyExperimentEnded(List<AlgorithmProblemResult> results, Map<String, Map<Integer, Long>>  probToAlgoTotalTime)
     {
         System.out.println("Experiment Ended!");
         showResultScreen(results, probToAlgoTotalTime);

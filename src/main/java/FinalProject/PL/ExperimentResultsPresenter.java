@@ -11,6 +11,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
@@ -20,6 +21,8 @@ import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
 import org.vaadin.addon.JFreeChartWrapper;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.text.NumberFormat;
 
 
 public class ExperimentResultsPresenter extends Panel implements View{
@@ -27,7 +30,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private DefaultStatisticalCategoryDataset powerConsumptionGraph;
     private DefaultStatisticalCategoryDataset highestAgentGraph;
     private DefaultStatisticalCategoryDataset lowestAgentGraph;
-    private DefaultCategoryDataset averageExperimentTime;
+    private DefaultStatisticalCategoryDataset averageExperimentTime;
     private DefaultCategoryDataset messagesNumPerAlgo;
     private DefaultCategoryDataset messagesSizeAvePerAlgo;
 
@@ -47,7 +50,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
                 leftGraphsLayout.addComponent(generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo));
 
                 rightGraphsLayout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph, false));
-                rightGraphsLayout.addComponent(generateBarChart("Average run time per Algorithm #", null, null, averageExperimentTime));
+                rightGraphsLayout.addComponent(generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime, false));
                 rightGraphsLayout.addComponent(generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo));
                 leftGraphsLayout.setWidth("100%");
                 rightGraphsLayout.setWidth("100%");
@@ -111,7 +114,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
         this.lowestAgentGraph = lowestAgent;
     }
 
-    public void setAverageExperimentTime(DefaultCategoryDataset aveTime)
+    public void setAverageExperimentTime(DefaultStatisticalCategoryDataset aveTime)
     {
         this.averageExperimentTime = aveTime;
     }
@@ -131,8 +134,13 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private Component generateLineGraphWithErrorBars(String title, String xAxisLabel, String yAxisLabel, DefaultStatisticalCategoryDataset dataset, boolean shapesIsVisible)
     {
         JFreeChart plot = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);
-        StatisticalLineAndShapeRenderer statisticalRenderer = new StatisticalLineAndShapeRenderer(true, shapesIsVisible);
+        StatisticalLineAndShapeRenderer statisticalRenderer = new StatisticalLineAndShapeRenderer(true, true);
+        statisticalRenderer.setBaseItemLabelGenerator(
+                new StandardCategoryItemLabelGenerator("{2}",
+                        NumberFormat.getNumberInstance()));
         statisticalRenderer.setErrorIndicatorPaint(Color.white);
+        statisticalRenderer.setBaseItemLabelsVisible(true);
+        statisticalRenderer.setSeriesShape(0, new Rectangle2D.Double(0, 0, 0, 0));
         plot.getCategoryPlot().setRenderer(statisticalRenderer);
 
         //Design
