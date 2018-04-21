@@ -73,17 +73,17 @@ public class DSA extends SmartHomeAgentBehaviour {
 
     private void resetAndBuildSchedule() {
         helper.resetProperties();
-        buildScheduleBasic();
+        buildScheduleBasic(false);
     }
 
     @Override
-    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge) {
+    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched) {
         float PROBABILITY = 0.6f;
         if (agent.isZEROIteration()) {
             startWorkZERO(prop, sensorsToCharge, ticksToWork);
         }
         else if (flipCoin(PROBABILITY)) {
-            startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork);
+            startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork, false);
         }
         else {
             updateTotals(prop, prop.activeTicks, sensorsToCharge);
