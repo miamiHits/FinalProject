@@ -33,7 +33,7 @@ public class ProblemSelector extends CustomComponent{
         mainLayout.setCaption("Select Your Problems");
         setCompositionRoot(mainLayout);
         generateProblemsSection(problemsSupplier);
-        setWidth("100%");
+//        setWidth("100%");
     }
 
     private void generateProblemsSection(Supplier<Map<Integer, List<String>>> problemsSupplier) {

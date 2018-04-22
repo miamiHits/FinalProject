@@ -62,15 +62,16 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         ProblemSelector problemSelector = new ProblemSelector(selectedProblems, () -> service.getAvailableProblems());
         Responsive.makeResponsive(problemSelector);
         problemsContainer.addComponent(problemSelector);
+        problemsContainer.setCaption("Select Your Problems");
         problemsContainer.setWidth("100%");
 
-        HorizontalLayout configurationLayout = new HorizontalLayout();
-        configurationLayout.addComponent(problemsContainer);
-        configurationLayout.addComponent(_algorithmsContainer);
+        GridLayout configurationLayout = new GridLayout(2,1);
+        configurationLayout.addComponent(problemsContainer, 0, 0);
+        configurationLayout.addComponent(_algorithmsContainer, 1, 0);
         _algorithmsContainer.setHeight(problemsContainer.getHeight(), Unit.PIXELS);
         Responsive.makeResponsive(configurationLayout);
+        configurationLayout.setWidth("100%");
         currConfigLayout = configurationLayout;
-//        configurationLayout.setWidth("100%");
 
         Label mainTitleLbl = new Label("SHAS");
         mainTitleLbl.addStyleName("v-label-h1");
@@ -265,10 +266,8 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     @Override
     public void buttonClick(Button.ClickEvent event) {
         Button clickedButton = event.getButton();
-        if (clickedButton.equals(startExperimentBtn))
-        {
-//            startExperimentClicked();
-            horizontalToVerticalToggle();
+        if (clickedButton.equals(startExperimentBtn)) {
+            startExperimentClicked();
         }
         else if (clickedButton.equals(addNewAlgorithmBtn)) {
             addNewAlgoClicked();
@@ -431,12 +430,25 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         parent.replaceComponent(old, layout);
     }
 
+    private float getConfigConatinerWidth() {
+        float problemsWidth = problemsContainer.getWidth();
+        float algorithmWidth = algorithmSelector.getWidth();
+        if (isHorizontal) {
+            return problemsWidth + algorithmWidth;
+        }
+        else {
+            return Math.max(problemsWidth, algorithmWidth);
+        }
+    }
+
     @Override
     public void browserWindowResized(Page.BrowserWindowResizeEvent event) {
-        //TODO
-//        if (configurationLayout != null && event.getWidth() < configurationLayout.getWidth()) {
-//            configurationLayout.setWidth(event.getWidth(), Unit.PIXELS);
-//        }
+        if (currConfigLayout != null && event.getWidth() < currConfigLayout.getWidth()) {
+            currConfigLayout.setWidth(event.getWidth(), Unit.PIXELS);
+            if (getConfigConatinerWidth() < event.getWidth()) {
+                horizontalToVerticalToggle();
+            }
+        }
         _algorithmsContainer.setHeight(problemsContainer.getHeight(), Unit.PIXELS);
     }
 }
