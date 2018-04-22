@@ -3,6 +3,9 @@ package FinalProject.PL;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.PL.UIEntities.SelectedProblem;
 import FinalProject.Service;
+import com.jarektoro.responsivelayout.ResponsiveColumn;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
@@ -29,8 +32,6 @@ import java.util.stream.Collectors;
 
 public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener, Page.BrowserWindowResizeListener {
 
-    private VerticalLayout _algorithmsContainer;
-
     private Button startExperimentBtn = new Button("Start Experiment");
     private TextField numberOfIterationsTxt = new TextField("Select Number of Iterations");
     private Button addNewAlgorithmBtn = new Button("Add New Algorithm");
@@ -41,12 +42,13 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private Service service;
     private ExperimentRunningPresenter experimentRunningPresenter;
     private TwinColSelect<String> algorithmSelector;
-    private VerticalLayout problemsContainer;
-//    private Layout currConfigLayout;
     private boolean isHorizontal = true;
-    private GridLayout configurationLayout;
+    private ResponsiveLayout configurationLayout;
     private Grid<SelectedProblem> selectedProblemGrid;
     private Tree<String> problemTree;
+
+    public ExperimentConfigurationPresenter() {
+    }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -61,10 +63,11 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         VerticalLayout mainLayout = new VerticalLayout();
 
-        configurationLayout = new GridLayout(3,2);
+        configurationLayout = new ResponsiveLayout();
+        ResponsiveRow row = configurationLayout.addRow();
         configurationLayout.setSizeFull();
-        configurationLayout.setSpacing(true);
-        generateProblemsSection();
+//        configurationLayout.setSpacing(true);
+        generateProblemsSection(row);
         generateAlgorithmsSection();
 //        ProblemSelector problemSelector = new ProblemSelector(selectedProblems, () -> service.getAvailableProblems());
 //        Responsive.makeResponsive(problemSelector);
@@ -148,7 +151,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     }
 
-    private void generateProblemsSection() {
+    private void generateProblemsSection(ResponsiveRow row) {
         problemTree = new Tree<>("Available Problems");
         problemTree.addStyleNames("with-min-width", "with-max-width");
         Responsive.makeResponsive(problemTree);
@@ -160,8 +163,17 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Map<Integer, List<String>> sizeToNameMap = initTree(problemTree);
         initGrid();
 
-        configurationLayout.addComponent(problemTree, 0, 0);
-        configurationLayout.addComponent(selectedProblemGrid, 1, 0);
+        Button addAllProblemsBtn = new Button("Add All");
+        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap, selectedProblemGrid));
+
+        ResponsiveColumn problemCol =  row.addColumn();
+        ResponsiveRow topRow = new ResponsiveRow();
+        topRow.addComponents(problemTree, selectedProblemGrid);
+        topRow.setSpacing(true);
+        problemCol.setComponent(topRow);
+        row.addColumn(problemCol);
+//        configurationLayout.addComponent(problemTree, 0, 0);
+//        configurationLayout.addComponent(selectedProblemGrid, 1, 0);
 //        HorizontalLayout treeGridLayout = new HorizontalLayout();
 //        treeGridLayout.setWidth("100%");
 //        treeGridLayout.setSpacing(true);
@@ -173,10 +185,8 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 //        mainLayout.addComponents(treeGridLayout);
 //        mainLayout.setComponentAlignment(treeGridLayout, Alignment.TOP_CENTER);
 
-        Button addAllProblemsBtn = new Button("Add All");
-        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap, selectedProblemGrid));
-        configurationLayout.addComponent(addAllProblemsBtn, 1, 1);
-        configurationLayout.setComponentAlignment(addAllProblemsBtn, Alignment.BOTTOM_RIGHT);
+//        configurationLayout.addComponent(addAllProblemsBtn, 1, 1);
+//        configurationLayout.setComponentAlignment(addAllProblemsBtn, Alignment.BOTTOM_RIGHT);
 //        mainLayout.addComponent(addAllProblemsBtn);
 //        mainLayout.setComponentAlignment(addAllProblemsBtn, Alignment.BOTTOM_RIGHT);
 //        Responsive.makeResponsive(mainLayout);
@@ -540,16 +550,16 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 //        parent.replaceComponent(old, layout);
 //    }
 
-    private float getConfigConatinerWidth() {
-        float problemsWidth = problemsContainer.getWidth();
-        float algorithmWidth = algorithmSelector.getWidth();
-        if (isHorizontal) {
-            return problemsWidth + algorithmWidth;
-        }
-        else {
-            return Math.max(problemsWidth, algorithmWidth);
-        }
-    }
+//    private float getConfigConatinerWidth() {
+//        float problemsWidth = problemsContainer.getWidth();
+//        float algorithmWidth = algorithmSelector.getWidth();
+//        if (isHorizontal) {
+//            return problemsWidth + algorithmWidth;
+//        }
+//        else {
+//            return Math.max(problemsWidth, algorithmWidth);
+//        }
+//    }
 
     @Override
     public void browserWindowResized(Page.BrowserWindowResizeEvent event) {
