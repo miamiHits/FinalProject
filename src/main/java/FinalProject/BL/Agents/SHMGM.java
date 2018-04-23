@@ -83,6 +83,9 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
         if(!randomPick) {
             double improvement = prevTotalCost - tempBestPriceConsumption;
+            if (improvement < 0) {
+                logger.error(agent.getLocalName() + "'s impro is NEGATIVE!! " + improvement);
+            }
             ImprovementMsg impMsg = sendImprovementToNeighbours(improvement, prevIterPowerConsumption);
             List<ImprovementMsg> receivedImprovements = receiveImprovements();
             receivedImprovements.add(impMsg);

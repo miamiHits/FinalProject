@@ -471,21 +471,43 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected List<Set<Integer>> checkAllSubsetOptions(PropertyWithData prop) {
-        List<Integer> rangeForWork =  calcRangeOfWork(prop);
-         double currState = prop.getSensor().getCurrentState();
-         double minVal = prop.getTargetValue();
-         double deltaIfNoActiveWorkIsDone = (currState - minVal) - ((Math.abs(prop.getDeltaWhenWorkOffline())) * rangeForWork.size());
-         int ticksToWork = 0;
-         if (deltaIfNoActiveWorkIsDone > 0) {
-             return null;
-         }
-         for (int i = 0; i < rangeForWork.size(); ++i) {
-             ticksToWork++;
-             deltaIfNoActiveWorkIsDone = Double.sum(deltaIfNoActiveWorkIsDone, prop.getDeltaWhenWork());
-             if(deltaIfNoActiveWorkIsDone > 0) {
-                 break;
-             }
-         }
+         List<Integer> rangeForWork =  calcRangeOfWork(prop);
+        int numOfTicksInRange = rangeForWork.size();
+        int ticksToWork = 0;
+        double currState = prop.getSensor().getCurrentState();
+        double targetValue = prop.getTargetValue();
+        if (prop.getDeltaWhenWork() >= 0 && currState <= targetValue) {
+            double deltaIfNoActiveWorkIsDone = (currState - targetValue) - ((Math.abs(prop.getDeltaWhenWorkOffline())) * numOfTicksInRange);
+            //delta > 0 and deltaIfNoActiveWorkIsDone >= 0 => no work to be done
+            if (deltaIfNoActiveWorkIsDone >= 0) {
+                logger.warn("checkAllSubsetOptions: " + agent.getLocalName() + "'s deltaIfNoActiveWorkIsDone >= 0. returning empty subset!");
+                return new ArrayList<>(0);
+            }
+            //delta > 0 and currState < 0 => need to work
+            for (int i = 0; i < numOfTicksInRange; ++i) {
+                ticksToWork++;
+                deltaIfNoActiveWorkIsDone = deltaIfNoActiveWorkIsDone + prop.getDeltaWhenWork();
+                if(deltaIfNoActiveWorkIsDone >= 0) {
+                    break;
+                }
+            }
+        }
+        else if (prop.getDeltaWhenWork() < 0 && currState >= targetValue) {
+            double deltaIfNoActiveWorkIsDone = (targetValue - currState) - ((Math.abs(prop.getDeltaWhenWorkOffline())) * numOfTicksInRange);
+            //delta < 0 and deltaIfNoActiveWorkIsDone <= 0 => no work to be done
+            if (deltaIfNoActiveWorkIsDone <= 0) {
+                logger.warn("checkAllSubsetOptions: " + agent.getLocalName() + "'s deltaIfNoActiveWorkIsDone <= 0. returning empty subset!");
+                return new ArrayList<>(0);
+            }
+            //delta < 0 and deltaIfNoActiveWorkIsDone > 0 => need to work {
+            for (int i = 0; i < numOfTicksInRange; ++i) {
+                ticksToWork++;
+                deltaIfNoActiveWorkIsDone = deltaIfNoActiveWorkIsDone + prop.getDeltaWhenWork();
+                if(deltaIfNoActiveWorkIsDone <= 0) {
+                    break;
+                }
+            }
+        }
         return helper.getSubsets(rangeForWork, ticksToWork);
     }
 
