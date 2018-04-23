@@ -1,61 +1,75 @@
 package FinalProject.PL;
 
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
+import FinalProject.PL.UIEntities.SelectedProblem;
 import FinalProject.Service;
+import com.jarektoro.responsivelayout.ResponsiveColumn;
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
-import com.vaadin.event.selection.MultiSelectionEvent;
+import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.selection.MultiSelectionListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Page;
+import com.vaadin.server.Responsive;
 import com.vaadin.server.StreamVariable;
+import com.vaadin.shared.data.sort.SortDirection;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.themes.ValoTheme;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener {
-
-    private VerticalLayout _algorithmsContainer;
-    private VerticalLayout _problemsContainer;
 
     private Button startExperimentBtn = new Button("Start Experiment");
     private TextField numberOfIterationsTxt = new TextField("Select Number of Iterations");
     private Button addNewAlgorithmBtn = new Button("Add New Algorithm");
 
     private final List<String> selectedAlgorithms = new ArrayList<>();
-    private final List<String> selectedProblems = new ArrayList<>();
+    private final Set<SelectedProblem> selectedProblems = new HashSet<>();
 
     private Service service;
     private ExperimentRunningPresenter experimentRunningPresenter;
     private TwinColSelect<String> algorithmSelector;
+    private Grid<SelectedProblem> selectedProblemGrid;
+
+    private final int COL_SIZE = 6;
+
+    public ExperimentConfigurationPresenter() {
+    }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-
-
     //TODO gal for final iteration prevent use of more than one browser tab
-        _algorithmsContainer = new VerticalLayout();
-        _problemsContainer = new VerticalLayout();
-
         this.service = UiHandler.service;
         this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
 
         VerticalLayout mainLayout = new VerticalLayout();
+        //TODO uncomment to add background image!
+//        mainLayout.setStyleName("with-bg-image");
 
-        generateAlgorithmsSection();
-        generateProblemsSection();
+        ResponsiveLayout configurationLayout = new ResponsiveLayout(ResponsiveLayout.ContainerType.FLUID)
+                .withSpacing();
+        configurationLayout.setSizeFull();
+        ResponsiveRow row = configurationLayout.addRow()
+                .withAlignment(Alignment.MIDDLE_CENTER)
+                .withSpacing(true);
+        row.setDefaultRules(2 * COL_SIZE + 1, 2 * COL_SIZE + 1,
+                2 * COL_SIZE + 1, 2 * COL_SIZE + 1);
 
-        HorizontalLayout configurationLayout = new HorizontalLayout();
-        configurationLayout.addComponent(_problemsContainer);
-        configurationLayout.addComponent(_algorithmsContainer);
+        generateProblemsSection(row);
+        generateAlgorithmsSection(row);
 
         Label mainTitleLbl = new Label("SHAS");
         mainTitleLbl.addStyleName("v-label-h1");
@@ -63,8 +77,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
 
         Label subtitleLbl = new Label("Smart Home Agent Simulator");
-        subtitleLbl.addStyleName("v-label-h2");
-        subtitleLbl.addStyleName("conf-subtitle");
+        subtitleLbl.addStyleName(ValoTheme.LABEL_LARGE);
 
         mainLayout.addComponent(mainTitleLbl);
         mainLayout.addComponent(subtitleLbl);
@@ -87,11 +100,12 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     }
 
 
-    private void generateAlgorithmsSection()
-    {
-        algorithmSelector = new TwinColSelect<>("Select Your Algorithms");
+    private void generateAlgorithmsSection(ResponsiveRow row) {
+        algorithmSelector = new TwinColSelect<>();
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
+        algorithmSelector.setCaption("Select your algorithms");
+        algorithmSelector.addStyleName("algo-selector");
         final List<String> availableAlgorithms = refreshAlgorithms();
 
         algorithmSelector.addSelectionListener((MultiSelectionListener<String>) event -> {
@@ -102,11 +116,127 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Button addAllAlgorithmsBtn = new Button("Add All");
         addAllAlgorithmsBtn.addClickListener(generateAddAllClickListener(availableAlgorithms, algorithmSelector));
 
-        _algorithmsContainer.addComponent(algorithmSelector);
-        _algorithmsContainer.setComponentAlignment(algorithmSelector, Alignment.TOP_CENTER);
-        _algorithmsContainer.addComponent(addAllAlgorithmsBtn);
-        _algorithmsContainer.setComponentAlignment(addAllAlgorithmsBtn, Alignment.MIDDLE_RIGHT);
+        ResponsiveRow topRow = new ResponsiveRow()
+                .withComponents(algorithmSelector)
+                .withAlignment(Alignment.TOP_RIGHT);
+        topRow.setDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+        ResponsiveRow bottomRow = new ResponsiveRow()
+                .withComponents(addAllAlgorithmsBtn)
+                .withSpacing(true)
+                .withAlignment(Alignment.BOTTOM_LEFT);
+        bottomRow.setDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+        ResponsiveLayout algoLayout = new ResponsiveLayout()
+                .withSpacing();
+        algoLayout.addRow(topRow);
+        algoLayout.addRow(bottomRow);
+        algoLayout.setHeight("100%");
+        ResponsiveColumn col = row.addColumn()
+                .withComponent(algoLayout);
+        col.setAlignment(ResponsiveColumn.ColumnComponentAlignment.RIGHT);
+    }
 
+    private void generateProblemsSection(ResponsiveRow row) {
+        Tree<String> problemTree = new Tree<>("Available Problems");
+        problemTree.addStyleNames("with-min-width", "with-max-width");
+        selectedProblemGrid = new Grid<>(SelectedProblem.class);
+        selectedProblemGrid.addStyleName("problem-grid-style");
+        selectedProblemGrid.getColumn("size").setMaximumWidth(100);
+
+        Map<Integer, List<String>> sizeToNameMap = initTree(problemTree);
+        initGrid();
+
+        Button addAllProblemsBtn = new Button("Add All");
+        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap));
+
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.addComponents(problemTree, selectedProblemGrid);
+        horizontalLayout.setComponentAlignment(problemTree, Alignment.TOP_LEFT);
+        horizontalLayout.setComponentAlignment(selectedProblemGrid, Alignment.TOP_RIGHT);
+        horizontalLayout.setSizeFull();
+        ResponsiveRow topRow = new ResponsiveRow()
+                .withComponents(horizontalLayout)
+                .withAlignment(Alignment.TOP_LEFT)
+                .withDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+        topRow.setDefaultComponentAlignment(Alignment.TOP_LEFT);
+        ResponsiveRow bottomRow = new ResponsiveRow()
+                .withComponents(addAllProblemsBtn)
+                .withAlignment(Alignment.BOTTOM_LEFT)
+                .withDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+
+        ResponsiveLayout problemsLayout = new ResponsiveLayout()
+                .withCaption("Select your problems");
+        problemsLayout.addRow(topRow);
+        problemsLayout.addRow(bottomRow);
+
+        ResponsiveColumn problemCol =  new ResponsiveColumn()
+                .withDisplayRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE)
+                .withComponent(problemsLayout);
+        row.addColumn(problemCol);
+    }
+
+
+    private void initGrid() {
+        selectedProblemGrid.setCaption("Selected Problems");
+        selectedProblemGrid.setDataProvider(DataProvider.ofCollection(selectedProblems));
+        selectedProblemGrid.setColumnOrder("size", "name");
+        selectedProblemGrid.sort("size", SortDirection.ASCENDING);
+        selectedProblemGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        selectedProblemGrid.addItemClickListener(itemClick -> {
+            SelectedProblem item = itemClick.getItem();
+            selectedProblems.remove(item);
+            refreshGrid();
+        });
+    }
+
+    private Map<Integer, List<String>> initTree(Tree<String> problemTree) {
+        TreeData<String> treeData = new TreeData<>();
+        problemTree.setDataProvider(new TreeDataProvider<>(treeData));
+        Map<Integer, List<String>> sizeToNameMap = service.getAvailableProblems();
+        sizeToNameMap.entrySet().stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .forEach(entry -> {
+                    String size = String.valueOf(entry.getKey());
+                    List<String> names = entry.getValue();
+                    treeData.addRootItems(size);
+                    treeData.addItems(size, names);
+                    problemTree.collapse();
+                });
+        problemTree.setContentMode(ContentMode.TEXT);
+        problemTree.addItemClickListener(itemClick -> {
+
+            String item = itemClick.getItem();
+            List<String> children = treeData.getChildren(item);
+            //is a specific problem
+            if (children == null || children.size() == 0) {
+                int parent = Integer.parseInt(treeData.getParent(item));
+                SelectedProblem selected = new SelectedProblem(item, parent);
+                selectedProblems.add(selected);
+            }
+            //is a folder
+            else {
+                List<SelectedProblem> toAdd = children.stream()
+                        .map(child -> new SelectedProblem(child, Integer.parseInt(item)))
+                        .collect(Collectors.toList());
+                selectedProblems.addAll(toAdd);
+            }
+            refreshGrid();
+        });
+        return sizeToNameMap;
+    }
+
+    private void refreshGrid() {
+        this.selectedProblemGrid.getDataProvider().refreshAll();
+        this.selectedProblemGrid.sort("size", SortDirection.ASCENDING);
+    }
+
+    private Button.ClickListener generateAddAllClickListener(Map<Integer, List<String>> map) {
+        return (Button.ClickListener) event ->
+                map.forEach((size, names) ->
+                        names.forEach(name -> {
+                            SelectedProblem selected = new SelectedProblem(name, size);
+                            selectedProblems.add(selected);
+                            refreshGrid();
+                        }));
     }
 
     private List<String> refreshAlgorithms() {
@@ -116,63 +246,26 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         return availableAlgorithms;
     }
 
-    private void generateProblemsSection()
-    {
-        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
-        problemSelector.setLeftColumnCaption("Available Problems");
-        problemSelector.setRightColumnCaption("Selected Problems");
-        final List<String> availableProblems = this.service.getAvailableProblems();
-        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
-
-
-        problemSelector.addSelectionListener(new MultiSelectionListener<String>() {
-            @Override
-            public void selectionChange(MultiSelectionEvent<String> event) {
-                selectedProblems.clear();
-                selectedProblems.addAll(event.getAllSelectedItems());
-            }
-        });
-
-
-        Button addAllProblemsBtn = new Button("Add All");
-        addAllProblemsBtn.addClickListener(generateAddAllClickListener(availableProblems, problemSelector));
-
-        _problemsContainer.addComponent(problemSelector);
-        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
-        _problemsContainer.addComponent(addAllProblemsBtn);
-        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
-    }
-
     public static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {
         Iterator<Component> componentIterator = layout.iterator();
-        while (componentIterator.hasNext())
-        {
+        while (componentIterator.hasNext()) {
             Component currentComponent = componentIterator.next();
             layout.setComponentAlignment(currentComponent, alignment);
         }
     }
 
-
-
-    private Button.ClickListener generateAddAllClickListener(List<String> items, AbstractMultiSelect component)
-    {
-        return new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                for (String item : items)
-                {
-                    component.select(item);
-                }
+    private Button.ClickListener generateAddAllClickListener(List<String> items, AbstractMultiSelect<String> component) {
+        return (Button.ClickListener) event -> {
+            for (String item : items) {
+                component.select(item);
             }
         };
     }
 
-
     @Override
     public void buttonClick(Button.ClickEvent event) {
         Button clickedButton = event.getButton();
-        if (clickedButton.equals(startExperimentBtn))
-        {
+        if (clickedButton.equals(startExperimentBtn)) {
             startExperimentClicked();
         }
         else if (clickedButton.equals(addNewAlgorithmBtn)) {
@@ -279,7 +372,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         setExperimentRunningPairs();
 
         service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
-        service.setProblemsToExperiment(selectedProblems);
+        service.setProblemsToExperiment(selectedProblems.stream().map(SelectedProblem::getName).collect(Collectors.toList()));
         service.runExperiment();
 
         getUI().access(() -> {
@@ -310,9 +403,10 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private void setExperimentRunningPairs() {
         List<ProblemAlgoPair> problemAlgoPairs = new ArrayList<>(selectedAlgorithms.size() * selectedProblems.size());
         selectedAlgorithms.forEach(algo -> {
-            selectedProblems.forEach(problem -> problemAlgoPairs.add(new ProblemAlgoPair(algo, problem)));
+            selectedProblems.forEach(problem -> problemAlgoPairs.add(new ProblemAlgoPair(algo, problem.getName())));
         });
 
         experimentRunningPresenter.setAlgorithmProblemPairs(problemAlgoPairs);
     }
+
 }

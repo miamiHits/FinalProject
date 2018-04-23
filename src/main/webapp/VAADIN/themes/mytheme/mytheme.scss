@@ -39,12 +39,38 @@
   }
 
   .conf-title {
-    font-weight: 400;
+    font-weight: 600;
   }
 
   .conf-subtitle {
     font-weight: 400;
   }
 
+  .with-min-width {
+    min-width: 150px;
+  }
 
+  .with-max-width {
+    max-width: 200px;
+  }
+
+  .with-bg-color-white {
+    background-color: white;
+  }
+
+  .problem-grid-style {
+    max-height: 300px;
+    max-width: 290px;
+  }
+
+  .algo-selector {
+    max-width: 500px;
+    min-width: 300px;
+    min-height: 300px;
+  }
+
+  .with-bg-image {
+    background: url("img/pic.jpg") no-repeat !important;
+    background-size: cover;
+  }
 }

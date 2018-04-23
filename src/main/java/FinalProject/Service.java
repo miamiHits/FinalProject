@@ -44,7 +44,7 @@ public class Service {
         return this.dalController.getAvailableAlgorithms();
     }
 
-    public List<String> getAvailableProblems()
+    public Map<Integer, List<String>> getAvailableProblems()
     {
         return this.dalController.getAvailableProblems();
     }
