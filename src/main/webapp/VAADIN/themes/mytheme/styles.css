@@ -15075,5 +15075,11 @@ div.v-layout.v-horizontal.v-widget {
 
 .mytheme .problem-grid-style {
 	max-height: 300px;
-	max-width: 250px;
+	max-width: 290px;
+}
+
+.mytheme .algo-selector {
+	max-width: 500px;
+	min-width: 300px;
+	min-height: 300px;
 }

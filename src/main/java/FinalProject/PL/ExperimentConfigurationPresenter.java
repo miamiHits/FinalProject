@@ -111,6 +111,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
         algorithmSelector.setCaption("Select your algorithms");
+        algorithmSelector.addStyleName("algo-selector");
         final List<String> availableAlgorithms = refreshAlgorithms();
 
         algorithmSelector.addSelectionListener((MultiSelectionListener<String>) event -> {
@@ -157,6 +158,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         problemTree.addStyleNames("with-min-width", "with-max-width");
         selectedProblemGrid = new Grid<>(SelectedProblem.class);
         selectedProblemGrid.addStyleName("problem-grid-style");
+        selectedProblemGrid.getColumn("size").setMaximumWidth(100);
 //        selectedProblemGrid.setSizeFull();
 //        Responsive.makeResponsive(selectedProblemGrid);
 
