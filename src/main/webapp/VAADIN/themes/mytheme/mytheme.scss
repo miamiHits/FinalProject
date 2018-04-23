@@ -54,6 +54,10 @@
     max-width: 200px;
   }
 
+  .with-bg-color-white {
+    background-color: white;
+  }
+
   .problem-grid-style {
     max-height: 300px;
     max-width: 290px;
@@ -63,5 +67,10 @@
     max-width: 500px;
     min-width: 300px;
     min-height: 300px;
+  }
+
+  .with-bg-image {
+    background: url("img/pic.jpg") no-repeat !important;
+    background-size: cover;
   }
 }

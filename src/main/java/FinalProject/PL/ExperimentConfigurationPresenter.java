@@ -56,6 +56,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
 
         VerticalLayout mainLayout = new VerticalLayout();
+        mainLayout.setStyleName("with-bg-image");
 
         ResponsiveLayout configurationLayout = new ResponsiveLayout(ResponsiveLayout.ContainerType.FLUID)
                 .withSpacing();

@@ -15073,6 +15073,10 @@ div.v-layout.v-horizontal.v-widget {
 	max-width: 200px;
 }
 
+.mytheme .with-bg-color-white {
+	background-color: white;
+}
+
 .mytheme .problem-grid-style {
 	max-height: 300px;
 	max-width: 290px;
@@ -15082,4 +15086,9 @@ div.v-layout.v-horizontal.v-widget {
 	max-width: 500px;
 	min-width: 300px;
 	min-height: 300px;
+}
+
+.mytheme .with-bg-image {
+	background: url("img/pic.jpg") no-repeat !important;
+	background-size: cover;
 }
