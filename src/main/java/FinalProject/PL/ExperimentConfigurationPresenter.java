@@ -58,17 +58,13 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         VerticalLayout mainLayout = new VerticalLayout();
 
         ResponsiveLayout configurationLayout = new ResponsiveLayout(ResponsiveLayout.ContainerType.FLUID)
-//                .withFullSize()
-//                .withFlexible()
                 .withSpacing();
         configurationLayout.setSizeFull();
         ResponsiveRow row = configurationLayout.addRow()
                 .withAlignment(Alignment.MIDDLE_CENTER)
-//                .withGrow(true)
-//                .withShrink(true)
                 .withSpacing(true);
-        row.setDefaultRules(2 * COL_SIZE + 1, 2 * COL_SIZE + 1, 2 * COL_SIZE + 1, 2 * COL_SIZE + 1);
-//        row.setSizeFull();
+        row.setDefaultRules(2 * COL_SIZE + 1, 2 * COL_SIZE + 1,
+                2 * COL_SIZE + 1, 2 * COL_SIZE + 1);
 
         generateProblemsSection(row);
         generateAlgorithmsSection(row);
@@ -97,8 +93,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         mainLayout.addStyleName("conf-main-layout");
 
         setContent(mainLayout);
-//        mainLayout.addStyleName("myresponsivelayout");
-//        Responsive.makeResponsive(mainLayout);
 
         setSizeFull();
     }
@@ -106,8 +100,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private void generateAlgorithmsSection(ResponsiveRow row) {
         algorithmSelector = new TwinColSelect<>();
-//        algorithmSelector.setSizeFull();
-//        Responsive.makeResponsive(algorithmSelector);
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
         algorithmSelector.setCaption("Select your algorithms");
@@ -124,43 +116,29 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         ResponsiveRow topRow = new ResponsiveRow()
                 .withComponents(algorithmSelector)
-//                .withSpacing(true)
                 .withAlignment(Alignment.TOP_RIGHT);
-//                .withMargin(true);
-//                .withShrink(true)
-//                .withGrow(true);
         topRow.setDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
         ResponsiveRow bottomRow = new ResponsiveRow()
                 .withComponents(addAllAlgorithmsBtn)
                 .withSpacing(true)
                 .withAlignment(Alignment.BOTTOM_LEFT);
-//                .withShrink(true)
-//                .withGrow(true);
         bottomRow.setDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
         ResponsiveLayout algoLayout = new ResponsiveLayout()
-//                .withFullSize()
                 .withSpacing();
         algoLayout.addRow(topRow);
         algoLayout.addRow(bottomRow);
         algoLayout.setHeight("100%");
         ResponsiveColumn col = row.addColumn()
-//                .withGrow(true)
-//                .withShrink(true)
                 .withComponent(algoLayout);
-//        col.setSizeFull();
         col.setAlignment(ResponsiveColumn.ColumnComponentAlignment.RIGHT);
     }
 
     private void generateProblemsSection(ResponsiveRow row) {
         Tree<String> problemTree = new Tree<>("Available Problems");
-//        problemTree.setSizeFull();
-//        Responsive.makeResponsive(problemTree);
         problemTree.addStyleNames("with-min-width", "with-max-width");
         selectedProblemGrid = new Grid<>(SelectedProblem.class);
         selectedProblemGrid.addStyleName("problem-grid-style");
         selectedProblemGrid.getColumn("size").setMaximumWidth(100);
-//        selectedProblemGrid.setSizeFull();
-//        Responsive.makeResponsive(selectedProblemGrid);
 
         Map<Integer, List<String>> sizeToNameMap = initTree(problemTree);
         initGrid();
@@ -176,32 +154,21 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         ResponsiveRow topRow = new ResponsiveRow()
                 .withComponents(horizontalLayout)
                 .withAlignment(Alignment.TOP_LEFT)
-//                .withGrow(true)
-//                .withShrink(true)
-//                .withMargin(true)
                 .withDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
-//        topRow.setSizeUndefined();
         topRow.setDefaultComponentAlignment(Alignment.TOP_LEFT);
         ResponsiveRow bottomRow = new ResponsiveRow()
                 .withComponents(addAllProblemsBtn)
                 .withAlignment(Alignment.BOTTOM_LEFT)
-//                .withGrow(true)
-//                .withShrink(true)
-//                .withSpacing(true)
                 .withDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
-//        bottomRow.setSizeUndefined();
 
         ResponsiveLayout problemsLayout = new ResponsiveLayout()
                 .withCaption("Select your problems");
         problemsLayout.addRow(topRow);
         problemsLayout.addRow(bottomRow);
-//        problemsLayout.setSpacing();
 
         ResponsiveColumn problemCol =  new ResponsiveColumn()
                 .withDisplayRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE)
                 .withComponent(problemsLayout);
-//                .withGrow(true)
-//                .withShrink(true);
         row.addColumn(problemCol);
     }
 
