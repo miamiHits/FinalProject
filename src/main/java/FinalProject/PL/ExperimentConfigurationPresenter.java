@@ -6,6 +6,7 @@ import FinalProject.Service;
 import com.jarektoro.responsivelayout.ResponsiveColumn;
 import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.vaadin.data.HasValue;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
@@ -16,6 +17,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.StreamVariable;
+import com.vaadin.server.UserError;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
@@ -26,6 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -52,7 +55,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-    //TODO gal for final iteration prevent use of more than one browser tab
+        //TODO gal for final iteration prevent use of more than one browser tab
         this.service = UiHandler.service;
         this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
 
@@ -121,12 +124,12 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         ResponsiveRow topRow = new ResponsiveRow()
                 .withComponents(algorithmSelector)
                 .withAlignment(Alignment.TOP_RIGHT);
-        topRow.setDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+        topRow.setDefaultRules(COL_SIZE, COL_SIZE, COL_SIZE, COL_SIZE);
         ResponsiveRow bottomRow = new ResponsiveRow()
                 .withComponents(addAllAlgorithmsBtn)
                 .withSpacing(true)
                 .withAlignment(Alignment.BOTTOM_LEFT);
-        bottomRow.setDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+        bottomRow.setDefaultRules(COL_SIZE, COL_SIZE, COL_SIZE, COL_SIZE);
         ResponsiveLayout algoLayout = new ResponsiveLayout()
                 .withSpacing();
         algoLayout.addRow(topRow);
@@ -158,20 +161,20 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         ResponsiveRow topRow = new ResponsiveRow()
                 .withComponents(horizontalLayout)
                 .withAlignment(Alignment.TOP_LEFT)
-                .withDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+                .withDefaultRules(COL_SIZE, COL_SIZE, COL_SIZE, COL_SIZE);
         topRow.setDefaultComponentAlignment(Alignment.TOP_LEFT);
         ResponsiveRow bottomRow = new ResponsiveRow()
                 .withComponents(addAllProblemsBtn)
                 .withAlignment(Alignment.BOTTOM_LEFT)
-                .withDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+                .withDefaultRules(COL_SIZE, COL_SIZE, COL_SIZE, COL_SIZE);
 
         ResponsiveLayout problemsLayout = new ResponsiveLayout()
                 .withCaption("Select your problems");
         problemsLayout.addRow(topRow);
         problemsLayout.addRow(bottomRow);
 
-        ResponsiveColumn problemCol =  new ResponsiveColumn()
-                .withDisplayRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE)
+        ResponsiveColumn problemCol = new ResponsiveColumn()
+                .withDisplayRules(COL_SIZE, COL_SIZE, COL_SIZE, COL_SIZE)
                 .withComponent(problemsLayout);
         row.addColumn(problemCol);
     }
@@ -248,32 +251,31 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         return availableAlgorithms;
     }
 
-    private void generateProblemsSection()
-    {
-        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
-        problemSelector.setLeftColumnCaption("Available Problems");
-        problemSelector.setRightColumnCaption("Selected Problems");
-        final List<String> availableProblems = this.service.getAvailableProblems();
-        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
-
-
-        problemSelector.addSelectionListener(new MultiSelectionListener<String>() {
-            @Override
-            public void selectionChange(MultiSelectionEvent<String> event) {
-                selectedProblems.clear();
-                selectedProblems.addAll(event.getAllSelectedItems());
-            }
-        });
-
-
-        Button addAllProblemsBtn = new Button("Add All");
-        addAllProblemsBtn.addClickListener(generateAddAllClickListener(availableProblems, problemSelector));
-
-        _problemsContainer.addComponent(problemSelector);
-        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
-        _problemsContainer.addComponent(addAllProblemsBtn);
-        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
-    }
+//    private void generateProblemsSection() {
+//        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
+//        problemSelector.setLeftColumnCaption("Available Problems");
+//        problemSelector.setRightColumnCaption("Selected Problems");
+//        final List<String> availableProblems = this.service.getAvailableProblems();
+//        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
+//
+//
+//        problemSelector.addSelectionListener(new MultiSelectionListener<String>() {
+//            @Override
+//            public void selectionChange(MultiSelectionEvent<String> event) {
+//                selectedProblems.clear();
+//                selectedProblems.addAll(event.getAllSelectedItems());
+//            }
+//        });
+//
+//
+//        Button addAllProblemsBtn = new Button("Add All");
+//        addAllProblemsBtn.addClickListener(generateAddAllClickListener(availableProblems, problemSelector));
+//
+//        _problemsContainer.addComponent(problemSelector);
+//        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
+//        _problemsContainer.addComponent(addAllProblemsBtn);
+//        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
+//    }
 
     public static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {
         Iterator<Component> componentIterator = layout.iterator();
@@ -296,8 +298,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Button clickedButton = event.getButton();
         if (clickedButton.equals(startExperimentBtn)) {
             startExperimentClicked();
-        }
-        else if (clickedButton.equals(addNewAlgorithmBtn)) {
+        } else if (clickedButton.equals(addNewAlgorithmBtn)) {
             addNewAlgoClicked();
         }
     }
@@ -323,10 +324,10 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 public OutputStream getOutputStream() {
                     String path = (COMPILED_ALGO_DIR + "/" + file.getFileName())
                             .replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-                    try{
+                    try {
                         fileOutputStream = new FileOutputStream(path);
                         return fileOutputStream;
-                    }catch (FileNotFoundException e) {
+                    } catch (FileNotFoundException e) {
                         Notification.show("Cannot find file " + path);
                     }
                     return null;
@@ -366,6 +367,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                     new Notification("Upload failed!", "Could not upload file " + event.getFileName(),
                             Notification.Type.ERROR_MESSAGE).show(Page.getCurrent());
                 }
+
                 @Override
                 public boolean isInterrupted() {
                     return false;
@@ -376,8 +378,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                     if (result.equalsIgnoreCase("success")) {
                         refreshAlgorithms();
                         Notification.show(fileName + " was added successfully!");
-                    }
-                    else {
+                    } else {
                         new Notification("Failed!", result, Notification.Type.ERROR_MESSAGE).show(Page.getCurrent());
                     }
                 }
@@ -393,10 +394,19 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         UI.getCurrent().addWindow(algoAddPopup);
     }
 
-    private void startExperimentClicked()
-    {
+    private void startExperimentClicked() {
 
-        int numberOfIterations = parseIterationNumber();
+        UserError algorithmSelectorError =
+                selectedAlgorithms.isEmpty() ?
+                        new UserError("Please Select at Least One Algorithm") :
+                        null;
+        algorithmSelector.setComponentError(algorithmSelectorError);
+
+        UserError problemSelectorError =
+                selectedProblems.isEmpty() ?
+                        new UserError("Please Select at Least One Problem") :
+                        null;
+        selectedProblemGrid.setComponentError(problemSelectorError);
 
         UserError numberIterationError =
                 numberOfIterationsTxt.isEmpty() ?
@@ -411,36 +421,18 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         {
             setExperimentRunningPairs();
 
-        service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
-        service.setProblemsToExperiment(selectedProblems.stream().map(SelectedProblem::getName).collect(Collectors.toList()));
-        service.runExperiment();
+            service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
+            service.setProblemsToExperiment(selectedProblems.stream().map(SelectedProblem::getName).collect(Collectors.toList()));
+            service.runExperiment();
 
-        getUI().access(() -> {
-            getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);
-        });
+            getUI().access(() -> {
+                getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);
+            });
 
+        }
     }
 
-    private int parseIterationNumber()
-    {
-        int result = -1;
-        try
-        {
-            result = Integer.valueOf(numberOfIterationsTxt.getValue());
-            if (result <= 0)
-            {
-                throw new NumberFormatException();
-            }
-        }
-        catch(NumberFormatException e)
-        {
-            //TODO gal implement error message
-        }
-        numberOfIterationsTxt.clear();
-        return result;
-    }
-
-    private void setExperimentRunningPairs() {
+    private void setExperimentRunningPairs () {
         List<ProblemAlgoPair> problemAlgoPairs = new ArrayList<>(selectedAlgorithms.size() * selectedProblems.size());
         selectedAlgorithms.forEach(algo -> {
             selectedProblems.forEach(problem -> problemAlgoPairs.add(new ProblemAlgoPair(algo, problem.getName())));
@@ -475,3 +467,4 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     }
 }
+
