@@ -156,7 +156,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 .collect(Collectors.toList());
         for (PropertyWithData prop : helperNonPassiveOnlyProps) {
             if (prop.getPrefix() == Prefix.BEFORE) {
-                prop.calcAndUpdateCurrState(prop.getTargetValue(),START_TICK, this.iterationPowerConsumption, true);
+                prop.calcAndUpdateCurrState(prop.getTargetValue(), START_TICK, this.iterationPowerConsumption, true);
             }
             //lets see what is the state of the curr & related sensors till then
             prop.calcAndUpdateCurrState(prop.getMin(),START_TICK, this.iterationPowerConsumption, true);
@@ -337,6 +337,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             List<Integer> rangeForWork = calcRangeOfWork(prop);
             subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
         }
+
+        if (subsets == null || subsets.size() == 0) {
+            logger.error("startWorkNonZeroIter: subset problem! prop: " + prop.getName() + " ticks: " + ticksToWork);
+        }
+
         if (!randomChoice) {
             lookForBestOptionAndApplyIt(prop, sensorsToCharge, subsets);
         }
@@ -414,8 +419,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
                 break;
             case AT:
-                rangeForWork.add((int) prop.getTargetTick());
-                break;
+                for (int i=0; i<= prop.getTargetTick(); ++i) {
+                    rangeForWork.add(i);
+                }
         }
 
         return rangeForWork;

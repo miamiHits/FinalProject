@@ -103,7 +103,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         algoList.add(DSA.class.getSimpleName());
         service.setAlgorithmsToExperiment(algoList, numOfIter);
         List<String> problem = new ArrayList<>();
-        problem.add("dm_2_1_3");
+        problem.add("dm_7_1_3");
         service.setProblemsToExperiment(problem);
 
         System.out.println("Starting Experiment!");
