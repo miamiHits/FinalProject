@@ -2,6 +2,7 @@ package FinalProject.PL;
 
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.Service;
+import com.vaadin.data.HasValue;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.event.selection.MultiSelectionEvent;
@@ -10,24 +11,27 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.server.StreamVariable;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.*;
 import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.themes.ValoTheme;
 
 import java.io.*;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 
-public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener {
+public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener, HasValue.ValueChangeListener<String> {
 
     private VerticalLayout _algorithmsContainer;
     private VerticalLayout _problemsContainer;
 
     private Button startExperimentBtn = new Button("Start Experiment");
     private TextField numberOfIterationsTxt = new TextField("Select Number of Iterations");
+    private int numberOfIterations = 0;
     private Button addNewAlgorithmBtn = new Button("Add New Algorithm");
 
     private final List<String> selectedAlgorithms = new ArrayList<>();
@@ -36,6 +40,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private Service service;
     private ExperimentRunningPresenter experimentRunningPresenter;
     private TwinColSelect<String> algorithmSelector;
+    private TwinColSelect<String> problemSelector;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -74,6 +79,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         startExperimentBtn.addClickListener(this);
         startExperimentBtn.addStyleName("conf-start-btn");
         addNewAlgorithmBtn.addClickListener(this);
+        numberOfIterationsTxt.addValueChangeListener(this);
 
         mainLayout.addComponent(numberOfIterationsTxt);
         mainLayout.addComponent(addNewAlgorithmBtn);
@@ -118,7 +124,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private void generateProblemsSection()
     {
-        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
+        problemSelector = new TwinColSelect<>("Select Your Problems");
         problemSelector.setLeftColumnCaption("Available Problems");
         problemSelector.setRightColumnCaption("Selected Problems");
         final List<String> availableProblems = this.service.getAvailableProblems();
@@ -274,37 +280,39 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private void startExperimentClicked()
     {
 
-        int numberOfIterations = parseIterationNumber();
+        UserError algorithmSelectorError =
+                selectedAlgorithms.isEmpty() ?
+                        new UserError("Please Select at Least One Algorithm") :
+                        null;
+        algorithmSelector.setComponentError(algorithmSelectorError);
 
-        setExperimentRunningPairs();
+        UserError problemSelectorError =
+                selectedProblems.isEmpty() ?
+                        new UserError("Please Select at Least One Problem") :
+                        null;
+        problemSelector.setComponentError(problemSelectorError);
 
-        service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
-        service.setProblemsToExperiment(selectedProblems);
-        service.runExperiment();
+        UserError numberIterationError =
+                numberOfIterationsTxt.isEmpty() ?
+                        new UserError("Please Provide the Required Number of Iterations") :
+                        null;
+        numberOfIterationsTxt.setComponentError(numberIterationError);
 
-        getUI().access(() -> {
-            getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);
-        });
 
-    }
-
-    private int parseIterationNumber()
-    {
-        int result = -1;
-        try
+        if (numberOfIterations > 0 &&
+                !selectedAlgorithms.isEmpty() &&
+                !selectedProblems.isEmpty())
         {
-            result = Integer.valueOf(numberOfIterationsTxt.getValue());
-            if (result <= 0)
-            {
-                throw new NumberFormatException();
-            }
+            setExperimentRunningPairs();
+
+            service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
+            service.setProblemsToExperiment(selectedProblems);
+            service.runExperiment();
+
+            getUI().access(() -> {
+                getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);
+            });
         }
-        catch(NumberFormatException e)
-        {
-            //TODO gal implement error message
-        }
-        numberOfIterationsTxt.clear();
-        return result;
     }
 
     private void setExperimentRunningPairs() {
@@ -314,5 +322,30 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         });
 
         experimentRunningPresenter.setAlgorithmProblemPairs(problemAlgoPairs);
+    }
+
+    @Override
+    public void valueChange(HasValue.ValueChangeEvent<String> event) {
+        try
+        {
+            int result = Integer.valueOf(numberOfIterationsTxt.getValue());
+            if (result <= 0)
+            {
+                throw new InvalidParameterException();
+            }
+            this.numberOfIterations = result;
+            this.numberOfIterationsTxt.setComponentError(null);
+        }
+        catch(NumberFormatException e)
+        {
+            numberOfIterationsTxt.setComponentError(new UserError("This Must Be a Number"));
+            this.numberOfIterations = 0;
+        }
+        catch (InvalidParameterException e)
+        {
+            numberOfIterationsTxt.setComponentError(new UserError("Number of Iterations Must Be Greater than 0"));
+            this.numberOfIterations = 0;
+        }
+
     }
 }
