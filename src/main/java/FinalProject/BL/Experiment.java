@@ -381,12 +381,6 @@ public class Experiment implements ExperimentInterface {
         {
             logger.info("experiment was stopped");
             killJade();
-
-            //not used for now since container.kill might be a better choice
-            // TODO gal remove when surely not needed
-            /*
-            killAllAgents();
-            */
         }
 
         private void killAllAgents()
