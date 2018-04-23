@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener, Page.BrowserWindowResizeListener {
+public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener {
 
     private Button startExperimentBtn = new Button("Start Experiment");
     private TextField numberOfIterationsTxt = new TextField("Select Number of Iterations");
@@ -42,10 +42,9 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private Service service;
     private ExperimentRunningPresenter experimentRunningPresenter;
     private TwinColSelect<String> algorithmSelector;
-    private boolean isHorizontal = true;
-    private ResponsiveLayout configurationLayout;
     private Grid<SelectedProblem> selectedProblemGrid;
-    private Tree<String> problemTree;
+
+    private final int COL_SIZE = 6;
 
     public ExperimentConfigurationPresenter() {
     }
@@ -53,34 +52,26 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
     //TODO gal for final iteration prevent use of more than one browser tab
-//        _algorithmsContainer = new VerticalLayout();
-//        _algorithmsContainer.setWidth("100%");
-//        Responsive.makeResponsive(_algorithmsContainer);
-//        problemsContainer = new VerticalLayout();
-//        Responsive.makeResponsive(problemsContainer);
         this.service = UiHandler.service;
         this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
 
         VerticalLayout mainLayout = new VerticalLayout();
 
-        configurationLayout = new ResponsiveLayout();
-        ResponsiveRow row = configurationLayout.addRow();
+        ResponsiveLayout configurationLayout = new ResponsiveLayout(ResponsiveLayout.ContainerType.FLUID)
+//                .withFullSize()
+//                .withFlexible()
+                .withSpacing();
         configurationLayout.setSizeFull();
-//        configurationLayout.setSpacing(true);
-        generateProblemsSection(row);
-        generateAlgorithmsSection();
-//        ProblemSelector problemSelector = new ProblemSelector(selectedProblems, () -> service.getAvailableProblems());
-//        Responsive.makeResponsive(problemSelector);
-//        problemsContainer.addComponent(problemSelector);
-//        problemsContainer.setCaption("Select Your Problems");
-//        problemsContainer.setWidth("100%");
+        ResponsiveRow row = configurationLayout.addRow()
+                .withAlignment(Alignment.MIDDLE_CENTER)
+//                .withGrow(true)
+//                .withShrink(true)
+                .withMargin(true);
+        row.setDefaultRules(2 * COL_SIZE + 1, 2 * COL_SIZE + 1, 2 * COL_SIZE + 1, 2 * COL_SIZE + 1);
+//        row.setSizeFull();
 
-//        configurationLayout.addComponent(problemsContainer, 0, 0);
-//        configurationLayout.addComponent(_algorithmsContainer, 1, 0);
-//        _algorithmsContainer.setHeight(problemsContainer.getHeight(), Unit.PIXELS);
-//        Responsive.makeResponsive(configurationLayout);
-//        configurationLayout.setWidth("100%");
-////        currConfigLayout = configurationLayout;
+        generateProblemsSection(row);
+        generateAlgorithmsSection(row);
 
         Label mainTitleLbl = new Label("SHAS");
         mainTitleLbl.addStyleName("v-label-h1");
@@ -102,26 +93,21 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         mainLayout.addComponent(numberOfIterationsTxt);
         mainLayout.addComponent(addNewAlgorithmBtn);
         mainLayout.addComponent(startExperimentBtn);
-        setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
+//        setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
         mainLayout.addStyleName("conf-main-layout");
 
         setContent(mainLayout);
-        mainLayout.addStyleName("myresponsivelayout");
-        Responsive.makeResponsive(mainLayout);
-
-        UI.getCurrent().getPage().addBrowserWindowResizeListener(this);
-
-//        _algorithmsContainer.setHeight(problemsContainer.getHeight(), Unit.PIXELS);
+//        mainLayout.addStyleName("myresponsivelayout");
+//        Responsive.makeResponsive(mainLayout);
 
         setSizeFull();
     }
 
 
-    private void generateAlgorithmsSection() {
+    private void generateAlgorithmsSection(ResponsiveRow row) {
         algorithmSelector = new TwinColSelect<>();
-        algorithmSelector.setWidth("100%");
-        algorithmSelector.setHeight("100%");
-        Responsive.makeResponsive(algorithmSelector);
+//        algorithmSelector.setSizeFull();
+//        Responsive.makeResponsive(algorithmSelector);
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
         algorithmSelector.setCaption("Select your algorithms");
@@ -131,66 +117,80 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
             selectedAlgorithms.clear();
             selectedAlgorithms.addAll(event.getAllSelectedItems());
         });
-        configurationLayout.addComponent(algorithmSelector, 2, 0);
 
         Button addAllAlgorithmsBtn = new Button("Add All");
         addAllAlgorithmsBtn.addClickListener(generateAddAllClickListener(availableAlgorithms, algorithmSelector));
 
-        configurationLayout.addComponent(addAllAlgorithmsBtn, 2, 1);
-        configurationLayout.setComponentAlignment(addAllAlgorithmsBtn, Alignment.BOTTOM_RIGHT);
-//        _algorithmsContainer.addComponent(algorithmSelector);
-//        _algorithmsContainer.setComponentAlignment(algorithmSelector, Alignment.TOP_CENTER);
-//        _algorithmsContainer.addComponent(addAllAlgorithmsBtn);
-//        _algorithmsContainer.setComponentAlignment(addAllAlgorithmsBtn, Alignment.MIDDLE_RIGHT);
-//
-//        _algorithmsContainer.setCaption("Select your algorithms");
-//        Panel algoPanel = new Panel();
-//        algoPanel.setContent(midLayout);
-//        algoPanel.setCaption("Select your algorithms");
-//        _algorithmsContainer.addComponent(algoPanel);
-
+        ResponsiveRow topRow = new ResponsiveRow()
+                .withComponents(algorithmSelector)
+                .withSpacing(true)
+                .withAlignment(Alignment.TOP_RIGHT)
+                .withMargin(true);
+//                .withShrink(true)
+//                .withGrow(true);
+        topRow.setDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+        ResponsiveRow bottomRow = new ResponsiveRow()
+                .withComponents(addAllAlgorithmsBtn)
+                .withSpacing(true)
+                .withAlignment(Alignment.BOTTOM_RIGHT);
+//                .withShrink(true)
+//                .withGrow(true);
+        bottomRow.setDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+        ResponsiveLayout algoLayout = new ResponsiveLayout()
+//                .withFullSize()
+                .withSpacing();
+        algoLayout.addRow(topRow);
+        algoLayout.addRow(bottomRow);
+        ResponsiveColumn col = row.addColumn()
+//                .withGrow(true)
+//                .withShrink(true)
+                .withComponent(algoLayout);
+//        col.setSizeFull();
+        col.setAlignment(ResponsiveColumn.ColumnComponentAlignment.RIGHT);
     }
 
     private void generateProblemsSection(ResponsiveRow row) {
-        problemTree = new Tree<>("Available Problems");
-        problemTree.addStyleNames("with-min-width", "with-max-width");
-        Responsive.makeResponsive(problemTree);
+        Tree<String> problemTree = new Tree<>("Available Problems");
+//        Responsive.makeResponsive(problemTree);
         selectedProblemGrid = new Grid<>(SelectedProblem.class);
-        selectedProblemGrid.addStyleName("problem-grid-style");
-        selectedProblemGrid.setSizeUndefined();
-        Responsive.makeResponsive(selectedProblemGrid);
+//        selectedProblemGrid.setSizeUndefined();
+//        Responsive.makeResponsive(selectedProblemGrid);
 
         Map<Integer, List<String>> sizeToNameMap = initTree(problemTree);
         initGrid();
 
         Button addAllProblemsBtn = new Button("Add All");
-        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap, selectedProblemGrid));
+        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap));
 
-        ResponsiveColumn problemCol =  row.addColumn();
-        ResponsiveRow topRow = new ResponsiveRow();
-        topRow.addComponents(problemTree, selectedProblemGrid);
-        topRow.setSpacing(true);
-        problemCol.setComponent(topRow);
+        ResponsiveRow topRow = new ResponsiveRow()
+                .withComponents(problemTree, selectedProblemGrid)
+                .withAlignment(Alignment.TOP_LEFT)
+//                .withGrow(true)
+//                .withShrink(true)
+                .withMargin(true)
+                .withDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+//        topRow.setSizeUndefined();
+        topRow.setDefaultComponentAlignment(Alignment.TOP_LEFT);
+        ResponsiveRow bottomRow = new ResponsiveRow()
+                .withComponents(addAllProblemsBtn)
+                .withAlignment(Alignment.BOTTOM_RIGHT)
+//                .withGrow(true)
+//                .withShrink(true)
+                .withMargin(true)
+                .withDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
+//        bottomRow.setSizeUndefined();
+
+        ResponsiveLayout problemsLayout = new ResponsiveLayout();
+        problemsLayout.addRow(topRow);
+        problemsLayout.addRow(bottomRow);
+        problemsLayout.setSpacing();
+
+        ResponsiveColumn problemCol =  new ResponsiveColumn()
+                .withDisplayRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE)
+                .withComponent(problemsLayout);
+//                .withGrow(true)
+//                .withShrink(true);
         row.addColumn(problemCol);
-//        configurationLayout.addComponent(problemTree, 0, 0);
-//        configurationLayout.addComponent(selectedProblemGrid, 1, 0);
-//        HorizontalLayout treeGridLayout = new HorizontalLayout();
-//        treeGridLayout.setWidth("100%");
-//        treeGridLayout.setSpacing(true);
-//        treeGridLayout.addComponent(problemTree);
-//        treeGridLayout.setComponentAlignment(problemTree, Alignment.TOP_LEFT);
-//        treeGridLayout.addComponent(selectedProblemGrid);
-//        treeGridLayout.setComponentAlignment(selectedProblemGrid, Alignment.TOP_RIGHT);
-
-//        mainLayout.addComponents(treeGridLayout);
-//        mainLayout.setComponentAlignment(treeGridLayout, Alignment.TOP_CENTER);
-
-//        configurationLayout.addComponent(addAllProblemsBtn, 1, 1);
-//        configurationLayout.setComponentAlignment(addAllProblemsBtn, Alignment.BOTTOM_RIGHT);
-//        mainLayout.addComponent(addAllProblemsBtn);
-//        mainLayout.setComponentAlignment(addAllProblemsBtn, Alignment.BOTTOM_RIGHT);
-//        Responsive.makeResponsive(mainLayout);
-//        mainLayout.setWidth("100%");
     }
 
 
@@ -248,7 +248,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         this.selectedProblemGrid.sort("size", SortDirection.ASCENDING);
     }
 
-    private Button.ClickListener generateAddAllClickListener(Map<Integer, List<String>> map, Grid<SelectedProblem> grid) {
+    private Button.ClickListener generateAddAllClickListener(Map<Integer, List<String>> map) {
         return (Button.ClickListener) event ->
                 map.forEach((size, names) ->
                         names.forEach(name -> {
@@ -265,95 +265,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         return availableAlgorithms;
     }
 
-//    private void generateProblemsSection() {
-//        TreeData<String> treeData = new TreeData<>();
-//        Tree<String> problemTree = new Tree<>("Available Problems");
-//        problemTree.setDataProvider(new TreeDataProvider<>(treeData));
-//        Grid<SelectedProblem> selectedProblemGrid = new Grid<>(SelectedProblem.class);
-//
-//        selectedProblemGrid.setCaption("Selected Problems");
-//        selectedProblemGrid.setDataProvider(DataProvider.ofCollection(selectedProblems));
-//        selectedProblemGrid.setColumnOrder("size", "name");
-//        selectedProblemGrid.sort("size", SortDirection.ASCENDING);
-//        selectedProblemGrid.setSelectionMode(Grid.SelectionMode.SINGLE);
-//        selectedProblemGrid.setSizeUndefined();
-//
-//        Map<Integer, List<String>> sizeToNameMap = service.getAvailableProblems();
-//        sizeToNameMap.entrySet().stream()
-//                .sorted(Comparator.comparingInt(Map.Entry::getKey))
-//                .forEach(entry -> {
-//                    String size = String.valueOf(entry.getKey());
-//                    List<String> names = entry.getValue();
-//                    treeData.addRootItems(size);
-//                    treeData.addItems(size, names);
-//                    problemTree.collapse();
-//                });
-//        problemTree.setContentMode(ContentMode.TEXT);
-//        problemTree.setSizeUndefined();
-//        problemTree.addItemClickListener(itemClick -> {
-//
-//            String item = itemClick.getItem();
-//            List<String> children = treeData.getChildren(item);
-//            //is a specific problem
-//            if (children == null || children.size() == 0) {
-//                int parent = Integer.parseInt(treeData.getParent(item));
-//                SelectedProblem selected = new SelectedProblem(item, parent);
-//                selectedProblems.add(selected);
-//            }
-//            //is a folder
-//            else {
-//                List<SelectedProblem> toAdd = children.stream()
-//                        .map(child -> new SelectedProblem(child, Integer.parseInt(item)))
-//                        .collect(Collectors.toList());
-//                selectedProblems.addAll(toAdd);
-//            }
-//            refreshGrid(selectedProblemGrid);
-//        });
-//
-//        selectedProblemGrid.addItemClickListener(itemClick -> {
-//            SelectedProblem item = itemClick.getItem();
-//            selectedProblems.remove(item);
-//            refreshGrid(selectedProblemGrid);
-//        });
-//
-//        HorizontalLayout treeGridLayout = new HorizontalLayout();
-//        treeGridLayout.addComponents(problemTree, selectedProblemGrid);
-//        treeGridLayout.setCaption("Select Your Problems");
-//        treeGridLayout.setComponentAlignment(problemTree, Alignment.TOP_LEFT);
-//        treeGridLayout.setComponentAlignment(selectedProblemGrid, Alignment.TOP_RIGHT);
-//
-//        Button addAllProblemsBtn = new Button("Add All");
-//        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap, selectedProblemGrid));
-//
-//        _problemsContainer.addComponents(treeGridLayout, addAllProblemsBtn);
-//        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
-//
-//
-////        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
-////        problemSelector.setLeftColumnCaption("Available Problems");
-////        problemSelector.setRightColumnCaption("Selected Problems");
-////        final List<String> availableProblems = this.service.getAvailableProblems();
-////        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
-////
-////
-////        problemSelector.addSelectionListener((MultiSelectionListener<String>) event -> {
-////            selectedProblems.clear();
-////            selectedProblems.addAll(event.getAllSelectedItems());
-////        });
-////
-////
-////
-////        _problemsContainer.addComponent(problemSelector);
-////        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
-////        _problemsContainer.addComponent(addAllProblemsBtn);
-////        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
-//    }
-
-//    private void refreshGrid(Grid<SelectedProblem> selectedProblemGrid) {
-//        selectedProblemGrid.getDataProvider().refreshAll();
-//        selectedProblemGrid.sort("size", SortDirection.ASCENDING);
-//    }
-
     public static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {
         Iterator<Component> componentIterator = layout.iterator();
         while (componentIterator.hasNext()) {
@@ -362,8 +273,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         }
     }
 
-
-
     private Button.ClickListener generateAddAllClickListener(List<String> items, AbstractMultiSelect<String> component) {
         return (Button.ClickListener) event -> {
             for (String item : items) {
@@ -371,17 +280,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
             }
         };
     }
-
-//    private Button.ClickListener generateAddAllClickListener(Map<Integer, List<String>> map, Grid<SelectedProblem> grid) {
-//        return (Button.ClickListener) event ->
-//                map.forEach((size, names) ->
-//                        names.forEach(name -> {
-//                        SelectedProblem selected = new SelectedProblem(name, size);
-//                        selectedProblems.add(selected);
-//                            refreshGrid(grid);
-//                        }));
-//    }
-
 
     @Override
     public void buttonClick(Button.ClickEvent event) {
@@ -530,45 +428,4 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         experimentRunningPresenter.setAlgorithmProblemPairs(problemAlgoPairs);
     }
 
-//    private void horizontalToVerticalToggle() {
-//        Layout layout;
-//        if (isHorizontal) {
-//            layout = new VerticalLayout();
-//            isHorizontal = false;
-//        } else {
-//            layout = new HorizontalLayout();
-//            isHorizontal = true;
-//        }
-//        Layout parent = (Layout) currConfigLayout.getParent();
-//        layout.setCaption(currConfigLayout.getCaption());
-//        List<Component> components = new ArrayList<>();
-//        currConfigLayout.forEach(components::add);
-////        parent.removeComponent(currConfigLayout);
-//        components.forEach(layout::addComponent);
-//        Layout old = currConfigLayout;
-//        currConfigLayout = layout;
-//        parent.replaceComponent(old, layout);
-//    }
-
-//    private float getConfigConatinerWidth() {
-//        float problemsWidth = problemsContainer.getWidth();
-//        float algorithmWidth = algorithmSelector.getWidth();
-//        if (isHorizontal) {
-//            return problemsWidth + algorithmWidth;
-//        }
-//        else {
-//            return Math.max(problemsWidth, algorithmWidth);
-//        }
-//    }
-
-    @Override
-    public void browserWindowResized(Page.BrowserWindowResizeEvent event) {
-//        if (currConfigLayout != null && event.getWidth() < currConfigLayout.getWidth()) {
-//            currConfigLayout.setWidth(event.getWidth(), Unit.PIXELS);
-//            if (getConfigConatinerWidth() < event.getWidth()) {
-//                horizontalToVerticalToggle();
-//            }
-//        }
-//        _algorithmsContainer.setHeight(problemsContainer.getHeight(), Unit.PIXELS);
-    }
 }
