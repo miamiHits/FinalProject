@@ -168,9 +168,12 @@ public class UiHandler extends UI implements UiHandlerInterface {
         }
     }
 
-
     @WebServlet(urlPatterns = "/*", name = "VaadinWebServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = FinalProject.PL.UiHandler.class, productionMode = false)
+    @VaadinServletConfiguration(
+            ui = FinalProject.PL.UiHandler.class,
+            productionMode = false,
+            heartbeatInterval = 5
+    )
     public static class VaadinWebServlet extends VaadinServlet {
 
         @Override
