@@ -8,8 +8,6 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
-
-import java.util.List;
 import java.util.Set;
 
 public class ExperimentTestUtils
@@ -41,7 +39,6 @@ public class ExperimentTestUtils
             replay.setContent(String.valueOf(cSum));
             sendingAgent.send(replay);
         }
-
     }
 
 }

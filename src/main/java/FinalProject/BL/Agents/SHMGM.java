@@ -30,13 +30,13 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             logger.info("Starting work on Iteration: 0");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
-            agent.setPriceSum(calcPrice(iterationPowerConsumption));
+            agent.setPriceSum(calcCsum(iterationPowerConsumption));
             beforeIterationIsDone();
         }
         else {
             logger.info("Starting work on Iteration: " + currentNumberOfIter);
             receiveNeighboursIterDataAndHandleIt();
-            improveSchedule();
+            improveSchedule(false);
         }
         this.currentNumberOfIter++;
     }
@@ -57,15 +57,16 @@ public class SHMGM extends SmartHomeAgentBehaviour{
      * all neighbours and receive theirs.
      * ONLY THE AGENT WITH THE GREATEST IMPROVEMENT SWITCHES TO THE NEW SCHEDULE!
      * Ties are solved using lexicographical ordering of agent's names.
+     * @param randomPick
      */
-    private void improveSchedule() {
+    private void improveSchedule(boolean randomPick) {
         //backup prev iter's data
         AlgorithmDataHelper helperBackup = new AlgorithmDataHelper(helper);
         double[] prevIterPowerConsumption = helper.cloneArray(iterationPowerConsumption); //equals to agent.getCurrIteration().powerConsumptionPerTick
         AgentIterationData prevIterData = new AgentIterationData(agentIterationData);
         AgentIterationData prevCurrIterData = new AgentIterationData(agent.getCurrIteration());
         IterationCollectedData prevCollectedData = new IterationCollectedData(agentIterationCollected);
-        double oldPrice = calcPrice(prevIterPowerConsumption);
+        double oldPrice = calcCsum(prevIterPowerConsumption);
         double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice, iterationPowerConsumption); //also sets helper's epeak
         helper.totalPriceConsumption = prevTotalCost;
         System.out.println(agent.getLocalName() + " MY prev total cost is: " + prevTotalCost + ", actual_epeak: " + (prevTotalCost - oldPrice) + ", helper epeak: " + helper.ePeak);
@@ -74,34 +75,41 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
         //calc try to improve sched
         helper.resetProperties();
-        buildScheduleBasic(); //using Ci as priceSum
+        buildScheduleBasic(randomPick); //using Ci as priceSum
 
         //calculate improvement
-        double newPrice = calcPrice(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
-        double improvement =  prevTotalCost - tempBestPriceConsumption;
+        double newPrice = calcCsum(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
         final double actualEpeak = tempBestPriceConsumption - newPrice;
-        ImprovementMsg impMsg = sendImprovementToNeighbours(improvement, prevIterPowerConsumption);
-        List<ImprovementMsg> receivedImprovements = receiveImprovements();
-        receivedImprovements.add(impMsg);
-        ImprovementMsg max = receivedImprovements.stream().max(ImprovementMsg::compareTo).orElse(null);
-        maxImprovementMsg = max;
 
-        if (max == null) {
-            logger.error("max is null! Something went wrong!!!!!!!");
-            resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
-                    prevAgentPriceSum, prevIterPowerConsumption, null, null);
-            return;
-        }
+        if(!randomPick) {
+            double improvement = prevTotalCost - tempBestPriceConsumption;
+            ImprovementMsg impMsg = sendImprovementToNeighbours(improvement, prevIterPowerConsumption);
+            List<ImprovementMsg> receivedImprovements = receiveImprovements();
+            receivedImprovements.add(impMsg);
+            ImprovementMsg max = receivedImprovements.stream().max(ImprovementMsg::compareTo).orElse(null);
+            maxImprovementMsg = max;
 
-        String maxName = Utils.cleanShtrudelFromAgentName(max.getAgentName());
+            if (max == null) {
+                logger.error("max is null! Something went wrong!!!!!!!");
+                resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
+                        prevAgentPriceSum, prevIterPowerConsumption, null, null);
+                return;
+            }
 
-        if (maxName.equals(agent.getLocalName())) { //take new schedule
-            logger.info(agent.getLocalName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
+            String maxName = Utils.cleanShtrudelFromAgentName(max.getAgentName());
+            if (max.getImprovement() == 0.0) {
+                logger.info(agent.getLocalName() + " 0 improvement, randomize schedule");
+                improveSchedule(true);
+            } else if (maxName.equals(agent.getLocalName())) { //take new schedule
+                logger.info(agent.getLocalName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
+                takeNewSched(newPrice, actualEpeak);
+            } else { //take prev schedule
+                resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
+                        prevAgentPriceSum, prevIterPowerConsumption, max.getImprevedSched(), max.getPrevSched());
+            }
+        }else{ //random pick of schedule
+            logger.info(agent.getLocalName() + "is changing to random schedule");
             takeNewSched(newPrice, actualEpeak);
-        }
-        else { //take prev schedule
-            resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
-                    prevAgentPriceSum, prevIterPowerConsumption, max.getImprevedSched(), max.getPrevSched());
         }
     }
 
@@ -185,12 +193,12 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     }
 
     @Override
-    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge) {
+    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched) {
         if (agent.isZEROIteration()) {
             startWorkZERO(prop, sensorsToCharge, ticksToWork);
         }
         else {
-            startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork);
+            startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork, randomSched);
         }
     }
 
@@ -206,8 +214,9 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
     @Override
     protected double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds) {
-        double price = calcPrice(newPowerConsumption);
+        double price = calcCsum(newPowerConsumption);
         return price + calculateEPeak(allScheds);
+
     }
 
     @Override

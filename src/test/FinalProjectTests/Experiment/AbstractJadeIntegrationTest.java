@@ -9,6 +9,10 @@ import FinalProject.BL.Experiment;
 import FinalProject.DAL.*;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
@@ -22,7 +26,7 @@ import java.util.regex.Matcher;
 
 public abstract class AbstractJadeIntegrationTest extends Test
 {
-    protected enum AgentMessageType
+    public enum AgentMessageType
     {
         NONE,
         NO_EPEAK,
@@ -31,8 +35,9 @@ public abstract class AbstractJadeIntegrationTest extends Test
 
     public static int MAXIMUM_ITERATIONS = 4;
 
-    protected SmartHomeAgentBehaviour algorithm;
-    protected Problem problem;
+    public SmartHomeAgentBehaviour algorithm;
+    public Problem problem;
+    public Agent testAgent;
 
     public boolean initializationApplied = false;
 
@@ -50,7 +55,7 @@ public abstract class AbstractJadeIntegrationTest extends Test
     public void loadExperimentConfiguration()
     {
         List<String> algoNameList = new ArrayList<>();
-        algoNameList.add(DSA.class.getName());
+        algoNameList.add(DSA.class.getSimpleName());
         List<String> problemNameList = new ArrayList<>();
         problemNameList.add("dm_7_1_2");
         String jsonPath = "src/test/testResources/jsons";
@@ -66,18 +71,41 @@ public abstract class AbstractJadeIntegrationTest extends Test
         Experiment.maximumIterations = MAXIMUM_ITERATIONS;
     }
 
-    public void initializeAgents(Agent initializationAgent)
+    /**
+     * invoked by the first behaviour created and returned by the Test.load(Agent) method
+     * used for stating the rest of the agents in the simulator
+     * @param initializationAgent
+     */
+    public void initializeAgents(Agent initializationAgent, SmartHomeAgentBehaviour algorithm, Object[] optionalArgs)
+    {
+        try
+        {
+            initializeAgents(initializationAgent, algorithm, problem.getAgentsData(), optionalArgs);
+        }
+        catch(Exception e)
+        {
+            failed("could not initialize agents");
+            return;
+        }
+    }
+
+    public void initializeAgents(Agent initializationAgent, SmartHomeAgentBehaviour algorithm, List<AgentData> agentList, Object[] optionalArgs)
     {
         try
         {
             List<AgentController> agentControllers = new ArrayList<>();
-            for (AgentData agentData : problem.getAgentsData())
+            int optionalArgsCount = optionalArgs != null ? optionalArgs.length : 0;
+            for (AgentData agentData : agentList)
             {
-                Object[] agentInitializationArgs = new Object[4];
+                Object[] agentInitializationArgs = new Object[4 + optionalArgsCount];
                 agentInitializationArgs[0] = algorithm.cloneBehaviour();
                 agentInitializationArgs[1] = agentData;
                 agentInitializationArgs[2] = algorithm.getBehaviourName();
                 agentInitializationArgs[3] = problem.getId();
+                for (int i = 0; i < optionalArgsCount; i++)
+                {
+                    agentInitializationArgs[4 + i] = optionalArgs[i];
+                }
                 agentControllers.add(initializationAgent.getContainerController().createNewAgent(agentData.getName(),
                         SmartHomeAgent.class.getName(),
                         agentInitializationArgs));
@@ -95,6 +123,16 @@ public abstract class AbstractJadeIntegrationTest extends Test
         }
     }
 
+
+    public void notifyTestFailed(String message)
+    {
+        failed(message);
+    }
+
+    public void notifyTestPassed(String message)
+    {
+        passed(message);
+    }
 
 
 }

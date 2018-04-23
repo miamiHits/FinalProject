@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateCSum;
@@ -73,8 +74,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      * @param prop the property to which the schedule should be generated
      * @param ticksToWork number of active ticks needed
      * @param sensorsToCharge sensors affected
+     * @param randomSched
      */
-    protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge);
+    protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched);
 
     /**
      *
@@ -123,7 +125,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     public void buildScheduleFromScratch() {
         initHelper();
-        buildScheduleBasic();
+        buildScheduleBasic(false);
     }
 
     protected void addMessagesSentToDevicesAndSetInAgent(int count, long totalSize, int constantNumOfMsgs) {
@@ -143,8 +145,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     /**
      * Go through all properties and generate schedule for them
+     * @param randomizeSched
      */
-    protected void buildScheduleBasic() {
+    protected void buildScheduleBasic(boolean randomizeSched) {
         tempBestPriceConsumption = helper.totalPriceConsumption;
         this.iterationPowerConsumption = new double[this.agent.getAgentData().getBackgroundLoad().length];
         addBackgroundLoadToPowerConsumption(iterationPowerConsumption);
@@ -168,9 +171,14 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                     }
                 }
             });
-            generateScheduleForProp(prop, ticksToWork, sensorsToCharge);
+            if (!randomizeSched){
+                generateScheduleForProp(prop, ticksToWork, sensorsToCharge, false);
+            }
+            else{ //random pick
+                generateScheduleForProp(prop, ticksToWork, sensorsToCharge,true);
+            }
             if (currentNumberOfIter > 0) {
-                tempBestPriceConsumption = helper.calcTotalPowerConsumption(calcPrice(iterationPowerConsumption), iterationPowerConsumption);
+                tempBestPriceConsumption = helper.calcTotalPowerConsumption(calcCsum(iterationPowerConsumption), iterationPowerConsumption);
             }
         }
     }
@@ -313,14 +321,14 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         updateTotals(prop, myTicks, sensorsToCharge);
     }
 
-    protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork) {
+    protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork, boolean randomChoice) {
         prop.activeTicks.clear();
 
         List<Set<Integer>> subsets;
         if (ticksToWork <= 0) {
             System.out.println(agent.getLocalName() + " ticks to work is " + ticksToWork);
             subsets = checkAllSubsetOptions(prop);
-            if (subsets == null) {
+            if (subsets == null ) {
                 logger.error("subsets is null!");
                 return;
             }
@@ -329,8 +337,53 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             List<Integer> rangeForWork = calcRangeOfWork(prop);
             subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
         }
+        if (!randomChoice) {
+            lookForBestOptionAndApplyIt(prop, sensorsToCharge, subsets);
+        }
+        else{ //random choice
+            applyRandomChoice(prop, sensorsToCharge, subsets);
+        }
+    }
 
-        lookForBestOptionAndApplyIt(prop, sensorsToCharge, subsets);
+    private void applyRandomChoice(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
+        List<Integer> newTicks = pickRandomScheduleForProp(prop, subsets);
+        updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
+        updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
+    }
+
+    private List<Integer> pickRandomScheduleForProp(PropertyWithData prop, List<Set<Integer>> subsets) {
+        List<Integer> newTicks = new ArrayList<>();
+        double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        List<double[]> allScheds = agent.getMyNeighborsShed().stream()
+                .map(AgentIterationData::getPowerConsumptionPerTick)
+                .collect(Collectors.toList());
+        List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        //remove current prop consumption
+        for (Integer tick : prevTicks) {
+            newPowerConsumption[tick] -= prop.getPowerConsumedInWork();
+        }
+
+        //pick random option
+        Set<Integer> ticks = chooseRandomSubset(subsets);
+        //Adding the ticks to the array
+        for (Integer tick : ticks) {
+            newPowerConsumption[tick] += prop.getPowerConsumedInWork();
+        }
+        allScheds.add(newPowerConsumption);
+        double res = calcImproveOptionGrade(newPowerConsumption, allScheds);
+        tempBestPriceConsumption = res;
+        newTicks.addAll(ticks);
+
+        return newTicks;
+    }
+
+    private Set<Integer> chooseRandomSubset(List<Set<Integer>> subsets) {
+        int size = subsets.size();
+        if (size == 0 ){
+            return new HashSet<Integer>();
+        }
+        int randomNum = ThreadLocalRandom.current().nextInt(0, size);
+        return subsets.get(randomNum);
     }
 
     private void lookForBestOptionAndApplyIt(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
@@ -341,7 +394,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     protected boolean flipCoin(float probabilityForTrue) {
         final boolean res = randGenerator.nextFloat() < probabilityForTrue;
-        System.out.println("res is: " + res);
+        logger.debug("flipped a coin with result: " + res);
         return res;
     }
 
@@ -439,7 +492,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void beforeIterationIsDone() {
-        //addBackgroundLoadToPowerConsumption(this.iterationPowerConsumption);
         double price = calcPrice(this.iterationPowerConsumption);
         double[] arr = helper.cloneArray(this.iterationPowerConsumption);
         logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );

@@ -7,11 +7,12 @@ import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
@@ -21,7 +22,8 @@ import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
 import org.vaadin.addon.JFreeChartWrapper;
 
 import java.awt.*;
-import java.awt.GridLayout;
+import java.awt.geom.Rectangle2D;
+import java.text.NumberFormat;
 
 
 public class ExperimentResultsPresenter extends Panel implements View{
@@ -29,8 +31,10 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private DefaultStatisticalCategoryDataset powerConsumptionGraph;
     private DefaultStatisticalCategoryDataset highestAgentGraph;
     private DefaultStatisticalCategoryDataset lowestAgentGraph;
-    private DefaultCategoryDataset averageExperimentTime;
-    private DefaultCategoryDataset messagesSentPerIteration;
+    private DefaultStatisticalCategoryDataset averageExperimentTime;
+    private DefaultCategoryDataset messagesNumPerAlgo;
+    private DefaultCategoryDataset messagesSizeAvePerAlgo;
+
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -41,34 +45,16 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
                 final VerticalLayout leftGraphsLayout = new VerticalLayout();
                 final VerticalLayout rightGraphsLayout = new VerticalLayout();
-                VerticalLayout veryLeftGraphsLayout = new VerticalLayout();
 
-                final HorizontalSplitPanel allGraphsLayout = new HorizontalSplitPanel();
-                final VerticalLayout mainLayout = new VerticalLayout();
-                Component c1 = generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph, false);
-                Component c2 = generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph, false);
                 leftGraphsLayout.addComponent(generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph, false));
                 leftGraphsLayout.addComponent(generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph, false));
+                leftGraphsLayout.addComponent(generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo));
+
                 rightGraphsLayout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph, false));
-                rightGraphsLayout.addComponent(generateBarChart("Average run time per Algorithm #", null, null, averageExperimentTime));
-                rightGraphsLayout.addComponent(generateBarChart("Average sending messages per Algorithm #", null, null, messagesSentPerIteration));
-                //allGraphsLayout.addComponents(c1);
-                //allGraphsLayout.setExpandRatio(c1, 0.0f);
-                //allGraphsLayout.addComponents(c2);
-                //allGraphsLayout.setExpandRatio(c2, 3.0f);
+                rightGraphsLayout.addComponent(generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime, false));
+                rightGraphsLayout.addComponent(generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo));
                 leftGraphsLayout.setWidth("100%");
                 rightGraphsLayout.setWidth("100%");
-                //veryLeftGraphsLayout.setWidth("100%");
-                //allGraphsLayout.addComponent(leftGraphsLayout);
-
-                //allGraphsLayout.addComponent(rightGraphsLayout);
-                allGraphsLayout.setFirstComponent(leftGraphsLayout);
-                allGraphsLayout.setSecondComponent(rightGraphsLayout);
-                allGraphsLayout.setSplitPosition(50, Sizeable.UNITS_PERCENTAGE);
-
-                //allGraphsLayout.setWidth("100%");
-                //allGraphsLayout.setSizeFull();
-
 
                 Button endExperimentBtn = new Button("End Experiment");
                 endExperimentBtn.addClickListener(new Button.ClickListener() {
@@ -81,25 +67,17 @@ public class ExperimentResultsPresenter extends Panel implements View{
                     }
                 });
 
-
-                mainLayout.addComponents(allGraphsLayout);
-                mainLayout.addComponent(endExperimentBtn);
-                mainLayout.setSpacing(false);
-                ExperimentConfigurationPresenter.setAlignemntToAllComponents(mainLayout, Alignment.TOP_CENTER);
-                mainLayout.setWidth("100%");
-
                 VerticalLayout layout = new VerticalLayout();
                 Panel panelGraphs = new Panel("Graphs page", endExperimentBtn);
 
-// Have a horizontal split panel as its content
+                // Have a horizontal split panel as its content
                 HorizontalSplitPanel hsplit = new HorizontalSplitPanel();
                 panelGraphs.setContent(hsplit);
 
-// Put a component in the left panel
+                // Put a component in the left panel
                 hsplit.setFirstComponent(leftGraphsLayout);
 
                 hsplit.setSecondComponent(rightGraphsLayout);
-                //Responsive.makeResponsive(panelGraphs);
                 panelGraphs.setSizeUndefined(); // Shrink to fit content
                 layout.addComponent(panelGraphs);
                 layout.addComponent(endExperimentBtn);
@@ -137,14 +115,19 @@ public class ExperimentResultsPresenter extends Panel implements View{
         this.lowestAgentGraph = lowestAgent;
     }
 
-    public void setAverageExperimentTime(DefaultCategoryDataset aveTime)
+    public void setAverageExperimentTime(DefaultStatisticalCategoryDataset aveTime)
     {
         this.averageExperimentTime = aveTime;
     }
 
     public void setMessagesSentPerIteration(DefaultCategoryDataset messagesSentPerIteration)
     {
-        this.messagesSentPerIteration = messagesSentPerIteration;
+        this.messagesNumPerAlgo = messagesSentPerIteration;
+    }
+
+    public void setMessagesSizePerAlgo(DefaultCategoryDataset messagesSizeAvePerAlgo)
+    {
+        this.messagesSizeAvePerAlgo = messagesSizeAvePerAlgo;
     }
 
 
@@ -152,9 +135,20 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private Component generateLineGraphWithErrorBars(String title, String xAxisLabel, String yAxisLabel, DefaultStatisticalCategoryDataset dataset, boolean shapesIsVisible)
     {
         JFreeChart plot = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);
-        StatisticalLineAndShapeRenderer statisticalRenderer = new StatisticalLineAndShapeRenderer(true, shapesIsVisible);
+        StatisticalLineAndShapeRenderer statisticalRenderer = new StatisticalLineAndShapeRenderer(true, true);
+        statisticalRenderer.setBaseItemLabelGenerator(
+                new StandardCategoryItemLabelGenerator("{2}",
+                        NumberFormat.getNumberInstance()));
         statisticalRenderer.setErrorIndicatorPaint(Color.white);
+        statisticalRenderer.setBaseItemLabelsVisible(true);
+        statisticalRenderer.setSeriesShape(0, new Rectangle2D.Double(0, 0, 0, 0));
         plot.getCategoryPlot().setRenderer(statisticalRenderer);
+        CategoryPlot chart = (CategoryPlot) plot.getPlot();
+        CategoryAxis cx = new CategoryAxis();
+        cx.setTickLabelsVisible(true);
+        cx.setTickMarksVisible(true);
+
+        chart.setDomainAxis(cx);
 
         //Design
         // set the background color for the chart...

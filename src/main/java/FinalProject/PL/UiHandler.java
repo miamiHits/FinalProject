@@ -98,7 +98,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         }
 
         List<String> algoList = new ArrayList<>();
-        algoList.add(SHMGM.class.getName());
+        algoList.add(SHMGM.class.getSimpleName());
         service.setAlgorithmsToExperiment(algoList, numOfIter);
         List<String> problem = new ArrayList<>();
         problem.add("dm_7_1_3");
@@ -115,7 +115,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
     }
 
     @Override
-    public void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Long> probToAlgoTotalTime) {
+    public void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Map<Integer, Long>>  probToAlgoTotalTime) {
         for (AlgorithmProblemResult res : experimentResults)
         {
             System.out.println(res.toString());
@@ -124,14 +124,17 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
         Date date = new Date() ;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd--MM--yyyy_HH-mm") ;
-        //just for check the csv - we can change it later
-        csvHandler csv = new csvHandler(dateFormat.format(date)+"_results.csv");
         StatisticsHandler sth = new StatisticsHandler(experimentResults, probToAlgoTotalTime);
+
+        //just for check the csv - we can change it later
+        csvHandler csv = new csvHandler(dateFormat.format(date)+"_results.csv", sth.getTotalPowerConsumption());
         resultsPresenter.setPowerConsumptionGraph(sth.totalConsumption());
         resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
         resultsPresenter.setLowestAgentGrapthGrapth(sth.lowestAgent());
         resultsPresenter.setAverageExperimentTime(sth.averageTime());
         resultsPresenter.setMessagesSentPerIteration(sth.messageSendPerIteration());
+        resultsPresenter.setMessagesSizePerAlgo(sth.messagesSize());
+
         //navigator.navigateTo(EXPERIMENT_RESULTS);
 
         experimentRunningPresenter.enableGoToResScreenBtn();
@@ -146,7 +149,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
     }
 
     @Override
-    public void notifyExperimentEnded(List<AlgorithmProblemResult> results, Map<String, Long> probToAlgoTotalTime)
+    public void notifyExperimentEnded(List<AlgorithmProblemResult> results, Map<String, Map<Integer, Long>>  probToAlgoTotalTime)
     {
         System.out.println("Experiment Ended!");
         showResultScreen(results, probToAlgoTotalTime);
@@ -165,9 +168,12 @@ public class UiHandler extends UI implements UiHandlerInterface {
         }
     }
 
-
     @WebServlet(urlPatterns = "/*", name = "VaadinWebServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = FinalProject.PL.UiHandler.class, productionMode = false)
+    @VaadinServletConfiguration(
+            ui = FinalProject.PL.UiHandler.class,
+            productionMode = false,
+            heartbeatInterval = 5
+    )
     public static class VaadinWebServlet extends VaadinServlet {
 
         @Override
