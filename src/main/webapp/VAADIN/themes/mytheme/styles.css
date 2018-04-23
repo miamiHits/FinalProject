@@ -15092,3 +15092,8 @@ div.v-layout.v-horizontal.v-widget {
 	background: url("img/pic.jpg") no-repeat !important;
 	background-size: cover;
 }
+
+.mytheme .result-chart {
+	max-width: 600px;
+	max-height: 600px;
+}

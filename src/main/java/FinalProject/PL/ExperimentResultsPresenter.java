@@ -1,14 +1,15 @@
 package FinalProject.PL;
 
+import com.jarektoro.responsivelayout.ResponsiveLayout;
+import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Responsive;
-import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -24,6 +25,8 @@ import org.vaadin.addon.JFreeChartWrapper;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class ExperimentResultsPresenter extends Panel implements View{
@@ -35,69 +38,62 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private DefaultCategoryDataset messagesNumPerAlgo;
     private DefaultCategoryDataset messagesSizeAvePerAlgo;
 
-
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
         getUI().access(() -> {
-
             try {
-
-                final VerticalLayout leftGraphsLayout = new VerticalLayout();
-                final VerticalLayout rightGraphsLayout = new VerticalLayout();
-
-                leftGraphsLayout.addComponent(generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph, false));
-                leftGraphsLayout.addComponent(generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph, false));
-                leftGraphsLayout.addComponent(generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo));
-
-                rightGraphsLayout.addComponent(generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph, false));
-                rightGraphsLayout.addComponent(generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime, false));
-                rightGraphsLayout.addComponent(generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo));
-                leftGraphsLayout.setWidth("100%");
-                rightGraphsLayout.setWidth("100%");
+                ResponsiveLayout resultsLayout = createResultsLayout();
 
                 Button endExperimentBtn = new Button("End Experiment");
-                endExperimentBtn.addClickListener(new Button.ClickListener() {
-                    @Override
-                    public void buttonClick(Button.ClickEvent event) {
-                        getUI().access(() ->{
-                           getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
-                           //TODO gal any export action reauired here?
-                        });
-                    }
-                });
+                endExperimentBtn.addClickListener((Button.ClickListener) event1 -> getUI().access(() ->{
+                   getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
+                   //TODO gal any export action required here?
+                    }));
 
-                VerticalLayout layout = new VerticalLayout();
-                Panel panelGraphs = new Panel("Graphs page", endExperimentBtn);
+                Label topLabel = new Label("Results:");
+                topLabel.addStyleName("v-label-h1");
+                topLabel.addStyleName("conf-title");
 
-                // Have a horizontal split panel as its content
-                HorizontalSplitPanel hsplit = new HorizontalSplitPanel();
-                panelGraphs.setContent(hsplit);
+                VerticalLayout mainLayout = new VerticalLayout();
 
-                // Put a component in the left panel
-                hsplit.setFirstComponent(leftGraphsLayout);
+                mainLayout.addComponents(topLabel, resultsLayout, endExperimentBtn);
+                mainLayout.setSizeUndefined();
+                mainLayout.setComponentAlignment(topLabel, Alignment.TOP_CENTER);
+                mainLayout.setComponentAlignment(endExperimentBtn, Alignment.TOP_CENTER);
+                Responsive.makeResponsive(mainLayout);
 
-                hsplit.setSecondComponent(rightGraphsLayout);
-                panelGraphs.setSizeUndefined(); // Shrink to fit content
-                layout.addComponent(panelGraphs);
-                layout.addComponent(endExperimentBtn);
-                layout.setSizeUndefined();
-                layout.setComponentAlignment(endExperimentBtn, Alignment.TOP_CENTER);
-                Responsive.makeResponsive(layout);
-
-                setContent(layout);
-
-
+                setContent(mainLayout);
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 e.printStackTrace();
                 UiHandler.navigator.navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
             }
 
         });
+    }
 
+    private ResponsiveLayout createResultsLayout() {
+        Component totalGrade = generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph, false);
+        Component cheapestAgent = generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph, false);
+        Component avgMsgSize = generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo);
+        Component mostExpensiveAgent = generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph, false);
+        Component avgRunTime = generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime, false);
+        Component avgNumMsgs = generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo);
 
+        ResponsiveLayout resultsLayout = new ResponsiveLayout()
+                .withSpacing()
+                .withFullSize();
+        ResponsiveRow mainRow = resultsLayout.addRow()
+                .withVerticalSpacing(true)
+                .withAlignment(Alignment.MIDDLE_CENTER);
+        List<Component> graphsLst = Arrays.asList(totalGrade, cheapestAgent, mostExpensiveAgent,
+                avgMsgSize, avgNumMsgs, avgRunTime);
+        graphsLst.forEach(component -> {
+            component.addStyleName("result-chart");
+            mainRow.addComponent(component);
+        });
+        return resultsLayout;
     }
 
     public void setPowerConsumptionGraph(DefaultStatisticalCategoryDataset powerCons)
@@ -132,8 +128,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
 
 
-    private Component generateLineGraphWithErrorBars(String title, String xAxisLabel, String yAxisLabel, DefaultStatisticalCategoryDataset dataset, boolean shapesIsVisible)
-    {
+    private Component generateLineGraphWithErrorBars(String title, String xAxisLabel, String yAxisLabel, DefaultStatisticalCategoryDataset dataset, boolean shapesIsVisible) {
         JFreeChart plot = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);
         StatisticalLineAndShapeRenderer statisticalRenderer = new StatisticalLineAndShapeRenderer(true, true);
         statisticalRenderer.setBaseItemLabelGenerator(
