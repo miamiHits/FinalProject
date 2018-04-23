@@ -17,6 +17,11 @@ public class Effect implements Serializable
         this.delta = delta;
     }
 
+    public Effect(Effect other) {
+        this.property = other.property;
+        this.delta = other.delta;
+    }
+
     public String getProperty()
     {
         return property;

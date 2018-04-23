@@ -55,7 +55,8 @@ public class Experiment implements ExperimentInterface {
 
     private void makePairs(List<Problem> problems, List<SmartHomeAgentBehaviour> algorithms) {
         for (Problem p : problems) {
-            algorithms.stream().map(algo -> p.getId() + "_" + algo.getBehaviourName())
+            algorithms.stream()
+                    .map(algo -> p.getId() + "_" + algo.getBehaviourName())
                     .filter(prob2Algo -> probToAlgoTotalTime.containsKey(prob2Algo))
                     .forEach(prob2Algo -> probToAlgoTotalTime.put(prob2Algo, new HashMap<>()));
         }
@@ -185,8 +186,8 @@ public class Experiment implements ExperimentInterface {
 
 
     ///////////////////////////////////////////////
-//ExperimentRunnable
-///////////////////////////////////////////////
+    //ExperimentRunnable
+    ///////////////////////////////////////////////
     private class ExperimentRunnable implements Runnable, PlatformController.Listener
     {
         private AgentContainer mainContainer;
@@ -212,9 +213,8 @@ public class Experiment implements ExperimentInterface {
                                         currentAlgorithmBehaviour.getBehaviourName(),
                                         currentProblem.getId()));
 
-                                assert currentProblem.getAgentsData()
-                                        .stream()
-                                        .map(ad -> ad.getName())
+                                assert currentProblem.getAgentsData().stream()
+                                        .map(AgentData::getName)
                                         .distinct()
                                         .collect(Collectors.toList()).size() == currentProblem.getAgentsData().size() :
                                         "some of the agents did not have have unique name";
@@ -225,7 +225,7 @@ public class Experiment implements ExperimentInterface {
                                             "agent must have a name that is not an empty string";
                                     Object[] agentInitializationArgs = new Object[4];
                                     agentInitializationArgs[0] = currentAlgorithmBehaviour.cloneBehaviour();
-                                    agentInitializationArgs[1] = agentData;
+                                    agentInitializationArgs[1] = new AgentData(agentData);
                                     agentInitializationArgs[2] = currentAlgorithmBehaviour.getBehaviourName();
                                     agentInitializationArgs[3] = currentProblem.getId();
                                     AgentController agentController = this.mainContainer.createNewAgent(agentData.getName(),
