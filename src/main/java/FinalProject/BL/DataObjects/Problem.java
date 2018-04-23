@@ -53,11 +53,6 @@ public class Problem implements Serializable
         this.allDevices = allDevices;
     }
 
-    public List<AgentData> getAllHomes()
-    {
-        return allHomes;
-    }
-
     public void setAllHomes(List<AgentData> allHomes)
     {
         this.allHomes = allHomes;
@@ -144,7 +139,7 @@ public class Problem implements Serializable
                 return false;
             }
         }
-        if (!getAllHomes().equals(problem.getAllHomes()))
+        if (!getAgentsData().equals(getAgentsData()))
         {
             return false;
         }
@@ -157,7 +152,7 @@ public class Problem implements Serializable
     {
         int result = getId().hashCode();
         result = 31 * result + getAllDevices().hashCode();
-        result = 31 * result + getAllHomes().hashCode();
+        result = 31 * result + getAgentsData().hashCode();
         result = 31 * result + getHorizon();
         result = 31 * result + Arrays.hashCode(getPriceScheme());
         result = 31 * result + getGranularity();

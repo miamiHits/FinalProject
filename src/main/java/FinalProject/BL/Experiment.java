@@ -6,6 +6,7 @@ import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.DataCollectionCommunicator;
 import FinalProject.BL.DataObjects.AgentData;
 import FinalProject.BL.DataObjects.Problem;
+import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.Service;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
@@ -13,10 +14,7 @@ import jade.core.Runtime;
 import jade.wrapper.*;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,16 +26,18 @@ public class Experiment implements ExperimentInterface {
     private List<Problem> problems;
     private List<SmartHomeAgentBehaviour> algorithms;
     private List<AlgorithmProblemResult> algorithmProblemResults;
-    private Map<String, Long> probToAlgoTotalTime = new HashMap<>();
+    private Map<Integer, Long> iter2Time = new HashMap<>();
+    private Map<String, Map<Integer, Long>> probToAlgoTotalTime = new HashMap<>();
     private boolean experimentCompleted = false;
     private CyclicBarrier waitingBarrier;// used by the experiment thread to wait for the current configuration to end before starting a new one
     private static final int WAITING_BARRIER_PARTIES_COUNT = 3;
-
     private AtomicBoolean experimentConfigurationRunning = new AtomicBoolean(false);
     private AtomicBoolean experimentRunStoppedByUser = new AtomicBoolean(false);
     private AtomicBoolean experimentRunStoppedWithError = new AtomicBoolean(false);
 
     private static Logger logger = Logger.getLogger(Experiment.class);
+    private long runningTime;
+    private int counter=0;
 
     private Thread experimentThread;
 
@@ -50,6 +50,15 @@ public class Experiment implements ExperimentInterface {
         this.algorithms = algorithms;
         this.algorithmProblemResults = new ArrayList<>();
         experimentThread = new Thread(new ExperimentRunnable());
+        makePairs(problems, algorithms);
+    }
+
+    private void makePairs(List<Problem> problems, List<SmartHomeAgentBehaviour> algorithms) {
+        for (Problem p : problems) {
+            algorithms.stream().map(algo -> p.getId() + "_" + algo.getBehaviourName())
+                    .filter(prob2Algo -> probToAlgoTotalTime.containsKey(prob2Algo))
+                    .forEach(prob2Algo -> probToAlgoTotalTime.put(prob2Algo, new HashMap<>()));
+        }
     }
 
     @Override
@@ -59,10 +68,16 @@ public class Experiment implements ExperimentInterface {
         logger.info("starting experiment thread");
         assert this.experimentThread != null : "experiment thread must be initiated";
         this.experimentThread.start();
+        this.runningTime = System.currentTimeMillis();
+
+
     }
 
     public void algorithmProblemIterEnded(String algo, String problem) {
         logger.info("Iter ended in <" + algo + "," + problem + ">. Updating with " + (1.0 / maximumIterations) + "%");
+        iter2Time.put(this.counter, (System.currentTimeMillis() - this.runningTime));
+        counter++;
+        this.runningTime = System.currentTimeMillis();
         service.algorithmProblemIterEnded(algo, problem, 1.0f / maximumIterations);
     }
 
@@ -84,14 +99,20 @@ public class Experiment implements ExperimentInterface {
                // "result - in best iteration, the highest cost for an agent must be greater than the lowest one";
         assert result.getIterationsTillBestPrice() <= Experiment.maximumIterations :
                 "result.getIterationsTillBestPrice() was greater than the maximum iteration count";
-
+        //logger.info("DEBUG YARDEN: just put times for last iteration of: " + result.getProblem()+"_"+result.getAlgorithm()+ "Iter num: "+ counter);
+        iter2Time.put(counter, (System.currentTimeMillis() - this.runningTime));
         algorithmProblemResults.add(result);
-
+        this.probToAlgoTotalTime.put(result.getProblem()+"_"+result.getAlgorithm(), this.iter2Time);
+        for(int i=0; i<counter; i++)
+            logger.info("DEBUG YARDEN: iter" +i+ "took :" + iter2Time.get(i));
+        this.counter = 0;
+        this.iter2Time = new HashMap<>();
+        this.runningTime = System.currentTimeMillis();
         (new Thread(() ->
         {
             try
             {
-                this.waitingBarrier.await();// TODO gal make it non-blocking
+                this.waitingBarrier.await();
             }
             catch (InterruptedException e)
             {
@@ -190,8 +211,7 @@ public class Experiment implements ExperimentInterface {
                                                 "problem: %s",
                                         currentAlgorithmBehaviour.getBehaviourName(),
                                         currentProblem.getId()));
-                                String algoProblem = currentAlgorithmBehaviour.getBehaviourName() +"_"+ currentProblem.getId();
-                                probToAlgoTotalTime.put(algoProblem, System.currentTimeMillis());
+
                                 assert currentProblem.getAgentsData()
                                         .stream()
                                         .map(ad -> ad.getName())
@@ -304,19 +324,6 @@ public class Experiment implements ExperimentInterface {
             {
                 logger.info("Experiment ended");
                 killJade();
-                Long finalTime = System.currentTimeMillis();
-                //lets get the problem-algo pair and add the final time
-                for(AlgorithmProblemResult apr : algorithmProblemResults)
-                {
-                    String algoToProbString = apr.getAlgorithm() +"_"+ apr.getProblem();
-                    logger.info("DEBUG YARDEN: NAME IS--->>>" + algoToProbString);
-                    Long startTime = probToAlgoTotalTime.get(algoToProbString);
-                    logger.info("DEBUG YARDEN: START TIME WAS FOUND AND IS--->>>" + startTime);
-                    probToAlgoTotalTime.put(algoToProbString, finalTime-startTime);
-                    Long newRes = finalTime-startTime;
-                    logger.info("DEBUG YARDEN: CALCULATED TIME IS--->>>" + newRes);
-                }
-
                 service.experimentEnded(algorithmProblemResults, probToAlgoTotalTime);
             }
             assert !experimentConfigurationRunning.get() :

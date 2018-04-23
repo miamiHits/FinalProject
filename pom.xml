@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>FinalProject</groupId>
@@ -128,14 +128,19 @@
 			<systemPath>${project.basedir}/lib/testSuite.jar</systemPath>
 		</dependency>
 
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.6</version>
-        </dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.7</version>
+		</dependency>
 
 
-    </dependencies>
+	</dependencies>
 
 	<build>
 		<plugins>
@@ -194,29 +199,29 @@
 				</configuration>
 			</plugin>
 
-            <!--&lt;!&ndash;used to copy compiled algo files into  resource/comiled_algorithms&ndash;&gt;-->
-            <!--<plugin>-->
-                <!--<artifactId>maven-resources-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>copy-resources-from-parent</id>-->
-                        <!--<phase>generate-resources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>copy-resources</goal> &lt;!&ndash; happens before test phase &ndash;&gt;-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<outputDirectory>-->
-                                <!--${project.basedir}/resources/compiled_algorithms/FinalProject/BL/Agents-->
-                            <!--</outputDirectory>-->
-                            <!--<resources>-->
-                                <!--<resource>-->
-                                    <!--<directory>${project.basedir}/target/classes/FinalProject/BL/Agents</directory>-->
-                                <!--</resource>-->
-                            <!--</resources>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+			<!--&lt;!&ndash;used to copy compiled algo files into  resource/comiled_algorithms&ndash;&gt;-->
+			<!--<plugin>-->
+			<!--<artifactId>maven-resources-plugin</artifactId>-->
+			<!--<executions>-->
+			<!--<execution>-->
+			<!--<id>copy-resources-from-parent</id>-->
+			<!--<phase>generate-resources</phase>-->
+			<!--<goals>-->
+			<!--<goal>copy-resources</goal> &lt;!&ndash; happens before test phase &ndash;&gt;-->
+			<!--</goals>-->
+			<!--<configuration>-->
+			<!--<outputDirectory>-->
+			<!--${project.basedir}/resources/compiled_algorithms/FinalProject/BL/Agents-->
+			<!--</outputDirectory>-->
+			<!--<resources>-->
+			<!--<resource>-->
+			<!--<directory>${project.basedir}/target/classes/FinalProject/BL/Agents</directory>-->
+			<!--</resource>-->
+			<!--</resources>-->
+			<!--</configuration>-->
+			<!--</execution>-->
+			<!--</executions>-->
+			<!--</plugin>-->
 		</plugins>
 	</build>
 

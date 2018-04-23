@@ -1,8 +1,5 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.Agents.PropertyWithData;
-import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
-
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +17,7 @@ public class BehaviourToCompile extends SmartHomeAgentBehaviour {
     }
 
     @Override
-    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge) {
+    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched) {
 
     }
 
