@@ -29,17 +29,6 @@ public class DSA extends SmartHomeAgentBehaviour {
     public void doIteration() {
         if (agent.isZEROIteration()) {
             logger.info("Starting work on Iteration: 0");
-            //TODO: debug from here
-
-
-
-            if (agent.getAgentData().getName().equals("h1")) {
-                System.out.println("DSA: my data is:\n\t" + agent.getAgentData().toString());
-            }
-
-
-
-            //TODO: debug to here
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
             logger.info("FINISH ITER 0");

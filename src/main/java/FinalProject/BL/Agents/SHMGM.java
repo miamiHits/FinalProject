@@ -28,17 +28,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     protected void doIteration() {
         if (agent.isZEROIteration()) {
             logger.info("Starting work on Iteration: 0");
-            //TODO: debug from here
-
-
-
-            if (agent.getAgentData().getName().equals("h1")) {
-                System.out.println("SHMGM: my data is:\n\t" + agent.getAgentData().toString());
-            }
-
-
-
-            //TODO: debug to here
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
             agent.setPriceSum(calcCsum(iterationPowerConsumption));
