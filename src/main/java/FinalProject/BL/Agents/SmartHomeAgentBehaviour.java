@@ -329,7 +329,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             System.out.println(agent.getLocalName() + " ticks to work is " + ticksToWork);
             subsets = checkAllSubsetOptions(prop);
             if (subsets == null ) {
-                logger.error("subsets is null!");
+                logger.warn("subsets is null!");
                 return;
             }
         }
