@@ -66,7 +66,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 .withAlignment(Alignment.MIDDLE_CENTER)
 //                .withGrow(true)
 //                .withShrink(true)
-                .withMargin(true);
+                .withSpacing(true);
         row.setDefaultRules(2 * COL_SIZE + 1, 2 * COL_SIZE + 1, 2 * COL_SIZE + 1, 2 * COL_SIZE + 1);
 //        row.setSizeFull();
 
@@ -123,9 +123,9 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         ResponsiveRow topRow = new ResponsiveRow()
                 .withComponents(algorithmSelector)
-                .withSpacing(true)
-                .withAlignment(Alignment.TOP_RIGHT)
-                .withMargin(true);
+//                .withSpacing(true)
+                .withAlignment(Alignment.TOP_RIGHT);
+//                .withMargin(true);
 //                .withShrink(true)
 //                .withGrow(true);
         topRow.setDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
@@ -141,6 +141,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 .withSpacing();
         algoLayout.addRow(topRow);
         algoLayout.addRow(bottomRow);
+        algoLayout.setHeight("100%");
         ResponsiveColumn col = row.addColumn()
 //                .withGrow(true)
 //                .withShrink(true)
@@ -165,12 +166,17 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Button addAllProblemsBtn = new Button("Add All");
         addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap));
 
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.addComponents(problemTree, selectedProblemGrid);
+        horizontalLayout.setComponentAlignment(problemTree, Alignment.TOP_LEFT);
+        horizontalLayout.setComponentAlignment(selectedProblemGrid, Alignment.TOP_RIGHT);
+        horizontalLayout.setSizeFull();
         ResponsiveRow topRow = new ResponsiveRow()
-                .withComponents(problemTree, selectedProblemGrid)
+                .withComponents(horizontalLayout)
                 .withAlignment(Alignment.TOP_LEFT)
 //                .withGrow(true)
 //                .withShrink(true)
-                .withMargin(true)
+//                .withMargin(true)
                 .withDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
 //        topRow.setSizeUndefined();
         topRow.setDefaultComponentAlignment(Alignment.TOP_LEFT);
@@ -179,14 +185,15 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 .withAlignment(Alignment.BOTTOM_LEFT)
 //                .withGrow(true)
 //                .withShrink(true)
-                .withMargin(true)
+//                .withSpacing(true)
                 .withDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
 //        bottomRow.setSizeUndefined();
 
-        ResponsiveLayout problemsLayout = new ResponsiveLayout();
+        ResponsiveLayout problemsLayout = new ResponsiveLayout()
+                .withCaption("Select your problems");
         problemsLayout.addRow(topRow);
         problemsLayout.addRow(bottomRow);
-        problemsLayout.setSpacing();
+//        problemsLayout.setSpacing();
 
         ResponsiveColumn problemCol =  new ResponsiveColumn()
                 .withDisplayRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE)
