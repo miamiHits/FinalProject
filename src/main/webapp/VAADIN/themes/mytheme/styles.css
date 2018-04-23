@@ -15058,9 +15058,42 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .mytheme .conf-title {
-	font-weight: 400;
+	font-weight: 600;
 }
 
 .mytheme .conf-subtitle {
 	font-weight: 400;
+}
+
+.mytheme .with-min-width {
+	min-width: 150px;
+}
+
+.mytheme .with-max-width {
+	max-width: 200px;
+}
+
+.mytheme .with-bg-color-white {
+	background-color: white;
+}
+
+.mytheme .problem-grid-style {
+	max-height: 300px;
+	max-width: 290px;
+}
+
+.mytheme .algo-selector {
+	max-width: 500px;
+	min-width: 300px;
+	min-height: 300px;
+}
+
+.mytheme .with-bg-image {
+	background: url("img/pic.jpg") no-repeat !important;
+	background-size: cover;
+}
+
+.mytheme .result-chart {
+	max-width: 600px;
+	max-height: 600px;
 }

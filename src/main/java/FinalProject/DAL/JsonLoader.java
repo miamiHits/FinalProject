@@ -177,18 +177,32 @@ public class JsonLoader implements JsonLoaderInterface {
     }
 
     @Override
-    public List<String> getAllProblemNames()
-    {
+    public Map<Integer, List<String>> getAllProblemNames() {
         if (jsonsDir == null) {
             logger.error("jsonsDir is null!");
             return null;
         }
         List<File> allInFolder = Arrays.asList(jsonsDir.listFiles());
-        return allInFolder.stream()
+        List<String> allNames = allInFolder.stream()
                 .map(File::getName)
                 .filter(name -> name.endsWith(FILE_TYPE) && !name.equals("DeviceDictionary" + FILE_TYPE))
                 .map(name -> name.substring(0, name.indexOf(FILE_TYPE)))
                 .collect(Collectors.toList());
+        Map<Integer, List<String>> sizeToNamesMap = allNames.stream()
+                .collect(Collectors.groupingBy(this::findSizeInName));
+        return sizeToNamesMap;
+
+    }
+
+    private int findSizeInName(String name) {
+        String afterCityName = name.substring(name.indexOf("_") + 1);
+        String sizeStr = afterCityName.substring(0, afterCityName.indexOf("_"));
+        try {
+            return Integer.parseInt(sizeStr);
+        } catch (NumberFormatException e) {
+            logger.warn("Could not parse " + name + "'s size! returning -1");
+            return -1;
+        }
     }
 
     @Override
