@@ -32,6 +32,22 @@ public class Rule implements Serializable
         this.relationValue = relationValue;
     }
 
+    public Rule(Rule other) {
+        this.isActive = other.isActive;
+        if (other.device != null) {
+            this.device = new Device(other.device);
+        }
+        else {
+            this.device = null;
+        }
+        this.location = other.location;
+        this.property = other.property;
+        this.ruleValue = other.ruleValue;
+        this.prefixType = other.prefixType;
+        this.prefix = other.prefix;
+        this.relationValue = other.relationValue;
+    }
+
     public Rule(String ruleAsString, List<Device> deviceDict)
     {
         String[] split = ruleAsString.split(" ");

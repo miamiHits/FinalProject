@@ -52,10 +52,11 @@ public class AgentData implements Serializable{
         this.neighbors = new ArrayList<>(other.neighbors);
         this.backgroundLoad = Arrays.copyOf(other.backgroundLoad, other.backgroundLoad.length);
         this.houseType = other.houseType;
-        this.rules = new ArrayList<>(other.rules);
-        this.sensors = new ArrayList<>(other.sensors);
+        this.rules = other.getRules().stream().map(rule -> new Rule(rule)).collect(Collectors.toList());
+        this.sensors = other.sensors.stream().map(sensor -> new Sensor(sensor)).collect(Collectors.toList());
+        this.actuators = other.actuators.stream().map(actuator -> new Actuator(actuator)).collect(Collectors.toList());
         this.numOfIterations = other.numOfIterations;
-        this.priceScheme = other.getPriceScheme();
+        this.priceScheme = Arrays.copyOf(other.priceScheme, other.priceScheme.length);
         this.granularity = other.granularity;
     }
 

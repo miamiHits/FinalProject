@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Action implements Serializable
 {
@@ -26,7 +27,7 @@ public class Action implements Serializable
     public Action(Action other) {
         this.name = other.getName();
         this.powerConsumption = other.getPowerConsumption();
-        this.effects = new ArrayList<>(other.getEffects().size());
+        this.effects = other.effects.stream().map(fx -> new Effect(fx)).collect(Collectors.toList());
         this.effects.addAll(other.effects);
     }
 
