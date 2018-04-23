@@ -93,7 +93,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         mainLayout.addComponent(numberOfIterationsTxt);
         mainLayout.addComponent(addNewAlgorithmBtn);
         mainLayout.addComponent(startExperimentBtn);
-//        setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
+        setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
         mainLayout.addStyleName("conf-main-layout");
 
         setContent(mainLayout);
@@ -132,7 +132,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         ResponsiveRow bottomRow = new ResponsiveRow()
                 .withComponents(addAllAlgorithmsBtn)
                 .withSpacing(true)
-                .withAlignment(Alignment.BOTTOM_RIGHT);
+                .withAlignment(Alignment.BOTTOM_LEFT);
 //                .withShrink(true)
 //                .withGrow(true);
         bottomRow.setDefaultRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
@@ -151,9 +151,12 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private void generateProblemsSection(ResponsiveRow row) {
         Tree<String> problemTree = new Tree<>("Available Problems");
+//        problemTree.setSizeFull();
 //        Responsive.makeResponsive(problemTree);
+        problemTree.addStyleNames("with-min-width", "with-max-width");
         selectedProblemGrid = new Grid<>(SelectedProblem.class);
-//        selectedProblemGrid.setSizeUndefined();
+        selectedProblemGrid.addStyleName("problem-grid-style");
+//        selectedProblemGrid.setSizeFull();
 //        Responsive.makeResponsive(selectedProblemGrid);
 
         Map<Integer, List<String>> sizeToNameMap = initTree(problemTree);
@@ -173,7 +176,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         topRow.setDefaultComponentAlignment(Alignment.TOP_LEFT);
         ResponsiveRow bottomRow = new ResponsiveRow()
                 .withComponents(addAllProblemsBtn)
-                .withAlignment(Alignment.BOTTOM_RIGHT)
+                .withAlignment(Alignment.BOTTOM_LEFT)
 //                .withGrow(true)
 //                .withShrink(true)
                 .withMargin(true)
