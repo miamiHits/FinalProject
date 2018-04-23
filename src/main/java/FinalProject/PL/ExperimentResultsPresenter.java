@@ -1,17 +1,14 @@
 package FinalProject.PL;
 
-import com.jarektoro.responsivelayout.ResponsiveColumn;
 import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Responsive;
-import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -45,8 +42,6 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
         getUI().access(() -> {
             try {
-
-
                 Component totalGrade = generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph, false);
                 Component cheapestAgent = generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph, false);
                 Component avgMsgSize = generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo);
@@ -58,7 +53,6 @@ public class ExperimentResultsPresenter extends Panel implements View{
                         .withSpacing()
                         .withFullSize();
                 ResponsiveRow mainRow = resultsLayout.addRow()
-//                        .withSpacing(true)
                         .withVerticalSpacing(true)
                         .withAlignment(Alignment.MIDDLE_CENTER);
                 List<Component> graphsLst = Arrays.asList(totalGrade, cheapestAgent, mostExpensiveAgent,
@@ -67,13 +61,6 @@ public class ExperimentResultsPresenter extends Panel implements View{
                     component.addStyleName("result-chart");
                     mainRow.addComponent(component);
                 });
-//                        .withDefaultRules(2 * COL_SIZE + 1,2 * COL_SIZE + 1,2 * COL_SIZE + 1,2 * COL_SIZE + 1)
-                ;
-//                graphsLst.forEach(component -> {
-//                    ResponsiveColumn col = mainRow.addColumn()
-//                            .withComponent(component)
-//                            .withDisplayRules(COL_SIZE,COL_SIZE,COL_SIZE,COL_SIZE);
-//                });
 
                 Button endExperimentBtn = new Button("End Experiment");
                 endExperimentBtn.addClickListener((Button.ClickListener) event1 -> getUI().access(() ->{
@@ -83,18 +70,6 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
                 VerticalLayout mainLayout = new VerticalLayout();
 
-//                Panel panelGraphs = new Panel("Graphs page", endExperimentBtn);
-//
-//                // Have a horizontal split panel as its content
-//                HorizontalSplitPanel hsplit = new HorizontalSplitPanel();
-//                panelGraphs.setContent(hsplit);
-//
-//                // Put a component in the left panel
-//                hsplit.setFirstComponent(leftGraphsLayout);
-//
-//                hsplit.setSecondComponent(rightGraphsLayout);
-//                panelGraphs.setSizeUndefined(); // Shrink to fit content
-//                mainLayout.addComponent(panelGraphs);
                 mainLayout.addComponents(resultsLayout, endExperimentBtn);
                 mainLayout.setSizeUndefined();
                 mainLayout.setComponentAlignment(endExperimentBtn, Alignment.TOP_CENTER);
