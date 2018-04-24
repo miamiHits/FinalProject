@@ -4,7 +4,9 @@ import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.DataObjects.*;
 import org.apache.log4j.Logger;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.*;
@@ -13,7 +15,7 @@ public class AlgorithmDataHelper
 {
     public double totalPriceConsumption = Double.MAX_VALUE;
     public double ePeak = 0;
-    private  Map<Actuator, List<Integer>> deviceToTicks = new HashMap<>();
+    private  Map<Actuator, Map<Action, List<Integer>>> deviceToTicks = new HashMap<>(); //map from actuator to  each of it's actions' ticks
     private List<PropertyWithData> allProperties;
     private SmartHomeAgent agent;
     private List<double[]> neighboursPriceConsumption = new ArrayList<>();
@@ -295,8 +297,19 @@ public class AlgorithmDataHelper
         return allProperties;
     }
 
-    public Map<Actuator, List<Integer>> getDeviceToTicks() {
+    public Map<Actuator, Map<Action, List<Integer>>> getDeviceToTicks() {
         return deviceToTicks;
+    }
+
+    public List<Integer> getTicksForDevicesAction(Actuator actuator, Action action) {
+        if (actuator == null || action == null) {
+            return null;
+        }
+        Map<Action, List<Integer>> actionToTicks = deviceToTicks.get(actuator);
+        if (actionToTicks != null) {
+            return actionToTicks.get(action);
+        }
+        return null;
     }
 
     public List<double[]> getNeighboursPriceConsumption() {
@@ -363,9 +376,7 @@ public class AlgorithmDataHelper
 
     public List<Integer> cloneList(List<Integer> old)
     {
-        List<Integer> newList = new ArrayList<>();
-        newList.addAll(old);
-        return newList;
+        return new ArrayList<>(old);
     }
 
     public void resetProperties() {

@@ -75,7 +75,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
         //calc try to improve sched
         helper.resetProperties();
-        buildScheduleBasic(randomPick); //using Ci as priceSum
+        buildScheduleBasic(randomPick);
 
         //calculate improvement
         double newPrice = calcCsum(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
