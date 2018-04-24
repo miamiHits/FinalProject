@@ -96,16 +96,13 @@ public class Experiment implements ExperimentInterface {
                 , result.getProblem()));
         assert result != null : "algorithmProblemComboRunEnded must be invoked with a non-null result instance";
 
-     //   assert result.getHighestCostForAgentInBestIteration().entrySet().stream().forEach((k -> k.getValue().compareTo(result.getLowestCostForAgentInBestIteration().get(k))) > 0):
-               // "result - in best iteration, the highest cost for an agent must be greater than the lowest one";
         assert result.getIterationsTillBestPrice() <= Experiment.maximumIterations :
                 "result.getIterationsTillBestPrice() was greater than the maximum iteration count";
-        //logger.info("DEBUG YARDEN: just put times for last iteration of: " + result.getProblem()+"_"+result.getAlgorithm()+ "Iter num: "+ counter);
         iter2Time.put(counter, (System.currentTimeMillis() - this.runningTime));
         algorithmProblemResults.add(result);
         this.probToAlgoTotalTime.put(result.getProblem()+"_"+result.getAlgorithm(), this.iter2Time);
         for(int i=0; i<counter; i++)
-            logger.info("DEBUG YARDEN: iter" +i+ "took :" + iter2Time.get(i));
+            logger.debug("iteration " + i + " took :" + iter2Time.get(i));
         this.counter = 0;
         this.iter2Time = new HashMap<>();
         this.runningTime = System.currentTimeMillis();
@@ -392,15 +389,23 @@ public class Experiment implements ExperimentInterface {
             */
         }
 
-        private void killAllAgents() throws StaleProxyException
+        private void killAllAgents()
         {
             for (AgentController controller : this.agentControllers)
             {
-                if (!controller.getState().getName().equalsIgnoreCase("killed"))
+                try
                 {
-                    controller.kill();
+                    if (!controller.getState().getName().equalsIgnoreCase("killed"))
+                    {
+                        controller.kill();
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.error("failed killing an agent", e);
                 }
             }
+            this.agentControllers = new ArrayList<>();
         }
 
         private void killJade()
@@ -446,7 +451,7 @@ public class Experiment implements ExperimentInterface {
                             return true;
                             }}) :
                         "upon ending ";
-
+                this.agentControllers = new ArrayList<>();
                 (new Thread(() -> {// instead of blocking the caller block an anonymous thread
                     try
                     {

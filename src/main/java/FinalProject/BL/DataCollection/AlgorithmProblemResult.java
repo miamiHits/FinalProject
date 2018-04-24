@@ -167,6 +167,7 @@ public class AlgorithmProblemResult {
                 ", algorithm='" + algorithm + '\'' + "\n" +
                 ", avgPricePerIteration=" + avgPricePerIteration + "\n" +
                 ", totalGradePerIteration=" + totalGradePerIteration + "\n" +
+                ", bestTotalGradePerIter=" + bestTotalGradePerIter + "\n" +
                 ", iterationsTillBestPrice=" + iterationsTillBestPrice + "\n" +
                 ", bestGrade=" + bestGrade + "\n" +
                 ", messagesInIter=" + totalMessagesInIter + "\n" +
