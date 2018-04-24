@@ -424,6 +424,11 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
             service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
             service.setProblemsToExperiment(selectedProblems.stream().map(SelectedProblem::getName).collect(Collectors.toList()));
             service.runExperiment();
+            selectedAlgorithms.clear();
+            algorithmSelector.clear();
+            numberOfIterationsTxt.clear();
+            numberOfIterationsTxt.setComponentError(null);
+
 
             getUI().access(() -> {
                 getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);

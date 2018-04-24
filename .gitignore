@@ -6,6 +6,8 @@ APDescription\.txt
 
 MTPs-Main-Container\.txt
 
+log/*
+
 *.csv
 
 src/test/testResources/compiledAlgorithms/FinalProject/BL/Agents/BehaviourToCompile\.class

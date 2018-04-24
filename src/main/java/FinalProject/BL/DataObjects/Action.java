@@ -27,8 +27,8 @@ public class Action implements Serializable
     public Action(Action other) {
         this.name = other.getName();
         this.powerConsumption = other.getPowerConsumption();
-        this.effects = other.effects.stream().map(fx -> new Effect(fx)).collect(Collectors.toList());
-        this.effects.addAll(other.effects);
+        //this.effects = other.effects.stream().map(fx -> new Effect(fx)).collect(Collectors.toList());
+        this.effects = new ArrayList<>(other.effects);
     }
 
 
