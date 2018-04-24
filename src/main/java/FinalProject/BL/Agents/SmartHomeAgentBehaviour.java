@@ -163,20 +163,15 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
             Map<String, Integer> sensorsToCharge = new HashMap<>();
             //check if there is sensor in the same ACT who's delta is negative (has an offline effect, usually related to charge)
-            prop.getRelatedSensorsDelta().forEach((key, value) -> {
-                if (value < 0) {
-                    int ticksNeedToCharge = calcHowManyTicksNeedToCharge(key, value, ticksToWork);
+            prop.getRelatedSensorsDelta().forEach((sensorPropName, delta) -> {
+                if (delta < 0) {
+                    int ticksNeedToCharge = calcHowManyTicksNeedToCharge(sensorPropName, delta, ticksToWork);
                     if (ticksNeedToCharge > 0) {
-                        sensorsToCharge.put(key, ticksNeedToCharge);
+                        sensorsToCharge.put(sensorPropName, ticksNeedToCharge);
                     }
                 }
             });
-            if (!randomizeSched){
-                generateScheduleForProp(prop, ticksToWork, sensorsToCharge, false);
-            }
-            else{ //random pick
-                generateScheduleForProp(prop, ticksToWork, sensorsToCharge,true);
-            }
+            generateScheduleForProp(prop, ticksToWork, sensorsToCharge, randomizeSched);
             if (currentNumberOfIter > 0) {
                 tempBestPriceConsumption = helper.calcTotalPowerConsumption(calcCsum(iterationPowerConsumption), iterationPowerConsumption);
             }
@@ -628,7 +623,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                     if (ticksToWork == 1) {
                         myTicks.add((int)prop.getTargetTick());
                     }
-                    else {   double targetTick = prop.getTargetTick();
+                    else {
+                        double targetTick = prop.getTargetTick();
                         for (int j = 0 ; j< ticksToWork; j++) {
                             randomNum = drawRandomNum(0,(int)targetTick - j);
                             if (!myTicks.contains(randomNum)) {
