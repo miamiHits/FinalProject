@@ -92,52 +92,49 @@ public class StatisticsHandler {
     private void calcDataSet(graphType command, DefaultStatisticalCategoryDataset dataset)
    {
        int switchErrorBar = ITER_NUM / experimentResults.keySet().size();
-       Set<String> numberOfAlgo = experimentResults.keySet();
        experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
            int whenToSwitch =0;
            int size = value.size();
            double total;
            double[] arr = new double[size];
+           if (key.equals("SHMGM") && (command ==graphType.TotalConsumption))
+           {
+               calcBestGrade(size, value, dataset);
+           }
            for (int j = 0; j < ITER_NUM; j++) {
-
                total = 0;
                for (int i = 0; i < size; i++) {
                    switch (command) {
                        case LowestPrice:
-                           arr[i] = value.get(i).getLowestCostForAgentInBestIteration().get(j);
+                           total += value.get(i).getLowestCostForAgentInBestIteration().get(j);
                            break;
                        case HighestPrice:
-                           arr[i] = value.get(i).getHighestCostForAgentInBestIteration().get(j);
+                           total += value.get(i).getHighestCostForAgentInBestIteration().get(j);
                            break;
                        case TotalConsumption:
-                           if(key.equals("SHMGM"))
-                           {
-                               dataset.add(value.get(i).getBestTotalGradePerIter().get(j), null, "SHMGM best grade", j);
-
-                           }
-                           //logger.info("DEBUG YARDEN: entry.getValue().get(i) of TotalConsumption is: " + entry.getValue().get(i).getAvgPricePerIteration().get(j));
-                           arr[i] = value.get(i).getTotalGradePerIteration().get(j);
+                           total += value.get(i).getTotalGradePerIteration().get(j);
                            break;
                    }
-
-                   total += arr[i];
                }
                    Number std = j < displayedErrorBarsCount || j % (ITER_NUM / displayedErrorBarsCount) == 0 ? calculateSD(arr) : null;
 
                   if (whenToSwitch <= switchErrorBar && key.equals("DSA"))
                    {
-
                        dataset.add(total / size, std, key, j);
+                       logger.info("DEBUG YARDEN: about to insert " + total / size+ "to dataset, in iter " + j+ "algo name is: " + key);
+
                    }
                    else if (whenToSwitch > switchErrorBar && key.equals("SHMGM")) {
                        dataset.add(total / size, std, key, j);
+                      logger.info("DEBUG YARDEN: about to insert " + total / size+ "to dataset, in iter " + j+ "algo name is: " + key);
 
-                   }
+
+                  }
                    else{
                        dataset.add(total / size, null, key, j);
-                   }
+                      logger.info("DEBUG YARDEN: about to insert " + total / size+ "to dataset, in iter " + j+ "algo name is: " + key);
 
-
+                  }
 
 
                whenToSwitch++;
@@ -145,6 +142,19 @@ public class StatisticsHandler {
            }
        });
    }
+
+    private void calcBestGrade(int size, List<AlgorithmProblemResult> value, DefaultStatisticalCategoryDataset dataset)
+    {
+        double total;
+        for (int j = 0; j < ITER_NUM; j++) {
+            total =0;
+            for (int i = 0; i < size; i++) {
+                total += value.get(i).getBestTotalGradePerIter().get(j);
+            }
+            dataset.add(total / size, null, "SHMGM best grade", j);
+        }
+
+    }
 
     public static double calculateSD(double numArray[])
     {
