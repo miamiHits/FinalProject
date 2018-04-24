@@ -19,10 +19,8 @@ public class StatisticsHandler {
     public StatisticsHandler(List<AlgorithmProblemResult> experimentResults, Map<String, Map<Integer, Long>>  probToAlgoTotalTime)
     {
         this.experimentResultsNotSort = experimentResults;
-        logger.info("experimentResults is:" + experimentResults.toString());
         ITER_NUM = experimentResults.get(0).getAvgPricePerIteration().size();
         this.probNAlgToTotalTime = probToAlgoTotalTime;
-        logger.info("probNAlgToTotalTime is:" + probNAlgToTotalTime.toString());
 
         sortResultsByAlgorithm();
     }
@@ -118,19 +116,13 @@ public class StatisticsHandler {
                   if (whenToSwitch <= switchErrorBar && key.equals("DSA"))
                    {
                        dataset.add(total / size, std, key, j);
-                       logger.info("DEBUG YARDEN: about to insert " + total / size+ "to dataset, in iter " + j+ "algo name is: " + key);
 
                    }
                    else if (whenToSwitch > switchErrorBar && key.equals("SHMGM")) {
                        dataset.add(total / size, std, key, j);
-                      logger.info("DEBUG YARDEN: about to insert " + total / size+ "to dataset, in iter " + j+ "algo name is: " + key);
-
-
                   }
                    else{
                        dataset.add(total / size, null, key, j);
-                      logger.info("DEBUG YARDEN: about to insert " + total / size+ "to dataset, in iter " + j+ "algo name is: " + key);
-
                   }
 
 
