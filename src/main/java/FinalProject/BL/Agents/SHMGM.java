@@ -20,14 +20,20 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     private final static Logger logger = Logger.getLogger(SHMGM.class);
     private ImprovementMsg maxImprovementMsg = null; //used to calc msgs size only
     private final String gainMsgOntology = "GAIN_MSG";
-    private MessageTemplate improvementTemplate = MessageTemplate.MatchOntology(gainMsgOntology);
+    private MessageTemplate improvementTemplate;
 
-    public SHMGM() {super();}
+    public SHMGM() { super(); }
+
+    private void initMsgTemplate() {
+        MessageTemplate noAms = MessageTemplate.not(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_AMS);
+        improvementTemplate = MessageTemplate.and(MessageTemplate.MatchOntology(gainMsgOntology), noAms);
+    }
 
     @Override
     protected void doIteration() {
         if (agent.isZEROIteration()) {
             logger.info("Starting work on Iteration: 0");
+            initMsgTemplate(); // needs to be here to make sure SmartHomeAgent class is init
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
             agent.setPriceSum(calcCsum(iterationPowerConsumption));
@@ -87,7 +93,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
                 logger.error(agent.getLocalName() + "'s impro is NEGATIVE!! " + improvement);
             }
             ImprovementMsg impMsg = sendImprovementToNeighbours(improvement, prevIterPowerConsumption);
-            List<ImprovementMsg> receivedImprovements = receiveImprovements();
+            List<ImprovementMsg> receivedImprovements = receiveImprovementMsgs();
             receivedImprovements.add(impMsg);
             ImprovementMsg max = receivedImprovements.stream().max(ImprovementMsg::compareTo).orElse(null);
             maxImprovementMsg = max;
@@ -143,7 +149,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         iterationPowerConsumption = prevIterPowerConsumption;
     }
 
-    private List<ImprovementMsg> receiveImprovements() {
+    private List<ImprovementMsg> receiveImprovementMsgs() {
 
         List<ACLMessage> receivedMsgs = waitForNeighbourMessages(improvementTemplate);
         return receivedMsgs.stream()
