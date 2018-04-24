@@ -435,6 +435,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 .collect(Collectors.toList());
         int index = allScheds.size();
         List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        if (subsets.get(0).size() != prevTicks.size()){
+            logger.info(agent.getAgentData().getName()+", iter: " + agent.getCurrIteration().getIterNum() + ", prop: " + prop.getName() +
+                    ", prevTicks size: " + prevTicks.size() + ", each subset size: " + subsets.get(0).size());
+        }
         //remove them from the array
         for (Integer tick : prevTicks) {
             newPowerConsumption[tick] -= prop.getPowerConsumedInWork();

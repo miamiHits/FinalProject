@@ -104,6 +104,8 @@ public class UiHandler extends UI implements UiHandlerInterface {
         service.setAlgorithmsToExperiment(algoList, numOfIter);
         List<String> problem = new ArrayList<>();
         problem.add("dm_7_1_3");
+        problem.add("dm_7_1_2");
+
         service.setProblemsToExperiment(problem);
 
         System.out.println("Starting Experiment!");

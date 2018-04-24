@@ -169,6 +169,10 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     @Override
     protected void onTermination() {
         logger.info(agent.getName() + " for problem " + agent.getProblemId() + "and algo SH-MGM is TERMINATING!");
+        this.iterationPowerConsumption = null;
+        this.agentIterationCollected = null;
+        this.agentIterationData = null;
+
     }
 
     @Override
