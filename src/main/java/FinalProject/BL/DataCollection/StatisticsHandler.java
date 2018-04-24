@@ -97,10 +97,7 @@ public class StatisticsHandler {
            int size = value.size();
            double total;
            double[] arr = new double[size];
-           if (key.equals("SHMGM") && (command ==graphType.TotalConsumption))
-           {
-               calcBestGrade(size, value, dataset);
-           }
+
            for (int j = 0; j < ITER_NUM; j++) {
                total = 0;
                for (int i = 0; i < size; i++) {
@@ -138,6 +135,10 @@ public class StatisticsHandler {
 
 
                whenToSwitch++;
+               if (key.equals("SHMGM") && (command ==graphType.TotalConsumption))
+               {
+                   calcBestGrade(size, value, dataset);
+               }
 
            }
        });
