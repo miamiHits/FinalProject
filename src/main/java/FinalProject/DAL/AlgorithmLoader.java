@@ -43,16 +43,13 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 
     public List<SmartHomeAgentBehaviour> loadAlgorithms(List<String> algoNames)
     {
-        if (algoNames != null)
-        {
+        if (algoNames != null) {
             return algoNames.parallelStream()
                     .distinct()
                     .map(this::loadClassFromFile)
                     .filter(this::verifyClassIsAlgorithm)
-                    .map(cls ->
-                         {
-                             try
-                             {
+                    .map(cls -> {
+                             try {
                                  return (SmartHomeAgentBehaviour) cls.newInstance();
                              } catch (InstantiationException | IllegalAccessException e)
                              {
@@ -60,7 +57,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
                                  return null;
                              }
                          })
-                    .filter(obj -> obj != null)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         }
         logger.warn("loadAlgorithms got NULL as argument. Returning empty list.");
@@ -140,13 +137,11 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         }
     }
 
-    private boolean verifyClassIsAlgorithm(Class compiledClass)
-    {
-        if (compiledClass != null)
-        {
+    private boolean verifyClassIsAlgorithm(Class compiledClass) {
+        if (compiledClass != null) {
             try
             {
-                return  compiledClass.newInstance() instanceof SmartHomeAgentBehaviour;
+                return compiledClass.newInstance() instanceof SmartHomeAgentBehaviour;
             } catch (InstantiationException e)
             {
                 logger.error("Could not instantiate class " + compiledClass.getSimpleName(), e);
@@ -174,8 +169,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
      * @return
      * @throws ClassNotFoundException
      */
-    private Class loadClassFromFile(String className)
-    {
+    private Class loadClassFromFile(String className) {
         Class toReturn = null;
         //TODO: to run with jetty: uncomment commented block and comment uncommented block
 //        try

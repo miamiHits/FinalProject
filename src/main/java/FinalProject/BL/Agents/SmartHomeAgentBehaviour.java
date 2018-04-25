@@ -475,18 +475,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             logger.error("calcBestPrice: prevTicks is null!");
             return null;
         }
-
-        //TODO debug from here
-
-
-
-        if (subsets.get(0).size() != prevTicks.size()) {
-            logger.info(agent.getLocalName() + ", iter: " + agent.getCurrIteration().getIterNum() + ", prop " + prop.getName() +
-            ", prevTicksSize " + prevTicks.size() + ", each subset size: " + subsets.get(0).size());
-        }
-
-
-        //TODO debug to here
         //remove them from the array
         for (Integer tick : prevTicks) {
             newPowerConsumption[tick] -= prop.getPowerConsumedInWork();

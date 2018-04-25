@@ -59,6 +59,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         this.service = UiHandler.service;
         this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
 
+        selectedProblems.clear();
         VerticalLayout mainLayout = new VerticalLayout();
         //TODO uncomment to add background image!
 //        mainLayout.setStyleName("with-bg-image");
@@ -208,23 +209,24 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 });
         problemTree.setContentMode(ContentMode.TEXT);
         problemTree.addItemClickListener(itemClick -> {
-
-            String item = itemClick.getItem();
-            List<String> children = treeData.getChildren(item);
-            //is a specific problem
-            if (children == null || children.size() == 0) {
-                int parent = Integer.parseInt(treeData.getParent(item));
-                SelectedProblem selected = new SelectedProblem(item, parent);
-                selectedProblems.add(selected);
+            if (itemClick.getMouseEventDetails().isDoubleClick()) {
+                String item = itemClick.getItem();
+                List<String> children = treeData.getChildren(item);
+                //is a specific problem
+                if (children == null || children.size() == 0) {
+                    int parent = Integer.parseInt(treeData.getParent(item));
+                    SelectedProblem selected = new SelectedProblem(item, parent);
+                    selectedProblems.add(selected);
+                }
+                //is a folder
+                else {
+                    List<SelectedProblem> toAdd = children.stream()
+                            .map(child -> new SelectedProblem(child, Integer.parseInt(item)))
+                            .collect(Collectors.toList());
+                    selectedProblems.addAll(toAdd);
+                }
+                refreshGrid();
             }
-            //is a folder
-            else {
-                List<SelectedProblem> toAdd = children.stream()
-                        .map(child -> new SelectedProblem(child, Integer.parseInt(item)))
-                        .collect(Collectors.toList());
-                selectedProblems.addAll(toAdd);
-            }
-            refreshGrid();
         });
         return sizeToNameMap;
     }

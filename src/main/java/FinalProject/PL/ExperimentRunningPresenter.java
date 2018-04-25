@@ -7,6 +7,7 @@ import com.vaadin.shared.Position;
 import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.ComponentRenderer;
 import com.vaadin.ui.themes.ValoTheme;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,8 @@ public class ExperimentRunningPresenter extends Panel implements View{
     private ProgressBar mainProgBar = new ProgressBar(0.0f);
     private Button goToResScreenBtn;
     private boolean gridWasSet = false;
+
+    private static final Logger logger = Logger.getLogger(ExperimentRunningPresenter.class);
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -83,9 +86,14 @@ public class ExperimentRunningPresenter extends Panel implements View{
             problemAlgoPairGrid.setItems(pairToProgressBarMap.keySet());
 
             problemAlgoPairGrid.addColumn(pair -> {
-                        ProgressBar progBar = new ProgressBar(0.0f);
+                        ProgressBar progBar = pairToProgressBarMap.get(pair);
+                        if (progBar == null)
+                        {
+                            logger.warn("could not find the relevant prgress bar, returning a new instance");
+                            progBar = new ProgressBar(0.0f);
+                            pairToProgressBarMap.put(pair, progBar);
+                        }
                         progBar.setSizeFull();
-                        pairToProgressBarMap.put(pair, progBar);
                         return progBar;
                     },
                     new ComponentRenderer())
