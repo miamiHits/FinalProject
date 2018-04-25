@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 public class DSATest {
@@ -93,7 +94,7 @@ public class DSATest {
     {
         PropertyWithData tempHot = new PropertyWithData();
         tempHot.setName("temp_hot");
-        tempHot.setMin(37);
+        tempHot.setMin(36);
         tempHot.setMax(73);
         tempHot.setTargetValue(59);
         tempHot.setPrefix(Prefix.AT);
@@ -119,7 +120,9 @@ public class DSATest {
         this.props.clear();
         this.props = new ArrayList<>();
         prepareGround();
-        this.dsa.doIteration();
+        prepareGround2();
+        this.dsa.getHelper().setAllProperties(this.props);
+        this.dsa.buildScheduleFromScratch();
         try
         {
             FinalProjectTests.BL.Agents.ReflectiveUtils.invokeMethod(dsa, "buildScheduleFromScratch");
@@ -127,6 +130,8 @@ public class DSATest {
             Assert.assertTrue(props.get(0).getSensor().getCurrentState()<= props.get(0).getMax());
             Assert.assertTrue(props.get(1).getSensor().getCurrentState()> props.get(1).getMin());
             Assert.assertTrue(props.get(1).getSensor().getCurrentState()<= props.get(1).getMax());
+            Assert.assertTrue(props.get(2).getSensor().getCurrentState()> props.get(2).getMin());
+            Assert.assertTrue(props.get(2).getSensor().getCurrentState()<= props.get(2).getMax());
 
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
         {
@@ -138,12 +143,22 @@ public class DSATest {
     public void buildScheduleFromScratchPropertiesTestSpecialCase() {
         this.props.clear();
         this.props = new ArrayList<>();
+        prepareGround();
         prepareGround2();
-        this.dsa.doIteration();
-        for(Map.Entry<Actuator, List<Integer>> entry: dsa.getHelper().getDeviceToTicks().entrySet()) {
-            if (entry.getKey().getName().equals("Roomba")) {
-                Assert.assertTrue(entry.getValue().contains(3));
-                Assert.assertTrue(entry.getValue().contains(2) || entry.getValue().contains(0) || entry.getValue().contains(1));
+        this.dsa.getHelper().setAllProperties(this.props);
+        this.dsa.buildScheduleFromScratch();
+        for(Entry<Actuator, Map<Action, List<Integer>>> entry: dsa.getHelper().getDeviceToTicks().entrySet()) {
+            for (Entry<Action, List<Integer>> res: entry.getValue().entrySet()) {
+                if (entry.getKey().getName().equals("GE_WSM2420D3WW_wash")){ // need to work only 1 Tick.
+                    Assert.assertTrue(res.getValue().size()==1);
+                }
+                if (entry.getKey().getName().equals("Tesla_S")) // need to work 3 Ticks.
+                {
+                    Assert.assertTrue(res.getValue().size()==3);
+                }
+                if (entry.getKey().getName().equals("Roomba")) {
+                    Assert.assertTrue(res.getValue().contains(0) || res.getValue().contains(1) || res.getValue().contains(2));
+                }
             }
         }
     }

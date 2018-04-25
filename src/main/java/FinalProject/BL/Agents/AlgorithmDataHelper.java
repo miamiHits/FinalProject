@@ -384,4 +384,8 @@ public class AlgorithmDataHelper
             prop.getSensor().setCurrentState(prop.getCachedSensorState());
     }
 
+    public void setAllProperties(List<PropertyWithData> allProperties) {
+        this.allProperties = allProperties;
+    }
+
 }
