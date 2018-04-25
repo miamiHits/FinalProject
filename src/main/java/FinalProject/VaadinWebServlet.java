@@ -9,7 +9,9 @@ public class VaadinWebServlet extends VaadinServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        Config.loadConfig();
+
+        // initializing simulator backend
+//            org.apache.log4j.BasicConfigurator.configure();
     }
 
 }
