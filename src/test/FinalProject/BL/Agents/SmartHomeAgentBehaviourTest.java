@@ -2,6 +2,7 @@ package FinalProject.BL.Agents;
 
 import FinalProject.BL.DataObjects.*;
 import FinalProject.BL.IterationData.AgentIterationData;
+import FinalProjectTests.BL.Agents.DSATest;
 import FinalProjectTests.BL.Agents.ReflectiveUtils;
 import FinalProjectTests.DAL.DalTestUtils;
 import org.junit.After;
@@ -22,6 +23,8 @@ public class SmartHomeAgentBehaviourTest {
     private SmartHomeAgent agent;
     private Problem dm_7_1_2;
     private SmartHomeAgentBehaviour smab;
+    private List<PropertyWithData> props = new ArrayList<>(2);
+
 
     @Before
     public void setUp() throws Exception {
@@ -33,8 +36,9 @@ public class SmartHomeAgentBehaviourTest {
         agent = ReflectiveUtils.initSmartHomeAgentForTest(dm_7_1_2);
         smab = new DSA(agent);
         smab.initializeBehaviourWithAgent(agent);
-
     }
+
+
 
     @After
     public void tearDown() throws Exception {
@@ -43,9 +47,42 @@ public class SmartHomeAgentBehaviourTest {
         agent = null;
     }
 
+
+
     @Test
     public void buildScheduleFromScratch() {
-        //TODO: write tests for this! should be tested WELL
+        smab.buildScheduleFromScratch();
+        Assert.assertTrue(smab.getHelper().getAllProperties().size()==2);
+        Assert.assertTrue(smab.getHelper().getDeviceToTicks().size()==2);
+        Assert.assertTrue(smab.getHelper().getAllProperties().get(0).getSensor().getCurrentState()> smab.getHelper().getAllProperties().get(0).getMin());
+        Assert.assertTrue(smab.getHelper().getAllProperties().get(0).getSensor().getCurrentState()<= smab.getHelper().getAllProperties().get(0).getMax());
+        Assert.assertTrue(smab.getHelper().getAllProperties().get(1).getSensor().getCurrentState()> smab.getHelper().getAllProperties().get(1).getMin());
+        Assert.assertTrue(smab.getHelper().getAllProperties().get(1).getSensor().getCurrentState()<= smab.getHelper().getAllProperties().get(1).getMax());
+        Assert.assertTrue(smab.tempBestPriceConsumption > 1);
+        for (Double d: smab.iterationPowerConsumption)
+        {
+            Assert.assertTrue(d > 0);
+        }
+
+        for(Map.Entry<Actuator, Map<Action, List<Integer>>> entry: smab.getHelper().getDeviceToTicks().entrySet()) {
+            for (Map.Entry<Action, List<Integer>> res: entry.getValue().entrySet()) {
+                if (entry.getKey().getName().equals("GE_WSM2420D3WW_wash")){ // need to work only 1 Tick.
+                    Assert.assertTrue(res.getValue().size()==1);
+
+                }
+                if (entry.getKey().getName().equals("Tesla_S")) // need to work 3 Ticks.
+                {
+                    Assert.assertTrue(res.getValue().size()==2 || res.getValue().size()==3);
+                    Assert.assertTrue(res.getValue().contains(0) || res.getValue().contains(1) || res.getValue().contains(2));
+
+                }
+
+            }
+        }
+
+
+
+
     }
 
     @Test
@@ -183,19 +220,30 @@ public class SmartHomeAgentBehaviourTest {
 
     @Test
     public void calcRangeOfWorkTestAt() {
-        List<Integer> expected = Collections.singletonList(3);
-
         PropertyWithData prop = new PropertyWithData();
         prop.setTargetTick(3);
         prop.setPrefix(Prefix.AT);
         List<Integer> result = smab.calcRangeOfWork(prop);
-
-        Assert.assertEquals(expected, result);
+        //bc the new change with AT
+        Assert.assertTrue(result.contains(3));
+        Assert.assertFalse(result.contains(4));
     }
 
     @Test
     public void calcBestPrice() {
-        //TODO: maybe should be in sub classes
+        makeProp();
+        smab.getHelper().setAllProperties(props);
+        List<Integer> rangeForWork = smab.calcRangeOfWork(props.get(0));
+        smab.buildScheduleBasic(false);
+        List<Set<Integer>> subsets =  smab.getHelper().getSubsets(rangeForWork, 2);
+        this.agent.setCurrIteration(new AgentIterationData(0, "h1", 100, smab.iterationPowerConsumption));
+        List<Integer> res = smab.calcBestPrice(props.get(0), subsets);
+        Assert.assertTrue(!res.isEmpty());
+        Assert.assertTrue(res.size()==2);
+        Assert.assertTrue(!res.contains(4));
+
+
+
     }
 
     @Test
@@ -260,5 +308,31 @@ public class SmartHomeAgentBehaviourTest {
         double[] allZerosSched = getHorizonSizedArrWithSameVals(0);
         smab.addBackgroundLoadToPowerConsumption(allZerosSched);
         Assert.assertArrayEquals(dm_7_1_2.getAgentsData().get(0).getBackgroundLoad(), allZerosSched, 0);
+    }
+
+    private void makeProp()
+    {
+        PropertyWithData tempHot = new PropertyWithData();
+        tempHot.setName("temp_hot");
+        tempHot.setMin(36);
+        tempHot.setMax(73);
+        tempHot.setTargetValue(59);
+        tempHot.setPrefix(Prefix.AT);
+        tempHot.setRt(RelationType.LEQ);
+        tempHot.setTargetTick(3);
+        tempHot.setDeltaWhenWork(13.56);
+        tempHot.setPowerConsumedInWork(11.52);
+        tempHot.setDeltaWhenWorkOffline(0);
+        tempHot.setCachedSensor(30);
+        tempHot.setLoaction(false);
+        Actuator Roomba = new Actuator("Roomba", "", "room",
+                Arrays.asList(new Action("off", 0, Arrays.asList(new Effect("temp_hot", 0))),
+                        new Action("cleaness", 11.52,
+                                Arrays.asList(new Effect("temp_hot", 13.56)))));
+        Sensor Roomba_sens = new Sensor("Roomba_sens", "", "Roomba", 40,
+                Arrays.asList("temp_hot"));
+        tempHot.setActuator(Roomba);
+        tempHot.setSensor(Roomba_sens);
+        props.add(tempHot);
     }
 }

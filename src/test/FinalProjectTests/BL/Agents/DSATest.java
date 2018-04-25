@@ -177,14 +177,14 @@ public class DSATest {
         Assert.assertTrue(counter > 0);
     }
 
-    //TODO fix this
     @Test
     public void DevicesGetTicks(){
         this.props.clear();
         this.props = new ArrayList<>();
-        prepareGround();
-        this.dsa.doIteration();
-        Assert.assertTrue(this.dsa.getHelper().getDeviceToTicks().size() == 2);
+        prepareGround2();
+        this.dsa.getHelper().setAllProperties(this.props);
+        this.dsa.buildScheduleFromScratch();
+        Assert.assertTrue(this.dsa.getHelper().getDeviceToTicks().size() == 3);
 
     }
 
@@ -227,6 +227,7 @@ public class DSATest {
         }
 
     }
+
 
     @Test
     public void countIterationCommunicationTest() {
