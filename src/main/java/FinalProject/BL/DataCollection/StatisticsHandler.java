@@ -101,37 +101,38 @@ public class StatisticsHandler {
                for (int i = 0; i < size; i++) {
                    switch (command) {
                        case LowestPrice:
-                           total += value.get(i).getLowestCostForAgentInBestIteration().get(j);
+                           arr[i] =  value.get(i).getLowestCostForAgentInBestIteration().get(j);
                            break;
                        case HighestPrice:
-                           total += value.get(i).getHighestCostForAgentInBestIteration().get(j);
+                           arr[i] =  value.get(i).getHighestCostForAgentInBestIteration().get(j);
                            break;
                        case TotalConsumption:
-                           total += value.get(i).getTotalGradePerIteration().get(j);
+                           arr[i] =  value.get(i).getTotalGradePerIteration().get(j);
                            break;
                    }
+
+                   total += arr[i];
                }
-                   Number std = j < displayedErrorBarsCount || j % (ITER_NUM / displayedErrorBarsCount) == 0 ? calculateSD(arr) : null;
+               Number std = j < displayedErrorBarsCount || j % (ITER_NUM / displayedErrorBarsCount) == 0 ? calculateSD(arr) : null;
 
-                  if (whenToSwitch <= switchErrorBar && key.equals("DSA"))
-                   {
-                       dataset.add(total / size, std, key, j);
+               if (whenToSwitch <= switchErrorBar && key.equals("DSA"))
+               {
+                   dataset.add(total / size, std, key, j);
 
-                   }
-                   else if (whenToSwitch > switchErrorBar && key.equals("SHMGM")) {
-                       dataset.add(total / size, std, key, j);
-                  }
-                   else{
-                       dataset.add(total / size, null, key, j);
-                  }
-
+               }
+               else if (whenToSwitch > switchErrorBar && key.equals("SHMGM")) {
+                   dataset.add(total / size, std, key, j);
+               }
+               else{
+                   dataset.add(total / size, null, key, j);
+               }
 
                whenToSwitch++;
+
                if (key.equals("SHMGM") && (command ==graphType.TotalConsumption))
                {
                    calcBestGrade(size, value, dataset);
                }
-
            }
        });
    }

@@ -131,19 +131,23 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private Component generateLineGraphWithErrorBars(String title, String xAxisLabel, String yAxisLabel, DefaultStatisticalCategoryDataset dataset, boolean shapesIsVisible) {
         JFreeChart plot = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);
         StatisticalLineAndShapeRenderer statisticalRenderer = new StatisticalLineAndShapeRenderer(true, true);
-        statisticalRenderer.setBaseItemLabelGenerator(
-                new StandardCategoryItemLabelGenerator("{2}",
-                        NumberFormat.getNumberInstance()));
+       /* statisticalRenderer.setBaseItemLabelGenerator(
+                new StandardCategoryItemLabelGenerator("{1}",
+                        NumberFormat.getNumberInstance()));*/
         statisticalRenderer.setErrorIndicatorPaint(Color.white);
-        statisticalRenderer.setBaseItemLabelsVisible(true);
-        statisticalRenderer.setSeriesShape(0, new Rectangle2D.Double(0, 0, 0, 0));
-        plot.getCategoryPlot().setRenderer(statisticalRenderer);
+        //statisticalRenderer.setBaseItemLabelsVisible(true);
+        //statisticalRenderer.setSeriesShape(0, new Rectangle2D.Double(0, 0, 0, 0));
+        //statisticalRenderer.setBasePaint(Color.white);
+       // statisticalRenderer.setBaseOutlinePaint(Color.white);
+       // statisticalRenderer.setBaseLegendTextPaint(Color.white);
+
+      /*  plot.getCategoryPlot().setRenderer(statisticalRenderer);
         CategoryPlot chart = (CategoryPlot) plot.getPlot();
         CategoryAxis cx = new CategoryAxis();
         cx.setTickLabelsVisible(true);
         cx.setTickMarksVisible(true);
 
-        chart.setDomainAxis(cx);
+        chart.setDomainAxis(cx);*/
 
         //Design
         // set the background color for the chart...
