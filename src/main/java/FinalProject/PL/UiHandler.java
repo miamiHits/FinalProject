@@ -4,7 +4,6 @@ import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SHMGM;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
-import FinalProject.Config;
 import FinalProject.DAL.*;
 import FinalProject.Service;
 import com.vaadin.annotations.Push;
@@ -43,15 +42,13 @@ public class UiHandler extends UI implements UiHandlerInterface {
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
     protected static final String EXPERIMENT_RUNNING = "EXPERIMENT_RUNNING";
 
-    private static final String RESULTS_PATH = Config.getStringPropery(Config.REPORTS_OUT_DIR).replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-
     public UiHandler()
     {
         resultsPresenter = new ExperimentResultsPresenter();
 //        String jsonPath = "src/test/testResources/jsons";
-        String jsonPath = Config.getStringPropery(Config.PROBLEMS_DIR);
+        String jsonPath = "resources/problems";
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-        String algorithmsPath = Thread.currentThread().getContextClassLoader().getResource("FinalProject/BL/Agents/").getFile();//TODO m add to conf
+        String algorithmsPath = Thread.currentThread().getContextClassLoader().getResource("FinalProject/BL/Agents/").getFile();
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
@@ -65,8 +62,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
     @Override
     protected void init(VaadinRequest request) {
 
-        Config.loadConfig();
-        getPage().setTitle(Config.getStringPropery(Config.TITLE));
+        getPage().setTitle("Navigation Example");
 
         // Create a navigator to control the views
         navigator = new Navigator(this, this);
