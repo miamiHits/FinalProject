@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+        id="WebApp_ID" version="3.0"
+        xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>/WEB-INF/log4j.properties</param-value>
+    </context-param>
+
+    <session-config>
+        <session-timeout>10000</session-timeout>
+    </session-config>
+
+    <context-param>
+        <param-name>heartbeatInterval</param-name>
+        <param-value>5</param-value>
+    </context-param>
+
+
+    <servlet>
+        <servlet-name>VaadinWebServlet</servlet-name>
+        <servlet-class>
+            FinalProject.VaadinWebServlet
+        </servlet-class>
+
+        <init-param>
+            <param-name>UI</param-name>
+            <param-value>FinalProject.PL.UiHandler</param-value>
+        </init-param>
+
+        <!-- If not using the default widget set-->
+        <!--<init-param>-->
+            <!--<param-name>widgetset</param-name>-->
+            <!--<param-value>com.ex.myprj.AppWidgetSet</param-value>-->
+        <!--</init-param>-->
+        <init-param>
+            <param-name>pushmode</param-name>
+            <param-value>automatic</param-value>
+        </init-param>
+        <!--<async-supported>true</async-supported>-->
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>VaadinWebServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-app>
