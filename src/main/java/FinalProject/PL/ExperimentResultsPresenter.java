@@ -130,7 +130,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
     private Component generateLineGraphWithErrorBars(String title, String xAxisLabel, String yAxisLabel, DefaultStatisticalCategoryDataset dataset, boolean shapesIsVisible) {
         JFreeChart plot = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);
-        StatisticalLineAndShapeRenderer statisticalRenderer = new StatisticalLineAndShapeRenderer(true, true);
+        StatisticalLineAndShapeRenderer statisticalRenderer = new StatisticalLineAndShapeRenderer(true, false);
        /* statisticalRenderer.setBaseItemLabelGenerator(
                 new StandardCategoryItemLabelGenerator("{1}",
                         NumberFormat.getNumberInstance()));*/
