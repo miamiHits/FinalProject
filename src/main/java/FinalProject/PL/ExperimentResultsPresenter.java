@@ -141,8 +141,8 @@ public class ExperimentResultsPresenter extends Panel implements View{
        // statisticalRenderer.setBaseOutlinePaint(Color.white);
        // statisticalRenderer.setBaseLegendTextPaint(Color.white);
 
-      /*  plot.getCategoryPlot().setRenderer(statisticalRenderer);
-        CategoryPlot chart = (CategoryPlot) plot.getPlot();
+       plot.getCategoryPlot().setRenderer(statisticalRenderer);
+        /* CategoryPlot chart = (CategoryPlot) plot.getPlot();
         CategoryAxis cx = new CategoryAxis();
         cx.setTickLabelsVisible(true);
         cx.setTickMarksVisible(true);

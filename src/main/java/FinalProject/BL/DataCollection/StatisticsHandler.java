@@ -19,7 +19,7 @@ public class StatisticsHandler {
     public StatisticsHandler(List<AlgorithmProblemResult> experimentResults, Map<String, Map<Integer, Long>>  probToAlgoTotalTime)
     {
         this.experimentResultsNotSort = experimentResults;
-        ITER_NUM = experimentResults.get(0).getAvgPricePerIteration().size();
+        ITER_NUM = experimentResults.get(0).getTotalGradePerIteration().size();
         this.probNAlgToTotalTime = probToAlgoTotalTime;
 
         sortResultsByAlgorithm();
