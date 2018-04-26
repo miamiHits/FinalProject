@@ -41,6 +41,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
     protected static final String EXPERIMENT_RUNNING = "EXPERIMENT_RUNNING";
+    private final String ALGO_PATH = "compiled_algorithms/FinalProject/BL/Agents/".replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));;
 
     public UiHandler()
     {
@@ -48,11 +49,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
 //        String jsonPath = "src/test/testResources/jsons";
         String jsonPath = "resources/problems";
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-        String algorithmsPath = "target/classes/FinalProject/BL/Agents/";
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
-        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
+        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(ALGO_PATH);
         DataAccessController dal = new DataAccessController(jsonLoader, algorithmLoader);
         service = new Service(dal);
         service.setObserver(this);
