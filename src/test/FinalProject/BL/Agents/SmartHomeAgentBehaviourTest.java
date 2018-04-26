@@ -19,7 +19,7 @@ public class SmartHomeAgentBehaviourTest {
     private SmartHomeAgent agent;
     private Problem dm_7_1_2;
     private SmartHomeAgentBehaviour smab;
-    private List<PropertyWithData> props = new ArrayList<>(2);
+    private List<PropertyWithData> props;
 
 
     @Before
@@ -32,18 +32,18 @@ public class SmartHomeAgentBehaviourTest {
         agent = ReflectiveUtils.initSmartHomeAgentForTest(dm_7_1_2);
         smab = new DSA(agent);
         smab.initializeBehaviourWithAgent(agent);
+
+        props = new ArrayList<>(2);
+        AlgoTestUtils.makeProp(props);
     }
-
-
 
     @After
     public void tearDown() throws Exception {
         dm_7_1_2 = null;
         smab = null;
         agent = null;
+        props = null;
     }
-
-
 
     @Test
     public void buildScheduleFromScratch() {
@@ -55,8 +55,7 @@ public class SmartHomeAgentBehaviourTest {
         Assert.assertTrue(smab.getHelper().getAllProperties().get(1).getSensor().getCurrentState()> smab.getHelper().getAllProperties().get(1).getMin());
         Assert.assertTrue(smab.getHelper().getAllProperties().get(1).getSensor().getCurrentState()<= smab.getHelper().getAllProperties().get(1).getMax());
         Assert.assertTrue(smab.tempBestPriceConsumption > 1);
-        for (Double d: smab.iterationPowerConsumption)
-        {
+        for (Double d: smab.iterationPowerConsumption) {
             Assert.assertTrue(d > 0);
         }
 
@@ -64,9 +63,8 @@ public class SmartHomeAgentBehaviourTest {
             for (Map.Entry<Action, List<Integer>> res: entry.getValue().entrySet()) {
                 if (entry.getKey().getName().equals("GE_WSM2420D3WW_wash")){ // need to work only 1 Tick.
                     Assert.assertTrue(res.getValue().size()==1);
-
                 }
-                if (entry.getKey().getName().equals("Tesla_S")) // need to work 3 Ticks.
+                else if (entry.getKey().getName().equals("Tesla_S")) // need to work 3 Ticks.
                 {
                     Assert.assertTrue(res.getValue().size()==2 || res.getValue().size()==3);
                     Assert.assertTrue(res.getValue().contains(0) || res.getValue().contains(1) || res.getValue().contains(2));
@@ -75,10 +73,6 @@ public class SmartHomeAgentBehaviourTest {
 
             }
         }
-
-
-
-
     }
 
     @Test
@@ -154,7 +148,6 @@ public class SmartHomeAgentBehaviourTest {
         assertEquals(prop.getMax(), sens.getCurrentState(), 0);
     }
 
-
     @Test
     public void updateTotalsTestNoSensors() {
         PropertyWithData prop = new PropertyWithData();
@@ -227,7 +220,7 @@ public class SmartHomeAgentBehaviourTest {
 
     @Test
     public void calcBestPrice() {
-        makeProp();
+        AlgoTestUtils.makeProp(props);
         smab.getHelper().setAllProperties(props);
         List<Integer> rangeForWork = smab.calcRangeOfWork(props.get(0));
         smab.buildScheduleBasic(false);
@@ -306,29 +299,4 @@ public class SmartHomeAgentBehaviourTest {
         Assert.assertArrayEquals(dm_7_1_2.getAgentsData().get(0).getBackgroundLoad(), allZerosSched, 0);
     }
 
-    private void makeProp()
-    {
-        PropertyWithData tempHot = new PropertyWithData();
-        tempHot.setName("temp_hot");
-        tempHot.setMin(36);
-        tempHot.setMax(73);
-        tempHot.setTargetValue(59);
-        tempHot.setPrefix(Prefix.AT);
-        tempHot.setRt(RelationType.LEQ);
-        tempHot.setTargetTick(3);
-        tempHot.setDeltaWhenWork(13.56);
-        tempHot.setPowerConsumedInWork(11.52);
-        tempHot.setDeltaWhenWorkOffline(0);
-        tempHot.setCachedSensor(30);
-        tempHot.setLoaction(false);
-        Actuator Roomba = new Actuator("Roomba", "", "room",
-                Arrays.asList(new Action("off", 0, Arrays.asList(new Effect("temp_hot", 0))),
-                        new Action("cleaness", 11.52,
-                                Arrays.asList(new Effect("temp_hot", 13.56)))));
-        Sensor Roomba_sens = new Sensor("Roomba_sens", "", "Roomba", 40,
-                Arrays.asList("temp_hot"));
-        tempHot.setActuator(Roomba);
-        tempHot.setSensor(Roomba_sens);
-        props.add(tempHot);
-    }
 }
