@@ -1,8 +1,5 @@
 package FinalProject.BL.DataCollection;
 
-import FinalProject.BL.Agents.SHMGM;
-import FinalProjectTests.BL.Agents.ReflectiveUtils;
-import FinalProjectTests.DAL.DalTestUtils;
 import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
 import org.junit.After;
 import org.junit.Assert;
@@ -13,8 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
 
 public class StatisticsHandlerTest {
     private List<AlgorithmProblemResult> experimentResults;

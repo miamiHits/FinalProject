@@ -2,15 +2,11 @@ package FinalProject.BL.Agents;
 
 import FinalProject.BL.DataObjects.*;
 import FinalProject.BL.IterationData.AgentIterationData;
-import FinalProjectTests.BL.Agents.DSATest;
-import FinalProjectTests.BL.Agents.ReflectiveUtils;
-import FinalProjectTests.DAL.DalTestUtils;
+import FinalProject.DAL.DalTestUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import sun.misc.GC;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -133,7 +129,7 @@ public class SmartHomeAgentBehaviourTest {
 
         //nothing should change:
         Assert.assertEquals(sensInitState, sens.getCurrentState(), 0);
-        Assert.assertArrayEquals(initConsArr, smab.iterationPowerConsumption, 0);
+        assertArrayEquals(initConsArr, smab.iterationPowerConsumption, 0);
     }
 
     @Test
@@ -155,7 +151,7 @@ public class SmartHomeAgentBehaviourTest {
         smab.iterationPowerConsumption = new double[dm_7_1_2.getHorizon()];
         smab.updateTotals(prop, ticks, new HashMap<>());
 
-        Assert.assertEquals(prop.getMax(), sens.getCurrentState(), 0);
+        assertEquals(prop.getMax(), sens.getCurrentState(), 0);
     }
 
 
@@ -176,10 +172,10 @@ public class SmartHomeAgentBehaviourTest {
         //empty ticks lst, empty sensors map
         smab.updateTotals(prop, ticks, new HashMap<>());
 
-        Assert.assertEquals(ticks.size() * prop.getDeltaWhenWork(), sens.getCurrentState(), 0);
-        Assert.assertEquals(prop.getPowerConsumedInWork(), smab.iterationPowerConsumption[1], 0);
-        Assert.assertEquals(prop.getPowerConsumedInWork(), smab.iterationPowerConsumption[2], 0);
-        Assert.assertEquals(prop.getPowerConsumedInWork(), smab.iterationPowerConsumption[3], 0);
+        assertEquals(ticks.size() * prop.getDeltaWhenWork(), sens.getCurrentState(), 0);
+        assertEquals(prop.getPowerConsumedInWork(), smab.iterationPowerConsumption[1], 0);
+        assertEquals(prop.getPowerConsumedInWork(), smab.iterationPowerConsumption[2], 0);
+        assertEquals(prop.getPowerConsumedInWork(), smab.iterationPowerConsumption[3], 0);
     }
 
     @Test
