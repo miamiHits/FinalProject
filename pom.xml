@@ -199,29 +199,29 @@
 				</configuration>
 			</plugin>
 
-			<!--&lt;!&ndash;used to copy compiled algo files into  resource/comiled_algorithms&ndash;&gt;-->
-			<!--<plugin>-->
-			<!--<artifactId>maven-resources-plugin</artifactId>-->
-			<!--<executions>-->
-			<!--<execution>-->
-			<!--<id>copy-resources-from-parent</id>-->
-			<!--<phase>generate-resources</phase>-->
-			<!--<goals>-->
-			<!--<goal>copy-resources</goal> &lt;!&ndash; happens before test phase &ndash;&gt;-->
-			<!--</goals>-->
-			<!--<configuration>-->
-			<!--<outputDirectory>-->
-			<!--${project.basedir}/resources/compiled_algorithms/FinalProject/BL/Agents-->
-			<!--</outputDirectory>-->
-			<!--<resources>-->
-			<!--<resource>-->
-			<!--<directory>${project.basedir}/target/classes/FinalProject/BL/Agents</directory>-->
-			<!--</resource>-->
-			<!--</resources>-->
-			<!--</configuration>-->
-			<!--</execution>-->
-			<!--</executions>-->
-			<!--</plugin>-->
+            <!--used to copy compiled algo files into resource/comiled_algorithms-->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources-from-parent</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal> <!-- happens before test phase -->
+                        </goals>
+                        <configuration>
+                            <outputDirectory>
+                                ${project.basedir}/resources/compiled_algorithms/FinalProject/BL/Agents
+                            </outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/target/classes/FinalProject/BL/Agents</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 
