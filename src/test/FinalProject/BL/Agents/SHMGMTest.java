@@ -1,14 +1,10 @@
 package FinalProject.BL.Agents;
 
 import FinalProject.BL.DataObjects.Problem;
-import FinalProjectTests.BL.Agents.ReflectiveUtils;
-import FinalProjectTests.DAL.DalTestUtils;
+import FinalProject.DAL.DalTestUtils;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class SHMGMTest {
 
