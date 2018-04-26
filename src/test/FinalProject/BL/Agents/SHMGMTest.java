@@ -42,13 +42,6 @@ public class SHMGMTest {
     public void generateScheduleForProp() {
     }
 
-    //TODO fix
-//    @Test
-//    public void cloneBehaviourTestAllFieldsSame() {
-//        SHMGM copy = (SHMGM) shmgm.cloneBehaviour();
-//        Assert.assertTrue(shmgm.equals(copy));
-//    }
-
     @Test
     public void calcImproveOptionGrade() {
     }

@@ -57,7 +57,6 @@ public class JsonLoaderTest {
         List<Problem> actual = loader.loadProblems(lst);
         long end = Calendar.getInstance().getTime().getTime();
         System.out.println("time: " + (end - start) + " milliseconds");
-        //TODO: sometimes fails
         Assert.assertEquals(expected, actual);
     }
 
@@ -97,16 +96,23 @@ public class JsonLoaderTest {
     }
 
 
-    //TODO: uncomment and fix
-//    @Test
-//    public void getAllProblemNames() throws Exception
-//    {
-//        List<String> expectedFileNames = Arrays.asList("bo_135_1_3", "badJson_noNeighborsInOneAgent", "dm_7_1_2", "dm_7_1_3",
-//                                                       "badJson_noAgents", "badJson_noHorizon", "bo_474_1_3");
-//        List<String> actualFileName = loader.getAllProblemNames();
-//        Assert.assertEquals(expectedFileNames.size(), actualFileName.size());
-//        Assert.assertTrue(expectedFileNames.containsAll(actualFileName));
-//    }
+    @Test
+    public void getAllProblemNames() throws Exception
+    {
+        Map<Integer, List<String>> expected = new HashMap<>();
+        expected.put(135, Collections.singletonList("bo_135_1_3"));
+        expected.put(474, Collections.singletonList("bo_474_1_3"));
+        expected.put(2, Collections.singletonList("dm_2_1_3"));
+        expected.put(7, Arrays.asList("dm_7_1_2", "dm_7_1_3", "dm_7_1_4", "dm_7_1_5", "dm_7_1_6"));
+        expected.put(-1, Arrays.asList("badJson_-1_noNeighborsInOneAgent", "badJson_-1_noAgents",
+                "badJson_-1_noHorizon"));
+        Map<Integer, List<String>> actualFileName = loader.getAllProblemNames();
+        Assert.assertEquals(expected.size(), actualFileName.size());
+        expected.forEach((size, names) -> {
+            Assert.assertTrue(actualFileName.containsKey(size));
+            Assert.assertEquals(new HashSet<>(names), new HashSet<>(actualFileName.get(size)));
+        });
+    }
 
     @Test
     public void getAllDevicesMapSizeGood() throws Exception
@@ -159,6 +165,4 @@ public class JsonLoaderTest {
         Assert.assertEquals(ht1DistinctDevs, map.get(1).size());
         Assert.assertEquals(ht2DistinctDevs, map.get(2).size());
     }
-
-    //*********HELPER METHODS**********
 }
