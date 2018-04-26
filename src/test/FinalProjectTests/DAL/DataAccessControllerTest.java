@@ -6,14 +6,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.internal.util.collections.Sets;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 
-//TODO
 public class DataAccessControllerTest {
 
     private DataAccessControllerInterface accessController;
@@ -21,8 +19,8 @@ public class DataAccessControllerTest {
     @Before
     public void setUp() throws Exception
     {
-        JsonLoaderInterface jsonLoader = new JsonLoader("src/test/testResources/jsons".replaceAll("/", Matcher.quoteReplacement(File.separator)));
-        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader("src/test/testResources/compiledAlgorithms".replaceAll("/", Matcher.quoteReplacement(File.separator)));
+        JsonLoaderInterface jsonLoader = new JsonLoader(DalTestUtils.JSON_DIR_PATH);
+        AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(DalTestUtils.compiledDirBasePath);
         accessController = new DataAccessController(jsonLoader, algorithmLoader);
     }
 
@@ -47,9 +45,9 @@ public class DataAccessControllerTest {
     @Test
     public void getAvailableAlgorithms() throws Exception
     {
-        List<String> expected = Arrays.asList("App");
+        Set<String> expected = Sets.newSet("SHMGM", "DSA");
         List<String> actual = accessController.getAvailableAlgorithms();
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(expected, new HashSet<>(actual));
     }
 
     @Test

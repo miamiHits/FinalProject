@@ -12,6 +12,9 @@ import java.util.regex.Matcher;
 public class DalTestUtils {
 
     public static final String JSON_DIR_PATH = "src/test/testResources/jsons".replaceAll("/", Matcher.quoteReplacement(File.separator));
+    final static String packagePath = "/FinalProject/BL/Agents".replaceAll("/", Matcher.quoteReplacement(File.separator));
+    final static String compiledDirBasePath = "resources/compiled_algorithms".replaceAll("/", Matcher.quoteReplacement(File.separator));
+    final static String uncompiledDirPath = "src/test/testResources/uncompiledAlgorithms".replaceAll("/", Matcher.quoteReplacement(File.separator));
 
     public static Problem getProblemDm_7_1_2()
     {
