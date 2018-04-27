@@ -1,5 +1,6 @@
 package FinalProject.PL;
 
+import FinalProject.Config;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.PL.UIEntities.SelectedProblem;
 import FinalProject.Service;
@@ -15,7 +16,6 @@ import com.vaadin.event.selection.MultiSelectionListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Page;
-import com.vaadin.server.Responsive;
 import com.vaadin.server.StreamVariable;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.data.sort.SortDirection;
@@ -311,7 +311,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         dropArea.setSizeUndefined();
         dropArea.addStyleNames(ValoTheme.LABEL_HUGE, ValoTheme.LABEL_BOLD);
 
-        final String COMPILED_ALGO_DIR = "target/classes/FinalProject/BL/Agents";
+        final String COMPILED_ALGO_DIR = Config.getStringPropery(Config.EMBEDDED_ALGO_DIR);
         VerticalLayout layout = new VerticalLayout(dropArea);
         layout.addStyleNames(ValoTheme.DRAG_AND_DROP_WRAPPER_NO_HORIZONTAL_DRAG_HINTS, ValoTheme.LAYOUT_WELL);
         layout.setComponentAlignment(dropArea, Alignment.MIDDLE_CENTER);

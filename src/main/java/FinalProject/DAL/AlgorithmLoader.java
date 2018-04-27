@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import FinalProject.Config;
 import com.vaadin.server.VaadinService;
 import org.apache.log4j.Logger;
 
@@ -25,7 +26,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     private final static Logger logger = Logger.getLogger(AlgorithmLoader.class);
     private final static String UNCOMPILED_FILE_TYPE = ".java";
     private final static String COMPILED_FILE_TYPE = ".class";
-    private final static String ADDED_ALGORITHMS_PATH = "resources/algorithms/FinalProject/BL/Agents".replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+    private final static String ADDED_ALGORITHMS_PATH = Config.getStringPropery(Config.ADDED_ALGORITHMS_DIR).replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
     private File addedAlgorithmsDir;
     private File compiledBaseDir;
@@ -235,7 +236,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 //        ************************************************
         try {
 
-            String dirPathStr = "resources/algorithms"
+            String dirPathStr = Config.getStringPropery(Config.ADDED_ALGORITHMS_PACKAGE_DIR)
                     .replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
             URL dirUrl = new File(dirPathStr).toURI().toURL();
             URLClassLoader cl = (URLClassLoader) Thread.currentThread().getContextClassLoader();
@@ -268,7 +269,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticsCollector,  null, null);
         Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Collections.singletonList(pathStr));
         String classPathStr = getClassPathStr();
-        List<String> options = Arrays.asList("-d", "resources/algorithms", "-classpath", classPathStr);
+        List<String> options = Arrays.asList("-d", Config.getStringPropery(Config.ADDED_ALGORITHMS_PACKAGE_DIR), "-classpath", classPathStr);
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, options, null, compilationUnits);
         boolean success = task.call();
         fileManager.close();
