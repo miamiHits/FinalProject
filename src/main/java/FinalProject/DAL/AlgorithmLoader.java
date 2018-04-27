@@ -25,19 +25,28 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     private final static Logger logger = Logger.getLogger(AlgorithmLoader.class);
     private final static String UNCOMPILED_FILE_TYPE = ".java";
     private final static String COMPILED_FILE_TYPE = ".class";
-    private final static String DEFAULT_COMPILED_PATH = ""; //TODO
+    private final static String ADDED_ALGORITHMS_PATH = "resources/algorithms/FinalProject/BL/Agents".replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+
+    private File addedAlgorithmsDir;
     private File compiledBaseDir;
 
     public AlgorithmLoader(String compiledFolderPath)
     {
+        if (Files.exists(Paths.get(ADDED_ALGORITHMS_PATH)))
+        {
+            addedAlgorithmsDir = new File(ADDED_ALGORITHMS_PATH);
+        }
+        else
+        {
+            logger.warn(String.format("could not find the added algorithms path: %s", ADDED_ALGORITHMS_PATH));
+        }
         if (Files.exists(Paths.get(compiledFolderPath)))
         {
             compiledBaseDir = new File(compiledFolderPath);
         }
         else
         {
-            compiledBaseDir = new File(DEFAULT_COMPILED_PATH);
-            logger.warn("cannot find given path. using default path instead");
+            logger.warn(String.format("could not find the predefined algorithms path: %s", compiledFolderPath));
         }
     }
 
@@ -83,8 +92,16 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
           }
           return true;
         };
-        List<File> allInFolder = Arrays.asList(compiledBaseDir.listFiles());
-        return allInFolder.stream()
+        ArrayList<File> allAlgorithms = new ArrayList<>();
+        if (compiledBaseDir != null)
+        {
+            allAlgorithms.addAll(Arrays.asList(compiledBaseDir.listFiles()));
+        }
+        if (addedAlgorithmsDir != null)
+        {
+            allAlgorithms.addAll(Arrays.asList(addedAlgorithmsDir.listFiles()));
+        }
+        return allAlgorithms.stream()
                 .map(File::getName)
                 .filter(name -> name.endsWith(COMPILED_FILE_TYPE))
                 .map(name -> name.substring(0, name.indexOf(COMPILED_FILE_TYPE)))
@@ -218,7 +235,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
 //        ************************************************
         try {
 
-            String dirPathStr = "target/classes/FinalProject/BL/Agents/"
+            String dirPathStr = "resources/algorithms"
                     .replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
             URL dirUrl = new File(dirPathStr).toURI().toURL();
             URLClassLoader cl = (URLClassLoader) Thread.currentThread().getContextClassLoader();
@@ -251,7 +268,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticsCollector,  null, null);
         Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Collections.singletonList(pathStr));
         String classPathStr = getClassPathStr();
-        List<String> options = Arrays.asList("-d", "target/classes", "-classpath", classPathStr);
+        List<String> options = Arrays.asList("-d", "resources/algorithms", "-classpath", classPathStr);
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, options, null, compilationUnits);
         boolean success = task.call();
         fileManager.close();
