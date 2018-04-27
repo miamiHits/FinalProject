@@ -1,6 +1,6 @@
 @startuml
 'skinparam classAttributeIconSize 0
-'scale 1.5
+scale 0.5
 'left to right direction
 skinparam linetype ortho
 
@@ -192,7 +192,6 @@ package BL {
 				#sendMsgToAllNeighbors(Serializable, String) : void
 				#waitForNeighbourMessages(MessageTemplate) : List<ACLMessage>
 				#readNeighbourMsgs(List<ACLMessage>) : void
-				#parseMessages(List<ACLMessage>) : void
 				#initHelper() : void
 				#calcPrice(double[]) : double
 				#calcCsum(double[]) : double

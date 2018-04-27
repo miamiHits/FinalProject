@@ -32,7 +32,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     @Override
     protected void doIteration() {
         if (agent.isZEROIteration()) {
-            logger.info("Starting work on Iteration: 0");
             initMsgTemplate(); // needs to be here to make sure SmartHomeAgent class is init
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
@@ -40,7 +39,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             beforeIterationIsDone();
         }
         else {
-            logger.info("Starting work on Iteration: " + currentNumberOfIter);
             receiveNeighboursIterDataAndHandleIt();
             improveSchedule(false);
         }
@@ -75,7 +73,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         double oldPrice = calcCsum(prevIterPowerConsumption);
         double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice, iterationPowerConsumption); //also sets helper's epeak
         helper.totalPriceConsumption = prevTotalCost;
-        System.out.println(agent.getLocalName() + " MY prev total cost is: " + prevTotalCost + ", actual_epeak: " + (prevTotalCost - oldPrice) + ", helper epeak: " + helper.ePeak);
         double prevAgentPriceSum = agent.getPriceSum();
         agent.setPriceSum(oldPrice);
 
@@ -89,9 +86,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
         if(!randomPick) {
             double improvement = prevTotalCost - tempBestPriceConsumption;
-            if (improvement < 0) {
-                logger.error(agent.getLocalName() + "'s impro is NEGATIVE!! " + improvement);
-            }
             ImprovementMsg impMsg = sendImprovementToNeighbours(improvement, prevIterPowerConsumption);
             List<ImprovementMsg> receivedImprovements = receiveImprovementMsgs();
             receivedImprovements.add(impMsg);
@@ -105,19 +99,16 @@ public class SHMGM extends SmartHomeAgentBehaviour{
                 return;
             }
 
-            String maxName = Utils.cleanShtrudelFromAgentName(max.getAgentName());
+            String maxName = Utils.parseAgentName(max.getAgentName());
             if (max.getImprovement() == 0.0) {
-                logger.info(agent.getLocalName() + " 0 improvement, randomize schedule");
                 improveSchedule(true);
             } else if (maxName.equals(agent.getLocalName())) { //take new schedule
-                logger.info(agent.getLocalName() + "'s improvement: " + max.getImprovement() + " WAS THE GREATEST");
                 takeNewSched(newPrice, actualEpeak);
             } else { //take prev schedule
                 resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
                         prevAgentPriceSum, prevIterPowerConsumption, max.getImprevedSched(), max.getPrevSched());
             }
         }else{ //random pick of schedule
-            logger.info(agent.getLocalName() + "is changing to random schedule");
             takeNewSched(newPrice, actualEpeak);
         }
     }
@@ -212,7 +203,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     }
 
     @Override
-    public SmartHomeAgentBehaviour cloneBehaviour() {
+    public SHMGM cloneBehaviour() {
         SHMGM newInstance = new SHMGM();
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;
@@ -234,14 +225,14 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         if (o == null || getClass() != o.getClass()) return false;
         SHMGM shmgm = (SHMGM) o;
 
-        return super.equals(shmgm) && (maxImprovementMsg == null && shmgm.maxImprovementMsg == null) ||
+        boolean superEquals = super.equals(shmgm);
+        return superEquals && (maxImprovementMsg == null && shmgm.maxImprovementMsg == null) ||
                 (maxImprovementMsg != null && shmgm.maxImprovementMsg != null &&
                         maxImprovementMsg.equals(shmgm.maxImprovementMsg));
     }
 
     @Override
     public int hashCode() {
-
         return Objects.hash(maxImprovementMsg, gainMsgOntology, improvementTemplate);
     }
 }

@@ -14,14 +14,6 @@ public class Utils {
 
     private final static Logger logger = Logger.getLogger(Utils.class);
 
-    public static String cleanShtrudelFromAgentName(String agentName) {
-        int shtrudel = agentName.indexOf('@');
-        if (shtrudel != -1){
-            agentName = agentName.substring(0, shtrudel);
-        }
-        return agentName;
-    }
-
     public static long getSizeOfObj(Object object){
         if (object == null) {
             logger.info("getSizeOfObj: obj is null! Returning 0");
@@ -50,7 +42,14 @@ public class Utils {
     public static String parseAgentName(Agent agent)
     {
         String agentName = agent.getName();
-        agentName = agentName.substring(0, agentName.indexOf('@'));
+        return parseAgentName(agentName);
+    }
+
+    public static String parseAgentName(String agentName) {
+        int shtrudel = agentName.indexOf('@');
+        if (shtrudel != -1){
+            agentName = agentName.substring(0, shtrudel);
+        }
         return agentName;
     }
 
