@@ -4,6 +4,7 @@ import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SHMGM;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
+import FinalProject.Config;
 import FinalProject.DAL.*;
 import FinalProject.Service;
 import com.vaadin.annotations.Push;
@@ -41,7 +42,6 @@ public class UiHandler extends UI implements UiHandlerInterface {
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
     protected static final String EXPERIMENT_RUNNING = "EXPERIMENT_RUNNING";
-//    private final String ALGO_PATH = "compiled_algorithms/FinalProject/BL/Agents/".replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));;TODO m
 
     private static final String RESULTS_PATH = Config.getStringPropery(Config.REPORTS_OUT_DIR).replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
