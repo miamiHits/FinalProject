@@ -148,7 +148,7 @@ public class IterationAgentsPrice {
         iterZeroHoodEpeaks.forEach(hood -> {
             Set<String> agents = hood.getNeighborhood();
             List<AgentPrice> hoodAPs = iterZeroAPs.stream()
-                    .filter(ap -> agents.contains(Utils.cleanShtrudelFromAgentName(ap.getAgentName())))
+                    .filter(ap -> agents.contains(Utils.parseAgentName(ap.getAgentName())))
                     .collect(Collectors.toList());
             List<double[]> hoodScheds = hoodAPs.stream()
                     .map(AgentPrice::getSchedule)

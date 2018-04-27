@@ -471,10 +471,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected void beforeIterationIsDone() {
         double price = calcPrice(this.iterationPowerConsumption);
         double[] arr = helper.cloneArray(this.iterationPowerConsumption);
-        logger.info("my PowerCons is: " + arr[0] + "," +  arr[1] + "," + arr[2] +"," + arr[3] + "," + arr[4] +"," + arr[5] + "," +arr[6] );
-        logger.info("my PRICE is: " + price);
-        logger.info("my EPEAK is: " + helper.ePeak);
-        logger.info("my ITER is: " + currentNumberOfIter);
         agentIterationData = new AgentIterationData(currentNumberOfIter, agent.getName(), price, arr);
         agent.setCurrIteration(agentIterationData);
         Set<String> neighboursNames = agent.getAgentData().getNeighbors().stream()
@@ -721,5 +717,21 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         List<Integer> newTicks = pickRandomScheduleForProp(prop, subsets);
         updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
         updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SmartHomeAgentBehaviour that = (SmartHomeAgentBehaviour) o;
+        boolean agentEquals = agent.equals(that.agent);
+        return currentNumberOfIter == that.currentNumberOfIter &&
+                finished == that.finished &&
+                that.tempBestPriceConsumption == tempBestPriceConsumption &&
+                agentEquals &&
+                helper.equals(that.helper) &&
+                agentIterationData.equals(that.agentIterationData) &&
+                agentIterationCollected.equals(that.agentIterationCollected) &&
+                Arrays.equals(iterationPowerConsumption, that.iterationPowerConsumption);
     }
 }

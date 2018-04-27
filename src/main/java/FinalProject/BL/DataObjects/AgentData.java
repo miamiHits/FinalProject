@@ -210,19 +210,6 @@ public class AgentData implements Serializable{
     }
 
     @Override
-    public int hashCode()
-    {
-        int result = getName().hashCode();
-        result = 31 * result + getNeighbors().hashCode();
-        result = 31 * result + Arrays.hashCode(getBackgroundLoad());
-        result = 31 * result + getHouseType();
-        result = 31 * result + getRules().hashCode();
-        result = 31 * result + getActuators().hashCode();
-        result = 31 * result + getSensors().hashCode();
-        return result;
-    }
-
-    @Override
     public String toString()
     {
         List<String> neighborsNames = neighbors.stream()

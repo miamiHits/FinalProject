@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SmartHomeAgent extends Agent implements Serializable{
     public static final String SERVICE_TYPE = "ACCESS_FOR_ALL_AGENTS";
@@ -180,8 +181,6 @@ public class SmartHomeAgent extends Agent implements Serializable{
         logger.info("agent " + getAID().getName() + " terminating.");
     }
 
-
-
     private void createAlgorithmAgent() {
         this.algorithm.initializeBehaviourWithAgent(this);
         addBehaviour(this.algorithm);
@@ -206,5 +205,30 @@ public class SmartHomeAgent extends Agent implements Serializable{
             System.out.println("Exception while trying to register: " + e);
             createAlgorithmAgent();
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SmartHomeAgent that = (SmartHomeAgent) o;
+        return isZEROIteration == that.isZEROIteration &&
+                iterationNum == that.iterationNum &&
+                stop == that.stop &&
+                that.priceSum == priceSum &&
+                iterationMessageSize == that.iterationMessageSize &&
+                iterationMessageCount == that.iterationMessageCount &&
+                agentData.equals(that.agentData) &&
+                bestIteration.equals(that.bestIteration) &&
+                currIteration.equals(that.currIteration) &&
+                myNeighborsShed.equals(that.myNeighborsShed) &&
+                problemId.equals(that.problemId) &&
+                algoId.equals(that.algoId);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(agentData, bestIteration, currIteration, algorithm, isZEROIteration, iterationNum, myNeighborsShed, stop, priceSum, problemId, algoId, iterationMessageSize, iterationMessageCount);
     }
 }
