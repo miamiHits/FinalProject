@@ -18,7 +18,7 @@ public class JsonLoader implements JsonLoaderInterface {
     private static Gson gson;
     private final static String DEVICE_DICT_FILE_NAME = "DeviceDictionary";
     private final static String FILE_TYPE = ".json";
-    private final static String DEFAULT_PATH = "resources/problems"; //TODO
+    private final static String DEFAULT_PATH = "resources/problems/".replaceAll("/", Matcher.quoteReplacement(File.separator));
     private File jsonsDir;
     private static Map<Integer, List<Device>> deviceDict;
 

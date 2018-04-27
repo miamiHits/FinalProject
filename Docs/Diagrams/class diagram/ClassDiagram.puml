@@ -1,6 +1,6 @@
 @startuml
 'skinparam classAttributeIconSize 0
-'scale 1.5
+scale 0.5
 'left to right direction
 skinparam linetype ortho
 
@@ -118,19 +118,22 @@ package BL {
 		'helpers'
 		together {
 			class AlgorithmDataHelper {
-			+totalPriceConsumption : double
-			+DeviceToTicks : Map<Actuator, List<Integer>>
-			
-			+allProperties : List<PropertyWithData>
-			+buildNewPropertyData(Rule, boolean) : void
-			+SetActuatorsAndSensors() : void
-			+matchSensors(Action, PropertyWithData, boolean) : void
-			+getSubsets(List<Integer>, int) : List<Set<int>>
-			+calcPriceSchemeForAllNeighbours() : void
-			+calcTotalPowerConsumption(double) : void
-			+checkForPassiveRules() : void
-			+calcHowLongDeviceNeedToWork(PropertyWithData) : double
-			+goBackToStartValues() : void
+				+totalPriceConsumption : double
+				+DeviceToTicks : Map<Actuator, Map<Action, List<Integer>>>
+				
+				+allProperties : List<PropertyWithData>
+				+buildNewPropertyData(Rule, boolean) : void
+				+setActuatorsAndSensors() : void
+				+getSubsets(List<Integer>, int) : List<Set<int>>
+				+calcPriceSchemeForAllNeighbours() : void
+				+calcTotalPowerConsumption(double, double[]) : double
+				+calcAndSetTotalPowerConsumption(double) : void
+				+calcTotalPowerConsumption(double) : double
+				+checkForPassiveRules() : void
+				+calcHowLongDeviceNeedToWork(PropertyWithData) : double
+				+goBackToStartValues() : void
+				+coneArray(double[]) : double[]
+				+coneList(List) : List
 			}
 
 			class PropertyWithData {
@@ -170,16 +173,43 @@ package BL {
 
 
 			abstract class SmartHomeAgentBehaviour <<Abstract>> {
+				+agent : SmartHomeAgent
+				#currentNumberOfIter: int
+				#helper: AlgorithmDataHelper
+				#agentIterationData: AgentIterationData
+				#agentIterationCollected: IterationCollectedData
+				#iterationPowerConsumption: double[]
+				#tempPriceConsumption: double
+
 				#{abstract} doIteration() : void
+				#{abstract} onTermination() : void
+				#{abstract} countIterationCommunication() : void
+				#{abstract} generateScheduleForProp(PropertyWithData, double, Map<String, Integer>, boolean) : void
+				#{abstract} cloneBehaviour() : SmartHomeAgentBehaviour
+				#{abstract} calcImprveOptionGrade(double[], List<double[]>) : double
 				#sendIterationToCollector() : void
 				#sendIterationToNeighbors() : void
-				+cloneBehaviour() : SmartHomeAgentBehaviour
-				+{abstract} cloneBehaviour() : SmartHomeAgentBehaviour
-				#waitForNeighbourMessages : List<ACLMessage>
-				#parseMessages(List<ACLMessage>) : void
+				#sendMsgToAllNeighbors(Serializable, String) : void
+				#waitForNeighbourMessages(MessageTemplate) : List<ACLMessage>
+				#readNeighbourMsgs(List<ACLMessage>) : void
+				#initHelper() : void
 				#calcPrice(double[]) : double
+				#calcCsum(double[]) : double
 				#initializeBehaviourWithAgent(SmartHomeAgent) : void
 				#addBackgroundLoadToPriceScheme(double[]) : void
+				#buildScheduleBasic(boolean) : void
+				#calcHowManyTicksNeedToCharge(String, double, double) : int
+				#drawRandomNum(int, int) : int
+				#flipCoin(float) : boolean
+				#updateTotals(PropertyWithData, Map<String, Integer>, double): void
+				#startWorkZERO(PropertyWithData, Map<String, Integer>, double): void
+				#startWorkNonZeroIter(PropertyWithData, Map<String, Integer>, double): void
+				#calcRangeOfWork(PropertyWithData): List<int>
+				#calcBestPrice(PropertyWithData, List<Set<Integer>>): List<int>
+				#beforeIterationIsDone(): void
+				+cloneBehaviour() : SmartHomeAgentBehaviour
+				+buildScheduleFromScratch() : void
+
 				+action() : void
 				+done() : boolean
 			}
@@ -189,20 +219,40 @@ package BL {
 		
 		'algos:'
 		together {
-			class DBA {
+			class SHMGM {
 				+doIteration() : void
+				-onTermination() : void
+				-countIterationCommunication() : void
+				-generateScheduleForProp(PropertyWithData, double, Map<String, Integer>, boolean) : void
+				-cloneBehaviour() : SmartHomeAgentBehaviour
+				-calcImprveOptionGrade(double[], List<double[]>) : double
 			}
 
 			class DSA {
 				+doIteration() : void
+				-onTermination() : void
+				-countIterationCommunication() : void
+				-generateScheduleForProp(PropertyWithData, double, Map<String, Integer>, boolean) : void
+				-cloneBehaviour() : SmartHomeAgentBehaviour
+				-calcImprveOptionGrade(double[], List<double[]>) : double
 			}
 
 			class Algo3 {
 				+doIteration : void
+				-onTermination() : void
+				-countIterationCommunication() : void
+				-generateScheduleForProp(PropertyWithData, double, Map<String, Integer>, boolean) : void
+				-cloneBehaviour() : SmartHomeAgentBehaviour
+				-calcImprveOptionGrade(double[], List<double[]>) : double
 			}
 
 			class Algo4 {
 				+doIteration() : void
+				-onTermination() : void
+				-countIterationCommunication() : void
+				-generateScheduleForProp(PropertyWithData, double, Map<String, Integer>, boolean) : void
+				-cloneBehaviour() : SmartHomeAgentBehaviour
+				-calcImprveOptionGrade(double[], List<double[]>) : double
 			}
 		}
 
@@ -215,7 +265,7 @@ package BL {
 
 		Problem *-- Device
 
-		SmartHomeAgentBehaviour <|-- DBA
+		SmartHomeAgentBehaviour <|-- SHMGM
 		SmartHomeAgentBehaviour <|-- DSA
 		SmartHomeAgentBehaviour <|-- Algo3
 		SmartHomeAgentBehaviour <|-- Algo4
@@ -237,11 +287,12 @@ package BL {
 		}
 
 		class IterationCollectedData {
-
 			+problemId : String
 			+algorithm : String
 			+neighborhood : Set<String>
 			+epeak : double
+			+messageSize: long
+			+msgCount: int
 		} 
 
 		AgentIterationData <|-- IterationCollectedData
@@ -284,8 +335,14 @@ package BL {
 		}
 
 		class StatisticsHandler {
-			calculateAvg(List<double>) : double
-			getStatisticalSignificance(...) : double
+			+getTotalPowerConsumption(): Map<String, List<Double>>
+			+totalConsumption() : DefaultStatisticalCategoryDataset
+			+lowestAgent() : DefaultStatisticalCategoryDataset
+			+highestAgent() : DefaultStatisticalCategoryDataset
+			+averageTime() : DefaultStatisticalCategoryDataset
+			+messageSendPerIteration() : DefaultStatisticalCategoryDataset
+			+messagesSize() : DefaultStatisticalCategoryDataset
+			+{static} highestAgent(double[]) : double
 		}
 
 		class AlgorithmProblemResult {
@@ -310,25 +367,24 @@ package BL {
 	}
 
 	interface ExperimentBuilderInterface {
-		+addNumOfIterations(int) : void
-		+addAlgorithms(List<String>) : void
-		+addProblems(List<String>) : void
-		+addService(Service) : void
-		+create() : Experiment
+		+setNumOfIterations(int) : void
+		+setAlgorithms(List<SmartHomeAgentBehaviour>) : void
+		+setProblems(List<Problem>) : void
+		+createExperiment() : Experiment
 	}
 
 	'experiment'
 	together {
 		class ExperimentBuilder {
 			+setNumOfIterations(int) : void
-			+addAlgorithms(List<String>) : void
-			+addProblems(List<String>) : void
+			+setAlgorithms(List<SmartHomeAgentBehaviour>) : void
+			+setProblems(List<Problem>) : void
+			+createExperiment() : Experiment
 		}
 
 		interface ExperimentInterface {
 			+runExperiment() : void
 			+algorithmProblemComboRunEnded(AlgorithmProblemResult) : void
-			+stop() : void
 		}
 
 		class Experiment {
@@ -336,7 +392,6 @@ package BL {
 			+numOfIterations : int
 			+runExperiment() : void
 			+algorithmProblemComboRunEnded(AlgorithmProblemResult) : void
-			+stopExperiment() : void
 		}
 
 	}
@@ -373,26 +428,14 @@ package PL {
 
 	interface UiHandlerInterface {
 		+notifyExperimentEnded(List<AlgorithmProblemResult>) : void
-	}
-
-	class UiHandler <<Observer>> {
-		+showMainScreen() : void
-		+showResultsScreen() : void
-		+shoExperimentRunningScreen() : void
-		+notifyExperimentEnded(List<AlgorithmProblemResult>) : void
 		+notifyError(String) : void
 	}
 
-	class ChartViewer {
-		+createPricePerIterChart(Map<int, double>, String) : LineChart
-		+nameToNumBarChart(Map<String, int>) : BarChart
+	class UiHandler <<Observer>> {
+		+notifyExperimentEnded(List<AlgorithmProblemResult>) : void
+		+notifyError(String) : void
 	}
-
-	Note "createPricePerIterChart(iterToPriceMap, algoName)" as chartNote
-
-	UiHandler --> ChartViewer
 	UiHandlerInterface <|-- UiHandler
-	ChartViewer . chartNote
 }
 
 package DAL {
@@ -401,20 +444,20 @@ package DAL {
     	+saveExpirimentResult(List<AlgorithmProblemResult>) : void
     }
 
-	class ExcelHandler {
+	class CsvHandler {
     	+saveExpirimentResult(List<AlgorithmProblemResult>) : void
 	}
 
     interface JsonLoaderInterface {
         +loadDevices(String) : Map<int, List<Device>>
         +loadProblems(List<String>) : List<Problem>
-        +getAllProblemNames() : List<String>
+        +getAllProblemNames() : Map<Integer, List<String>>
     }
 
 	class JsonsLoader {
 		+loadDevices(String) : Map<int, List<Device>>
         +loadProblems(List<String>) : List<Problem>
-        +getAllProblemNames() : List<String>
+        +getAllProblemNames() : Map<Integer, List<String>>
 	}
 
     interface AlgoLoaderInterface {
@@ -432,6 +475,7 @@ package DAL {
     interface DataAccessControllerInterface {
         +getProblems(List<String>) : List<Problem>
         +getAvailableAlgorithms() : List<String>
+        +getAvailableProblems() : Map<Integer, List<String>>
         +getAlgorithms(List<String>) : List<SmartHomeAgentBehaviour>
         +addAlgorithmToSystem(String, String) : void
         +saveExpirimentResult(List<AlgorithmProblemResult>) : void
@@ -440,6 +484,7 @@ package DAL {
 	class DataAccessController {
 		+getProblems(List<String>) : List<Problem>
 		+getAvailableAlgorithms() : List<String>
+        +getAvailableProblems() : Map<Integer, List<String>>
 		+getAlgorithms(List<String>) : List<SmartHomeAgentBehaviour>
 		+addAlgorithmToSystem(String, String) : void
 		+saveExpirimentResult(List<AlgorithmProblemResult>) : void
@@ -452,16 +497,15 @@ package DAL {
 	JsonLoaderInterface <|-- JsonsLoader
 	AlgoLoaderInterface <|-- AlgorithmLoader
 	DataAccessControllerInterface <|-- DataAccessController
-	FileSaverInterface <|-- ExcelHandler
+	FileSaverInterface <|-- CsvHandler
 }
 
-'service
 together {
 	interface ServiceInterface {
 		+addAlgorithmsToExperiment(List<String>, int) : void
 		+addProblemsToExperiment(List<String>) : void
 		+runExperimrent() : void
-		+stopExperiment() : void
+		' +stopExperiment() : void
 		+getExperimentResults() : List<AlgorithmProblemResult>
 	    +experimentEnded(List<AlgorithmProblemResult>) : void
 	    +saveExperimentResults(List<AlgorithmProblemResult>) : void
@@ -472,7 +516,7 @@ together {
 		+addAlgorithmsToExperiment(List<SmartHomeAgentBehaviour>, int) : void
 		+addProblemsToExperiment(List<Problem>) : void
 		+runExperimrent() : void
-		+stopExperiment() : void
+		' +stopExperiment() : void
 		+getExperimentResults() : List<AlgorithmProblemResult>
 	    +experimentEnded(List<AlgorithmProblemResult>) : void
 	    +experimentEndedWithError(Exception) : void
@@ -480,10 +524,7 @@ together {
 	}
 }
 
-Note "addAlgorithmsToExperiment(algoNames, numOfIterations){\n\t...\n\texperimentBuilder.addAlgorithms(algoNames);\n\ttexperimentBuilder.addNumOfIterations(numOfIterations);\n\t...\n}" as ServiceAddAlgoNote
-
 ServiceInterface <|-- Service
-Service .. ServiceAddAlgoNote
 
 class SmartHomeAlgorithm <<Not Implemented>> {
 	-doIteration() : void
@@ -503,7 +544,7 @@ DataCollectionCommunicator --|> Agent
 
 ExperimentBuilder --> DataAccessControllerInterface
 
-ExcelHandler -> AlgorithmProblemResult : saves
+CsvHandler -> AlgorithmProblemResult : saves
 
 SmartHomeAlgorithm --|> SmartHomeAgentBehaviour
 

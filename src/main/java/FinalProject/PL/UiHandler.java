@@ -4,15 +4,19 @@ import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SHMGM;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
-import FinalProject.Config;
 import FinalProject.DAL.*;
 import FinalProject.Service;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
+import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +41,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
     protected static final String EXPERIMENT_RUNNING = "EXPERIMENT_RUNNING";
+//    private final String ALGO_PATH = "compiled_algorithms/FinalProject/BL/Agents/".replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));;TODO m
 
     private static final String RESULTS_PATH = Config.getStringPropery(Config.REPORTS_OUT_DIR).replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
@@ -46,7 +51,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
 //        String jsonPath = "src/test/testResources/jsons";
         String jsonPath = Config.getStringPropery(Config.PROBLEMS_DIR);
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-        String algorithmsPath = Thread.currentThread().getContextClassLoader().getResource("FinalProject/BL/Agents/").getFile();
+        String algorithmsPath = Thread.currentThread().getContextClassLoader().getResource("FinalProject/BL/Agents/").getFile();//TODO m add to conf
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
@@ -128,7 +133,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         StatisticsHandler sth = new StatisticsHandler(experimentResults, probToAlgoTotalTime);
 
         //just for check the csv - we can change it later
-        csvHandler csv = new csvHandler(RESULTS_PATH + dateFormat.format(date)+"_results.csv", sth.getTotalPowerConsumption());
+        csvHandler csv = new csvHandler(dateFormat.format(date)+"_results.csv", sth.getTotalPowerConsumption());
         resultsPresenter.setPowerConsumptionGraph(sth.totalConsumption());
         resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
         resultsPresenter.setLowestAgentGrapthGrapth(sth.lowestAgent());

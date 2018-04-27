@@ -11,3 +11,21 @@ log/*
 *.csv
 
 src/test/testResources/compiledAlgorithms/FinalProject/BL/Agents/BehaviourToCompile\.class
+
+resources/compiled_algorithms/FinalProject/BL/Agents/AlgorithmDataHelper\.class
+
+resources/compiled_algorithms/FinalProject/BL/Agents/AlgorithmDataHelper\$1\.class
+
+resources/compiled_algorithms/FinalProject/BL/Agents/DSA\.class
+
+resources/compiled_algorithms/FinalProject/BL/Agents/ImprovementMsg\.class
+
+resources/compiled_algorithms/FinalProject/BL/Agents/PropertyWithData\.class
+
+resources/compiled_algorithms/FinalProject/BL/Agents/SHMGM\.class
+
+resources/compiled_algorithms/FinalProject/BL/Agents/SmartHomeAgent\.class
+
+resources/compiled_algorithms/FinalProject/BL/Agents/SmartHomeAgentBehaviour\.class
+
+resources/compiled_algorithms/FinalProject/BL/Agents/SmartHomeAgentBehaviour\$1\.class

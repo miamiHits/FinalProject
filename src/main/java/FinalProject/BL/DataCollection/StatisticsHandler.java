@@ -150,7 +150,7 @@ public class StatisticsHandler {
 
     }
 
-    public static double calculateSD(double numArray[])
+    public static double calculateSD(double[] numArray)
     {
         double sum = 0.0, standardDeviation = 0.0;
 

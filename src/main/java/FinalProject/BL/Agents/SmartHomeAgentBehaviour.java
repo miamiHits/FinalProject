@@ -28,6 +28,7 @@ import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTota
 
 public abstract class SmartHomeAgentBehaviour extends Behaviour implements Serializable{
 
+    private final static Logger logger = Logger.getLogger(SmartHomeAgentBehaviour.class);
     public static final int START_TICK = 0;
     private final Random randGenerator = new Random();
     public SmartHomeAgent agent;
@@ -37,7 +38,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected AgentIterationData agentIterationData;
     protected IterationCollectedData agentIterationCollected;
 
-    private final static Logger logger = Logger.getLogger(SmartHomeAgentBehaviour.class);
     protected boolean finished = false;
     protected double[] iterationPowerConsumption;
     protected double tempBestPriceConsumption = -1;
@@ -265,7 +265,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         passiveRules.forEach(pRule -> helper.buildNewPropertyData(pRule, true));
         activeRules.forEach(rRule -> helper.buildNewPropertyData(rRule, false));
         helper.checkForPassiveRules();
-        helper.SetActuatorsAndSensors();
+        helper.setActuatorsAndSensors();
     }
 
     protected int drawRandomNum(int start, int last) {
@@ -313,17 +313,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         updateTotals(prop, myTicks, sensorsToCharge);
     }
 
-    private void findActionToTicksMapAndPutTicks(PropertyWithData prop, List<Integer> activeTicks) {
-        Map<Action, List<Integer>> actionToTicks = helper.getDeviceToTicks().get(prop.getActuator());
-        if (actionToTicks == null) {
-            actionToTicks = new HashMap<>();
-            helper.getDeviceToTicks().put(prop.getActuator(), actionToTicks);
-        }
-        Action actionForProp = getActionForProp(prop);
-        actionToTicks.put(actionForProp, activeTicks);
-        return;
-    }
-
     protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork, boolean randomChoice) {
         prop.activeTicks.clear();
 
@@ -351,76 +340,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         else{ //random choice
             applyRandomChoice(prop, sensorsToCharge, subsets);
         }
-    }
-
-    private void applyRandomChoice(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
-        List<Integer> newTicks = pickRandomScheduleForProp(prop, subsets);
-        updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
-        updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
-    }
-
-    private List<Integer> pickRandomScheduleForProp(PropertyWithData prop, List<Set<Integer>> subsets) {
-        double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        List<double[]> allScheds = agent.getMyNeighborsShed().stream()
-                .map(AgentIterationData::getPowerConsumptionPerTick)
-                .collect(Collectors.toList());
-//        List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
-        Action actionForProp = getActionForProp(prop);
-        if (actionForProp == null) {
-            return null;
-        }
-        Map<Action, List<Integer>> actionToTicks = helper.getDeviceToTicks().get(prop.getActuator());
-        List<Integer> prevTicks = actionToTicks.get(actionForProp);
-        //remove current prop consumption
-        for (Integer tick : prevTicks) {
-            newPowerConsumption[tick] -= prop.getPowerConsumedInWork();
-        }
-
-        //pick random option
-        Set<Integer> ticks = chooseRandomSubset(subsets);
-        //Adding the ticks to the array
-        for (Integer tick : ticks) {
-            newPowerConsumption[tick] += prop.getPowerConsumedInWork();
-        }
-        allScheds.add(newPowerConsumption);
-        double res = calcImproveOptionGrade(newPowerConsumption, allScheds);
-        tempBestPriceConsumption = res;
-        return new ArrayList<>(ticks);
-    }
-
-    private Action getActionForProp(PropertyWithData prop) {
-        Action actionForProp = prop.getActuator().getActions().stream()
-                .filter(action -> !action.getName().equals("off") &&
-                        action.getPowerConsumption() == prop.getPowerConsumedInWork())
-                .filter(action -> {
-                    List<Effect> fx = action.getEffects();
-                    return fx.stream()
-                            .anyMatch(effect -> effect.getDelta() == prop.getDeltaWhenWork() &&
-                                    effect.getProperty().equals(prop.getName()));
-                })
-                .findAny()
-                .orElse(null);
-        if (actionForProp == null) {
-            logger.error("pickRandomScheduleForProp: no action for prop " + prop.getName() + " in it's actuator " + prop.getActuator().getName());
-            return null;
-        }
-
-        return actionForProp;
-    }
-
-    private Set<Integer> chooseRandomSubset(List<Set<Integer>> subsets) {
-        int size = subsets.size();
-        if (size == 0 ){
-            return new HashSet<Integer>();
-        }
-        int randomNum = ThreadLocalRandom.current().nextInt(0, size);
-        return subsets.get(randomNum);
-    }
-
-    private void lookForBestOptionAndApplyIt(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
-        List<Integer> newTicks = calcBestPrice(prop, subsets);
-        updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
-        updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
     }
 
     protected boolean flipCoin(float probabilityForTrue) {
@@ -451,16 +370,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
 
         return rangeForWork;
-    }
-
-    private List<Integer> getTicksForProp(PropertyWithData prop) {
-        Action actionForProp = getActionForProp(prop);
-        if (actionForProp == null) {
-            logger.error("getTicksForProp: actionForProp is null!");
-            return null;
-        }
-        Map<Action, List<Integer>> actionToTicks = helper.getDeviceToTicks().get(prop.getActuator());
-        return actionToTicks.get(actionForProp);
     }
 
     protected List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets) {
@@ -639,6 +548,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
     }
 
+
     //-------------PRIVATE METHODS:-------------------
 
     private List<Integer> generateRandomTicksForProp(PropertyWithData prop, double ticksToWork) {
@@ -708,6 +618,21 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
     }
 
+    private void lookForBestOptionAndApplyIt(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
+        List<Integer> newTicks = calcBestPrice(prop, subsets);
+        updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
+        updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
+    }
+
+    private List<Integer> getTicksForProp(PropertyWithData prop) {
+        Action actionForProp = getActionForProp(prop);
+        if (actionForProp == null) {
+            logger.error("getTicksForProp: actionForProp is null!");
+            return null;
+        }
+        Map<Action, List<Integer>> actionToTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        return actionToTicks.get(actionForProp);
+    }
     /**
      * agent might get messages from the AMS - agent management system, the smart home agent ignores these messages.
      * this method clears these messages from the agent's messages queue and prints their contents as warnings
@@ -723,4 +648,78 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         } while (receivedMessage != null);
     }
 
+    private List<Integer> pickRandomScheduleForProp(PropertyWithData prop, List<Set<Integer>> subsets) {
+        double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        List<double[]> allScheds = agent.getMyNeighborsShed().stream()
+                .map(AgentIterationData::getPowerConsumptionPerTick)
+                .collect(Collectors.toList());
+//        List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        Action actionForProp = getActionForProp(prop);
+        if (actionForProp == null) {
+            return null;
+        }
+        Map<Action, List<Integer>> actionToTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        List<Integer> prevTicks = actionToTicks.get(actionForProp);
+        //remove current prop consumption
+        for (Integer tick : prevTicks) {
+            newPowerConsumption[tick] -= prop.getPowerConsumedInWork();
+        }
+
+        //pick random option
+        Set<Integer> ticks = chooseRandomSubset(subsets);
+        //Adding the ticks to the array
+        for (Integer tick : ticks) {
+            newPowerConsumption[tick] += prop.getPowerConsumedInWork();
+        }
+        allScheds.add(newPowerConsumption);
+        double res = calcImproveOptionGrade(newPowerConsumption, allScheds);
+        tempBestPriceConsumption = res;
+        return new ArrayList<>(ticks);
+    }
+
+    private Action getActionForProp(PropertyWithData prop) {
+        Action actionForProp = prop.getActuator().getActions().stream()
+                .filter(action -> !action.getName().equals("off") &&
+                        action.getPowerConsumption() == prop.getPowerConsumedInWork())
+                .filter(action -> {
+                    List<Effect> fx = action.getEffects();
+                    return fx.stream()
+                            .anyMatch(effect -> effect.getDelta() == prop.getDeltaWhenWork() &&
+                                    effect.getProperty().equals(prop.getName()));
+                })
+                .findAny()
+                .orElse(null);
+        if (actionForProp == null) {
+            logger.error("pickRandomScheduleForProp: no action for prop " + prop.getName() + " in it's actuator " + prop.getActuator().getName());
+            return null;
+        }
+
+        return actionForProp;
+    }
+
+    private Set<Integer> chooseRandomSubset(List<Set<Integer>> subsets) {
+        int size = subsets.size();
+        if (size == 0 ){
+            return new HashSet<Integer>();
+        }
+        int randomNum = ThreadLocalRandom.current().nextInt(0, size);
+        return subsets.get(randomNum);
+    }
+
+    private void findActionToTicksMapAndPutTicks(PropertyWithData prop, List<Integer> activeTicks) {
+        Map<Action, List<Integer>> actionToTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        if (actionToTicks == null) {
+            actionToTicks = new HashMap<>();
+            helper.getDeviceToTicks().put(prop.getActuator(), actionToTicks);
+        }
+        Action actionForProp = getActionForProp(prop);
+        actionToTicks.put(actionForProp, activeTicks);
+        return;
+    }
+
+    private void applyRandomChoice(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
+        List<Integer> newTicks = pickRandomScheduleForProp(prop, subsets);
+        updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
+        updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
+    }
 }
