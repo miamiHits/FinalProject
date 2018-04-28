@@ -24,13 +24,11 @@ public class ExperimentBuilder {
 
     public void setAlgorithms(List<SmartHomeAgentBehaviour> algorithms)
     {
-        //TODO gal
         this.algos = algorithms;
     }
 
     public void setProblems(List<Problem> problems)
     {
-        //TODO gal
         this.problems = problems;
     }
 

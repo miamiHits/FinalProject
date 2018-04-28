@@ -29,7 +29,6 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     private final static String UNCOMPILED_FILE_TYPE = ".java";
     private final static String COMPILED_FILE_TYPE = ".class";
     private final static String ADDED_ALGORITHMS_PATH = Config.getStringPropery(Config.ADDED_ALGORITHMS_PACKAGE_DIR).replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-    //    private final static String DEFAULT_COMPILED_PATH = "resources/compiled_algorithms";TODO m
     private final static String COMPILED_PACKAGE_NAME = "/FinalProject/BL/Agents/";
     private File addedAlgorithmsDir;
     private File compiledBaseDir;
@@ -111,33 +110,6 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
             logger.error("exception while trying to get all allgo names!");
             return new ArrayList<>();
         }
-
-//        Predicate<String> nameNotIgnored = name -> {
-//            if (ignoredNames.contains(name)) {
-//                return false;
-//            }
-//            for (String ignored : ignoredNames) {
-//                if (name.contains(ignored)) {
-//                    return false;
-//                }
-//            }
-//            return true;
-//        };
-//        ArrayList<File> allAlgorithms = new ArrayList<>();
-//        if (compiledBaseDir != null)
-//        {
-//            allAlgorithms.addAll(Arrays.asList(compiledBaseDir.listFiles()));
-//        }
-//        if (addedAlgorithmsDir != null)
-//        {
-//            allAlgorithms.addAll(Arrays.asList(addedAlgorithmsDir.listFiles()));
-//        }
-//        return allAlgorithms.stream()
-//                .map(File::getName)
-//                .filter(name -> name.endsWith(COMPILED_FILE_TYPE))
-//                .map(name -> name.substring(0, name.indexOf(COMPILED_FILE_TYPE)))
-//                .filter(nameNotIgnored)
-//                .collect(Collectors.toList());TODO m gal cosider using the older version
     }
 
     public String addAlgoToSystem(String path, String fileName) {
@@ -245,7 +217,6 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Collections.singletonList(pathStr));
         String classPathStr = getClassPathStr();
         List<String> options = Arrays.asList("-d", Config.getStringPropery(Config.ADDED_ALGORITHMS_DIR), "-classpath", classPathStr);
-//        List<String> options = Arrays.asList("-d", compiledBaseDir.getPath(), "-classpath", classPathStr);TODO m
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, options, null, compilationUnits);
         boolean success = task.call();
         fileManager.close();
@@ -253,8 +224,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     }
 
     private String getClassPathStr() {
-//        URL[] urls = ((URLClassLoader) VaadinService.getCurrent().getClassLoader()).getURLs();
-        URL[] urls = getUrlClassLoader().getURLs();//TODO m
+        URL[] urls = getUrlClassLoader().getURLs();
         String separator = System.getProperty("path.separator");
         StringBuilder builder = new StringBuilder();
         for (URL url : urls) {

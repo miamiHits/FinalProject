@@ -43,7 +43,6 @@ public class Experiment implements ExperimentInterface {
 
     public Experiment(Service service, List<Problem> problems, List<SmartHomeAgentBehaviour> algorithms)
     {
-        //TODO gal
         logger.info("experiment created");
         this.service = service;
         this.problems = problems;
@@ -65,13 +64,10 @@ public class Experiment implements ExperimentInterface {
     @Override
     public void runExperiment()
     {
-        //TODO gal
         logger.info("starting experiment thread");
         assert this.experimentThread != null : "experiment thread must be initiated";
         this.experimentThread.start();
         this.runningTime = System.currentTimeMillis();
-
-
     }
 
     public void algorithmProblemIterEnded(String algo, String problem) {
@@ -84,11 +80,10 @@ public class Experiment implements ExperimentInterface {
 
     // gal: this one should be invoked by the data collection agent notifying all data
     // resulted from the algorithm-problem configuration run was fully processed
-    // IMPORTANT - the method is blocking and should be invoked when the data collector has done all that is needed for the current configuration
+    // IMPORTANT - operation is non blocking
     @Override
     public void algorithmProblemComboRunEnded(AlgorithmProblemResult result)
     {
-        //TODO gal
         logger.info(String.format("data collector completed processing configuration:\n" +
                         "algorithm - %s\n" +
                         "problem - %s"
@@ -195,7 +190,6 @@ public class Experiment implements ExperimentInterface {
 
         @Override
         public void run() {
-            //TODO gal
             try
             {
                 initialize();
@@ -494,13 +488,5 @@ public class Experiment implements ExperimentInterface {
             logger.debug("killedPlatform");
         }
     }
-
-    //TODO gal consider removing this one
-    @Override
-    public boolean experimentCompleted()
-    {
-        return this.experimentCompleted;
-    }
-
 
 }

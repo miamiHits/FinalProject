@@ -48,7 +48,6 @@ public class ExperimentResultsPresenter extends Panel implements View{
                 Button endExperimentBtn = new Button("End Experiment");
                 endExperimentBtn.addClickListener((Button.ClickListener) event1 -> getUI().access(() ->{
                    getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
-                   //TODO gal any export action required here?
                     }));
 
                 Label topLabel = new Label("Results:");
