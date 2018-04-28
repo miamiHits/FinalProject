@@ -9,17 +9,15 @@ activate Service
 activate EB
 
 
+UiHandler -> UiHandler : [displays the available algorithms in the list builder element]
+u -> UiHandler : [clicks "Start Experiment"]
 
 alt Json files describing problems are available in the system
 
-    UiHandler -> UiHandler : [displays the available algorithms in the list builder element]
-    u -> UiHandler : [clicks "Load"]
     note left
-        user selects the desired
-        algorithms in the list
+        user selected the desired
+        problems in the list
         builder GUI element
-        and inserted number of
-        iterations
     end note
 
     UiHandler -> Service : loadProblems(List<problemNames: String>)

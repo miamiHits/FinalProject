@@ -25,11 +25,14 @@ public class ExperimentRunningPresenter extends Panel implements View{
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
+        logger.debug("enter");
         mainProgBar.setValue(0);
 
         goToResScreenBtn = new Button("Go to results screen!", clickEvent ->
-            getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RESULTS)
-        );
+        {
+            logger.debug("clicked on \"Go to results screen!\" button");
+            getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RESULTS);
+        });
 
         goToResScreenBtn.setEnabled(false);
 
@@ -48,6 +51,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
             ProgressBar progressBar = pairToProgressBarMap.get(problemAlgoPair);
             float current = progressBar.getValue();
             getUI().access(() -> {
+                logger.debug(String.format("increasing progress bar for problem: %s algorithm: %s by %f to %f", problemId, algoId, toIncBy, current + toIncBy));
                 progressBar.setValue(current + toIncBy);
                 float mainBarNewVal = (float) (pairToProgressBarMap.values().stream()
                                             .mapToDouble(ProgressBar::getValue)
@@ -82,6 +86,8 @@ public class ExperimentRunningPresenter extends Panel implements View{
             if (problemAlgoPairGrid == null) {
                 problemAlgoPairGrid = new Grid<>(ProblemAlgoPair.class);
             }
+
+            logger.debug("filling problems grid");
 
             problemAlgoPairGrid.setItems(pairToProgressBarMap.keySet());
 

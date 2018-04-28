@@ -24,6 +24,9 @@ u -> UiHandler : [clicks "Start Experiment"]
 
 alt user selected a set of algorithm and problems
 
+    ref over u : algorithms selection use case
+    ref over u : problems selection use case
+
     UiHandler -> Service : runExperiment()
     Service -> ExperimentBuilder : createExperiment()
     ExperimentBuilder -> Experiment : <<create>>
@@ -119,10 +122,9 @@ alt user selected a set of algorithm and problems
 
         Experiment -> Service : experimentEnded(List<AlgorithmProblemResult>)
 
-        Service -> UiHandler : displayExperimentResults(List<AlgorithmProblemResult>)
-        UiHandler -> ChartViewer : displayExperimentResults(List<AlgorithmProblemResult>)
+        Service -> UiHandler : showResultScreen(List<AlgorithmProblemResult>)
 
-        activate ChartViewer
+        ref over UiHandler : show results use case
 
     else while running the experiment the user stops it, at any point
 

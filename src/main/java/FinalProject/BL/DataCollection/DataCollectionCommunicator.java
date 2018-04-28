@@ -50,7 +50,6 @@ public class DataCollectionCommunicator extends Agent {
             DFService.register(this, dfd);
         }
         catch (FIPAException fe) {
-            fe.printStackTrace();
             logger.error("Communicator failed to register: " + fe);
         }
     }

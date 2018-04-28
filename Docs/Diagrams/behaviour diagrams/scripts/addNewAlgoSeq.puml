@@ -9,7 +9,7 @@ activate Service
 activate AlgorithmLoader
 
 u -> UiHandler : add new algorithm
-UiHandler --> u : [opens a file selection dialog]
+UiHandler --> u : [opens a drag and drop dialog]
 alt
     u -> UiHandler : [algorithm's implementation file]
     note left

@@ -37,7 +37,6 @@ public class TestAgentsWaitingNeighboursNeighbourMessageDelayed extends Abstract
     {
         logger.info("initializing agents");
         List<AgentData> allAgentsData = problem.getAgentsData();
-        //TODO gal make sure is applied for all neighbous since they are holding a reference to this instance
         initializeSpecificTestAgent(initializationAgent, 0, 2);
         initializeSpecificTestAgent(initializationAgent, 1, 3);
         initializeSpecificTestAgent(initializationAgent, 2, 5);

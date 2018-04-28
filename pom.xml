@@ -117,7 +117,7 @@
 			<artifactId>jade</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/jade.jar</systemPath>
+			<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/jade.jar</systemPath>
 		</dependency>
 
 		<dependency>
@@ -125,7 +125,7 @@
 			<artifactId>jade.testsuite</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/testSuite.jar</systemPath>
+			<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/testSuite.jar</systemPath>
 		</dependency>
 
 		<dependency>

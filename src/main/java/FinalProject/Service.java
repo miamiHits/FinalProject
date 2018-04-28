@@ -73,6 +73,7 @@ public class Service {
             this.currExperiment.runExperiment();
         } catch (RuntimeException e)
         {
+            logger.error("runtime expection was cought", e);
             observer.notifyError(e.getMessage());
         }
     }
@@ -90,13 +91,8 @@ public class Service {
 
     public void experimentEndedWithError(Exception e)
     {
-        //TODO notify the ui
+        //TODO gal notify the ui
         logger.error("error", e);
-    }
-
-    public void saveExperimentResult(List<AlgorithmProblemResult> results)
-    {
-        //TODO implement
     }
 
     public void algorithmProblemIterEnded(String algo, String problem, float changePercentage) {

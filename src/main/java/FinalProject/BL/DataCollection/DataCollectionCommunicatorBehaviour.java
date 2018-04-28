@@ -84,7 +84,7 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
             return DFService.search(agent, template);
         }
         catch (FIPAException fe) {
-            fe.printStackTrace();
+            logger.error("search in yellow pages failed with FIPAException: ", fe);
             return null;
         }
     }

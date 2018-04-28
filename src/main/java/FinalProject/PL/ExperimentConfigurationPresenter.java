@@ -1,5 +1,6 @@
 package FinalProject.PL;
 
+import FinalProject.Config;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.PL.UIEntities.SelectedProblem;
 import FinalProject.Service;
@@ -15,7 +16,6 @@ import com.vaadin.event.selection.MultiSelectionListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Page;
-import com.vaadin.server.Responsive;
 import com.vaadin.server.StreamVariable;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.data.sort.SortDirection;
@@ -23,6 +23,7 @@ import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.themes.ValoTheme;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -50,11 +51,14 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private final int COL_SIZE = 6;
 
+    private static final Logger logger = Logger.getLogger(ExperimentConfigurationPresenter.class);
+
     public ExperimentConfigurationPresenter() {
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
+        logger.debug("enter");
         //TODO gal for final iteration prevent use of more than one browser tab
         this.service = UiHandler.service;
         this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
@@ -120,7 +124,14 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         });
 
         Button addAllAlgorithmsBtn = new Button("Add All");
-        addAllAlgorithmsBtn.addClickListener(generateAddAllClickListener(availableAlgorithms, algorithmSelector));
+        addAllAlgorithmsBtn.addClickListener((Button.ClickListener) event ->
+        {
+            logger.debug("add all clicked");
+            List<String> algorithms = refreshAlgorithms();
+            for (String item : algorithms) {
+                algorithmSelector.select(item);
+            }
+        });
 
         ResponsiveRow topRow = new ResponsiveRow()
                 .withComponents(algorithmSelector)
@@ -152,7 +163,16 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         initGrid();
 
         Button addAllProblemsBtn = new Button("Add All");
-        addAllProblemsBtn.addClickListener(generateAddAllClickListener(sizeToNameMap));
+        addAllProblemsBtn.addClickListener( event ->
+        {
+            logger.debug("add all clicked");
+            sizeToNameMap.forEach((size, names) ->
+                    names.forEach(name -> {
+                        SelectedProblem selected = new SelectedProblem(name, size);
+                        selectedProblems.add(selected);
+                        refreshGrid();
+                    }));
+        });
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.addComponents(problemTree, selectedProblemGrid);
@@ -232,18 +252,9 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     }
 
     private void refreshGrid() {
+        logger.debug("refreshing problems grid");
         this.selectedProblemGrid.getDataProvider().refreshAll();
         this.selectedProblemGrid.sort("size", SortDirection.ASCENDING);
-    }
-
-    private Button.ClickListener generateAddAllClickListener(Map<Integer, List<String>> map) {
-        return (Button.ClickListener) event ->
-                map.forEach((size, names) ->
-                        names.forEach(name -> {
-                            SelectedProblem selected = new SelectedProblem(name, size);
-                            selectedProblems.add(selected);
-                            refreshGrid();
-                        }));
     }
 
     private List<String> refreshAlgorithms() {
@@ -253,46 +264,12 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         return availableAlgorithms;
     }
 
-//    private void generateProblemsSection() {
-//        TwinColSelect<String> problemSelector = new TwinColSelect<>("Select Your Problems");
-//        problemSelector.setLeftColumnCaption("Available Problems");
-//        problemSelector.setRightColumnCaption("Selected Problems");
-//        final List<String> availableProblems = this.service.getAvailableProblems();
-//        problemSelector.setDataProvider(DataProvider.ofCollection(availableProblems));
-//
-//
-//        problemSelector.addSelectionListener(new MultiSelectionListener<String>() {
-//            @Override
-//            public void selectionChange(MultiSelectionEvent<String> event) {
-//                selectedProblems.clear();
-//                selectedProblems.addAll(event.getAllSelectedItems());
-//            }
-//        });
-//
-//
-//        Button addAllProblemsBtn = new Button("Add All");
-//        addAllProblemsBtn.addClickListener(generateAddAllClickListener(availableProblems, problemSelector));
-//
-//        _problemsContainer.addComponent(problemSelector);
-//        _problemsContainer.setComponentAlignment(problemSelector, Alignment.TOP_CENTER);
-//        _problemsContainer.addComponent(addAllProblemsBtn);
-//        _problemsContainer.setComponentAlignment(addAllProblemsBtn, Alignment.MIDDLE_RIGHT);
-//    }
-
     public static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {
         Iterator<Component> componentIterator = layout.iterator();
         while (componentIterator.hasNext()) {
             Component currentComponent = componentIterator.next();
             layout.setComponentAlignment(currentComponent, alignment);
         }
-    }
-
-    private Button.ClickListener generateAddAllClickListener(List<String> items, AbstractMultiSelect<String> component) {
-        return (Button.ClickListener) event -> {
-            for (String item : items) {
-                component.select(item);
-            }
-        };
     }
 
     @Override
@@ -311,7 +288,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         dropArea.setSizeUndefined();
         dropArea.addStyleNames(ValoTheme.LABEL_HUGE, ValoTheme.LABEL_BOLD);
 
-        final String COMPILED_ALGO_DIR = "target/classes/FinalProject/BL/Agents";
+        final String COMPILED_ALGO_DIR = Config.getStringPropery(Config.EMBEDDED_ALGO_DIR);
         VerticalLayout layout = new VerticalLayout(dropArea);
         layout.addStyleNames(ValoTheme.DRAG_AND_DROP_WRAPPER_NO_HORIZONTAL_DRAG_HINTS, ValoTheme.LAYOUT_WELL);
         layout.setComponentAlignment(dropArea, Alignment.MIDDLE_CENTER);
@@ -330,6 +307,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                         fileOutputStream = new FileOutputStream(path);
                         return fileOutputStream;
                     } catch (FileNotFoundException e) {
+                        logger.warn("Cannot find file " + path);
                         Notification.show("Cannot find file " + path);
                     }
                     return null;
