@@ -436,6 +436,30 @@ package PL {
 		+notifyError(String) : void
 	}
 	UiHandlerInterface <|-- UiHandler
+
+    class ExperimentConfigurationPresenter {
+        +enter(ViewChangeEvent) : void
+        +buttonClick(ClickEvent) : void
+        +valueChange(ValueChangeEvent) : void
+    }
+
+    class ExperimentResultsPresenter {
+        +enter(ViewChangeEvent) : void
+        +setPowerConsumptionGraph(DefaultStatisticalCategoryDataset) : void
+        +setHighestAgentGrapthGrapth(DefaultStatisticalCategoryDataset) : void
+        +setLowestAgentGrapthGrapth(DefaultStatisticalCategoryDataset) : void
+        +setAverageExperimentTime(DefaultStatisticalCategoryDataset) : void
+        +setMessagesSentPerIteration(DefaultCategoryDataset) : void
+        +setMessagesSizePerAlgo(DefaultCategoryDataset) : void
+    }
+
+    class ExperimentRunningPresenter {
+        +enter(ViewChangeEvent) : void
+        +incProgBar(String, String, float) : void
+        +enableGoToResScreenBtn()
+    }
+
+
 }
 
 package DAL {
@@ -522,6 +546,19 @@ together {
 	    +experimentEndedWithError(Exception) : void
 	    +saveExperimentResults(List<AlgorithmProblemResult>) : void
 	}
+
+    class Config {
+        +{static} loadConfig() : void
+        +{static} getStringProperty(String) : String
+        +{static} getIntProperty(String) : int
+        +{static} getDoubleProperty(String) : double
+        +{static} getBooleanProperty(String) : boolean
+    }
+
+    class VaadinWebServlet {
+        +init() : void
+    }
+
 }
 
 ServiceInterface <|-- Service
