@@ -10,6 +10,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -38,9 +39,12 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private DefaultCategoryDataset messagesNumPerAlgo;
     private DefaultCategoryDataset messagesSizeAvePerAlgo;
 
+    private static final Logger logger = Logger.getLogger(ExperimentResultsPresenter.class);
+
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
+        logger.debug("enter");
         getUI().access(() -> {
             try {
                 ResponsiveLayout resultsLayout = createResultsLayout();
@@ -65,7 +69,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
                 setContent(mainLayout);
             }
             catch (Exception e) {
-                e.printStackTrace();
+                logger.error("failed setting the contents of screen with exception ", e);
                 UiHandler.navigator.navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
             }
 

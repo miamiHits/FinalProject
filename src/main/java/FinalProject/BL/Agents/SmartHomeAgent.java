@@ -199,11 +199,11 @@ public class SmartHomeAgent extends Agent implements Serializable{
         }
         catch (FIPAException e)
         {
-            e.printStackTrace();
+            logger.error("failed registering to yellow pages with FIPAException: ", e);
         }
         catch (Exception e)
         {
-            System.out.println("Exception while trying to register: " + e);
+            logger.error("failed registering to yellow pages with Exception, will recursively attempt again ", e);
             createAlgorithmAgent();
         }
     }

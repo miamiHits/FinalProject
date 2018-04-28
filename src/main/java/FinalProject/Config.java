@@ -21,6 +21,7 @@ public class Config {
 
     public static void loadConfig()
     {
+        logger.debug("loading cong properties from file resources/conf.properties");
         File configFile = new File("resources/conf.properties");
 
         try {

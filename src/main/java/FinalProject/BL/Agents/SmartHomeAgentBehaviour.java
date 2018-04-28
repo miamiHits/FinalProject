@@ -248,8 +248,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             aclMsg.setContentObject(msgContent);
             agent.send(aclMsg);
         } catch (IOException e) {
-//            logger.error(e.getMessage());
-            e.printStackTrace();
+            logger.error("failed sending message to neighbours with exception ", e);
         }
     }
 
@@ -318,7 +317,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
         List<Set<Integer>> subsets;
         if (ticksToWork <= 0) {
-            System.out.println(agent.getLocalName() + " ticks to work is " + ticksToWork);
+            logger.debug(agent.getLocalName() + " ticks to work is " + ticksToWork);
             subsets = checkAllSubsetOptions(prop);
             if (subsets == null ) {
                 logger.warn("subsets is null!");
