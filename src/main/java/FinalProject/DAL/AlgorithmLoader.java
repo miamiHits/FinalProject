@@ -95,7 +95,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
                             withFileType.length() - COMPILED_FILE_TYPE.length()))
                     .filter(file -> !ignoredNames.contains(file))
                     .collect(Collectors.toList());
-            if (compiledBaseDir != null)
+            if (addedAlgorithmsDir != null)
             {
                 List<String> addedAlgorithms = Arrays.asList(addedAlgorithmsDir.listFiles()).stream()
                         .map(File::getName)

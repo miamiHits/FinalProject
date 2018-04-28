@@ -120,7 +120,13 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         });
 
         Button addAllAlgorithmsBtn = new Button("Add All");
-        addAllAlgorithmsBtn.addClickListener(generateAddAllClickListener(availableAlgorithms, algorithmSelector));
+        addAllAlgorithmsBtn.addClickListener((Button.ClickListener) event ->
+        {
+            List<String> algorithms = refreshAlgorithms();
+            for (String item : algorithms) {
+                algorithmSelector.select(item);
+            }
+        });
 
         ResponsiveRow topRow = new ResponsiveRow()
                 .withComponents(algorithmSelector)
