@@ -1,21 +1,37 @@
 @startuml
 actor User as u
+participant StatisticsHandler as sth
+participant ExperimentResultsPresenter as res
+participant UiHandler as ui
+participant CsvHandler as csv
 
 activate UiHandler
 activate Service
-activate ChartViewer
+activate res
 
-ChartViewer -> u : [shows graph describing the results of the experiment]
 
-opt user chooses to save the experiment results
-    u -> UiHandler : save experiment results
-    UiHandler -> Service : saveExperimentResult(List<AlgorithmProblemResult>)
-    Service -> ExcelHandler : saveExperimentResult(List<AlgorithmProblemResult>)
-    activate ExcelHandler
 
-    Service -> UiHandler : showSuccessMsg(msg: String)
-    UiHandler -> u : [shows a success message]
-end
+Service -> UiHandler : notifyExperimentEnded(results, probToAlgoTotalTime)
+
+UiHandler -> sth : <<create>>
+activate sth
+group for each chart
+    ui -> sth : <<calculateChart>>
+    sth -> res : [graph dataset]
+end group
+
+ui -> csv : <<create>>
+activate csv
+ui -> csv : saveExpirmentResult(experimentResults)
+
+ui -> ui : [enables "Go to Results Screen" button]
+u-> UiHandler : [clicks "Go to Results Screen" button]
+
+ui -> res : <<display>>
+
+res -> u : [shows graph describing the results of the experiment]
+
+u -> ui : [clicks "End Experiment" button]
 
 UiHandler -> u : [displays the main screen]
 
