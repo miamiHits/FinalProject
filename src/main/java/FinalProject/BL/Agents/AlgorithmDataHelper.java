@@ -272,7 +272,7 @@ public class AlgorithmDataHelper
         switch (prop.getRt())
         {
             case EQ:
-            case GEQ: //want to take here the lower bound, to work less that I can
+            case GEQ: //want to take here the lower bound, to work as less that I can
                 ticksToWork = Math.ceil((prop.getTargetValue() - currentState) / prop.getDeltaWhenWork());
                 break;
             case GT:
