@@ -1,14 +1,12 @@
 package FinalProject;
 
-import jade.core.AID;
 import jade.core.Agent;
-import jade.lang.acl.ACLMessage;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.log4j.Logger;
 
-import java.io.*;
-import java.lang.instrument.Instrumentation;
-import java.util.Objects;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 public class Utils {
 
@@ -32,13 +30,6 @@ public class Utils {
         }
     }
 
-    public static String parseAgentName(AID aid)
-    {
-        String agentName = aid.getName();
-        agentName = agentName.substring(0, agentName.indexOf('@'));
-        return agentName;
-    }
-
     public static String parseAgentName(Agent agent)
     {
         String agentName = agent.getName();
@@ -51,11 +42,6 @@ public class Utils {
             agentName = agentName.substring(0, shtrudel);
         }
         return agentName;
-    }
-
-    public static String parseSender(ACLMessage message)
-    {
-        return parseAgentName(message.getSender());
     }
 
 }
