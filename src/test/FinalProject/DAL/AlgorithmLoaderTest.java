@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import FinalProject.Config;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,6 +21,7 @@ public class AlgorithmLoaderTest {
     @Before
     public void setUp() {
         org.apache.log4j.BasicConfigurator.configure();
+        Config.loadTestConfig();
         loader = new AlgorithmLoader(DalTestUtils.compiledDirBasePath);
         classesToDelete = new ArrayList<>();
     }
@@ -29,7 +31,7 @@ public class AlgorithmLoaderTest {
         loader = null;
 
         classesToDelete.forEach(className -> {
-            File file = new File(DalTestUtils.compiledDirBasePath + DalTestUtils.packagePath + Matcher.quoteReplacement(File.separator) + className + ".class");
+            File file = new File(DalTestUtils.compiledDirBasePath + Matcher.quoteReplacement(File.separator) + className + ".class");
             if(!file.delete()) {
                 System.err.println("could not delete file " + className);
             }

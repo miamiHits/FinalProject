@@ -37,6 +37,25 @@ public class Config {
         }
     }
 
+    public static void loadTestConfig()
+    {
+        logger.debug("loading test configuration");
+        File configFile = new File("src/test/testResources/testconf.properties");
+
+        try {
+            FileReader reader = new FileReader(configFile);
+            props = new Properties();
+            props.load(reader);
+
+            reader.close();
+        } catch (FileNotFoundException e) {
+            logger.error("could not find configuration file", e);
+        } catch (Exception e) {
+            logger.error("failed loading the configuration file", e);
+        }
+
+    }
+
 
     public static String getStringPropery(String key, String profile)
     {

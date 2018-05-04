@@ -3,6 +3,7 @@ package FinalProject.BL.Agents;
 import FinalProject.BL.DataObjects.*;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
+import FinalProject.Config;
 import FinalProject.DAL.DalTestUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -25,6 +26,7 @@ public class DSATest {
 
     @Before
     public void setup() {
+        Config.loadTestConfig();
         //needed for logging
         org.apache.log4j.BasicConfigurator.configure();
 
