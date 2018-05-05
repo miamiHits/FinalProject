@@ -113,9 +113,21 @@ public class AlgorithmLoaderTest {
         Assert.assertEquals(expected, new HashSet<>(actual));
     }
 
+    //TODO fix these tests
     @Test
     public void addAlgoToSystemGood() {
         String fileName = "BehaviourToCompile";
+
+        loader.addAlgoToSystem(DalTestUtils.uncompiledDirPath, fileName + ".java");
+        classesToDelete.add(fileName);
+
+        File classFile = new File(DalTestUtils.compiledDirBasePath + DalTestUtils.packagePath);
+        Assert.assertTrue(classFile.exists());
+    }
+
+    @Test
+    public void addAlgoToSystemBadNotImplInterface() {
+        String fileName = "BehaviourToCompileNotImpl";
 
         loader.addAlgoToSystem(DalTestUtils.uncompiledDirPath, fileName + ".java");
         classesToDelete.add(fileName);

@@ -1,6 +1,7 @@
 package FinalProject;
 
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import FinalProject.BL.AlgoAddResult;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.Experiment;
 import FinalProject.BL.ExperimentBuilder;
@@ -9,7 +10,6 @@ import FinalProject.DAL.DataAccessControllerInterface;
 import FinalProject.PL.UiHandlerInterface;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +99,7 @@ public class Service {
         observer.algorithmProblemIterEnded(algo, problem, changePercentage);
     }
 
-    public String addNewAlgo(String path, String fileName) {
+    public AlgoAddResult addNewAlgo(String path, String fileName){
         return dalController.addAlgorithmToSystem(path, fileName);
     }
 }

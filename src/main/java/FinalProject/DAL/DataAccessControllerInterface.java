@@ -1,9 +1,9 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import FinalProject.BL.AlgoAddResult;
 import FinalProject.BL.DataObjects.Problem;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -13,5 +13,5 @@ public interface DataAccessControllerInterface {
     List<String> getAvailableAlgorithms();
     Map<Integer, List<String>> getAvailableProblems();
     List<SmartHomeAgentBehaviour> getAlgorithms(List<String> algoNames);
-    String addAlgorithmToSystem(String path, String name);
+    AlgoAddResult addAlgorithmToSystem(String path, String name);
 }

@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import FinalProject.BL.AlgoAddResult;
 import FinalProject.Config;
 import com.vaadin.server.VaadinService;
 import org.apache.log4j.Logger;
@@ -17,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -112,22 +112,22 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         }
     }
 
-    public String addAlgoToSystem(String path, String fileName) {
+    public AlgoAddResult addAlgoToSystem(String path, String fileName) {
         if (fileName.endsWith(COMPILED_FILE_TYPE)) {
-            return "Only .java files are valid algorithm files!";
+            new AlgoAddResult(false, "Only .java files are valid algorithm files!");
         }
         if (fileName.endsWith(UNCOMPILED_FILE_TYPE)) {
             fileName = fileName.substring(0, fileName.indexOf(UNCOMPILED_FILE_TYPE));
         }
 
-        boolean compilationSuccess;
+        AlgoAddResult compiRes;
         try {
-            compilationSuccess = compile(path + fileName + UNCOMPILED_FILE_TYPE);
+            compiRes = compile(path + fileName + UNCOMPILED_FILE_TYPE);
         } catch (IOException e) {
-            return "Could not compile file " + fileName + ", an exception accrued!";
+            return new AlgoAddResult(false, e.getMessage());
         }
-        if (!compilationSuccess) {
-            return "Could not compile file " + fileName;
+        if (!compiRes.isSuccess()) {
+            return compiRes;
         }
 
         if (!verifyClassIsAlgorithm(fileName)) {
@@ -135,10 +135,10 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
             if(!file.delete()) {
                 System.err.println("could not delete file " + fileName);
             }
-            return "File " + fileName +" is not a valid algorithm file!";
+            return new AlgoAddResult(false, "File " + fileName +" is not a valid algorithm file!");
         }
         deleteJavaFile(fileName);
-        return "Success";
+        return compiRes;
     }
 
     private void deleteJavaFile(String fileName) {
@@ -210,17 +210,23 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         return toReturn;
     }
 
-    private boolean compile(String pathStr) throws IOException {
+    private AlgoAddResult compile(String pathStr) throws IOException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<>();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticsCollector,  null, null);
         Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Collections.singletonList(pathStr));
         String classPathStr = getClassPathStr();
-        List<String> options = Arrays.asList("-d", Config.getStringPropery(Config.ADDED_ALGORITHMS_DIR), "-classpath", classPathStr);
+        //TODO fix
+        List<String> options = Arrays.asList("-d", "resources/compiled_algorithms/FinalProject/BL/Agents", "-classpath", classPathStr);
+//        List<String> options = Arrays.asList("-d", Config.getStringPropery(Config.ADDED_ALGORITHMS_DIR), "-classpath", classPathStr);
         JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, options, null, compilationUnits);
         boolean success = task.call();
         fileManager.close();
-        return success;
+        String errorMsg = null;
+        if (diagnosticsCollector.getDiagnostics().size() > 0) {
+            errorMsg = diagnosticsCollector.getDiagnostics().get(0).getMessage(Locale.ENGLISH);
+        }
+        return new AlgoAddResult(success, errorMsg);
     }
 
     private String getClassPathStr() {
