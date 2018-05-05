@@ -1,5 +1,6 @@
 package FinalProject.PL;
 
+import FinalProject.BL.AlgoAddResult;
 import FinalProject.Config;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.PL.UIEntities.SelectedProblem;
@@ -354,12 +355,12 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 }
 
                 private void algoUploadFinished(String fileName) {
-                    String result = service.addNewAlgo(COMPILED_ALGO_DIR, fileName);
-                    if (result.equalsIgnoreCase("success")) {
+                    AlgoAddResult result = service.addNewAlgo(COMPILED_ALGO_DIR, fileName);
+                    if (result.isSuccess()) {
                         refreshAlgorithms();
                         Notification.show(fileName + " was added successfully!");
                     } else {
-                        new Notification("Failed!", result, Notification.Type.ERROR_MESSAGE).show(Page.getCurrent());
+                        new Notification("Failed!", "Reason:\n" + result.getErrorMsg(), Notification.Type.ERROR_MESSAGE).show(Page.getCurrent());
                     }
                 }
             }));
