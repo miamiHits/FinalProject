@@ -24,17 +24,7 @@ public class Config {
         logger.debug("loading cong properties from file resources/conf.properties");
         File configFile = new File("resources/conf.properties");
 
-        try {
-            FileReader reader = new FileReader(configFile);
-            props = new Properties();
-            props.load(reader);
-
-            reader.close();
-        } catch (FileNotFoundException e) {
-            logger.error("could not find configuration file", e);
-        } catch (Exception e) {
-            logger.error("failed loading the configuration file", e);
-        }
+        setConfig(configFile);
     }
 
     public static void loadTestConfig()
@@ -42,6 +32,10 @@ public class Config {
         logger.debug("loading test configuration");
         File configFile = new File("src/test/testResources/testconf.properties");
 
+        setConfig(configFile);
+    }
+
+    public static void setConfig(File configFile) {
         try {
             FileReader reader = new FileReader(configFile);
             props = new Properties();
@@ -53,7 +47,6 @@ public class Config {
         } catch (Exception e) {
             logger.error("failed loading the configuration file", e);
         }
-
     }
 
 
