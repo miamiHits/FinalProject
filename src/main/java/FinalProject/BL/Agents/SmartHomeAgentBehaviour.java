@@ -419,7 +419,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected List<Set<Integer>> checkAllSubsetOptions(PropertyWithData prop) {
-         List<Integer> rangeForWork =  calcRangeOfWork(prop);
+         List<Integer> rangeForWork = calcRangeOfWork(prop);
         int numOfTicksInRange = rangeForWork.size();
         int ticksToWork = 0;
         double currState = prop.getSensor().getCurrentState();

@@ -12,7 +12,7 @@ public class App
     public static void main( String[] args )
     {
         org.apache.log4j.BasicConfigurator.configure();
-
+        Config.loadConfig(); //TODO check if should be here
         UiHandler ui = new UiHandler();
         ui.showMainScreen();
     }

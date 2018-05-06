@@ -6,11 +6,14 @@ import org.apache.log4j.Logger;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
+
 //TODO equals and hashCode
 public class SimulatedAnealing extends SmartHomeAgentBehaviour{
 
     private final static Logger logger = Logger.getLogger(SimulatedAnealing.class);
     private Map<PropertyWithData, List<Set<Integer>>> propToSubsetsMap = new HashMap<>();
+    private Map<PropertyWithData, Map<String,Integer>> propToSensorsToChargeMap = new HashMap<>();
 
     public SimulatedAnealing() { super(); }
 
@@ -23,10 +26,10 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
             beforeIterationIsDone();
         }
         else {
-            //TODO: calc random sched option,
-            //TODO if improve -> switch to it, if not
-            //TODO switch with prob (1 - (currentNumberOfIter / number of iterations))
-
+            //only sets up for the build, prop by prop
+            buildScheduleBasic(false); //randomize sched is ignored
+            //do actual build for all devices at once (Roi asked for it to be this way)
+            pickAndApplyRandomSched();
         }
         this.currentNumberOfIter++;
     }
@@ -64,18 +67,20 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
         double newGrade = calcImproveOptionGrade(prevSched, allScheds);
 
         if (newGrade < prevGrade && shouldTakeNewSched()) {
-            // TODO apply new sched prop by prop
-
+            iterationPowerConsumption = randSched;
+            randomSchedForAllProps.forEach((prop, ticks) ->
+                    updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
         }
         else {
-            //TODO apply prev sched prop by prop
+            iterationPowerConsumption = prevSched;
+            prevSchedForAllProps.forEach((prop, ticks) ->
+                    updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
         }
-
     }
 
     private boolean shouldTakeNewSched() {
-        //TODO
-        return false;
+        float probability = 1 - (1 / currentNumberOfIter / agent.getAgentData().getNumOfIterations());
+        return flipCoin(probability);
     }
 
     private Set<Integer> pickRandomSubsetForProp(PropertyWithData prop) {
@@ -94,13 +99,18 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
             if (!propToSubsetsMap.containsKey(prop)) {
                 initSubsetsForProp(prop, ticksToWork);
             }
-            //TODO
+            addSensorsToChargeForPropIfAbsent(prop, sensorsToCharge);
         }
+    }
+
+    private void addSensorsToChargeForPropIfAbsent(PropertyWithData prop, Map<String, Integer> sensorsToCharge) {
+        propToSensorsToChargeMap.putIfAbsent(prop,sensorsToCharge);
     }
 
     private List<Set<Integer>> initSubsetsForProp(PropertyWithData prop, double ticksToWork) {
         List<Set<Integer>> subsets;
         if (ticksToWork <= 0) {
+            //TODO getting 0 sized subset here!
             subsets = checkAllSubsetOptions(prop);
             if (subsets == null ) {
                 logger.warn("subsets is null!");
@@ -137,7 +147,7 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
 
     @Override
     protected double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds) {
-        return 0;
-        //TODO
+        double price = calcCsum(newPowerConsumption);
+        return price + calculateEPeak(allScheds);
     }
 }
