@@ -35,3 +35,5 @@ src/test/testResources/tmpCompileDir/FinalProject/BL/Agents/BehaviourToCompile\.
 src/test/testResources/tmpCompileDir/FinalProject/BL/Agents/BehaviourToCompileNotImpl\.class
 
 src/test/testResources/tmpCompileDir/FinalProject/BL/Agents/SomeClassToCompile\.class
+
+src/main/resources/log4j\.properties
