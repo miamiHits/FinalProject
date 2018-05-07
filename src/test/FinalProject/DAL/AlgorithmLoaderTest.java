@@ -108,12 +108,11 @@ public class AlgorithmLoaderTest {
     @Test
     public void getAllAlgoNames() throws Exception
     {
-        Set<String> expected = Sets.newSet("SHMGM", "DSA");
+        Set<String> expected = Sets.newSet("SHMGM", "DSA", "SimulatedAnealing");
         List<String> actual = loader.getAllAlgoNames();
         Assert.assertEquals(expected, new HashSet<>(actual));
     }
 
-    //TODO fix these tests
     @Test
     public void addAlgoToSystemGood() {
         String fileName = "BehaviourToCompile";
@@ -121,7 +120,7 @@ public class AlgorithmLoaderTest {
         loader.addAlgoToSystem(DalTestUtils.uncompiledDirPath, fileName + ".java");
         classesToDelete.add(fileName);
 
-        File classFile = new File(DalTestUtils.compiledDirBasePath + DalTestUtils.packagePath);
+        File classFile = new File(Config.getStringPropery(Config.ADDED_ALGORITHMS_PACKAGE_DIR));
         Assert.assertTrue(classFile.exists());
     }
 
@@ -132,8 +131,8 @@ public class AlgorithmLoaderTest {
         loader.addAlgoToSystem(DalTestUtils.uncompiledDirPath, fileName + ".java");
         classesToDelete.add(fileName);
 
-        File classFile = new File(DalTestUtils.compiledDirBasePath + DalTestUtils.packagePath);
-        Assert.assertTrue(classFile.exists());
+        File classFile = new File(Config.getStringPropery(Config.ADDED_ALGORITHMS_PACKAGE_DIR) + fileName + ".class");
+        Assert.assertFalse(classFile.exists());
     }
 
     @Test

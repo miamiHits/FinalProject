@@ -15,7 +15,7 @@ public class DalTestUtils {
 
     static
     {
-        Config.loadConfig();
+        Config.loadTestConfig();
     }
 
     public static final String JSON_DIR_PATH = "src/test/testResources/jsons".replaceAll("/", Matcher.quoteReplacement(File.separator));
