@@ -363,7 +363,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
                 break;
             case AT:
-                for (int i=0; i<= prop.getTargetTick(); ++i) {
+                for (int i=0; i< prop.getTargetTick(); ++i) {
                     rangeForWork.add(i);
                 }
         }

@@ -26,6 +26,7 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
             beforeIterationIsDone();
         }
         else {
+            helper.resetProperties();
             //only sets up for the build, prop by prop
             buildScheduleBasic(false); //randomize sched is ignored
             //do actual build for all devices at once (Roi asked for it to be this way)
