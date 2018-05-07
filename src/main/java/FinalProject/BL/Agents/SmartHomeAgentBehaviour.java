@@ -419,7 +419,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected List<Set<Integer>> checkAllSubsetOptions(PropertyWithData prop) {
-         List<Integer> rangeForWork =  calcRangeOfWork(prop);
+         List<Integer> rangeForWork = calcRangeOfWork(prop);
         int numOfTicksInRange = rangeForWork.size();
         int ticksToWork = 0;
         double currState = prop.getSensor().getCurrentState();
@@ -543,6 +543,15 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
     }
 
+    protected List<Integer> getTicksForProp(PropertyWithData prop) {
+        Action actionForProp = getActionForProp(prop);
+        if (actionForProp == null) {
+            logger.error("getTicksForProp: actionForProp is null!");
+            return null;
+        }
+        Map<Action, List<Integer>> actionToTicks = helper.getDeviceToTicks().get(prop.getActuator());
+        return actionToTicks.get(actionForProp);
+    }
 
     //-------------PRIVATE METHODS:-------------------
 
@@ -619,15 +628,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
     }
 
-    private List<Integer> getTicksForProp(PropertyWithData prop) {
-        Action actionForProp = getActionForProp(prop);
-        if (actionForProp == null) {
-            logger.error("getTicksForProp: actionForProp is null!");
-            return null;
-        }
-        Map<Action, List<Integer>> actionToTicks = helper.getDeviceToTicks().get(prop.getActuator());
-        return actionToTicks.get(actionForProp);
-    }
     /**
      * agent might get messages from the AMS - agent management system, the smart home agent ignores these messages.
      * this method clears these messages from the agent's messages queue and prints their contents as warnings
