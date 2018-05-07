@@ -65,9 +65,9 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
             ticks.forEach(tick -> randSched[tick] += powerCons);
         });
         allScheds.add(randSched);
-        double newGrade = calcImproveOptionGrade(prevSched, allScheds);
+        double newGrade = calcImproveOptionGrade(randSched, allScheds);
 
-        if (newGrade < prevGrade && shouldTakeNewSched()) {
+        if (newGrade < prevGrade || shouldTakeNewSched()) {
             iterationPowerConsumption = randSched;
             randomSchedForAllProps.forEach((prop, ticks) ->
                     updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
@@ -80,12 +80,13 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
     }
 
     private boolean shouldTakeNewSched() {
-        float probability = 1 - (1 / currentNumberOfIter / agent.getAgentData().getNumOfIterations());
+        float probability = 1 - (currentNumberOfIter / agent.getAgentData().getNumOfIterations());
         return flipCoin(probability);
     }
 
     private Set<Integer> pickRandomSubsetForProp(PropertyWithData prop) {
         List<Set<Integer>> allSubsets = propToSubsetsMap.get(prop);
+        //TODO: check what to do in case of zero subset
         int index = drawRandomNum(0, allSubsets.size() - 1);
         return allSubsets.get(index);
     }
