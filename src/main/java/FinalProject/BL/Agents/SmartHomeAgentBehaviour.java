@@ -274,16 +274,19 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected void updateTotals(PropertyWithData prop, List<Integer> myTicks, Map<String, Integer> sensorsToCharge) {
         List<Integer> activeTicks = helper.cloneList(myTicks);
         findActionToTicksMapAndPutTicks(prop, activeTicks);
-        for (int i = 0; i < myTicks.size(); ++i) {
+        for (int i = 0; i < myTicks.size(); i++) {
             iterationPowerConsumption[myTicks.get(i)] += prop.getPowerConsumedInWork();
             if (!sensorsToCharge.isEmpty()) {
-                for (Map.Entry<String,Integer> entry : sensorsToCharge.entrySet()) {
+                for (Map.Entry<String, Integer> entry : sensorsToCharge.entrySet()) {
                     PropertyWithData brother = helper.getAllProperties().stream()
                             .filter(property -> property.getName().equals(entry.getKey()))
                             .findFirst().orElse(null);
-                    int timeToCharge = (i + 1) % entry.getValue();
-                    if (i == timeToCharge && brother != null) {
-                        brother.updateValueToSensor(this.iterationPowerConsumption, brother.getMin(), entry.getValue(), i, true);
+//                    int timeToCharge = (i + 1) % entry.getValue();
+                    if (brother != null) {
+                        if (brother.getName().equals("water_temp")) {
+                            logger.info("water_temp");
+                        }
+                        brother.updateValueToSensor(this.iterationPowerConsumption, brother.getMin(), entry.getValue(), myTicks.get(i), true);
                     }
                 }
             }
@@ -356,6 +359,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
                 break;
             case AFTER:
+                //TODO changed from master!
                 //after the hour, for all of the ticks, the rule should apply.
                 for (int i = 0; i <= prop.getTargetTick(); ++i) {
                     rangeForWork.add(i);
@@ -603,6 +607,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
         return myTicks;
     }
+
     private void updateAgentCurrIter(PropertyWithData prop, List<Integer> newTicks) {
         List<Integer> activeTicks = helper.cloneList(newTicks);
         Action actionForProp = getActionForProp(prop);
@@ -625,11 +630,14 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         List<Integer> newTicks = calcBestPrice(prop, subsets);
         //TODO calcBestPrice return same ticks all of the time (good)
         if (agent.getLocalName().equals("h1")) {
-            logger.info("H1 prop: " + prop.getName() + " ticks are " + newTicks);
-            logger.info("H1 prop: " + prop.getName() + " powerCons: " + iterationPowerConsumption);
+            logger.info("H1 prop: " + prop.getName() + " iter: " + currentNumberOfIter + " ticks are " + newTicks);
+            logger.info("H1 prop: " + prop.getName() + " powerCons: " + Arrays.toString(iterationPowerConsumption));
         }
         updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
         updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
+        if (agent.getLocalName().equals("h1")) {
+            logger.info("after H1 prop: " + prop.getName() + " iter: " + currentNumberOfIter + " powerCons: " + Arrays.toString(iterationPowerConsumption));
+        }
     }
 
     /**
@@ -713,7 +721,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
         Action actionForProp = getActionForProp(prop);
         actionToTicks.put(actionForProp, activeTicks);
-        return;
     }
 
     private void applyRandomChoice(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
