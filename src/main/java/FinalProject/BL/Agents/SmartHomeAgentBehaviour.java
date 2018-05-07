@@ -351,18 +351,18 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         switch (prop.getPrefix())
         {
             case BEFORE: //NOT Include the hour
-                for (int i=0; i< prop.getTargetTick(); ++i) {
+                for (int i = 0; i< prop.getTargetTick(); ++i) {
                     rangeForWork.add(i);
                 }
                 break;
             case AFTER:
-                //TODO: maybe not good and should be all of the ticks
-                for (int i= (int) prop.getTargetTick(); i < agent.getAgentData().getBackgroundLoad().length; ++i) {
+                //after the hour, for all of the ticks, the rule should apply.
+                for (int i = 0; i <= prop.getTargetTick(); ++i) {
                     rangeForWork.add(i);
                 }
                 break;
             case AT:
-                for (int i=0; i< prop.getTargetTick(); ++i) {
+                for (int i = 0; i < prop.getTargetTick(); ++i) {
                     rangeForWork.add(i);
                 }
         }
