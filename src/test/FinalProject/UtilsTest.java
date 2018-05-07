@@ -38,8 +38,7 @@ public class UtilsTest {
 
     @Test
     public void getSizeOfObjImproMsg() {
-        ImprovementMsg improMsg = new ImprovementMsg("bla",
-                10, 1, new double[12], new double[12]);
-        Assert.assertEquals(396, Utils.getSizeOfObj(improMsg));
+        ImprovementMsg improMsg = new ImprovementMsg("bla",10, new double[12], new double[12]);
+        Assert.assertEquals(382, Utils.getSizeOfObj(improMsg));
     }
 }

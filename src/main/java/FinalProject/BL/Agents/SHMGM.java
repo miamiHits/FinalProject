@@ -157,7 +157,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     }
 
     private ImprovementMsg sendImprovementToNeighbours(double improvement, double[] prevSched) {
-        ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum(),
+        ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement,
                 iterationPowerConsumption, prevSched);
         sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);
         return improvementToSend;

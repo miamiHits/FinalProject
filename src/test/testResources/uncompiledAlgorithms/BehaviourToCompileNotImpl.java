@@ -6,6 +6,11 @@ import java.util.Map;
 public class BehaviourToCompileNotImpl extends SmartHomeAgentBehaviour {
 
     @Override
+    protected void doIteration() {
+
+    }
+
+    @Override
     protected void onTermination() {
 
     }

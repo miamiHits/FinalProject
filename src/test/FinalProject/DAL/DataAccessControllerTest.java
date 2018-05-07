@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.DataObjects.Problem;
+import FinalProject.Config;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,6 +17,7 @@ public class DataAccessControllerTest {
     @Before
     public void setUp() throws Exception
     {
+        Config.loadTestConfig();
         JsonLoaderInterface jsonLoader = new JsonLoader(DalTestUtils.JSON_DIR_PATH);
         AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(DalTestUtils.compiledDirBasePath);
         accessController = new DataAccessController(jsonLoader, algorithmLoader);
@@ -42,7 +44,7 @@ public class DataAccessControllerTest {
     @Test
     public void getAvailableAlgorithms() throws Exception
     {
-        Set<String> expected = Sets.newSet("SHMGM", "DSA");
+        Set<String> expected = Sets.newSet("SHMGM", "DSA", "SimulatedAnealing");
         List<String> actual = accessController.getAvailableAlgorithms();
         Assert.assertEquals(expected, new HashSet<>(actual));
     }

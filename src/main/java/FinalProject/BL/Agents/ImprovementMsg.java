@@ -11,14 +11,12 @@ public class ImprovementMsg implements Serializable, Comparable {
     private final static Logger logger = Logger.getLogger(ImprovementMsg.class);
     private String agentName;
     private double improvement;
-    private int iterNum;
     private double[] imprevedSched;
     private double[] prevSched;
 
-    public ImprovementMsg(String agentName, double improvement, int iterNum, double[] improvedSched, double[] prevSched) {
+    public ImprovementMsg(String agentName, double improvement, double[] improvedSched, double[] prevSched) {
         this.agentName = agentName;
         this.improvement = improvement;
-        this.iterNum = iterNum;
         this.imprevedSched = improvedSched;
         this.prevSched = prevSched;
     }
@@ -51,13 +49,6 @@ public class ImprovementMsg implements Serializable, Comparable {
         this.improvement = improvement;
     }
 
-    public int getIterNum() {
-        return iterNum;
-    }
-
-    public void setIterNum(int iterNum) {
-        this.iterNum = iterNum;
-    }
 
     public double[] getImprevedSched() {
         return imprevedSched;
@@ -102,7 +93,6 @@ public class ImprovementMsg implements Serializable, Comparable {
         if (o == null || getClass() != o.getClass()) return false;
         ImprovementMsg that = (ImprovementMsg) o;
         return Double.compare(that.improvement, improvement) == 0 &&
-                iterNum == that.iterNum &&
                 agentName.equals(that.agentName) &&
                 Arrays.equals(imprevedSched, that.imprevedSched) &&
                 Arrays.equals(prevSched, that.prevSched);
@@ -111,7 +101,7 @@ public class ImprovementMsg implements Serializable, Comparable {
     @Override
     public int hashCode() {
 
-        int result = Objects.hash(agentName, improvement, iterNum);
+        int result = Objects.hash(agentName, improvement);
         result = 31 * result + Arrays.hashCode(imprevedSched);
         result = 31 * result + Arrays.hashCode(prevSched);
         return result;

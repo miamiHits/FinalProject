@@ -29,3 +29,9 @@ resources/compiled_algorithms/FinalProject/BL/Agents/SmartHomeAgent\.class
 resources/compiled_algorithms/FinalProject/BL/Agents/SmartHomeAgentBehaviour\.class
 
 resources/compiled_algorithms/FinalProject/BL/Agents/SmartHomeAgentBehaviour\$1\.class
+
+src/test/testResources/tmpCompileDir/FinalProject/BL/Agents/BehaviourToCompile\.class
+
+src/test/testResources/tmpCompileDir/FinalProject/BL/Agents/BehaviourToCompileNotImpl\.class
+
+src/test/testResources/tmpCompileDir/FinalProject/BL/Agents/SomeClassToCompile\.class

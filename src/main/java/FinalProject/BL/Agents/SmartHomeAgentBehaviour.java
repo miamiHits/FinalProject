@@ -317,7 +317,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
         List<Set<Integer>> subsets;
         if (ticksToWork <= 0) {
-            logger.debug(agent.getLocalName() + " ticks to work is " + ticksToWork);
             subsets = checkAllSubsetOptions(prop);
             if (subsets == null ) {
                 logger.warn("subsets is null!");
@@ -343,7 +342,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     protected boolean flipCoin(float probabilityForTrue) {
         final boolean res = randGenerator.nextFloat() < probabilityForTrue;
-        logger.debug("flipped a coin with result: " + res);
         return res;
     }
 
@@ -358,6 +356,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
                 break;
             case AFTER:
+                //TODO: maybe not good and should be all of the ticks
                 for (int i= (int) prop.getTargetTick(); i < agent.getAgentData().getBackgroundLoad().length; ++i) {
                     rangeForWork.add(i);
                 }
@@ -615,6 +614,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     private void lookForBestOptionAndApplyIt(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
         List<Integer> newTicks = calcBestPrice(prop, subsets);
+        //TODO calcBestPrice return same ticks all of the time (good)
+        if (agent.getLocalName().equals("h1")) {
+            logger.info("H1 prop: " + prop.getName() + " ticks are " + newTicks);
+            logger.info("H1 prop: " + prop.getName() + " powerCons: " + iterationPowerConsumption);
+        }
         updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
         updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
     }

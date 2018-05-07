@@ -2,6 +2,7 @@ package FinalProject.PL;
 
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SHMGM;
+import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.Config;
@@ -54,8 +55,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         resultsPresenter = new ExperimentResultsPresenter();
         String jsonPath = Config.getStringPropery(Config.PROBLEMS_DIR);
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-        String algorithmsPath = Thread.currentThread().getContextClassLoader().getResource("FinalProject/BL/Agents/").getFile();
-        algorithmsPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+        String algorithmsPath = new File(SmartHomeAgentBehaviour.class.getResource("").getFile()).getPath();
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
         AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
