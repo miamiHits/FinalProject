@@ -68,12 +68,14 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
         double newGrade = calcImproveOptionGrade(randSched, allScheds);
 
         if (newGrade < prevGrade || shouldTakeNewSched()) {
-            iterationPowerConsumption = randSched;
+            //TODO commented out because updateTotals adds the ticks to iterationPowerConsumption
+//            iterationPowerConsumption = randSched;
             randomSchedForAllProps.forEach((prop, ticks) ->
                     updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
         }
         else {
-            iterationPowerConsumption = prevSched;
+            //TODO commented out because updateTotals adds the ticks to iterationPowerConsumption
+//            iterationPowerConsumption = prevSched;
             prevSchedForAllProps.forEach((prop, ticks) ->
                     updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
         }
