@@ -2,6 +2,7 @@ package FinalProject.PL;
 
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SHMGM;
+import FinalProject.BL.Agents.SimulatedAnealing;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
@@ -51,11 +52,14 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
     public UiHandler()
     {
+        Config.loadConfig();
+
         logger.debug("Uihandelr ceated");
         resultsPresenter = new ExperimentResultsPresenter();
         String jsonPath = Config.getStringPropery(Config.PROBLEMS_DIR);
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-        String algorithmsPath = new File(SmartHomeAgentBehaviour.class.getResource("").getFile()).getPath();
+        String algorithmsPath = Config.getStringPropery(Config.EMBEDDED_ALGO_DIR) + "FinalProject/BL/Agents";
+        algorithmsPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
         AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
@@ -104,8 +108,9 @@ public class UiHandler extends UI implements UiHandlerInterface {
         }
 
         List<String> algoList = new ArrayList<>();
-        algoList.add(SHMGM.class.getSimpleName());
-        algoList.add(DSA.class.getSimpleName());
+        //algoList.add(SHMGM.class.getSimpleName());
+        //algoList.add(DSA.class.getSimpleName());
+        algoList.add(SimulatedAnealing.class.getSimpleName());
         service.setAlgorithmsToExperiment(algoList, numOfIter);
         List<String> problem = new ArrayList<>();
         problem.add("dm_7_1_3");
