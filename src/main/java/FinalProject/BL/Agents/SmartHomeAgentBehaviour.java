@@ -281,11 +281,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                     PropertyWithData brother = helper.getAllProperties().stream()
                             .filter(property -> property.getName().equals(entry.getKey()))
                             .findFirst().orElse(null);
-//                    int timeToCharge = (i + 1) % entry.getValue();
                     if (brother != null) {
-                        if (brother.getName().equals("water_temp")) {
-                            logger.info("water_temp");
-                        }
                         brother.updateValueToSensor(this.iterationPowerConsumption, brother.getMin(), entry.getValue(), myTicks.get(i), true);
                     }
                 }
@@ -628,16 +624,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     private void lookForBestOptionAndApplyIt(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {
         List<Integer> newTicks = calcBestPrice(prop, subsets);
-        //TODO calcBestPrice return same ticks all of the time (good)
-        if (agent.getLocalName().equals("h1")) {
-            logger.info("H1 prop: " + prop.getName() + " iter: " + currentNumberOfIter + " ticks are " + newTicks);
-            logger.info("H1 prop: " + prop.getName() + " powerCons: " + Arrays.toString(iterationPowerConsumption));
-        }
         updateAgentCurrIter(prop, newTicks); //must be before update totals because uses helper.getDeviceToTicks().get(prop.getActuator())
         updateTotals(prop, newTicks, sensorsToCharge); //changes helper.getDeviceToTicks().get(prop.getActuator()) and iterationPowerConsumption
-        if (agent.getLocalName().equals("h1")) {
-            logger.info("after H1 prop: " + prop.getName() + " iter: " + currentNumberOfIter + " powerCons: " + Arrays.toString(iterationPowerConsumption));
-        }
     }
 
     /**
