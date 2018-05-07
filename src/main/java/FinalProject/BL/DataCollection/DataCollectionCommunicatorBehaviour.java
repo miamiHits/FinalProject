@@ -10,6 +10,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,9 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
                 // Message received. Process it
                 try {
                     IterationCollectedData ICD = (IterationCollectedData) msg.getContentObject();
+                    if (ICD.getAgentName().startsWith("h1")){
+                        logger.info("H1, ITER: " + ICD.getIterNum() + " powerCons: " + Arrays.toString(ICD.getPowerConsumptionPerTick()));
+                    }
                     cSumReturned = agent.getCollector().addData(ICD);
                     if(cSumReturned == -1.0){ //iteration finished
                         if (ICD.getIterNum() == iterationNum ) { //last iteration finished (algo&prob finished)
@@ -74,18 +78,4 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
         pr.setBestTotalGradePerIter(bestResults);
     }
 
-    public DFAgentDescription[] findAgents(String onotology)
-    {
-        DFAgentDescription template = new DFAgentDescription();
-        ServiceDescription sd = new ServiceDescription();
-        sd.addOntologies(onotology);
-        template.addServices(sd);
-        try {
-            return DFService.search(agent, template);
-        }
-        catch (FIPAException fe) {
-            logger.error("search in yellow pages failed with FIPAException: ", fe);
-            return null;
-        }
-    }
 }
