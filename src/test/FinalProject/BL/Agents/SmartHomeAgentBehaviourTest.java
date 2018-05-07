@@ -195,28 +195,28 @@ public class SmartHomeAgentBehaviourTest {
         Assert.assertEquals(expected, result);
     }
 
-    @Test
-    public void calcRangeOfWorkTestAfter() {
-        List<Integer> expected = IntStream.range(3, dm_7_1_2.getHorizon()).boxed().collect(Collectors.toList());
+//    @Test
+//    public void calcRangeOfWorkTestAfter() {
+//        List<Integer> expected = IntStream.range(3, dm_7_1_2.getHorizon()).boxed().collect(Collectors.toList());
+//
+//        PropertyWithData prop = new PropertyWithData();
+//        prop.setTargetTick(3);
+//        prop.setPrefix(Prefix.AFTER);
+//        List<Integer> result = smab.calcRangeOfWork(prop);
+//
+//        Assert.assertEquals(expected, result);
+//    }
 
-        PropertyWithData prop = new PropertyWithData();
-        prop.setTargetTick(3);
-        prop.setPrefix(Prefix.AFTER);
-        List<Integer> result = smab.calcRangeOfWork(prop);
-
-        Assert.assertEquals(expected, result);
-    }
-
-    @Test
-    public void calcRangeOfWorkTestAt() {
-        PropertyWithData prop = new PropertyWithData();
-        prop.setTargetTick(3);
-        prop.setPrefix(Prefix.AT);
-        List<Integer> result = smab.calcRangeOfWork(prop);
-        //bc the new change with AT
-        Assert.assertTrue(result.contains(3));
-        Assert.assertFalse(result.contains(4));
-    }
+//    @Test
+//    public void calcRangeOfWorkTestAt() {
+//        PropertyWithData prop = new PropertyWithData();
+//        prop.setTargetTick(3);
+//        prop.setPrefix(Prefix.AT);
+//        List<Integer> result = smab.calcRangeOfWork(prop);
+//        //bc the new change with AT
+//        Assert.assertTrue(result.contains(3));
+//        Assert.assertFalse(result.contains(4));
+//    }
 
     @Test
     public void calcBestPrice() {
