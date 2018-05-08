@@ -29,6 +29,7 @@ import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTota
 public abstract class SmartHomeAgentBehaviour extends Behaviour implements Serializable{
 
     private final static Logger logger = Logger.getLogger(SmartHomeAgentBehaviour.class);
+    private final String gainMsgOntology = "GAIN_MSG";
     public static final int START_TICK = 0;
     private final Random randGenerator = new Random();
     public SmartHomeAgent agent;
@@ -41,6 +42,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected boolean finished = false;
     protected double[] iterationPowerConsumption;
     protected double tempBestPriceConsumption = -1;
+    protected MessageTemplate improvementTemplate;
 
     public SmartHomeAgentBehaviour() {}
 
@@ -54,6 +56,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      * Main method implemented by inheriting algos!!!
      */
     protected abstract void doIteration();
+
 
     /**
      * Called by {@code done()} when returning true
@@ -125,6 +128,26 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         buildScheduleBasic(false);
     }
 
+    protected void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
+                                            AgentIterationData prevCurrIterData, double prevPriceSum,
+                                            double[] prevIterPowerConsumption, double[] newBestSched, double[] prevBestSched) {
+        helper = helperBackup;
+        helper.correctEpeak(newBestSched, prevBestSched);
+
+        agentIterationData = prevIterData;
+        agentIterationData.setIterNum(currentNumberOfIter);
+
+        agentIterationCollected = prevCollectedData;
+        agentIterationCollected.setIterNum(currentNumberOfIter);
+        agentIterationCollected.setePeak(-1); //sending epeak = -1 to collector if not improved
+
+        agent.setCurrIteration(prevCurrIterData);
+        agent.getCurrIteration().setIterNum(currentNumberOfIter);
+        agent.setPriceSum(prevPriceSum);
+
+        iterationPowerConsumption = prevIterPowerConsumption;
+    }
+
     protected void addMessagesSentToDevicesAndSetInAgent(int count, long totalSize, int constantNumOfMsgs) {
         final int MSG_TO_DEVICE_SIZE = 4;
         for (PropertyWithData prop : helper.getAllProperties()) {
@@ -175,6 +198,16 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
     }
 
+    protected void receiveNeighboursIterDataAndHandleIt() {
+        List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
+        readNeighboursMsgs(messageList);
+        List<double[]> neighboursSched = agent.getMyNeighborsShed().stream()
+                .map(AgentIterationData::getPowerConsumptionPerTick)
+                .collect(Collectors.toList());
+        helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
+    }
+
+
     protected int calcHowManyTicksNeedToCharge(String key, double delta, double ticksToWork) {
         int ticks = 0;
         PropertyWithData prop;
@@ -201,6 +234,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
 
         return ticks;
+    }
+
+    protected void initMsgTemplate() {
+        MessageTemplate noAms = MessageTemplate.not(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_AMS);
+        improvementTemplate = MessageTemplate.and(MessageTemplate.MatchOntology(gainMsgOntology), noAms);
     }
 
     protected void sendIterationToCollector() {
@@ -235,6 +273,29 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             logger.error(e);
         }
 
+    }
+
+    protected List<ImprovementMsg> receiveImprovementMsgs() {
+
+        List<ACLMessage> receivedMsgs = waitForNeighbourMessages(improvementTemplate);
+        return receivedMsgs.stream()
+                .map(msg -> {
+                    try {
+                        return (ImprovementMsg) msg.getContentObject();
+                    } catch (UnreadableException e) {
+                        logger.error("Could not read improvement msg: " + msg);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    protected ImprovementMsg sendImprovementToNeighbours(double improvement, double[] prevSched) {
+        ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement,
+                iterationPowerConsumption, prevSched);
+        sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);
+        return improvementToSend;
     }
 
     protected void sendMsgToAllNeighbors(Serializable msgContent, String ontology) {

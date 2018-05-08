@@ -15,20 +15,26 @@ import java.util.stream.Collectors;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
 
-public class SHMGM extends SmartHomeAgentBehaviour{
+public class DBA extends SmartHomeAgentBehaviour{
 
-    private final static Logger logger = Logger.getLogger(SHMGM.class);
+    private final static Logger logger = Logger.getLogger(DBA.class);
     private ImprovementMsg maxImprovementMsg = null; //used to calc msgs size only
     private final String gainMsgOntology = "GAIN_MSG";
     private MessageTemplate improvementTemplate;
+    /* will tell about the "bags" the agent will have on specific ticks
+       according to DBA logic
+    */
+    private int[] ticksBag = new int [iterationPowerConsumption.length];
+    private int bag = 1;
 
-    public SHMGM() { super(); }
+    public DBA() { super(); }
+
 
     @Override
     protected void doIteration() {
         if (agent.isZEROIteration()) {
-            initMsgTemplate(); // needs to be here to make sure SmartHomeAgent class is init
             buildScheduleFromScratch();
+            initMsgTemplate(); // needs to be here to make sure SmartHomeAgent class is init
             agent.setZEROIteration(false);
             agent.setPriceSum(calcCsum(iterationPowerConsumption));
             beforeIterationIsDone();
@@ -42,12 +48,13 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
 
     /**
-     * Main logic of SH-MGM algo.
+     * Main logic of DBA algo.
      * Calculate the best option for a schedule based on
      * neighbours schedule received, send the improvement to
      * all neighbours and receive theirs.
-     * ONLY THE AGENT WITH THE GREATEST IMPROVEMENT SWITCHES TO THE NEW SCHEDULE!
-     * Ties are solved using lexicographical ordering of agent's names.
+     * If ALL the agents got 0 in their improvement , and in
+     * 0.6 probabilty , the agent will add "bag" that will start in 1
+     * to specific ticks. Will be done per agent.
      * @param randomPick
      */
     private void improveSchedule(boolean randomPick) {
@@ -67,12 +74,15 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         helper.resetProperties();
         buildScheduleBasic(randomPick);
 
+        int x = 2;
         //calculate improvement
         double newPrice = calcCsum(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
         final double actualEpeak = tempBestPriceConsumption - newPrice;
 
         if(!randomPick) {
             double improvement = prevTotalCost - tempBestPriceConsumption;
+            int y = 2;
+
             ImprovementMsg impMsg = sendImprovementToNeighbours(improvement, prevIterPowerConsumption);
             List<ImprovementMsg> receivedImprovements = receiveImprovementMsgs();
             receivedImprovements.add(impMsg);
@@ -106,7 +116,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         helper.ePeak = actualEpeak;
         beforeIterationIsDone();
     }
-
 
     @Override
     protected void onTermination() {
@@ -148,12 +157,12 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     }
 
     @Override
-    public SHMGM cloneBehaviour() {
-        SHMGM newInstance = new SHMGM();
+    public DBA cloneBehaviour() {
+        DBA newInstance = new DBA();
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;
         newInstance.FINAL_TICK = this.FINAL_TICK;
-        newInstance.agentIterationData = null; //will be created as part of the behaviour run(see buildScheduleFromScratch)
+        newInstance.agentIterationData = null;
         return newInstance;
     }
 
@@ -168,7 +177,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SHMGM shmgm = (SHMGM) o;
+        DBA shmgm = (DBA) o;
 
         boolean superEquals = super.equals(shmgm);
         return superEquals && (maxImprovementMsg == null && shmgm.maxImprovementMsg == null) ||
