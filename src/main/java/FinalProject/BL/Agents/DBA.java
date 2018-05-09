@@ -1,14 +1,14 @@
 package FinalProject.BL.Agents;
 
+import FinalProject.BL.DataObjects.Action;
+import FinalProject.BL.DataObjects.Actuator;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
-import FinalProject.Utils;
 import jade.lang.acl.MessageTemplate;
 import org.apache.log4j.Logger;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
 
@@ -75,7 +75,7 @@ public class DBA extends SmartHomeAgentBehaviour{
         buildScheduleBasic(false);
         //calculate improvement
         double newPrice = calcCsum(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
-        final double actualEpeak = tempBestPriceConsumption - newPrice;
+        double actualEpeak = tempBestPriceConsumption - newPrice;
 
         boolean allDidntImproved = true;
 
@@ -116,13 +116,34 @@ public class DBA extends SmartHomeAgentBehaviour{
         else {
             //first need to raffle if this agent will build new sched with the bags.
             float PROBABILITY = 0.6f;
+            int maxBag = checkMaxBagValue();
             if (flipCoin(PROBABILITY)) {
+                // add bags
+                for (Map.Entry<Actuator, Map<Action, List<Integer>>> entry: helperBackup.getDeviceToTicks().entrySet())
+                {
+                    for (Map.Entry<Action, List<Integer>> innerEntry : entry.getValue().entrySet())
+                    {
+                        for (int tick: innerEntry.getValue())
+                        {
+                            if (ticksBag[tick] < maxBag)
+                            {
+                                ticksBag[tick]++;
+                            }
+                        }
+                    }
+                }
 
+                buildScheduleBasic(false);
+                //build new sched according to new bags
+                newPrice = calcCsum(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
+                actualEpeak = tempBestPriceConsumption - newPrice;
+                takeNewSched(newPrice, actualEpeak);
 
             }
             else{
-                //will not build new sched with bags, continue like regular
-                takeNewSched(newPrice, actualEpeak);
+                //take prev schedule
+                resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
+                        prevAgentPriceSum, prevIterPowerConsumption, max.getImprevedSched(), max.getPrevSched());
             }
 
         }
@@ -130,11 +151,74 @@ public class DBA extends SmartHomeAgentBehaviour{
 
     }
 
+    private int checkMaxBagValue() {
+        int max = Integer.MIN_VALUE;
+        for(int i=0; i<ticksBag.length; i++)
+        {
+            max = Math.max(max, ticksBag[i]);
+        }
+        return max;
+    }
+
     private void takeNewSched(double newPrice, double actualEpeak) {
         agent.setPriceSum(newPrice);
         helper.totalPriceConsumption = tempBestPriceConsumption;
         helper.ePeak = actualEpeak;
         beforeIterationIsDone();
+    }
+
+    @Override
+    protected List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets) {
+        List<Integer> newTicks = new ArrayList<>();
+        double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
+        List<double[]> allScheds = agent.getMyNeighborsShed().stream()
+                .map(AgentIterationData::getPowerConsumptionPerTick)
+                .collect(Collectors.toList());
+        int index = allScheds.size();
+        List<Integer> prevTicks = getTicksForProp(prop);
+        if (prevTicks == null) {
+            logger.error("calcBestPrice: prevTicks is null!");
+            return null;
+        }
+        //remove them from the array
+        for (Integer tick : prevTicks) {
+            newPowerConsumption[tick] -= prop.getPowerConsumedInWork();
+        }
+        double[] copyOfNew = helper.cloneArray(newPowerConsumption);
+
+        boolean improved = false;
+        //find the best option
+        for(Set<Integer> ticks : subsets) {
+            //Adding the ticks to array
+            for (Integer tick : ticks) {
+                newPowerConsumption[tick] += prop.getPowerConsumedInWork();
+            }
+            allScheds.add(newPowerConsumption);
+
+            //add the bags
+            for (Integer tick : prevTicks) {
+                newPowerConsumption[tick] = newPowerConsumption[tick] * this.ticksBag[tick];
+            }
+
+            double res = calcImproveOptionGrade(newPowerConsumption, allScheds);
+
+            if (res <= helper.totalPriceConsumption && res <= tempBestPriceConsumption) {
+                tempBestPriceConsumption = res;
+                newTicks.clear();
+                newTicks.addAll(ticks);
+                improved = true;
+            }
+
+            //reset
+            newPowerConsumption = helper.cloneArray(copyOfNew);
+            allScheds.remove(index); //remove this new sched
+        }
+
+        if(!improved) {
+            newTicks = getTicksForProp(prop);
+        }
+
+        return newTicks;
     }
 
     @Override
