@@ -6,6 +6,7 @@ import FinalProject.BL.DataObjects.*;
 import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
+import FinalProject.Utils;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
@@ -38,6 +39,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected AlgorithmDataHelper helper;
     protected AgentIterationData agentIterationData;
     protected IterationCollectedData agentIterationCollected;
+    protected ImprovementMsg maxImprovementMsg = null; //used to calc msgs size only
 
     protected boolean finished = false;
     protected double[] iterationPowerConsumption;
@@ -63,11 +65,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      */
     protected abstract void onTermination();
 
-    /**
-     * @return the total size of messages send from an agent to it's
-     * neighbours + total size of messages send to it's devices.
-     */
-    protected abstract void countIterationCommunication();
 
     /**
      * generate schedule for the {@code prop} and update the sensors
@@ -126,6 +123,33 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     public void buildScheduleFromScratch() {
         initHelper();
         buildScheduleBasic(false);
+    }
+
+    /**
+     * @return the total size of messages send from an agent to it's
+     * neighbours + total size of messages send to it's devices.
+     */
+    protected void countIterationCommunication() {
+        int count = 1;
+
+        //calc data sent to neighbours
+        long totalSize = 0;
+        long iterationDataSize = Utils.getSizeOfObj(agentIterationData);
+        int neighboursSize = agent.getAgentData().getNeighbors().size();
+        iterationDataSize *= neighboursSize;
+        totalSize += iterationDataSize;
+        count += neighboursSize;
+
+        if (currentNumberOfIter > 0) {
+            long improvementMsgSize = Utils.getSizeOfObj(maxImprovementMsg);
+            improvementMsgSize *= neighboursSize;
+            totalSize += improvementMsgSize;
+            count += neighboursSize;
+        }
+
+        //calc messages to devices:
+        final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
+        addMessagesSentToDevicesAndSetInAgent(count, totalSize, constantNumOfMsgs);
     }
 
     protected void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,

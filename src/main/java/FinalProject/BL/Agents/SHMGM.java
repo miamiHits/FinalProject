@@ -113,29 +113,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         logger.info(agent.getName() + " for problem " + agent.getProblemId() + "and algo SH-MGM is TERMINATING!");
     }
 
-    @Override
-    protected void countIterationCommunication() {
-        int count = 1;
 
-        //calc data sent to neighbours
-        long totalSize = 0;
-        long iterationDataSize = Utils.getSizeOfObj(agentIterationData);
-        int neighboursSize = agent.getAgentData().getNeighbors().size();
-        iterationDataSize *= neighboursSize;
-        totalSize += iterationDataSize;
-        count += neighboursSize;
-
-        if (currentNumberOfIter > 0) {
-            long improvementMsgSize = Utils.getSizeOfObj(maxImprovementMsg);
-            improvementMsgSize *= neighboursSize;
-            totalSize += improvementMsgSize;
-            count += neighboursSize;
-        }
-
-        //calc messages to devices:
-        final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
-        addMessagesSentToDevicesAndSetInAgent(count, totalSize, constantNumOfMsgs);
-    }
 
     @Override
     protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched) {
