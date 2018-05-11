@@ -3,6 +3,8 @@ package FinalProject.PL;
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SHMGM;
 import FinalProject.BL.Agents.SimulatedAnealing;
+import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import FinalProject.BL.Agents.DBA;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.Config;
@@ -57,7 +59,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         resultsPresenter = new ExperimentResultsPresenter();
         String jsonPath = Config.getStringPropery(Config.PROBLEMS_DIR);
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-        String algorithmsPath = Thread.currentThread().getContextClassLoader().getResource("FinalProject/BL/Agents/").getFile();
+        String algorithmsPath = Config.getStringPropery(Config.EMBEDDED_ALGO_DIR) + "FinalProject/BL/Agents";
         algorithmsPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);

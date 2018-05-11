@@ -6,6 +6,7 @@ import FinalProject.BL.DataObjects.*;
 import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
+import FinalProject.Utils;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
@@ -29,6 +30,7 @@ import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateTota
 public abstract class SmartHomeAgentBehaviour extends Behaviour implements Serializable{
 
     private final static Logger logger = Logger.getLogger(SmartHomeAgentBehaviour.class);
+    private final String gainMsgOntology = "GAIN_MSG";
     public static final int START_TICK = 0;
     private final Random randGenerator = new Random();
     public SmartHomeAgent agent;
@@ -37,10 +39,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected AlgorithmDataHelper helper;
     protected AgentIterationData agentIterationData;
     protected IterationCollectedData agentIterationCollected;
+    protected ImprovementMsg maxImprovementMsg = null; //used to calc msgs size only
 
     protected boolean finished = false;
     protected double[] iterationPowerConsumption;
     protected double tempBestPriceConsumption = -1;
+    protected MessageTemplate improvementTemplate;
 
     public SmartHomeAgentBehaviour() {}
 
@@ -55,16 +59,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      */
     protected abstract void doIteration();
 
+
     /**
      * Called by {@code done()} when returning true
      */
     protected abstract void onTermination();
 
-    /**
-     * @return the total size of messages send from an agent to it's
-     * neighbours + total size of messages send to it's devices.
-     */
-    protected abstract void countIterationCommunication();
 
     /**
      * generate schedule for the {@code prop} and update the sensors
@@ -125,6 +125,53 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         buildScheduleBasic(false);
     }
 
+    /**
+     * @return the total size of messages send from an agent to it's
+     * neighbours + total size of messages send to it's devices.
+     */
+    protected void countIterationCommunication() {
+        int count = 1;
+
+        //calc data sent to neighbours
+        long totalSize = 0;
+        long iterationDataSize = Utils.getSizeOfObj(agentIterationData);
+        int neighboursSize = agent.getAgentData().getNeighbors().size();
+        iterationDataSize *= neighboursSize;
+        totalSize += iterationDataSize;
+        count += neighboursSize;
+
+        if (currentNumberOfIter > 0) {
+            long improvementMsgSize = Utils.getSizeOfObj(maxImprovementMsg);
+            improvementMsgSize *= neighboursSize;
+            totalSize += improvementMsgSize;
+            count += neighboursSize;
+        }
+
+        //calc messages to devices:
+        final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
+        addMessagesSentToDevicesAndSetInAgent(count, totalSize, constantNumOfMsgs);
+    }
+
+    protected void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
+                                            AgentIterationData prevCurrIterData, double prevPriceSum,
+                                            double[] prevIterPowerConsumption, double[] newBestSched, double[] prevBestSched) {
+        helper = helperBackup;
+        helper.correctEpeak(newBestSched, prevBestSched);
+
+        agentIterationData = prevIterData;
+        agentIterationData.setIterNum(currentNumberOfIter);
+
+        agentIterationCollected = prevCollectedData;
+        agentIterationCollected.setIterNum(currentNumberOfIter);
+        agentIterationCollected.setePeak(-1); //sending epeak = -1 to collector if not improved
+
+        agent.setCurrIteration(prevCurrIterData);
+        agent.getCurrIteration().setIterNum(currentNumberOfIter);
+        agent.setPriceSum(prevPriceSum);
+
+        iterationPowerConsumption = prevIterPowerConsumption;
+    }
+
     protected void addMessagesSentToDevicesAndSetInAgent(int count, long totalSize, int constantNumOfMsgs) {
         final int MSG_TO_DEVICE_SIZE = 4;
         for (PropertyWithData prop : helper.getAllProperties()) {
@@ -175,6 +222,16 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
     }
 
+    protected void receiveNeighboursIterDataAndHandleIt() {
+        List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
+        readNeighboursMsgs(messageList);
+        List<double[]> neighboursSched = agent.getMyNeighborsShed().stream()
+                .map(AgentIterationData::getPowerConsumptionPerTick)
+                .collect(Collectors.toList());
+        helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
+    }
+
+
     protected int calcHowManyTicksNeedToCharge(String key, double delta, double ticksToWork) {
         int ticks = 0;
         PropertyWithData prop;
@@ -201,6 +258,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
 
         return ticks;
+    }
+
+    protected void initMsgTemplate() {
+        MessageTemplate noAms = MessageTemplate.not(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_AMS);
+        improvementTemplate = MessageTemplate.and(MessageTemplate.MatchOntology(gainMsgOntology), noAms);
     }
 
     protected void sendIterationToCollector() {
@@ -235,6 +297,29 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             logger.error(e);
         }
 
+    }
+
+    protected List<ImprovementMsg> receiveImprovementMsgs() {
+
+        List<ACLMessage> receivedMsgs = waitForNeighbourMessages(improvementTemplate);
+        return receivedMsgs.stream()
+                .map(msg -> {
+                    try {
+                        return (ImprovementMsg) msg.getContentObject();
+                    } catch (UnreadableException e) {
+                        logger.error("Could not read improvement msg: " + msg);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    protected ImprovementMsg sendImprovementToNeighbours(double improvement, double[] prevSched) {
+        ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement,
+                iterationPowerConsumption, prevSched);
+        sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);
+        return improvementToSend;
     }
 
     protected void sendMsgToAllNeighbors(Serializable msgContent, String ontology) {
@@ -274,16 +359,15 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected void updateTotals(PropertyWithData prop, List<Integer> myTicks, Map<String, Integer> sensorsToCharge) {
         List<Integer> activeTicks = helper.cloneList(myTicks);
         findActionToTicksMapAndPutTicks(prop, activeTicks);
-        for (int i = 0; i < myTicks.size(); ++i) {
+        for (int i = 0; i < myTicks.size(); i++) {
             iterationPowerConsumption[myTicks.get(i)] += prop.getPowerConsumedInWork();
             if (!sensorsToCharge.isEmpty()) {
-                for (Map.Entry<String,Integer> entry : sensorsToCharge.entrySet()) {
+                for (Map.Entry<String, Integer> entry : sensorsToCharge.entrySet()) {
                     PropertyWithData brother = helper.getAllProperties().stream()
                             .filter(property -> property.getName().equals(entry.getKey()))
                             .findFirst().orElse(null);
-                    int timeToCharge = (i + 1) % entry.getValue();
-                    if (i == timeToCharge && brother != null) {
-                        brother.updateValueToSensor(this.iterationPowerConsumption, brother.getMin(), entry.getValue(), i, true);
+                    if (brother != null) {
+                        brother.updateValueToSensor(this.iterationPowerConsumption, brother.getMin(), entry.getValue(), myTicks.get(i), true);
                     }
                 }
             }
@@ -317,7 +401,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
         List<Set<Integer>> subsets;
         if (ticksToWork <= 0) {
-            logger.debug(agent.getLocalName() + " ticks to work is " + ticksToWork);
             subsets = checkAllSubsetOptions(prop);
             if (subsets == null ) {
                 logger.warn("subsets is null!");
@@ -343,7 +426,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     protected boolean flipCoin(float probabilityForTrue) {
         final boolean res = randGenerator.nextFloat() < probabilityForTrue;
-        logger.debug("flipped a coin with result: " + res);
         return res;
     }
 
@@ -353,17 +435,19 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         switch (prop.getPrefix())
         {
             case BEFORE: //NOT Include the hour
-                for (int i=0; i< prop.getTargetTick(); ++i) {
+                for (int i = 0; i< prop.getTargetTick(); ++i) {
                     rangeForWork.add(i);
                 }
                 break;
             case AFTER:
-                for (int i= (int) prop.getTargetTick(); i < agent.getAgentData().getBackgroundLoad().length; ++i) {
+                //TODO changed from master!
+                //after the hour, for all of the ticks, the rule should apply.
+                for (int i = 0; i <= prop.getTargetTick(); ++i) {
                     rangeForWork.add(i);
                 }
                 break;
             case AT:
-                for (int i=0; i<= prop.getTargetTick(); ++i) {
+                for (int i = 0; i < prop.getTargetTick(); ++i) {
                     rangeForWork.add(i);
                 }
         }
@@ -604,6 +688,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
         return myTicks;
     }
+
     private void updateAgentCurrIter(PropertyWithData prop, List<Integer> newTicks) {
         List<Integer> activeTicks = helper.cloneList(newTicks);
         Action actionForProp = getActionForProp(prop);
@@ -709,7 +794,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
         Action actionForProp = getActionForProp(prop);
         actionToTicks.put(actionForProp, activeTicks);
-        return;
     }
 
     private void applyRandomChoice(PropertyWithData prop, Map<String, Integer> sensorsToCharge, List<Set<Integer>> subsets) {

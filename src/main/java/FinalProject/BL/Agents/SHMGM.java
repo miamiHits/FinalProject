@@ -24,11 +24,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
 
     public SHMGM() { super(); }
 
-    private void initMsgTemplate() {
-        MessageTemplate noAms = MessageTemplate.not(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_AMS);
-        improvementTemplate = MessageTemplate.and(MessageTemplate.MatchOntology(gainMsgOntology), noAms);
-    }
-
     @Override
     protected void doIteration() {
         if (agent.isZEROIteration()) {
@@ -45,14 +40,6 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         this.currentNumberOfIter++;
     }
 
-    private void receiveNeighboursIterDataAndHandleIt() {
-        List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
-        readNeighboursMsgs(messageList);
-        List<double[]> neighboursSched = agent.getMyNeighborsShed().stream()
-                .map(AgentIterationData::getPowerConsumptionPerTick)
-                .collect(Collectors.toList());
-        helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
-    }
 
     /**
      * Main logic of SH-MGM algo.
@@ -120,77 +107,13 @@ public class SHMGM extends SmartHomeAgentBehaviour{
         beforeIterationIsDone();
     }
 
-    private void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
-                                          AgentIterationData prevCurrIterData, double prevPriceSum,
-                                          double[] prevIterPowerConsumption, double[] newBestSched, double[] prevBestSched) {
-        helper = helperBackup;
-        helper.correctEpeak(newBestSched, prevBestSched);
-
-        agentIterationData = prevIterData;
-        agentIterationData.setIterNum(currentNumberOfIter);
-
-        agentIterationCollected = prevCollectedData;
-        agentIterationCollected.setIterNum(currentNumberOfIter);
-        agentIterationCollected.setePeak(-1); //sending epeak = -1 to collector if not improved
-
-        agent.setCurrIteration(prevCurrIterData);
-        agent.getCurrIteration().setIterNum(currentNumberOfIter);
-        agent.setPriceSum(prevPriceSum);
-
-        iterationPowerConsumption = prevIterPowerConsumption;
-    }
-
-    private List<ImprovementMsg> receiveImprovementMsgs() {
-
-        List<ACLMessage> receivedMsgs = waitForNeighbourMessages(improvementTemplate);
-        return receivedMsgs.stream()
-                .map(msg -> {
-                    try {
-                        return (ImprovementMsg) msg.getContentObject();
-                    } catch (UnreadableException e) {
-                        logger.error("Could not read improvement msg: " + msg);
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    private ImprovementMsg sendImprovementToNeighbours(double improvement, double[] prevSched) {
-        ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement, agent.getIterationNum(),
-                iterationPowerConsumption, prevSched);
-        sendMsgToAllNeighbors(improvementToSend, gainMsgOntology);
-        return improvementToSend;
-    }
 
     @Override
     protected void onTermination() {
         logger.info(agent.getName() + " for problem " + agent.getProblemId() + "and algo SH-MGM is TERMINATING!");
     }
 
-    @Override
-    protected void countIterationCommunication() {
-        int count = 1;
 
-        //calc data sent to neighbours
-        long totalSize = 0;
-        long iterationDataSize = Utils.getSizeOfObj(agentIterationData);
-        int neighboursSize = agent.getAgentData().getNeighbors().size();
-        iterationDataSize *= neighboursSize;
-        totalSize += iterationDataSize;
-        count += neighboursSize;
-
-        if (currentNumberOfIter > 0) {
-            long improvementMsgSize = Utils.getSizeOfObj(maxImprovementMsg);
-            improvementMsgSize *= neighboursSize;
-            totalSize += improvementMsgSize;
-            count += neighboursSize;
-        }
-
-        //calc messages to devices:
-        final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
-        addMessagesSentToDevicesAndSetInAgent(count, totalSize, constantNumOfMsgs);
-    }
 
     @Override
     protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched) {

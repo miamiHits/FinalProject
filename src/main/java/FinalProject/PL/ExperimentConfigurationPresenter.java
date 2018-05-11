@@ -37,6 +37,10 @@ import java.util.stream.Collectors;
 
 public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener, HasValue.ValueChangeListener<String> {
 
+    public static final String SMALL_SIZE = "Small";
+    public static final String MEDIUM_SIZE = "Medium";
+    public static final String BIG_SIZE = "Big";
+    public static final String VERY_BIG_SIZE = "Very Big";
     private Button startExperimentBtn = new Button("Start Experiment");
     private TextField numberOfIterationsTxt = new TextField("Select Number of Iterations");
     private int numberOfIterations = 0;
@@ -215,41 +219,101 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         });
     }
 
+    private int findSizeInName(String name) {
+        String afterCityName = name.substring(name.indexOf("_") + 1);
+        String sizeStr = afterCityName.substring(0, afterCityName.indexOf("_"));
+        try {
+            return Integer.parseInt(sizeStr);
+        } catch (NumberFormatException e) {
+            logger.warn("Could not parse " + name + "'s size! returning -1");
+            return -1;
+        }
+    }
+
+    private String getSizeDescriptionForProblem(int size) {
+        if (size <= 35)         { return SMALL_SIZE; }
+        else if (size <= 71)    { return MEDIUM_SIZE; }
+        else if (size <= 188)   { return BIG_SIZE; }
+        else                    { return VERY_BIG_SIZE; }
+    }
+
     private Map<Integer, List<String>> initTree(Tree<String> problemTree) {
         TreeData<String> treeData = new TreeData<>();
         problemTree.setDataProvider(new TreeDataProvider<>(treeData));
-        Map<Integer, List<String>> sizeToNameMap = service.getAvailableProblems();
-        sizeToNameMap.entrySet().stream()
+//        Map<Integer, List<String>> sizeToNameMap = service.getAvailableProblems();
+//        sizeToNameMap.entrySet().stream()
+//                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+//                .forEach(entry -> {
+//                    String size = String.valueOf(entry.getKey());
+//                    List<String> names = entry.getValue();
+//                    treeData.addRootItems(size);
+//                    treeData.addItems(size, names);
+//                    problemTree.collapse();
+//                });
+
+        List<String> probemNames = service.getAvailableProblems();
+        Map<Integer, List<String>> sizeToNamesMap = probemNames.stream()
+                .collect(Collectors.groupingBy(this::findSizeInName));
+
+        Map<Integer, String> sizeToDescriptionMap = new HashMap<>(sizeToNamesMap.size());
+        sizeToNamesMap.keySet().forEach(size ->
+                sizeToDescriptionMap.putIfAbsent(size, getSizeDescriptionForProblem(size)));
+        sizeToDescriptionMap.values().stream()
+                .distinct()
+                .forEach(treeData::addRootItems);
+        sizeToDescriptionMap.entrySet().stream()
                 .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                .forEach(entry -> {
-                    String size = String.valueOf(entry.getKey());
-                    List<String> names = entry.getValue();
-                    treeData.addRootItems(size);
-                    treeData.addItems(size, names);
-                    problemTree.collapse();
-                });
+                .forEach(entry -> treeData.addItems(entry.getValue(), String.valueOf(entry.getKey())));
+        orderTreeRootElements(treeData);
+        sizeToNamesMap.forEach((size, name) -> treeData.addItems(String.valueOf(size), name));
+
         problemTree.setContentMode(ContentMode.TEXT);
         problemTree.addItemClickListener(itemClick -> {
-            if (itemClick.getMouseEventDetails().isDoubleClick()) {
-                String item = itemClick.getItem();
-                List<String> children = treeData.getChildren(item);
-                //is a specific problem
-                if (children == null || children.size() == 0) {
-                    int parent = Integer.parseInt(treeData.getParent(item));
-                    SelectedProblem selected = new SelectedProblem(item, parent);
-                    selectedProblems.add(selected);
-                }
-                //is a folder
-                else {
-                    List<SelectedProblem> toAdd = children.stream()
+            //TODO add another level for the descriptions
+            String item = itemClick.getItem();
+            List<String> children = treeData.getChildren(item);
+            //is a specific problem
+            if (children == null || children.size() == 0) {
+                int parent = Integer.parseInt(treeData.getParent(item));
+                SelectedProblem selected = new SelectedProblem(item, parent);
+                selectedProblems.add(selected);
+            }
+            //is a folder
+            else {
+                List<String> grandChildren = treeData.getChildren(children.get(0));
+                //is a size (number)
+                List<SelectedProblem> toAdd;
+                if (grandChildren == null || grandChildren.size() == 0) {
+                    toAdd = children.stream()
                             .map(child -> new SelectedProblem(child, Integer.parseInt(item)))
                             .collect(Collectors.toList());
-                    selectedProblems.addAll(toAdd);
                 }
-                refreshGrid();
+                //is a description
+                else {
+                    toAdd = new ArrayList<>();
+                    children.forEach(size -> {
+                        List<String> names = treeData.getChildren(size);
+                        names.forEach(name -> toAdd.add(new SelectedProblem(name, Integer.parseInt(size))));
+                    });
+                }
+                selectedProblems.addAll(toAdd);
             }
+            refreshGrid();
         });
-        return sizeToNameMap;
+        return sizeToNamesMap;
+    }
+
+    //reorder the description elements in the tree, inside try blocks in case any of them is not in the map
+    private void orderTreeRootElements(TreeData<String> treeData) {
+        try {
+            treeData.moveAfterSibling(MEDIUM_SIZE, SMALL_SIZE);
+        } catch (Exception ignored) { }
+        try {
+            treeData.moveAfterSibling(BIG_SIZE, MEDIUM_SIZE);
+        } catch (Exception ignored) { }
+        try {
+            treeData.moveAfterSibling(VERY_BIG_SIZE, BIG_SIZE);
+        } catch (Exception ignored) { }
     }
 
     private void refreshGrid() {

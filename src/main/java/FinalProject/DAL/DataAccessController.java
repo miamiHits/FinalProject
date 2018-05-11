@@ -5,7 +5,6 @@ import FinalProject.BL.AlgoAddResult;
 import FinalProject.BL.DataObjects.Problem;
 
 import java.util.List;
-import java.util.Map;
 
 public class DataAccessController implements DataAccessControllerInterface{
 
@@ -51,7 +50,7 @@ public class DataAccessController implements DataAccessControllerInterface{
     }
 
     @Override
-    public Map<Integer, List<String>> getAvailableProblems()
+    public List<String> getAvailableProblems()
     {
         return jsonLoader.getAllProblemNames();
     }

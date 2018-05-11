@@ -26,6 +26,7 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
             beforeIterationIsDone();
         }
         else {
+            helper.resetProperties();
             //only sets up for the build, prop by prop
             buildScheduleBasic(false); //randomize sched is ignored
             //do actual build for all devices at once (Roi asked for it to be this way)
@@ -64,27 +65,30 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
             ticks.forEach(tick -> randSched[tick] += powerCons);
         });
         allScheds.add(randSched);
-        double newGrade = calcImproveOptionGrade(prevSched, allScheds);
+        double newGrade = calcImproveOptionGrade(randSched, allScheds);
 
-        if (newGrade < prevGrade && shouldTakeNewSched()) {
-            iterationPowerConsumption = randSched;
+        if (newGrade < prevGrade || shouldTakeNewSched()) {
+            //TODO commented out because updateTotals adds the ticks to iterationPowerConsumption
+//            iterationPowerConsumption = randSched;
             randomSchedForAllProps.forEach((prop, ticks) ->
                     updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
         }
         else {
-            iterationPowerConsumption = prevSched;
+            //TODO commented out because updateTotals adds the ticks to iterationPowerConsumption
+//            iterationPowerConsumption = prevSched;
             prevSchedForAllProps.forEach((prop, ticks) ->
                     updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
         }
     }
 
     private boolean shouldTakeNewSched() {
-        float probability = 1 - (1 / currentNumberOfIter / agent.getAgentData().getNumOfIterations());
+        float probability = 1 - (currentNumberOfIter / agent.getAgentData().getNumOfIterations());
         return flipCoin(probability);
     }
 
     private Set<Integer> pickRandomSubsetForProp(PropertyWithData prop) {
         List<Set<Integer>> allSubsets = propToSubsetsMap.get(prop);
+        //TODO: check what to do in case of zero subset
         int index = drawRandomNum(0, allSubsets.size() - 1);
         return allSubsets.get(index);
     }
