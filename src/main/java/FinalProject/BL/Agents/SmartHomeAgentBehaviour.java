@@ -562,6 +562,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         countIterationCommunication();
         agentIterationCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(),
                 agent.getAlgoId(), neighboursNames, helper.ePeak, agent.getIterationMessageSize(), agent.getIterationMessageCount());
+        logger.info("before done: " + agent.getLocalName() + " iter: " + currentNumberOfIter + " epeak: " + helper.ePeak + " price: " + price);
     }
 
 

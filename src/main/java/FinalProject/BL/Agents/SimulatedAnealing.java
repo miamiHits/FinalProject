@@ -1,6 +1,7 @@
 package FinalProject.BL.Agents;
 
 import FinalProject.BL.IterationData.AgentIterationData;
+import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -26,6 +27,7 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
         }
         else {
             helper.resetProperties();
+            receiveAllMessagesAndHandleThem();
             //only sets up for the build, prop by prop
             buildScheduleBasic(false); //randomize sched is ignored
             //do actual build for all devices at once (Roi asked for it to be this way)
@@ -33,6 +35,12 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
         }
         beforeIterationIsDone();
         this.currentNumberOfIter++;
+    }
+
+    private void receiveAllMessagesAndHandleThem() {
+        List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
+        readNeighboursMsgs(messageList);
+        helper.calcPowerConsumptionForAllNeighbours();
     }
 
     private void pickAndApplyRandomSched() {
@@ -52,6 +60,9 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
         });
         allScheds.add(prevSched);
         double prevGrade = calcImproveOptionGrade(prevSched, allScheds);
+        if (agent.getLocalName().equals("h1")) {
+            logger.info("H1 iter: " + currentNumberOfIter + ", prevGrade: " + prevGrade);
+        }
 
         allScheds.remove(prevSched);
         Map<PropertyWithData, Set<Integer>> randomSchedForAllProps = new HashMap<>(propToSubsetsMap.size());
@@ -66,14 +77,23 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
         });
         allScheds.add(randSched);
         double newGrade = calcImproveOptionGrade(randSched, allScheds);
+        if (agent.getLocalName().equals("h1")) {
+            logger.info("H1 iter: " + currentNumberOfIter + ", newGrade: " + newGrade);
+        }
 
         if (newGrade < prevGrade || shouldTakeNewSched()) {
+            helper.totalPriceConsumption = newGrade;
+            helper.ePeak = calculateEPeak(allScheds);
             //TODO commented out because updateTotals adds the ticks to iterationPowerConsumption
 //            iterationPowerConsumption = randSched;
             randomSchedForAllProps.forEach((prop, ticks) ->
                     updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
         }
         else {
+            helper.totalPriceConsumption = prevGrade;
+            allScheds.remove(randSched);
+            allScheds.add(prevSched);
+            helper.ePeak = calculateEPeak(allScheds);
             //TODO commented out because updateTotals adds the ticks to iterationPowerConsumption
 //            iterationPowerConsumption = prevSched;
             prevSchedForAllProps.forEach((prop, ticks) ->
@@ -88,7 +108,9 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
 
     private Set<Integer> pickRandomSubsetForProp(PropertyWithData prop) {
         List<Set<Integer>> allSubsets = propToSubsetsMap.get(prop);
-        //TODO: check what to do in case of zero subset
+        if (allSubsets.isEmpty()) {
+            return new HashSet<>(0);
+        }
         int index = drawRandomNum(0, allSubsets.size() - 1);
         return allSubsets.get(index);
     }
