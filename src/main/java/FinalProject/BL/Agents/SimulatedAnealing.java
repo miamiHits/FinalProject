@@ -23,7 +23,6 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
             agent.setPriceSum(calcCsum(iterationPowerConsumption));
-            beforeIterationIsDone();
         }
         else {
             helper.resetProperties();
@@ -32,6 +31,7 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
             //do actual build for all devices at once (Roi asked for it to be this way)
             pickAndApplyRandomSched();
         }
+        beforeIterationIsDone();
         this.currentNumberOfIter++;
     }
 
@@ -82,7 +82,7 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
     }
 
     private boolean shouldTakeNewSched() {
-        float probability = 1 - (currentNumberOfIter / agent.getAgentData().getNumOfIterations());
+        float probability = 1 - ((float) currentNumberOfIter / agent.getAgentData().getNumOfIterations());
         return flipCoin(probability);
     }
 
