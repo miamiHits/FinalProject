@@ -54,7 +54,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
                     }));
 
                 Button withoutErrorsBars = new Button("With/Without Errors Bars");
-                Registration registration = withoutErrorsBars.addClickListener((Button.ClickListener) event1 -> {
+                withoutErrorsBars.addClickListener((Button.ClickListener) event1 -> {
                     getUI().access(() -> {
                         if (withErrorsBars[0]) {
                             resultsLayoutWithErrorsBars.setVisible(false);
@@ -179,7 +179,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private Component generateLineGraphWithErrorBars(String title, String xAxisLabel, String yAxisLabel, DefaultStatisticalCategoryDataset dataset, boolean shapesIsVisible) {
         JFreeChart plot = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);
         StatisticalLineAndShapeRenderer statisticalRenderer = new StatisticalLineAndShapeRenderer(true, false);
-        statisticalRenderer.setErrorIndicatorPaint(Color.white);
+        statisticalRenderer.setErrorIndicatorPaint(Color.BLACK);
 
         plot.getCategoryPlot().setRenderer(statisticalRenderer);
         plot.setBackgroundPaint(Color.white);
@@ -187,15 +187,18 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
         // get a reference to the plot for further customisation...
         CategoryPlot plot1 = (CategoryPlot) plot.getPlot();
-        plot1.setBackgroundPaint(Color.black);
+        plot1.setBackgroundPaint(Color.white);
         plot1.setDomainGridlinePaint(Color.white);
         plot1.setDomainGridlinesVisible(true);
         plot1.setRangeGridlinePaint(Color.white);
-        plot1.setDomainGridlinePaint(Color.black);
+        plot1.setDomainGridlinePaint(Color.white);
 
         CategoryItemRenderer renderer = plot1.getRenderer();
-        GradientPaint gp0 = new GradientPaint(50f, 50f, Color.CYAN, 50f, 50f, Color.green);
+        GradientPaint gp0 = new GradientPaint(50f, 50f, Color.CYAN, 50f, 50f, Color.black);
+        GradientPaint gp1 = new GradientPaint(50f, 50f, Color.red, 50f, 50f, Color.BLUE);
+
         renderer.setSeriesPaint(0, gp0);
+        renderer.setSeriesPaint(1, gp1);
         return new JFreeChartWrapper(plot);
     }
 
@@ -204,15 +207,18 @@ public class ExperimentResultsPresenter extends Panel implements View{
         plot.setBackgroundPaint(Color.white);
         // get a reference to the plot for further customisation...
         CategoryPlot plot1 = (CategoryPlot) plot.getPlot();
-        plot1.setBackgroundPaint(Color.black);
+        plot1.setBackgroundPaint(Color.white);
         plot1.setDomainGridlinePaint(Color.white);
         plot1.setDomainGridlinesVisible(true);
         plot1.setRangeGridlinePaint(Color.white);
-        plot1.setDomainGridlinePaint(Color.black);
+        plot1.setDomainGridlinePaint(Color.white);
 
         CategoryItemRenderer renderer = plot1.getRenderer();
         GradientPaint gp0 = new GradientPaint(50f, 50f, Color.CYAN, 50f, 50f, Color.green);
+        GradientPaint gp1 = new GradientPaint(50f, 50f, Color.red, 50f, 50f, Color.BLUE);
+
         renderer.setSeriesPaint(0, gp0);
+        renderer.setSeriesPaint(1, gp1);
         return new JFreeChartWrapper(plot);
     }
 
@@ -222,11 +228,11 @@ public class ExperimentResultsPresenter extends Panel implements View{
         barChart.setBackgroundPaint(Color.white);
         barChart.setBorderPaint(Color.white);
         CategoryPlot plot1 = (CategoryPlot) barChart.getPlot();
-        plot1.setBackgroundPaint(Color.black);
+        plot1.setBackgroundPaint(Color.white);
         plot1.setDomainGridlinePaint(Color.white);
         plot1.setDomainGridlinesVisible(true);
         plot1.setRangeGridlinePaint(Color.white);
-        plot1.setDomainGridlinePaint(Color.black);
+        plot1.setDomainGridlinePaint(Color.white);
         return new JFreeChartWrapper(barChart);
     }
 }
