@@ -87,7 +87,7 @@ public class SHMGM extends SmartHomeAgentBehaviour{
             }
 
             String maxName = Utils.parseAgentName(max.getAgentName());
-            if (max.getImprovement() == 0.0) {
+            if (max.getImprovement() <= 0.0) {
                 improveSchedule(true);
             } else if (maxName.equals(agent.getLocalName())) { //take new schedule
                 takeNewSched(newPrice, actualEpeak);

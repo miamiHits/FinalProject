@@ -562,6 +562,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         countIterationCommunication();
         agentIterationCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(),
                 agent.getAlgoId(), neighboursNames, helper.ePeak, agent.getIterationMessageSize(), agent.getIterationMessageCount());
+        logger.info("before done: " + agent.getLocalName() + " iter: " + currentNumberOfIter + " epeak: " + helper.ePeak + " price: " + price);
     }
 
 
@@ -640,6 +641,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     //-------------PRIVATE METHODS:-------------------
 
     private List<Integer> generateRandomTicksForProp(PropertyWithData prop, double ticksToWork) {
+        if (ticksToWork > prop.getTargetTick()){
+            ticksToWork = prop.getTargetTick();
+        }
         List<Integer> myTicks = new ArrayList<>();
         //generate random schedule based on prop's rules
         int randomNum = 0;

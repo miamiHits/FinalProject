@@ -214,6 +214,7 @@ public class Experiment implements ExperimentInterface {
                                 {
                                     assert agentData.getName() != null && !agentData.getName().equals("") :
                                             "agent must have a name that is not an empty string";
+                                    agentData.setNumOfIterations(maximumIterations);
                                     Object[] agentInitializationArgs = new Object[4];
                                     agentInitializationArgs[0] = currentAlgorithmBehaviour.cloneBehaviour();
                                     agentInitializationArgs[1] = new AgentData(agentData);
