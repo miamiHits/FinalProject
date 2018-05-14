@@ -45,6 +45,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected double[] iterationPowerConsumption;
     protected double tempBestPriceConsumption = -1;
     protected MessageTemplate improvementTemplate;
+    protected final int MSG_TO_DEVICE_SIZE = 4;
 
     public SmartHomeAgentBehaviour() {}
 
@@ -173,7 +174,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void addMessagesSentToDevicesAndSetInAgent(int count, long totalSize, int constantNumOfMsgs) {
-        final int MSG_TO_DEVICE_SIZE = 4;
         for (PropertyWithData prop : helper.getAllProperties()) {
             int numOfTimes = constantNumOfMsgs + prop.getRelatedSensorsDelta().size();
             if (prop.getPrefix() != null && prop.getPrefix().equals(Prefix.BEFORE)) {

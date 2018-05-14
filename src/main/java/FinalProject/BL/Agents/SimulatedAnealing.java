@@ -1,6 +1,8 @@
 package FinalProject.BL.Agents;
 
+import FinalProject.BL.DataObjects.Prefix;
 import FinalProject.BL.IterationData.AgentIterationData;
+import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
 
@@ -136,7 +138,6 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
     private List<Set<Integer>> initSubsetsForProp(PropertyWithData prop, double ticksToWork) {
         List<Set<Integer>> subsets;
         if (ticksToWork <= 0) {
-            //TODO getting 0 sized subset here!
             subsets = checkAllSubsetOptions(prop);
             if (subsets == null ) {
                 logger.warn("subsets is null!");
@@ -158,7 +159,26 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
 
     @Override
     protected void countIterationCommunication() {
-        //TODO
+        int count = 0;
+        //calc data sent to neighbours
+        long totalSize = Utils.getSizeOfObj(agentIterationData);
+        int neighboursSize = agent.getAgentData().getNeighbors().size();
+        count += neighboursSize;
+        totalSize *= neighboursSize;
+
+        //calc messages to devices:
+        if (currentNumberOfIter == 0 || currentNumberOfIter == 1) {
+            final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
+            addMessagesSentToDevicesAndSetInAgent(count + 1, totalSize, constantNumOfMsgs);
+        }
+        else {
+            final int size = helper.getAllProperties().size();
+            totalSize += size * MSG_TO_DEVICE_SIZE;
+            count += size;
+
+            agent.setIterationMessageCount(count);
+            agent.setIterationMessageSize(totalSize);
+        }
     }
 
     @Override
