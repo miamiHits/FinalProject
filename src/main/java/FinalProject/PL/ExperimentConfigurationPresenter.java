@@ -37,10 +37,11 @@ import java.util.stream.Collectors;
 
 public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener, HasValue.ValueChangeListener<String> {
 
-    public static final String SMALL_SIZE = "Small";
-    public static final String MEDIUM_SIZE = "Medium";
-    public static final String BIG_SIZE = "Big";
-    public static final String VERY_BIG_SIZE = "Very Big";
+    private static final String SMALL_SIZE = "Small";
+    private static final String MEDIUM_SIZE = "Medium";
+    private static final String BIG_SIZE = "Big";
+    private static final String VERY_BIG_SIZE = "Very Big";
+
     private Button startExperimentBtn = new Button("Start Experiment");
     private TextField numberOfIterationsTxt = new TextField("Select Number of Iterations");
     private int numberOfIterations = 0;
@@ -230,10 +231,14 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     }
 
     private String getSizeDescriptionForProblem(int size) {
-        if (size <= 35)         { return SMALL_SIZE; }
-        else if (size <= 71)    { return MEDIUM_SIZE; }
-        else if (size <= 188)   { return BIG_SIZE; }
-        else                    { return VERY_BIG_SIZE; }
+        final int SMALL_UPPER_BOUND =   35;
+        final int MEDIUM_UPPER_BOUND =  71;
+        final int BIG_UPPER_BOUND =     112;
+
+        if      (size <= SMALL_UPPER_BOUND)     { return SMALL_SIZE;    }
+        else if (size <= MEDIUM_UPPER_BOUND)    { return MEDIUM_SIZE;   }
+        else if (size <= BIG_UPPER_BOUND)       { return BIG_SIZE;      }
+        else                                    { return VERY_BIG_SIZE; }
     }
 
     private Map<Integer, List<String>> initTree(Tree<String> problemTree) {
