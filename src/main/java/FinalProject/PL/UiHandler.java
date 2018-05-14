@@ -59,8 +59,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         resultsPresenter = new ExperimentResultsPresenter();
         String jsonPath = Config.getStringPropery(Config.PROBLEMS_DIR);
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-        String algorithmsPath = Config.getStringPropery(Config.EMBEDDED_ALGO_DIR) + "FinalProject/BL/Agents";
-        algorithmsPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+        String algorithmsPath = new File(SmartHomeAgentBehaviour.class.getResource("").getFile()).getPath();
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
         AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
@@ -85,6 +84,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         navigator.addView(EXPERIMENT_RUNNING, experimentRunningPresenter);
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RESULTS, resultsPresenter);
+        setMobileHtml5DndEnabled(true);
     }
 
     @Override

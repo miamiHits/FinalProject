@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -353,7 +354,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         dropArea.setSizeUndefined();
         dropArea.addStyleNames(ValoTheme.LABEL_HUGE, ValoTheme.LABEL_BOLD);
 
-        final String COMPILED_ALGO_DIR = Config.getStringPropery(Config.EMBEDDED_ALGO_DIR);
+        final String ADDED_ALGORITHMS_DIR = Config.getStringPropery(Config.ADDED_ALGORITHMS_DIR);
         VerticalLayout layout = new VerticalLayout(dropArea);
         layout.addStyleNames(ValoTheme.DRAG_AND_DROP_WRAPPER_NO_HORIZONTAL_DRAG_HINTS, ValoTheme.LAYOUT_WELL);
         layout.setComponentAlignment(dropArea, Alignment.MIDDLE_CENTER);
@@ -366,8 +367,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 // Output stream to write the file to
                 @Override
                 public OutputStream getOutputStream() {
-                    String path = (COMPILED_ALGO_DIR + "/" + file.getFileName())
-                            .replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+                    String path = Paths.get(ADDED_ALGORITHMS_DIR, file.getFileName()).toAbsolutePath().toString();
                     try {
                         fileOutputStream = new FileOutputStream(path);
                         return fileOutputStream;
@@ -419,7 +419,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 }
 
                 private void algoUploadFinished(String fileName) {
-                    AlgoAddResult result = service.addNewAlgo(COMPILED_ALGO_DIR, fileName);
+                    AlgoAddResult result = service.addNewAlgo(ADDED_ALGORITHMS_DIR, fileName);
                     if (result.isSuccess()) {
                         refreshAlgorithms();
                         Notification.show(fileName + " was added successfully!");
