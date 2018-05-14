@@ -5,6 +5,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.Position;
 import com.vaadin.ui.*;
+import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.renderers.ComponentRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 import org.apache.log4j.Logger;
@@ -12,6 +13,7 @@ import org.apache.log4j.Logger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ExperimentRunningPresenter extends Panel implements View{
 
@@ -20,6 +22,9 @@ public class ExperimentRunningPresenter extends Panel implements View{
     private ProgressBar mainProgBar = new ProgressBar(0.0f);
     private Button goToResScreenBtn;
     private boolean gridWasSet = false;
+    private int numOfIter = -1;
+    private int numOfProblems = -1;
+    private int numOfAlgos = -1;
 
     private static final Logger logger = Logger.getLogger(ExperimentRunningPresenter.class);
 
@@ -37,7 +42,9 @@ public class ExperimentRunningPresenter extends Panel implements View{
         goToResScreenBtn.setEnabled(false);
 
         mainProgBar.setSizeFull();
-        VerticalLayout layout = new VerticalLayout(problemAlgoPairGrid, mainProgBar, goToResScreenBtn);
+        Label dataLbl = new Label("Number of iterations: " + numOfIter + ", Number of problems: "
+                + numOfProblems + ", Number of Algorithms: " + numOfAlgos);
+        VerticalLayout layout = new VerticalLayout(dataLbl, problemAlgoPairGrid, mainProgBar, goToResScreenBtn);
         layout.setComponentAlignment(goToResScreenBtn, Alignment.MIDDLE_CENTER);
         setContent(layout);
 
@@ -75,7 +82,13 @@ public class ExperimentRunningPresenter extends Panel implements View{
         });
     }
 
-    public void setAlgorithmProblemPairs(List<ProblemAlgoPair> pairs) {
+    public void setNumOfIter(int num) {
+        numOfIter = num;
+    }
+
+    public void setAlgorithmProblemPairs(List<ProblemAlgoPair> pairs, int numOfAlgos, int numOfProblems) {
+        this.numOfAlgos = numOfAlgos;
+        this.numOfProblems = numOfProblems;
         pairToProgressBarMap.clear();
         pairs.forEach(pair -> pairToProgressBarMap.put(pair, new ProgressBar(0.0f)));
         initGrid();
