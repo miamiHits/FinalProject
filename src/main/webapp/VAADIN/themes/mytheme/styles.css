@@ -15089,8 +15089,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .mytheme .with-bg-image {
-	background: url("img/pic.jpg") no-repeat !important;
+	background: url("img/pic1.jpg") no-repeat !important;
 	background-size: cover;
+	background-position: bottom left;
 }
 
 .mytheme .result-chart {
