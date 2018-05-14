@@ -132,7 +132,7 @@ public class StatisticsHandler {
 
                whenToSwitch++;
 
-                if (command ==graphType.TotalConsumption)
+                if (command ==graphType.TotalConsumption && key.equals("SHMGM"))
                 {
                    calcBestGrade(key, size, value, dataset);
                 }

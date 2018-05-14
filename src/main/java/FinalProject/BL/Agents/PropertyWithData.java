@@ -6,10 +6,7 @@ import FinalProject.BL.DataObjects.RelationType;
 import FinalProject.BL.DataObjects.Sensor;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PropertyWithData {
     private String name;
@@ -178,22 +175,24 @@ public class PropertyWithData {
             newState = currState + ((targetTick - targetTickToCount) * deltaWhenWorkOffline);
         }
         else {
-            newState = currState + ((targetTickToCount - targetTick) * deltaWhenWorkOffline);
+            newState = targetValue + ((targetTickToCount - targetTick) * deltaWhenWorkOffline);
         }
 
         if (newState == currState) {
             return ; //no offline work on these ticks
         }
         else{
+            List<Integer> tempActiveTicks = new ArrayList<>();
             int i, counter;
+            double target;
             if (isFromStart) {   //because AFTER we include the hour. so the count before we'll not include it.
 
                 i=0;
-                double target = prefix.equals(Prefix.BEFORE) ? targetTick : targetTick-1;
+                target = prefix.equals(Prefix.BEFORE) ? targetTick : targetTick-1;
                 counter = (int) target;
             }
             else{
-                double target = prefix.equals(Prefix.BEFORE) ? targetTick-1 : targetTick;
+                target = targetTick;
                 i = (int) target;
                 counter = (int) targetTickToCount;
             }
@@ -207,7 +206,7 @@ public class PropertyWithData {
                     if (ticksToCharge + i > (powerConsumption.length-1)) {
                          ticksToCharge = (powerConsumption.length-1) - i ;
                     }
-                    currState = updateValueToSensor(powerConsumption, currState, ticksToCharge, i, isFromStart);
+                    currState = updateValueToSensor(powerConsumption, currState, ticksToCharge, i, isFromStart, tempActiveTicks);
 
                     i = (int)ticksToCharge + i + 1 ;
                     if (i>= counter) break;
@@ -215,6 +214,12 @@ public class PropertyWithData {
                 }
 
                 currState += deltaWhenWorkOffline;
+            }
+            if (tempActiveTicks.size() > 0)
+            {
+                logger.warn("YARDEN DEBUG: temp activeTicks size: " + tempActiveTicks.size());
+                makeTicksRandom(target, targetTickToCount, tempActiveTicks);
+
             }
 
             //update the curr state now
@@ -224,6 +229,29 @@ public class PropertyWithData {
         }
     }
 
+    private void makeTicksRandom(double target, double targetTickToCount, List<Integer> tempActiveTicks)
+    {
+        ArrayList <Integer> numbers = new ArrayList();
+        for(int i = (int) target; i < targetTickToCount; i++)
+        {
+            numbers.add(i+1);
+        }
+
+        Collections.shuffle(numbers);
+
+        logger.warn("YARDEN DEBUG: befor tick were: " + tempActiveTicks.toString());
+        int size = tempActiveTicks.size();
+        while (size >0)
+        {
+            this.activeTicks.add(numbers.get(size));
+            size --;
+        }
+
+        logger.warn("YARDEN DEBUG: after ticks were: " + activeTicks.toString());
+
+
+    }
+
     /**
      *
      * @param iterationPowerConsumption - current consumption prior the update
@@ -231,16 +259,17 @@ public class PropertyWithData {
      * @param ticksToCharge - how many additional ticks of activation are required
      * @param idxTicks - the base index on the horizon from which the additional activations will be added
      * @param offlineWork - is the work offline (work done to compensate for negative deltas)
+     * @param tempActiveTicks
      * @return the new state of the sensor after the latest activation(the same as newState if no additional activation was required)
      */
-    public double updateValueToSensor (double[] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork)
+    public double updateValueToSensor(double[] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork, List<Integer> tempActiveTicks)
     {
         for (int j = 1; j <= ticksToCharge; ++j) {
             //update the powerCons array
             iterationPowerConsumption[j + idxTicks] += powerConsumedInWork;
             newState += deltaWhenWork;
             if(!offlineWork) {
-                this.activeTicks.add(j + idxTicks);
+                tempActiveTicks.add(j + idxTicks);
             }
         }
         if (newState > max) {
