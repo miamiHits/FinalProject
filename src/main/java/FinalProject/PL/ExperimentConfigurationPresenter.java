@@ -64,7 +64,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         logger.debug("enter");
-        //TODO gal for final iteration prevent use of more than one browser tab
         this.service = UiHandler.service;
         this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
 
@@ -121,7 +120,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         algorithmSelector.setRightColumnCaption("Selected Algorithms");
         algorithmSelector.setCaption("Select your algorithms");
         algorithmSelector.addStyleName("algo-selector");
-        final List<String> availableAlgorithms = refreshAlgorithms();
+        refreshAlgorithms();
 
         algorithmSelector.addSelectionListener((MultiSelectionListener<String>) event -> {
             selectedAlgorithms.clear();
@@ -465,6 +464,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 !selectedProblems.isEmpty())
         {
             setExperimentRunningPairs();
+            experimentRunningPresenter.setNumOfIter(numberOfIterations);
 
             service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
             service.setProblemsToExperiment(selectedProblems.stream().map(SelectedProblem::getName).collect(Collectors.toList()));
@@ -488,7 +488,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
             selectedProblems.forEach(problem -> problemAlgoPairs.add(new ProblemAlgoPair(algo, problem.getName())));
         });
 
-        experimentRunningPresenter.setAlgorithmProblemPairs(problemAlgoPairs);
+        experimentRunningPresenter.setAlgorithmProblemPairs(problemAlgoPairs, selectedAlgorithms.size(), selectedProblems.size());
     }
 
 
