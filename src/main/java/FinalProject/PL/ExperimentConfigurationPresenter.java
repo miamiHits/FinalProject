@@ -233,7 +233,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     private String getSizeDescriptionForProblem(int size) {
         final int SMALL_UPPER_BOUND =   35;
         final int MEDIUM_UPPER_BOUND =  71;
-        final int BIG_UPPER_BOUND =     112;
+        final int BIG_UPPER_BOUND =     135;
 
         if      (size <= SMALL_UPPER_BOUND)     { return SMALL_SIZE;    }
         else if (size <= MEDIUM_UPPER_BOUND)    { return MEDIUM_SIZE;   }

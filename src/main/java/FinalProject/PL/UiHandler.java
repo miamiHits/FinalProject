@@ -1,10 +1,6 @@
 package FinalProject.PL;
 
-import FinalProject.BL.Agents.DSA;
-import FinalProject.BL.Agents.SHMGM;
 import FinalProject.BL.Agents.SimulatedAnealing;
-import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
-import FinalProject.BL.Agents.DBA;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.Config;
@@ -12,16 +8,14 @@ import FinalProject.DAL.*;
 import FinalProject.Service;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinService;
-import com.vaadin.server.VaadinServlet;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.PopupView;
 import com.vaadin.ui.UI;
 import org.apache.log4j.Logger;
+import org.vaadin.dialogs.ConfirmDialog;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -86,6 +80,17 @@ public class UiHandler extends UI implements UiHandlerInterface {
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RESULTS, resultsPresenter);
     }
+
+//    @Override
+//    public void close() {
+//        ConfirmDialog.show(getUI(), "Please Confirm:", "Are you really sure?",
+//                "I am", "Not quite", (ConfirmDialog.Listener) dialog -> {
+//                    if (dialog.isConfirmed()) {
+//                        //TODO: stop experiment if running
+//                        super.close();
+//                    }
+//                });
+//    }
 
     @Override
     public void showMainScreen() {
