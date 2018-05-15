@@ -1,6 +1,7 @@
 package FinalProject.PL;
 
 import FinalProject.BL.Agents.SimulatedAnealing;
+import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.Config;
@@ -10,11 +11,8 @@ import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.PopupView;
 import com.vaadin.ui.UI;
 import org.apache.log4j.Logger;
-import org.vaadin.dialogs.ConfirmDialog;
 
 import java.io.BufferedReader;
 import java.io.File;
