@@ -149,8 +149,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
             fileName = fileName.substring(0, fileName.indexOf(UNCOMPILED_FILE_TYPE));
         }
 
-        String pathStr = compiledBaseDir.getPath() + "/" + fileName + ".java"
-                .replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+        String pathStr = Paths.get(Config.getStringPropery(Config.ADDED_ALGORITHMS_DIR), fileName + ".java").toAbsolutePath().toString();
         File file = new File(pathStr);
         if (!file.exists() || !file.delete()) {
             logger.warn("could not delete java file " + pathStr);
