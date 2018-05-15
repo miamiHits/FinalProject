@@ -470,6 +470,10 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         {
             setExperimentRunningPairs();
             experimentRunningPresenter.setNumOfIter(numberOfIterations);
+            experimentRunningPresenter.setStopExperimentCallable(() -> {
+                service.stopExperiment();
+                return true;
+            });
 
             service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
             service.setProblemsToExperiment(selectedProblems.stream().map(SelectedProblem::getName).collect(Collectors.toList()));
