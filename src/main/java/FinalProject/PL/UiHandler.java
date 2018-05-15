@@ -31,10 +31,11 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static Service service;
-    public static Navigator navigator;
-    public static ExperimentRunningPresenter experimentRunningPresenter;
 
+    private Navigator  navigator;
+    private ExperimentRunningPresenter experimentRunningPresenter;
     private ExperimentResultsPresenter resultsPresenter;
+
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
     protected static final String EXPERIMENT_RUNNING = "EXPERIMENT_RUNNING";
@@ -46,9 +47,13 @@ public class UiHandler extends UI implements UiHandlerInterface {
     public UiHandler()
     {
         Config.loadConfig();
+        if (service != null)
+        {
+            logger.info("creating new UI(UiHandler) when one already exists! will not create new Service instances");
+            return;
+        }
 
         logger.debug("Uihandelr ceated");
-        resultsPresenter = new ExperimentResultsPresenter();
         String jsonPath = Config.getStringPropery(Config.PROBLEMS_DIR);
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
         String algorithmsPath = new File(SmartHomeAgentBehaviour.class.getResource("").getFile()).getPath();
@@ -69,9 +74,16 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
         navigator = new Navigator(this, this);
 
+        if (getSession().getUIs().size() > 0)
+        {
+            navigator.addView("", new InvalidAdditionalUIPresenter(navigator));
+            return;
+        }
+
         // Create and register the views
-        ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter();
         experimentRunningPresenter = new ExperimentRunningPresenter();
+        ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter(experimentRunningPresenter);
+        resultsPresenter = new ExperimentResultsPresenter(navigator);
         navigator.addView("", experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RUNNING, experimentRunningPresenter);
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);

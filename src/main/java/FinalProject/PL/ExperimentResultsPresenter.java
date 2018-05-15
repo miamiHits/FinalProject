@@ -2,6 +2,7 @@ package FinalProject.PL;
 
 import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
+import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Responsive;
@@ -29,6 +30,8 @@ import java.util.List;
 
 public class ExperimentResultsPresenter extends Panel implements View{
 
+    private final Navigator navigator;
+
     private DefaultStatisticalCategoryDataset powerConsumptionGraph;
     private DefaultStatisticalCategoryDataset highestAgentGraph;
     private DefaultStatisticalCategoryDataset lowestAgentGraph;
@@ -37,6 +40,11 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private DefaultCategoryDataset messagesSizeAvePerAlgo;
 
     private static final Logger logger = Logger.getLogger(ExperimentResultsPresenter.class);
+
+    public ExperimentResultsPresenter(Navigator navigator)
+    {
+        this.navigator = navigator;
+    }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -91,7 +99,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
             }
             catch (Exception e) {
                 logger.error("failed setting the contents of screen with exception ", e);
-                UiHandler.navigator.navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
+                navigator.navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
             }
 
         });

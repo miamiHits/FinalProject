@@ -60,14 +60,14 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private static final Logger logger = Logger.getLogger(ExperimentConfigurationPresenter.class);
 
-    public ExperimentConfigurationPresenter() {
+    public ExperimentConfigurationPresenter(ExperimentRunningPresenter experimentRunningPresenter) {
+        this.experimentRunningPresenter = experimentRunningPresenter;
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         logger.debug("enter");
         this.service = UiHandler.service;
-        this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
 
         selectedProblems.clear();
         VerticalLayout mainLayout = new VerticalLayout();
