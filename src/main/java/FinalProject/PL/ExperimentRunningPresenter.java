@@ -3,12 +3,14 @@ package FinalProject.PL;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.Page;
 import com.vaadin.shared.Position;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.renderers.ComponentRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 import org.apache.log4j.Logger;
+import org.vaadin.dialogs.ConfirmDialog;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 public class ExperimentRunningPresenter extends Panel implements View{
 
     private Grid<ProblemAlgoPair> problemAlgoPairGrid;
-    private Map<ProblemAlgoPair, ProgressBar> pairToProgressBarMap = new HashMap<>();;
+    private Map<ProblemAlgoPair, ProgressBar> pairToProgressBarMap = new HashMap<>();
     private ProgressBar mainProgBar = new ProgressBar(0.0f);
     private Button goToResScreenBtn;
     private Button stopBtn;
@@ -43,19 +45,24 @@ public class ExperimentRunningPresenter extends Panel implements View{
         goToResScreenBtn.addStyleName(ValoTheme.BUTTON_FRIENDLY);
         stopBtn = new Button("Stop Experiment!", clickEvent -> {
             logger.debug("clicked stop experiment");
-            if (stopExperimentCallable != null) {
-                try {
-                    if (stopExperimentCallable.call()) {
-                        getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
+            ConfirmDialog.show(getUI(), "Please confirm", "Stop experiment?", "Yes", "No",
+                    (ConfirmDialog.Listener) confirmDialog -> {
+                if (confirmDialog.isConfirmed() && stopExperimentCallable != null) {
+                    try {
+                        if (stopExperimentCallable.call()) {
+                            getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
+                        }
+                        else {
+                            new Notification("Could not stop experiment!", Notification.Type.ERROR_MESSAGE)
+                                    .show(Page.getCurrent());
+                        }
+                    } catch (Exception e) {
+                        new Notification("Could not stop experiment!", Notification.Type.ERROR_MESSAGE)
+                                .show(Page.getCurrent());
+                        e.printStackTrace();
                     }
-                    else {
-                        //TODO
-                    }
-                } catch (Exception e) {
-                    //TODO
-                    e.printStackTrace();
                 }
-            }
+            });
         });
         stopBtn.addStyleName(ValoTheme.BUTTON_DANGER);
 
