@@ -1,6 +1,5 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.DataObjects.Prefix;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
@@ -11,14 +10,13 @@ import java.util.stream.Collectors;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
 
-//TODO equals and hashCode
-public class SimulatedAnealing extends SmartHomeAgentBehaviour{
+public class SA extends SmartHomeAgentBehaviour{
 
-    private final static Logger logger = Logger.getLogger(SimulatedAnealing.class);
+    private final static Logger logger = Logger.getLogger(SA.class);
     private Map<PropertyWithData, List<Set<Integer>>> propToSubsetsMap = new HashMap<>();
     private Map<PropertyWithData, Map<String,Integer>> propToSensorsToChargeMap = new HashMap<>();
 
-    public SimulatedAnealing() { super(); }
+    public SA() { super(); }
 
     @Override
     protected void doIteration() {
@@ -154,7 +152,7 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
     @Override
     protected void onTermination() {
         logger.info(agent.getName() + " for problem " +
-                agent.getProblemId() + "and algo SimulatedAnealing is TERMINATING!");
+                agent.getProblemId() + "and algo SA is TERMINATING!");
     }
 
     @Override
@@ -182,8 +180,8 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
     }
 
     @Override
-    public SimulatedAnealing cloneBehaviour() {
-        SimulatedAnealing newInstance = new SimulatedAnealing();
+    public SA cloneBehaviour() {
+        SA newInstance = new SA();
         newInstance.finished = this.finished;
         newInstance.currentNumberOfIter = this.currentNumberOfIter;
         newInstance.FINAL_TICK = this.FINAL_TICK;
@@ -195,5 +193,21 @@ public class SimulatedAnealing extends SmartHomeAgentBehaviour{
     protected double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds) {
         double price = calcCsum(newPowerConsumption);
         return price + calculateEPeak(allScheds);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        SA sa = (SA) o;
+        return Objects.equals(propToSubsetsMap, sa.propToSubsetsMap) &&
+                Objects.equals(propToSensorsToChargeMap, sa.propToSensorsToChargeMap);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(propToSubsetsMap, propToSensorsToChargeMap);
     }
 }
