@@ -52,7 +52,7 @@ public class Config {
 
     public static String getStringPropery(String key, String profile)
     {
-        logger.debug("getting property for key: " + profile + key);
+        logger.trace("getting property for key: " + profile + key);
         String result = props.getProperty(profile + key);
         if (result == null)
         {

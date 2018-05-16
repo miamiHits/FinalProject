@@ -1,10 +1,7 @@
 package FinalProject.PL;
 
-import FinalProject.BL.Agents.DSA;
-import FinalProject.BL.Agents.SHMGM;
-import FinalProject.BL.Agents.SimulatedAnealing;
+import FinalProject.BL.Agents.SA;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
-import FinalProject.BL.Agents.DBA;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.Config;
@@ -12,16 +9,11 @@ import FinalProject.DAL.*;
 import FinalProject.Service;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinService;
-import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 import org.apache.log4j.Logger;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -39,10 +31,11 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static Service service;
-    public static Navigator navigator;
-    public static ExperimentRunningPresenter experimentRunningPresenter;
 
+    private Navigator  navigator;
+    private ExperimentRunningPresenter experimentRunningPresenter;
     private ExperimentResultsPresenter resultsPresenter;
+
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
     protected static final String EXPERIMENT_RUNNING = "EXPERIMENT_RUNNING";
@@ -54,13 +47,16 @@ public class UiHandler extends UI implements UiHandlerInterface {
     public UiHandler()
     {
         Config.loadConfig();
+        if (service != null)
+        {
+            logger.info("creating new UI(UiHandler) when one already exists! will not create new Service instances");
+            return;
+        }
 
         logger.debug("Uihandelr ceated");
-        resultsPresenter = new ExperimentResultsPresenter();
         String jsonPath = Config.getStringPropery(Config.PROBLEMS_DIR);
         jsonPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-        String algorithmsPath = Config.getStringPropery(Config.EMBEDDED_ALGO_DIR) + "FinalProject/BL/Agents";
-        algorithmsPath.replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+        String algorithmsPath = new File(SmartHomeAgentBehaviour.class.getResource("").getFile()).getPath();
 
         JsonLoaderInterface jsonLoader = new JsonLoader(jsonPath);
         AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
@@ -78,14 +74,33 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
         navigator = new Navigator(this, this);
 
+        if (getSession().getUIs().size() > 0)
+        {
+            navigator.addView("", new InvalidAdditionalUIPresenter(navigator));
+            return;
+        }
+
         // Create and register the views
-        ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter();
         experimentRunningPresenter = new ExperimentRunningPresenter();
+        ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter(experimentRunningPresenter);
+        resultsPresenter = new ExperimentResultsPresenter(navigator);
         navigator.addView("", experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RUNNING, experimentRunningPresenter);
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RESULTS, resultsPresenter);
+        setMobileHtml5DndEnabled(true);
     }
+
+//    @Override
+//    public void close() {
+//        ConfirmDialog.show(getUI(), "Please Confirm:", "Are you really sure?",
+//                "I am", "Not quite", (ConfirmDialog.Listener) dialog -> {
+//                    if (dialog.isConfirmed()) {
+//                        //TODO: stop experiment if running
+//                        super.close();
+//                    }
+//                });
+//    }
 
     @Override
     public void showMainScreen() {
@@ -111,7 +126,7 @@ public class UiHandler extends UI implements UiHandlerInterface {
         List<String> algoList = new ArrayList<>();
         //algoList.add(SHMGM.class.getSimpleName());
         //algoList.add(DSA.class.getSimpleName());
-        algoList.add(SimulatedAnealing.class.getSimpleName());
+        algoList.add(SA.class.getSimpleName());
         service.setAlgorithmsToExperiment(algoList, numOfIter);
         List<String> problem = new ArrayList<>();
         problem.add("dm_7_1_3");

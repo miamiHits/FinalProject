@@ -96,8 +96,8 @@ public class Experiment implements ExperimentInterface {
         iter2Time.put(counter, (System.currentTimeMillis() - this.runningTime));
         algorithmProblemResults.add(result);
         this.probToAlgoTotalTime.put(result.getProblem()+"_"+result.getAlgorithm(), this.iter2Time);
-        for(int i=0; i<counter; i++)
-            logger.debug("iteration " + i + " took :" + iter2Time.get(i));
+       // for(int i=0; i<counter; i++)
+           // logger.debug("iteration " + i + " took :" + iter2Time.get(i));
         this.counter = 0;
         this.iter2Time = new HashMap<>();
         this.runningTime = System.currentTimeMillis();

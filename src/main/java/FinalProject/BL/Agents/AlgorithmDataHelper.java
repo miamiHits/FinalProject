@@ -323,10 +323,8 @@ public class AlgorithmDataHelper
     }
 
     public double calcTotalPowerConsumption(double cSum, double[] myPowerConsumption) {
-        logger.info("Calculating total power consumption - stage 2");
-
+     //   logger.info("Calculating total power consumption - stage 2");
         List<double[]> scheds = new ArrayList<>(this.neighboursPriceConsumption);
-//        double [] myPowerCons = cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
         scheds.add(myPowerConsumption);
         this.ePeak = calculateEPeak(scheds);
         return getAC() * cSum + getAE() * ePeak;
@@ -371,6 +369,10 @@ public class AlgorithmDataHelper
     public void resetProperties() {
         for (PropertyWithData prop : this.allProperties)
             prop.getSensor().setCurrentState(prop.getCachedSensorState());
+    }
+
+    public void resetDeviceToTicks() {
+       this.deviceToTicks =  new HashMap<>();
     }
 
     public void setAllProperties(List<PropertyWithData> allProperties) {

@@ -117,10 +117,13 @@ public class StatisticsHandler {
 
                if (whenToSwitch <= switchErrorBar && key.equals("DSA"))
                {
+                  // logger.warn("YARDEN DEBUG: added data for DSA");
                    dataset.add(total / size, std, key, j);
 
                }
                else if (whenToSwitch > switchErrorBar && key.equals("SHMGM")) {
+                   //logger.warn("YARDEN DEBUG: added data for SHMGM");
+
                    dataset.add(total / size, std, key, j);
                }
                else{
@@ -129,15 +132,16 @@ public class StatisticsHandler {
 
                whenToSwitch++;
 
-               if (key.equals("SHMGM") && (command ==graphType.TotalConsumption))
-               {
-                   calcBestGrade(size, value, dataset);
-               }
+                if (command ==graphType.TotalConsumption)
+                {
+                   calcBestGrade(key, size, value, dataset);
+                }
+
            }
        });
    }
 
-    private void calcBestGrade(int size, List<AlgorithmProblemResult> value, DefaultStatisticalCategoryDataset dataset)
+    private void calcBestGrade(String algoName, int size, List<AlgorithmProblemResult> value, DefaultStatisticalCategoryDataset dataset)
     {
         double total;
         for (int j = 0; j < ITER_NUM; j++) {
@@ -145,13 +149,18 @@ public class StatisticsHandler {
             for (int i = 0; i < size; i++) {
                 total += value.get(i).getBestTotalGradePerIter().get(j);
             }
-            dataset.add(total / size, null, "SHMGM best grade", j);
+           // logger.warn("YARDEN DEBUG: added data for " + algoName + "anytime");
+
+            dataset.add(total / size, null, algoName + "anytime", j);
         }
 
     }
 
     public static double calculateSD(double[] numArray)
     {
+        if (numArray.length == 1)
+            return 0.0;
+        
         double sum = 0.0, standardDeviation = 0.0;
 
         for(double num : numArray) {

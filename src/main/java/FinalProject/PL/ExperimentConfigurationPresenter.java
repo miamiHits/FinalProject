@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -37,10 +38,11 @@ import java.util.stream.Collectors;
 
 public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener, HasValue.ValueChangeListener<String> {
 
-    public static final String SMALL_SIZE = "Small";
-    public static final String MEDIUM_SIZE = "Medium";
-    public static final String BIG_SIZE = "Big";
-    public static final String VERY_BIG_SIZE = "Very Big";
+    private static final String SMALL_SIZE = "Small";
+    private static final String MEDIUM_SIZE = "Medium";
+    private static final String BIG_SIZE = "Big";
+    private static final String VERY_BIG_SIZE = "Very Big";
+
     private Button startExperimentBtn = new Button("Start Experiment");
     private TextField numberOfIterationsTxt = new TextField("Select Number of Iterations");
     private int numberOfIterations = 0;
@@ -58,14 +60,14 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private static final Logger logger = Logger.getLogger(ExperimentConfigurationPresenter.class);
 
-    public ExperimentConfigurationPresenter() {
+    public ExperimentConfigurationPresenter(ExperimentRunningPresenter experimentRunningPresenter) {
+        this.experimentRunningPresenter = experimentRunningPresenter;
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         logger.debug("enter");
         this.service = UiHandler.service;
-        this.experimentRunningPresenter = UiHandler.experimentRunningPresenter;
 
         selectedProblems.clear();
         VerticalLayout mainLayout = new VerticalLayout();
@@ -230,10 +232,14 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     }
 
     private String getSizeDescriptionForProblem(int size) {
-        if (size <= 35)         { return SMALL_SIZE; }
-        else if (size <= 71)    { return MEDIUM_SIZE; }
-        else if (size <= 188)   { return BIG_SIZE; }
-        else                    { return VERY_BIG_SIZE; }
+        final int SMALL_UPPER_BOUND =   35;
+        final int MEDIUM_UPPER_BOUND =  71;
+        final int BIG_UPPER_BOUND =     135;
+
+        if      (size <= SMALL_UPPER_BOUND)     { return SMALL_SIZE;    }
+        else if (size <= MEDIUM_UPPER_BOUND)    { return MEDIUM_SIZE;   }
+        else if (size <= BIG_UPPER_BOUND)       { return BIG_SIZE;      }
+        else                                    { return VERY_BIG_SIZE; }
     }
 
     private Map<Integer, List<String>> initTree(Tree<String> problemTree) {
@@ -352,7 +358,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         dropArea.setSizeUndefined();
         dropArea.addStyleNames(ValoTheme.LABEL_HUGE, ValoTheme.LABEL_BOLD);
 
-        final String COMPILED_ALGO_DIR = Config.getStringPropery(Config.EMBEDDED_ALGO_DIR);
+        final String ADDED_ALGORITHMS_DIR = Config.getStringPropery(Config.ADDED_ALGORITHMS_DIR);
         VerticalLayout layout = new VerticalLayout(dropArea);
         layout.addStyleNames(ValoTheme.DRAG_AND_DROP_WRAPPER_NO_HORIZONTAL_DRAG_HINTS, ValoTheme.LAYOUT_WELL);
         layout.setComponentAlignment(dropArea, Alignment.MIDDLE_CENTER);
@@ -365,8 +371,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 // Output stream to write the file to
                 @Override
                 public OutputStream getOutputStream() {
-                    String path = (COMPILED_ALGO_DIR + "/" + file.getFileName())
-                            .replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+                    String path = Paths.get(ADDED_ALGORITHMS_DIR, file.getFileName()).toAbsolutePath().toString();
                     try {
                         fileOutputStream = new FileOutputStream(path);
                         return fileOutputStream;
@@ -418,7 +423,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 }
 
                 private void algoUploadFinished(String fileName) {
-                    AlgoAddResult result = service.addNewAlgo(COMPILED_ALGO_DIR, fileName);
+                    AlgoAddResult result = service.addNewAlgo(ADDED_ALGORITHMS_DIR, fileName);
                     if (result.isSuccess()) {
                         refreshAlgorithms();
                         Notification.show(fileName + " was added successfully!");
@@ -465,6 +470,10 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         {
             setExperimentRunningPairs();
             experimentRunningPresenter.setNumOfIter(numberOfIterations);
+            experimentRunningPresenter.setStopExperimentCallable(() -> {
+                service.stopExperiment();
+                return true;
+            });
 
             service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
             service.setProblemsToExperiment(selectedProblems.stream().map(SelectedProblem::getName).collect(Collectors.toList()));
