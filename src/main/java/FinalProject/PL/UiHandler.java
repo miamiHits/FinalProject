@@ -91,17 +91,6 @@ public class UiHandler extends UI implements UiHandlerInterface {
         setMobileHtml5DndEnabled(true);
     }
 
-//    @Override
-//    public void close() {
-//        ConfirmDialog.show(getUI(), "Please Confirm:", "Are you really sure?",
-//                "I am", "Not quite", (ConfirmDialog.Listener) dialog -> {
-//                    if (dialog.isConfirmed()) {
-//                        //TODO: stop experiment if running
-//                        super.close();
-//                    }
-//                });
-//    }
-
     @Override
     public void showMainScreen() {
 
