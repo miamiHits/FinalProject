@@ -274,7 +274,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         problemTree.setContentMode(ContentMode.TEXT);
         problemTree.addItemClickListener(itemClick -> {
-            //TODO add another level for the descriptions
             String item = itemClick.getItem();
             List<String> children = treeData.getChildren(item);
             //is a specific problem

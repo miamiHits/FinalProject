@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 
 public class DSATest {
 
-    //TODO: exception when running the tests!
-
     private Problem dm_7_1_2;
     private DSA dsa;
     private SmartHomeAgent agent;

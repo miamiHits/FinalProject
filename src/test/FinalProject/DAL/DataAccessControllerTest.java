@@ -44,7 +44,7 @@ public class DataAccessControllerTest {
     @Test
     public void getAvailableAlgorithms() throws Exception
     {
-        Set<String> expected = Sets.newSet("SHMGM", "DSA", "SA");
+        Set<String> expected = Sets.newSet("SHMGM", "DSA", "SA", "DBA");
         List<String> actual = accessController.getAvailableAlgorithms();
         Assert.assertEquals(expected, new HashSet<>(actual));
     }

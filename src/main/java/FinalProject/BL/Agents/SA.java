@@ -102,8 +102,17 @@ public class SA extends SmartHomeAgentBehaviour{
     }
 
     private boolean shouldTakeNewSched() {
-        float probability = 1 - ((float) currentNumberOfIter / agent.getAgentData().getNumOfIterations());
+        float probability = calcProbabilityToTakeNewSched();
         return flipCoin(probability);
+    }
+
+    private float calcProbabilityToTakeNewSched() {
+        if (agent.getAgentData().getNumOfIterations() <= 0 || currentNumberOfIter <= 0) {
+            logger.info("Num of iter <= 0 or currentNumberOfIter <= 0!");
+            return -1;
+        }
+
+        return 1 - ((float) currentNumberOfIter / agent.getAgentData().getNumOfIterations());
     }
 
     private Set<Integer> pickRandomSubsetForProp(PropertyWithData prop) {

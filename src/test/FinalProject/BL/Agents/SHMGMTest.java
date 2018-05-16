@@ -34,8 +34,8 @@ public class SHMGMTest {
     @After
     public void tearDown() throws Exception {
         dm_7_1_2 = null;
-        shmgm = null;
         agent = null;
+        shmgm = null;
     }
 
     @Test

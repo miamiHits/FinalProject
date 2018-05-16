@@ -108,7 +108,7 @@ public class AlgorithmLoaderTest {
     @Test
     public void getAllAlgoNames() throws Exception
     {
-        Set<String> expected = Sets.newSet("SHMGM", "DSA", "SA");
+        Set<String> expected = Sets.newSet("SHMGM", "DSA", "SA", "DBA");
         List<String> actual = loader.getAllAlgoNames();
         Assert.assertEquals(expected, new HashSet<>(actual));
     }
