@@ -70,9 +70,10 @@
   }
 
   .with-bg-image {
-    background: url("img/pic1.jpg") no-repeat !important;
-    background-size: cover;
-    background-position: bottom left;
+    background-image: url("img/4.jpg");
+    background-repeat: no-repeat;
+    background-size: 400px 210px;
+    background-position: 98% 98%;
   }
 
   .result-chart {

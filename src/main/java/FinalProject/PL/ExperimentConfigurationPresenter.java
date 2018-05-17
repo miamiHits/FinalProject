@@ -72,7 +72,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         selectedProblems.clear();
         VerticalLayout mainLayout = new VerticalLayout();
         //TODO uncomment to add background image!
-//        mainLayout.setStyleName("with-bg-image");
+        mainLayout.setStyleName("with-bg-image");
 
         ResponsiveLayout configurationLayout = new ResponsiveLayout(ResponsiveLayout.ContainerType.FLUID)
                 .withSpacing();
