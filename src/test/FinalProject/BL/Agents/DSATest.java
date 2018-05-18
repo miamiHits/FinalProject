@@ -20,7 +20,7 @@ public class DSATest {
     private Problem dm_7_1_2;
     private DSA dsa;
     private SmartHomeAgent agent;
-    private List<PropertyWithData> props = new ArrayList<>(2);
+    private List<PropertyWithData> props;
 
     @Before
     public void setup() {
@@ -32,6 +32,7 @@ public class DSATest {
         dm_7_1_2 = DalTestUtils.getProblemDm_7_1_2();
         agent = ReflectiveUtils.initSmartHomeAgentForTest(dm_7_1_2);
         dsa = new DSA(agent);
+        props = new ArrayList<>(2);
     }
 
     @After
@@ -39,6 +40,7 @@ public class DSATest {
         dm_7_1_2 = null;
         dsa = null;
         agent = null;
+        props = null;
     }
 
     public void prepareGround()
@@ -126,11 +128,11 @@ public class DSATest {
                 if (entry.getKey().getName().equals("GE_WSM2420D3WW_wash")){ // need to work only 1 Tick.
                     Assert.assertTrue(res.getValue().size()==1);
                 }
-                if (entry.getKey().getName().equals("Tesla_S")) // need to work 3 Ticks.
+                else if (entry.getKey().getName().equals("Tesla_S")) // need to work 3 Ticks.
                 {
                     Assert.assertTrue(res.getValue().size()==3);
                 }
-                if (entry.getKey().getName().equals("Roomba")) {
+                else if (entry.getKey().getName().equals("Roomba")) {
                     Assert.assertTrue(res.getValue().contains(0) || res.getValue().contains(1) || res.getValue().contains(2));
                 }
             }
