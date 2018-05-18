@@ -46,6 +46,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected double tempBestPriceConsumption = -1;
     protected MessageTemplate improvementTemplate;
     protected final int MSG_TO_DEVICE_SIZE = 4;
+    private Map<PropertyWithData, List<Set<Integer>>> propToSubsetsMap = new HashMap<>();
 
     public SmartHomeAgentBehaviour() {}
 
@@ -407,6 +408,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 return;
             }
         }
+        else if (propToSubsetsMap.containsKey(prop)) {
+            subsets = propToSubsetsMap.get(prop);
+        }
         else {
             List<Integer> rangeForWork = calcRangeOfWork(prop);
             subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
@@ -503,7 +507,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected List<Set<Integer>> checkAllSubsetOptions(PropertyWithData prop) {
-         List<Integer> rangeForWork = calcRangeOfWork(prop);
+        if (propToSubsetsMap.containsKey(prop)) {
+            return propToSubsetsMap.get(prop);
+        }
+
+        List<Integer> rangeForWork = calcRangeOfWork(prop);
         int numOfTicksInRange = rangeForWork.size();
         int ticksToWork = 0;
         double currState = prop.getSensor().getCurrentState();
@@ -540,7 +548,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
             }
         }
-        return helper.getSubsets(rangeForWork, ticksToWork);
+        final List<Set<Integer>> subsets = helper.getSubsets(rangeForWork, ticksToWork);
+        propToSubsetsMap.put(prop, subsets);
+        return subsets;
     }
 
     protected double calcCsum(double[] sched) {

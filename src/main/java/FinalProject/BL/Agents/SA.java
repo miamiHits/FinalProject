@@ -204,19 +204,19 @@ public class SA extends SmartHomeAgentBehaviour{
         return price + calculateEPeak(allScheds);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        SA sa = (SA) o;
-        return Objects.equals(propToSubsetsMap, sa.propToSubsetsMap) &&
-                Objects.equals(propToSensorsToChargeMap, sa.propToSensorsToChargeMap);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(propToSubsetsMap, propToSensorsToChargeMap);
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        if (!super.equals(o)) return false;
+//        SA sa = (SA) o;
+//        return Objects.equals(propToSubsetsMap, sa.propToSubsetsMap) &&
+//                Objects.equals(propToSensorsToChargeMap, sa.propToSensorsToChargeMap);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        int hash = super.hashCode();
+//        return Objects.hash(propToSubsetsMap, propToSensorsToChargeMap, hash);
+//    }
 }

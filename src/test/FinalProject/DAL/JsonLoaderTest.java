@@ -37,26 +37,24 @@ public class JsonLoaderTest {
         Assert.assertEquals(expected, actual);
     }
 
+    //TODO fix
     @Test
     public void loadProblemsManyProblemsDm_7_1_2Good() throws Exception
     {
         final int NUM_PROBLEMS = 40;
         List<String> lst = new ArrayList<>();
-        for (int i = 0; i <= NUM_PROBLEMS; i++)
-        {
+        for (int i = 0; i <= NUM_PROBLEMS; i++) {
             lst.add("dm_7_1_2");
         }
-        Problem singleResult = DalTestUtils.getProblemDm_7_1_2();
         List<Problem> expected = new ArrayList<>();
-        for (int i = 0; i <= NUM_PROBLEMS; i++)
-        {
-            expected.add(singleResult);
+        for (int i = 0; i <= NUM_PROBLEMS; i++) {
+            expected.add(DalTestUtils.getProblemDm_7_1_2());
         }
         long start = Calendar.getInstance().getTime().getTime();
         List<Problem> actual = loader.loadProblems(lst);
         long end = Calendar.getInstance().getTime().getTime();
         System.out.println("time: " + (end - start) + " milliseconds");
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
     }
 
     @Test
