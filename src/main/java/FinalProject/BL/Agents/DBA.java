@@ -74,7 +74,6 @@ public class DBA extends SmartHomeAgentBehaviour{
         helper.totalPriceConsumption = prevTotalCost;
         double prevAgentPriceSum = agent.getPriceSum();
         agent.setPriceSum(oldPrice);
-        Map<Actuator, Map<Action, List<Integer>>> deviceToTicksPREV = helper.getDeviceToTicks();
 
         //calc try to improve sched
         helper.resetProperties();
@@ -85,13 +84,12 @@ public class DBA extends SmartHomeAgentBehaviour{
         double actualEpeak = tempBestPriceConsumption - newPrice;
 
         boolean allDidntImproved = true;
-
+        //send data to neighbors, and get it back
         double improvement = prevTotalCost - tempBestPriceConsumption;
         ImprovementMsg impMsg = sendImprovementToNeighbours(improvement, prevIterPowerConsumption);
         List<ImprovementMsg> receivedImprovements = receiveImprovementMsgs();
         receivedImprovements.add(impMsg);
         ImprovementMsg max = receivedImprovements.stream().max(ImprovementMsg::compareTo).orElse(null);
-        maxImprovementMsg = max;
 
         if (max == null) {
             logger.error("max is null! Something went wrong!!!!!!!");
@@ -100,6 +98,7 @@ public class DBA extends SmartHomeAgentBehaviour{
             return;
         }
 
+        //This agent Didn't improved
         if (improvement < 1)
         {
             //check if all agents didn't improve --> 0
@@ -112,9 +111,11 @@ public class DBA extends SmartHomeAgentBehaviour{
                 }
             }
         }
-        else{
+
+        else
+        {
             allDidntImproved = false;
-            }
+        }
 
         //not all agents got 0 in their improvements, we continue like regular iteration.
         if(!allDidntImproved)
@@ -122,17 +123,23 @@ public class DBA extends SmartHomeAgentBehaviour{
             //take new schedule
              takeNewSched(newPrice, actualEpeak);
         }
-        //the "heart" of DBA algorithem will start to work
-        else {
+
+        //the "heart" of DBA algorithm will start to work
+        else
+        {
             //first need to raffle if this agent will build new sched with the bags.
             float PROBABILITY = 0.6f;
-            int maxBag = checkMaxBagValue();
-            if (flipCoin(PROBABILITY)) {
+            int maxBag = checkMaxBagValue(); //flipCoin(PROBABILITY)
+            if (flipCoin(PROBABILITY))
+            {
+                Map<Actuator, Map<Action, List<Integer>>> helperTicksToDevice = helper.getDeviceToTicks();
+
+                //for DEBUG propuse ONLY
                 for(int i=0; i<ticksBag.length; i++)
                     logger.warn(agent.getAgentData().getName() + " YARDEN DEBUG: prev bags are: " + ticksBag[i]);
-                // add bags
-                for (Map.Entry<Actuator, Map<Action, List<Integer>>> entry: deviceToTicksPREV.entrySet())
 
+                // add bags
+                for (Map.Entry<Actuator, Map<Action, List<Integer>>> entry: helperTicksToDevice.entrySet())
                 {
                     for (Map.Entry<Action, List<Integer>> innerEntry : entry.getValue().entrySet())
                     {
@@ -146,9 +153,12 @@ public class DBA extends SmartHomeAgentBehaviour{
                     }
                 }
 
+                logger.warn("YARDEN DEBUG:prev ticks was: "+ helperTicksToDevice.entrySet().toString());
+
                 inImprovmentRound = true;
+                this.oldPrice = newPrice;
                 //reset fields
-                helper.totalPriceConsumption = prevTotalCost;
+                prevTotalCost = helper.calcTotalPowerConsumption(oldPrice, iterationPowerConsumption); //also sets helper's epeak
                 agent.setPriceSum(oldPrice);
                 helper.resetProperties();
                 //calc new sched according to new bags
@@ -158,14 +168,14 @@ public class DBA extends SmartHomeAgentBehaviour{
                 newPrice = calcCsum(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
                 actualEpeak = tempBestPriceConsumption - newPrice;
                 logger.warn(agent.getAgentData().getName() + " YARDEN DEBUG: prev CSUM " + oldPrice + "New CSUM" + newPrice +
-                        "YARDEN DEBUG: new ticks are:" + helper.getDeviceToTicks().entrySet().toString() +
-                              "YARDEN DEBUG: prev ticks was:" + deviceToTicksPREV.entrySet().toString()
+                        "YARDEN DEBUG: new ticks are:" + helper.getDeviceToTicks().entrySet().toString()
                                 +  "prev total " + prevTotalCost
                                 +  "new total " + tempBestPriceConsumption);
+                //for DEBUG ONLY
                  for(int i=0; i<ticksBag.length; i++)
                     logger.warn(agent.getAgentData().getName() + " YARDEN DEBUG: NEW bags are: " + ticksBag[i]);
-                takeNewSched(newPrice, actualEpeak);
 
+                takeNewSched(newPrice, actualEpeak);
                 inImprovmentRound = false;
 
             }
@@ -298,20 +308,5 @@ public class DBA extends SmartHomeAgentBehaviour{
 
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DBA shmgm = (DBA) o;
 
-        boolean superEquals = super.equals(shmgm);
-        return superEquals && (maxImprovementMsg == null && shmgm.maxImprovementMsg == null) ||
-                (maxImprovementMsg != null && shmgm.maxImprovementMsg != null &&
-                        maxImprovementMsg.equals(shmgm.maxImprovementMsg));
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(maxImprovementMsg, gainMsgOntology, improvementTemplate);
-    }
 }
