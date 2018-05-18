@@ -13,8 +13,6 @@ import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPea
 public class SA extends SmartHomeAgentBehaviour{
 
     private final static Logger logger = Logger.getLogger(SA.class);
-    private Map<PropertyWithData, List<Set<Integer>>> propToSubsetsMap = new HashMap<>();
-    private Map<PropertyWithData, Map<String,Integer>> propToSensorsToChargeMap = new HashMap<>();
 
     public SA() { super(); }
 
@@ -132,31 +130,31 @@ public class SA extends SmartHomeAgentBehaviour{
         else {
 //            startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork, randomSched);
             if (!propToSubsetsMap.containsKey(prop)) {
-                initSubsetsForProp(prop, ticksToWork);
+                getSubsetsForProp(prop, ticksToWork); //to put in map if absent
             }
-            addSensorsToChargeForPropIfAbsent(prop, sensorsToCharge);
+//            addSensorsToChargeForPropIfAbsent(prop, sensorsToCharge);
         }
     }
 
-    private void addSensorsToChargeForPropIfAbsent(PropertyWithData prop, Map<String, Integer> sensorsToCharge) {
-        propToSensorsToChargeMap.putIfAbsent(prop,sensorsToCharge);
-    }
-
-    private List<Set<Integer>> initSubsetsForProp(PropertyWithData prop, double ticksToWork) {
-        List<Set<Integer>> subsets;
-        if (ticksToWork <= 0) {
-            subsets = checkAllSubsetOptions(prop);
-            if (subsets == null ) {
-                logger.warn("subsets is null!");
-            }
-        }
-        else {
-            List<Integer> rangeForWork = calcRangeOfWork(prop);
-            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
-        }
-        propToSubsetsMap.put(prop, subsets);
-        return subsets;
-    }
+//    private void addSensorsToChargeForPropIfAbsent(PropertyWithData prop, Map<String, Integer> sensorsToCharge) {
+//        propToSensorsToChargeMap.putIfAbsent(prop,sensorsToCharge);
+//    }
+//
+//    private List<Set<Integer>> initSubsetsForProp(PropertyWithData prop, double ticksToWork) {
+//        List<Set<Integer>> subsets;
+//        if (ticksToWork <= 0) {
+//            subsets = checkAllSubsetOptions(prop);
+//            if (subsets == null ) {
+//                logger.warn("subsets is null!");
+//            }
+//        }
+//        else {
+//            List<Integer> rangeForWork = calcRangeOfWork(prop);
+//            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
+//        }
+//        propToSubsetsMap.put(prop, subsets);
+//        return subsets;
+//    }
 
     @Override
     protected void onTermination() {
