@@ -1,8 +1,6 @@
 package FinalProject.BL.Agents;
 
 import FinalProject.BL.DataObjects.*;
-import FinalProject.BL.Agents.*;
-import FinalProject.BL.DataCollection.*;
 import org.junit.*;
 
 import java.util.ArrayList;
@@ -93,7 +91,7 @@ public class PropertyWithDataTest
 
         double[] consumption = new double[HORIZON_SIZE];
         chargeProp.activeTicks = activeTicks;
-        chargeProp.calcAndUpdateCurrState(chargeProp.getMin(), HORIZON_SIZE, consumption, IS_FROM_START);
+        chargeProp.calcAndUpdateCurrState(HORIZON_SIZE, consumption, IS_FROM_START);
         assertPropertyState(chargeProp, 0 , HORIZON_SIZE, ON_DELTA, OFF_DELTA);
     }
 
@@ -128,7 +126,7 @@ public class PropertyWithDataTest
         chargeProp.setActuator(tesla_s);
         double[] consumption = new double[HORIZON_SIZE];
         chargeProp.activeTicks = activeTicks;
-        chargeProp.calcAndUpdateCurrState(chargeProp.getMin(), HORIZON_SIZE, consumption, IS_FROM_START);
+        chargeProp.calcAndUpdateCurrState(HORIZON_SIZE, consumption, IS_FROM_START);
         assertPropertyState(chargeProp, 0 , HORIZON_SIZE, ON_DELTA, OFF_DELTA);
     }
 
@@ -162,7 +160,7 @@ public class PropertyWithDataTest
         chargeProp.setActuator(tesla_s);
         double[] consumption = new double[HORIZON_SIZE];
         chargeProp.activeTicks = activeTicks;
-        chargeProp.calcAndUpdateCurrState(chargeProp.getMin(), HORIZON_SIZE, consumption, IS_FROM_START);
+        chargeProp.calcAndUpdateCurrState(HORIZON_SIZE, consumption, IS_FROM_START);
         double currentCharge = chargeProp.getCachedSensorState();
         for (int i = 0; i < 11; i++)
         {
@@ -233,7 +231,7 @@ public class PropertyWithDataTest
         chargeProp.activeTicks = activeTicks;
 
         double targetTickToCount = 9;
-        chargeProp.calcAndUpdateCurrState(chargeProp.getTargetValue(), targetTickToCount, consumption, bottomPivotSelected);
+        chargeProp.calcAndUpdateCurrState(targetTickToCount, consumption, bottomPivotSelected);
         Assert.assertTrue(chargeProp.getSensor().getCurrentState() <= chargeProp.getMax());
         Assert.assertTrue(chargeProp.getSensor().getCurrentState() >= chargeProp.getMin());
         Assert.assertTrue(chargeProp.getSensor().getCurrentState() >= chargeProp.getTargetValue());
@@ -290,7 +288,7 @@ public class PropertyWithDataTest
         final double errorMargin = 0.0001;
         Assert.assertEquals(3, this.chargeProp.activeTicks.size());
         double[] consumption = new double[HORIZON_SIZE];
-        this.chargeProp.updateValueToSensor(consumption, 60, 2, 2, false);
+        this.chargeProp.updateValueToSensor(consumption, 60, 2, 2, false, tempActiveTicks);
         Assert.assertEquals(5, this.chargeProp.activeTicks.size());
         Assert.assertEquals(100, this.chargeProp.getSensor().getCurrentState(), errorMargin);
         double consumptionSum = 0;
@@ -311,7 +309,7 @@ public class PropertyWithDataTest
         final double errorMargin = 0.0001;
         Assert.assertEquals(3, this.chargeProp.activeTicks.size());
         double[] consumption = new double[HORIZON_SIZE];
-        this.chargeProp.updateValueToSensor(consumption, 60, 0, 2, false);
+        this.chargeProp.updateValueToSensor(consumption, 60, 0, 2, false, tempActiveTicks);
         Assert.assertEquals(3, this.chargeProp.activeTicks.size());
         Assert.assertEquals(60, this.chargeProp.getSensor().getCurrentState(), errorMargin);
         double consumptionSum = 0;
