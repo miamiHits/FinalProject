@@ -46,6 +46,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected double tempBestPriceConsumption = -1;
     protected MessageTemplate improvementTemplate;
     protected final int MSG_TO_DEVICE_SIZE = 4;
+    protected Map<PropertyWithData, List<Set<Integer>>> propToSubsetsMap = new HashMap<>();
+    protected Map<PropertyWithData, Map<String,Integer>> propToSensorsToChargeMap = new HashMap<>();
 
     public SmartHomeAgentBehaviour() {}
 
@@ -200,16 +202,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 .collect(Collectors.toList());
         for (PropertyWithData prop : helperNonPassiveOnlyProps) {
             double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
-            Map<String, Integer> sensorsToCharge = new HashMap<>();
-            //check if there is sensor in the same ACT who's delta is negative (has an offline effect, usually related to charge)
-            prop.getRelatedSensorsDelta().forEach((sensorPropName, delta) -> {
-                if (delta < 0) {
-                    int ticksNeedToCharge = calcHowManyTicksNeedToCharge(sensorPropName, delta, ticksToWork);
-                    if (ticksNeedToCharge > 0) {
-                        sensorsToCharge.put(sensorPropName, ticksNeedToCharge);
-                    }
-                }
-            });
+            Map<String, Integer> sensorsToCharge = getSensorsToChargeForProp(prop, ticksToWork);
             generateScheduleForProp(prop, ticksToWork, sensorsToCharge, randomizeSched);
             if (prop.getDeltaWhenWorkOffline()<0) {
                 makeSurePropBetweenRange(prop);
@@ -237,6 +230,24 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 //TODO
                break;
         }
+    }
+
+    private Map<String, Integer> getSensorsToChargeForProp(PropertyWithData prop, double ticksToWork) {
+        if (propToSensorsToChargeMap.containsKey(prop)) {
+            return propToSensorsToChargeMap.get(prop);
+        }
+        Map<String, Integer> sensorsToCharge = new HashMap<>();
+        //check if there is sensor in the same ACT who's delta is negative (has an offline effect, usually related to charge)
+        prop.getRelatedSensorsDelta().forEach((sensorPropName, delta) -> {
+            if (delta < 0) {
+                int ticksNeedToCharge = calcHowManyTicksNeedToCharge(sensorPropName, delta, ticksToWork);
+                if (ticksNeedToCharge > 0) {
+                    sensorsToCharge.put(sensorPropName, ticksNeedToCharge);
+                }
+            }
+        });
+        propToSensorsToChargeMap.put(prop, sensorsToCharge);
+        return sensorsToCharge;
     }
 
     protected void receiveNeighboursIterDataAndHandleIt() {
@@ -415,18 +426,21 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork, boolean randomChoice) {
         prop.activeTicks.clear();
 
-        List<Set<Integer>> subsets;
-        if (ticksToWork <= 0) {
-            subsets = checkAllSubsetOptions(prop);
-            if (subsets == null ) {
-                logger.warn("subsets is null!");
-                return;
-            }
-        }
-        else {
-            List<Integer> rangeForWork = calcRangeOfWork(prop);
-            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
-        }
+        List<Set<Integer>> subsets = getSubsetsForProp(prop, ticksToWork);
+//        if (ticksToWork <= 0) {
+//            subsets = checkAllSubsetOptions(prop);
+//            if (subsets == null ) {
+//                logger.warn("subsets is null!");
+//                return;
+//            }
+//        }
+//        else if (propToSubsetsMap.containsKey(prop)) {
+//            subsets = propToSubsetsMap.get(prop);
+//        }
+//        else {
+//            List<Integer> rangeForWork = calcRangeOfWork(prop);
+//            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
+//        }
 
         if (subsets == null || subsets.size() == 0) {
             logger.error("startWorkNonZeroIter: subset problem! prop: " + prop.getName() + " ticks: " + ticksToWork);
@@ -519,7 +533,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected List<Set<Integer>> checkAllSubsetOptions(PropertyWithData prop) {
-         List<Integer> rangeForWork = calcRangeOfWork(prop);
+        if (propToSubsetsMap.containsKey(prop)) {
+            return propToSubsetsMap.get(prop);
+        }
+
+        List<Integer> rangeForWork = calcRangeOfWork(prop);
         int numOfTicksInRange = rangeForWork.size();
         int ticksToWork = 0;
         double currState = prop.getSensor().getCurrentState();
@@ -556,7 +574,30 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
             }
         }
-        return helper.getSubsets(rangeForWork, ticksToWork);
+        final List<Set<Integer>> subsets = helper.getSubsets(rangeForWork, ticksToWork);
+        propToSubsetsMap.put(prop, subsets);
+        return subsets;
+    }
+
+    protected List<Set<Integer>> getSubsetsForProp(PropertyWithData prop, double ticksToWork) {
+        if (propToSubsetsMap.containsKey(prop)) {
+            return propToSubsetsMap.get(prop);
+        }
+
+        List<Set<Integer>> subsets;
+        if (ticksToWork <= 0) {
+            subsets = checkAllSubsetOptions(prop);
+            if (subsets == null ) {
+                logger.warn("subsets is null!");
+                subsets = null;
+            }
+        }
+        else {
+            List<Integer> rangeForWork = calcRangeOfWork(prop);
+            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
+        }
+        propToSubsetsMap.put(prop, subsets);
+        return subsets;
     }
 
     protected double calcCsum(double[] sched) {
