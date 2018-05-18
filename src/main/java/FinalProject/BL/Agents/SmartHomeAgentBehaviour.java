@@ -201,15 +201,24 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 .collect(Collectors.toList());
         for (PropertyWithData prop : helperNonPassiveOnlyProps) {
             prop.activeTicks.clear();
+            // if delta in offline is less then zero, we need to make sure prop
+            // doesn't exceed its boundries. if
+            if (prop.getDeltaWhenWorkOffline()<0)
+            {
+                if (prop.getPrefix() != Prefix.BEFORE) { //AFTER OR AT
+                    //lets see what is the state of the curr & related sensors till then
+                    //start from 0 to the traget tick - after it the rule will take action
+                    prop.calcAndUpdateCurrState(START_TICK, iterationPowerConsumption, true);
 
+                }else if (prop.getPrefix() == Prefix.BEFORE) {
+                    prop.calcAndUpdateCurrState(FINAL_TICK, iterationPowerConsumption, false);
 
-            if (prop.getPrefix() != Prefix.BEFORE && prop.getDeltaWhenWorkOffline()<0) { //AFTER OR AT
-                //lets see what is the state of the curr & related sensors till then
-                prop.calcAndUpdateCurrState(prop.getMin(),START_TICK, this.iterationPowerConsumption, true);
-
+                }
             }
 
-             double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
+
+
+            double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
             Map<String, Integer> sensorsToCharge = new HashMap<>();
             //check if there is sensor in the same ACT who's delta is negative (has an offline effect, usually related to charge)
             prop.getRelatedSensorsDelta().forEach((sensorPropName, delta) -> {
@@ -391,7 +400,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     protected void startWorkZERO(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork) {
         if (ticksToWork <= 0) {
-            prop.calcAndUpdateCurrState(prop.getMin(), FINAL_TICK, iterationPowerConsumption, false);
+            logger.warn("DEBUG YARDEN: in ITER ZERO. 0 ticks. the curr val of prop is: " + prop.getSensor().getCurrentState()
+            + "the target value is " + prop.getTargetValue() + "relation is " + prop.getRt());
+            prop.calcAndUpdateCurrState(FINAL_TICK, iterationPowerConsumption, false);
             List<Integer> activeTicks = helper.cloneList(prop.activeTicks);
             findActionToTicksMapAndPutTicks(prop, activeTicks);
             return;
@@ -403,6 +414,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork, boolean randomChoice) {
+        //prop.activeTicks.clear();
 
         List<Set<Integer>> subsets;
         if (ticksToWork <= 0) {

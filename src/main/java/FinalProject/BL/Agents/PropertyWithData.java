@@ -167,14 +167,15 @@ public class PropertyWithData {
      *                    this argument indicates if the bottom partition will be checked:
      *                    true results scan 0 -> targetTick | false results targetTick -> targetToCount
      */
-    public void calcAndUpdateCurrState(double minVal, double targetTickToCount, double[] powerConsumption, boolean isFromStart) {
+    public void calcAndUpdateCurrState(double targetTickToCount, double[] powerConsumption, boolean isFromStart) {
 
-        double currState = sensor.getCurrentState();
-        double newState;
+        double currState, newState;
         if (isFromStart) {
+            currState = sensor.getCurrentState();
             newState = currState + ((targetTick - targetTickToCount) * deltaWhenWorkOffline);
         }
         else {
+            currState = targetValue;
             newState = targetValue + ((targetTickToCount - targetTick) * deltaWhenWorkOffline);
         }
 
@@ -186,7 +187,6 @@ public class PropertyWithData {
             int i, counter;
             double target;
             if (isFromStart) {   //because AFTER we include the hour. so the count before we'll not include it.
-
                 i=0;
                 target = prefix.equals(Prefix.BEFORE) ? targetTick : targetTick-1;
                 counter = (int) target;
@@ -197,7 +197,7 @@ public class PropertyWithData {
                 counter = (int) targetTickToCount;
             }
             for ( ; i<= counter; ++i) {
-                if (currState < minVal) {
+                if (currState < this.min) {
                     //lets go back tick before the change.
                     i--;
                     currState -= deltaWhenWorkOffline;
@@ -239,7 +239,7 @@ public class PropertyWithData {
 
         Collections.shuffle(numbers);
 
-        logger.warn("YARDEN DEBUG: befor tick were: " + tempActiveTicks.toString());
+        logger.warn("YARDEN DEBUG: befor tick were: " + tempActiveTicks.toString() + "and reg active ticks are: " + activeTicks.toString());
         int size = tempActiveTicks.size();
         while (size >0)
         {
