@@ -6,10 +6,9 @@ import FinalProject.BL.DataObjects.RelationType;
 import FinalProject.BL.DataObjects.Sensor;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class PropertyWithData {
     private String name;
@@ -163,21 +162,21 @@ public class PropertyWithData {
 
     /**
      *  scans the designated interval and add activations due to offline(the actuator.state = off) delta that is not 0
-     * @param minVal - the minimal value that should be always kept
      * @param targetTickToCount - the upper bound of the interval that is under examination
      * @param powerConsumption - current power consumption that might be modified due to additional activations resulted from offline delta != 0
      * @param isFromStart - consider the the target tick mentioned in the rule to be a pivot for the horizon
      *                    this argument indicates if the bottom partition will be checked:
      *                    true results scan 0 -> targetTick | false results targetTick -> targetToCount
      */
-    public void calcAndUpdateCurrState(double minVal, double targetTickToCount, double[] powerConsumption, boolean isFromStart) {
+    public void calcAndUpdateCurrState(double targetTickToCount, double[] powerConsumption, boolean isFromStart) {
 
-        double currState = sensor.getCurrentState();
-        double newState;
+        double currState = sensor.getCurrentState(), newState;
         if (isFromStart) {
+            // here AFTER so we take care from 0 to target tick. We look at curr state val
             newState = currState + ((targetTick - targetTickToCount) * deltaWhenWorkOffline);
         }
         else {
+            // here BEFORE so we take care from target tick TO FINAL tick. We look at target val as state
             newState = currState + ((targetTickToCount - targetTick) * deltaWhenWorkOffline);
         }
 
@@ -185,37 +184,69 @@ public class PropertyWithData {
             return ; //no offline work on these ticks
         }
         else{
-            int i, counter;
-            if (isFromStart) {   //because AFTER we include the hour. so the count before we'll not include it.
-
-                i=0;
-                double target = prefix.equals(Prefix.BEFORE) ? targetTick : targetTick-1;
-                counter = (int) target;
+            List<Integer> tempActiveTicks = new ArrayList<>();
+            int low, high;
+            if (isFromStart) {
+                low=(int) targetTickToCount;
+                high = (int) targetTick-1;
             }
             else{
-                double target = prefix.equals(Prefix.BEFORE) ? targetTick-1 : targetTick;
-                i = (int) target;
-                counter = (int) targetTickToCount;
+                low = (int) targetTick;
+                high = (int) targetTickToCount;
             }
-            for ( ; i<= counter; ++i) {
-                if (currState < minVal) {
+            List<Integer> rangeTicks = IntStream.rangeClosed(low, high)
+                    .boxed().collect(Collectors.toList());
+
+            for ( ; low<= high; ++low) {
+                if (currState < this.min) {
                     //lets go back tick before the change.
-                    i--;
+                    low--;
                     currState -= deltaWhenWorkOffline;
                     //now lets charge it to the maximum point
                     double ticksToCharge = Math.ceil((max - currState) / deltaWhenWork);
-                    if (ticksToCharge + i > (powerConsumption.length-1)) {
-                         ticksToCharge = (powerConsumption.length-1) - i ;
+                    if (ticksToCharge + low > (powerConsumption.length-1)) {
+                         ticksToCharge = (powerConsumption.length-1) - low ;
                     }
-                    currState = updateValueToSensor(powerConsumption, currState, ticksToCharge, i, isFromStart);
+                    currState = updateValueToSensor(powerConsumption, currState, ticksToCharge, low, isFromStart, tempActiveTicks);
 
-                    i = (int)ticksToCharge + i + 1 ;
-                    if (i>= counter) break;
+                    low = (int)ticksToCharge + low + 1 ;
+                    if (low>= high) break;
 
                 }
 
                 currState += deltaWhenWorkOffline;
             }
+
+            int size = tempActiveTicks.size();
+            if (size > 0)
+             {
+                 /*logger.warn(  "YARDEN DEBUG: power cons in work is: " +powerConsumedInWork);
+                 for (int i=0; i<powerConsumption.length; i++)
+                 {
+                     logger.warn(  "YARDEN DEBUG: before total power cons array is : at idx " + i + " "+ powerConsumption[i]);
+                 }*/
+                 for (int i=0; i<size; i++)
+                 {
+                     powerConsumption[tempActiveTicks.get(i)]-= powerConsumedInWork;
+                 }
+                 Collections.shuffle(rangeTicks);
+                 /*logger.warn("YARDEN DEBUG: befor tempActiveTicks were: " + tempActiveTicks.toString() +
+                 "Active ticks were " + this.activeTicks.toString());*/
+                 List<Integer> sublist = rangeTicks.subList(0, size);
+                 for (int i=0; i<size; i++)
+                 {
+                     powerConsumption[sublist.get(i)]+= powerConsumedInWork;
+                 }
+                 /*logger.warn("YARDEN DEBUG: new rangeTick after doin sub are: " + sublist.toString() );
+
+                 for (int i=0; i<powerConsumption.length; i++)
+                 {
+                     logger.warn(  "YARDEN DEBUG: AFTER total power cons array is : at idx " + i + " "+ powerConsumption[i]);
+                 }*/
+                 this.activeTicks.addAll(sublist);
+                 //logger.warn("YARDEN DEBUG: AFTER active ticks are: " + this.activeTicks.toString());
+
+             }
 
             //update the curr state now
             Map<Sensor, Double> toSend = new HashMap<>();
@@ -224,6 +255,7 @@ public class PropertyWithData {
         }
     }
 
+
     /**
      *
      * @param iterationPowerConsumption - current consumption prior the update
@@ -231,16 +263,17 @@ public class PropertyWithData {
      * @param ticksToCharge - how many additional ticks of activation are required
      * @param idxTicks - the base index on the horizon from which the additional activations will be added
      * @param offlineWork - is the work offline (work done to compensate for negative deltas)
+     * @param tempActiveTicks - temp list of the ticks, after we'll rand it they will be added to "ActiveTicks" list of the prop
      * @return the new state of the sensor after the latest activation(the same as newState if no additional activation was required)
      */
-    public double updateValueToSensor (double[] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork)
+    public double updateValueToSensor(double[] iterationPowerConsumption, double newState, double ticksToCharge, int idxTicks, boolean offlineWork, List<Integer> tempActiveTicks)
     {
         for (int j = 1; j <= ticksToCharge; ++j) {
             //update the powerCons array
             iterationPowerConsumption[j + idxTicks] += powerConsumedInWork;
             newState += deltaWhenWork;
             if(!offlineWork) {
-                this.activeTicks.add(j + idxTicks);
+                tempActiveTicks.add(j + idxTicks);
             }
         }
         if (newState > max) {

@@ -132,10 +132,10 @@ public class StatisticsHandler {
 
                whenToSwitch++;
 
-                if (command ==graphType.TotalConsumption)
+                /*if (command ==graphType.TotalConsumption)
                 {
                    calcBestGrade(key, size, value, dataset);
-                }
+                }*/
 
            }
        });

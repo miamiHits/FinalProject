@@ -199,11 +199,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 .filter(p -> !p.isPassiveOnly())
                 .collect(Collectors.toList());
         for (PropertyWithData prop : helperNonPassiveOnlyProps) {
-            if (prop.getPrefix() == Prefix.BEFORE) {
-                prop.calcAndUpdateCurrState(prop.getTargetValue(), START_TICK, this.iterationPowerConsumption, true);
-            }
-            //lets see what is the state of the curr & related sensors till then
-            prop.calcAndUpdateCurrState(prop.getMin(),START_TICK, this.iterationPowerConsumption, true);
             double ticksToWork = helper.calcHowLongDeviceNeedToWork(prop);
             Map<String, Integer> sensorsToCharge = new HashMap<>();
             //check if there is sensor in the same ACT who's delta is negative (has an offline effect, usually related to charge)
@@ -216,9 +211,31 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
             });
             generateScheduleForProp(prop, ticksToWork, sensorsToCharge, randomizeSched);
+            if (prop.getDeltaWhenWorkOffline()<0) {
+                makeSurePropBetweenRange(prop);
+            }
             if (currentNumberOfIter > 0) {
                 tempBestPriceConsumption = helper.calcTotalPowerConsumption(calcCsum(iterationPowerConsumption), iterationPowerConsumption);
             }
+
+        }
+    }
+
+     private void makeSurePropBetweenRange(PropertyWithData prop)
+    {
+        switch (prop.getPrefix())
+        {
+            case BEFORE: //NOT Include the hour
+                //logger.warn("YARDEN DEBUG agent " +agent.getAgentData().getName() + "is about to enter calcAndUpdateCurrState, active ticks are: " + prop.activeTicks);
+                prop.calcAndUpdateCurrState(FINAL_TICK, iterationPowerConsumption, false);
+                break;
+            case AFTER:
+                //logger.warn("YARDEN DEBUG agent " +agent.getAgentData().getName() + "is about to enter calcAndUpdateCurrState, active ticks are: " + prop.activeTicks);
+                prop.calcAndUpdateCurrState(START_TICK, iterationPowerConsumption, true);
+                break;
+            case AT:
+                //TODO
+               break;
         }
     }
 
@@ -240,7 +257,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 .findFirst()
                 .orElse(null);
         if (prop == null) {
-//            logger.warn(agent.getAgentData().getName() + " Try to look for the related sensors, but not found like this");
             return -1;
         }
 
@@ -367,7 +383,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                             .filter(property -> property.getName().equals(entry.getKey()))
                             .findFirst().orElse(null);
                     if (brother != null) {
-                        brother.updateValueToSensor(this.iterationPowerConsumption, brother.getMin(), entry.getValue(), myTicks.get(i), true);
+                        brother.updateValueToSensor(this.iterationPowerConsumption, brother.getMin(), entry.getValue(), myTicks.get(i), true, activeTicks);
                     }
                 }
             }
@@ -385,7 +401,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     protected void startWorkZERO(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork) {
         if (ticksToWork <= 0) {
-            prop.calcAndUpdateCurrState(prop.getTargetValue(), FINAL_TICK, iterationPowerConsumption, false);
             List<Integer> activeTicks = helper.cloneList(prop.activeTicks);
             findActionToTicksMapAndPutTicks(prop, activeTicks);
             return;
@@ -393,6 +408,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         List<Integer> myTicks = generateRandomTicksForProp(prop, ticksToWork);
         List<Integer> activeTicks = helper.cloneList(prop.activeTicks);
         findActionToTicksMapAndPutTicks(prop, activeTicks);
+
         updateTotals(prop, myTicks, sensorsToCharge);
     }
 
