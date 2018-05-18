@@ -115,7 +115,7 @@ public class SA extends SmartHomeAgentBehaviour{
 
     private Set<Integer> pickRandomSubsetForProp(PropertyWithData prop) {
         List<Set<Integer>> allSubsets = propToSubsetsMap.get(prop);
-        if (allSubsets.isEmpty()) {
+        if (allSubsets == null || allSubsets.isEmpty()) {
             return new HashSet<>(0);
         }
         int index = drawRandomNum(0, allSubsets.size() - 1);
