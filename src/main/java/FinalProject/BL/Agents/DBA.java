@@ -20,12 +20,12 @@ public class DBA extends SmartHomeAgentBehaviour{
     /* will tell about the "bags" the agent will have on specific ticks
        according to DBA logic
     */
-    private int[] ticksBag = new int [iterationPowerConsumption.length];
+    private int[] ticksBag;
+    private boolean inImprovmentRound = false;
+    private double oldPrice;
 
     public DBA() {
         super();
-        for(int i=0; i<ticksBag.length; i++)
-            ticksBag[i] = 1;
     }
 
 
@@ -34,6 +34,7 @@ public class DBA extends SmartHomeAgentBehaviour{
         if (agent.isZEROIteration()) {
             buildScheduleFromScratch();
             initMsgTemplate(); // needs to be here to make sure SmartHomeAgent class is init
+            initBags();
             agent.setZEROIteration(false);
             agent.setPriceSum(calcCsum(iterationPowerConsumption));
             beforeIterationIsDone();
@@ -45,6 +46,11 @@ public class DBA extends SmartHomeAgentBehaviour{
         this.currentNumberOfIter++;
     }
 
+    private void initBags() {
+        ticksBag = new int [agent.getAgentData().getPriceScheme().length];
+        for(int i=0; i<ticksBag.length; i++)
+            ticksBag[i] = 1;
+        }
 
     /**
      * Main logic of DBA algo.
@@ -63,11 +69,12 @@ public class DBA extends SmartHomeAgentBehaviour{
         AgentIterationData prevIterData = new AgentIterationData(agentIterationData);
         AgentIterationData prevCurrIterData = new AgentIterationData(agent.getCurrIteration());
         IterationCollectedData prevCollectedData = new IterationCollectedData(agentIterationCollected);
-        double oldPrice = calcCsum(prevIterPowerConsumption);
+        this.oldPrice = calcCsum(prevIterPowerConsumption);
         double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice, iterationPowerConsumption); //also sets helper's epeak
         helper.totalPriceConsumption = prevTotalCost;
         double prevAgentPriceSum = agent.getPriceSum();
         agent.setPriceSum(oldPrice);
+        Map<Actuator, Map<Action, List<Integer>>> deviceToTicksPREV = helper.getDeviceToTicks();
 
         //calc try to improve sched
         helper.resetProperties();
@@ -93,18 +100,21 @@ public class DBA extends SmartHomeAgentBehaviour{
             return;
         }
 
-        if (improvement == 0.0)
+        if (improvement < 1)
         {
             //check if all agents didn't improve --> 0
             for(int i=0; i<receivedImprovements.size(); i++)
             {
-                if (receivedImprovements.get(i).getImprovement() != 0.0)
+                if (receivedImprovements.get(i).getImprovement() > 1)
                 {
                     allDidntImproved = false;
                     break;
                 }
             }
         }
+        else{
+            allDidntImproved = false;
+            }
 
         //not all agents got 0 in their improvements, we continue like regular iteration.
         if(!allDidntImproved)
@@ -118,14 +128,17 @@ public class DBA extends SmartHomeAgentBehaviour{
             float PROBABILITY = 0.6f;
             int maxBag = checkMaxBagValue();
             if (flipCoin(PROBABILITY)) {
+                for(int i=0; i<ticksBag.length; i++)
+                    logger.warn(agent.getAgentData().getName() + " YARDEN DEBUG: prev bags are: " + ticksBag[i]);
                 // add bags
-                for (Map.Entry<Actuator, Map<Action, List<Integer>>> entry: helperBackup.getDeviceToTicks().entrySet())
+                for (Map.Entry<Actuator, Map<Action, List<Integer>>> entry: deviceToTicksPREV.entrySet())
+
                 {
                     for (Map.Entry<Action, List<Integer>> innerEntry : entry.getValue().entrySet())
                     {
                         for (int tick: innerEntry.getValue())
                         {
-                            if (ticksBag[tick] < maxBag)
+                            if (ticksBag[tick] <= maxBag)
                             {
                                 ticksBag[tick]++;
                             }
@@ -133,11 +146,27 @@ public class DBA extends SmartHomeAgentBehaviour{
                     }
                 }
 
+                inImprovmentRound = true;
+                //reset fields
+                helper.totalPriceConsumption = prevTotalCost;
+                agent.setPriceSum(oldPrice);
+                helper.resetProperties();
+                //calc new sched according to new bags
                 buildScheduleBasic(false);
+
                 //build new sched according to new bags
                 newPrice = calcCsum(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
                 actualEpeak = tempBestPriceConsumption - newPrice;
+                logger.warn(agent.getAgentData().getName() + " YARDEN DEBUG: prev CSUM " + oldPrice + "New CSUM" + newPrice +
+                        "YARDEN DEBUG: new ticks are:" + helper.getDeviceToTicks().entrySet().toString() +
+                              "YARDEN DEBUG: prev ticks was:" + deviceToTicksPREV.entrySet().toString()
+                                +  "prev total " + prevTotalCost
+                                +  "new total " + tempBestPriceConsumption);
+                 for(int i=0; i<ticksBag.length; i++)
+                    logger.warn(agent.getAgentData().getName() + " YARDEN DEBUG: NEW bags are: " + ticksBag[i]);
                 takeNewSched(newPrice, actualEpeak);
+
+                inImprovmentRound = false;
 
             }
             else{
@@ -145,10 +174,7 @@ public class DBA extends SmartHomeAgentBehaviour{
                 resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
                         prevAgentPriceSum, prevIterPowerConsumption, max.getImprevedSched(), max.getPrevSched());
             }
-
         }
-
-
     }
 
     private int checkMaxBagValue() {
@@ -193,21 +219,39 @@ public class DBA extends SmartHomeAgentBehaviour{
             for (Integer tick : ticks) {
                 newPowerConsumption[tick] += prop.getPowerConsumedInWork();
             }
-            allScheds.add(newPowerConsumption);
 
             //add the bags
-            for (Integer tick : prevTicks) {
+            for (Integer tick : ticks) {
                 newPowerConsumption[tick] = newPowerConsumption[tick] * this.ticksBag[tick];
             }
 
-            double res = calcImproveOptionGrade(newPowerConsumption, allScheds);
+            allScheds.add(newPowerConsumption);
 
-            if (res <= helper.totalPriceConsumption && res <= tempBestPriceConsumption) {
-                tempBestPriceConsumption = res;
-                newTicks.clear();
-                newTicks.addAll(ticks);
-                improved = true;
+            double res;
+            //we're in improvments round, will look only on our self CSUM.
+             if(inImprovmentRound)
+             {
+                 res = calcCsum(newPowerConsumption);
+                 if (res <= oldPrice)
+                 {
+                    logger.warn(agent.getAgentData().getName() + "DEBUG YARDEN: res <= oldPrice");
+                    tempBestPriceConsumption = res + calculateEPeak(allScheds);
+                    newTicks.clear();
+                    newTicks.addAll(ticks);
+                    improved = true;
+                 }
+             }
+            //not in improvment round, work like regular
+             else{
+                res = calcImproveOptionGrade(newPowerConsumption, allScheds);
+                if (res <= helper.totalPriceConsumption && res <= tempBestPriceConsumption) {
+                    tempBestPriceConsumption = res;
+                    newTicks.clear();
+                    newTicks.addAll(ticks);
+                    improved = true;
+                  }
             }
+
 
             //reset
             newPowerConsumption = helper.cloneArray(copyOfNew);
