@@ -240,7 +240,7 @@ public class DBA extends SmartHomeAgentBehaviour{
                  if (res <= oldPrice)
                  {
                     logger.warn(agent.getAgentData().getName() + "DEBUG YARDEN: res <= oldPrice");
-                    tempBestPriceConsumption = res + calculateEPeak(allScheds);
+                    updateValueWithoutBags(newPowerConsumption, allScheds, ticks);
                     newTicks.clear();
                     newTicks.addAll(ticks);
                     improved = true;
@@ -268,6 +268,18 @@ public class DBA extends SmartHomeAgentBehaviour{
         }
 
         return newTicks;
+    }
+
+    private void updateValueWithoutBags(double[] newPowerConsumption, List<double[]> allScheds, Set<Integer> ticks)
+    {
+        //remove bags
+        for (Integer tick : ticks) {
+            newPowerConsumption[tick] = newPowerConsumption[tick] / this.ticksBag[tick];
+        }
+
+        allScheds.add(newPowerConsumption);
+        double res = calcImproveOptionGrade(newPowerConsumption, allScheds);
+        tempBestPriceConsumption = res;
     }
 
     @Override
