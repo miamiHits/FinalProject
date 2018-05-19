@@ -388,7 +388,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         findActionToTicksMapAndPutTicks(prop, activeTicks);
         for (int i = 0; i < myTicks.size(); i++) {
             iterationPowerConsumption[myTicks.get(i)] += prop.getPowerConsumedInWork();
-            if (!sensorsToCharge.isEmpty()) {
+            if (sensorsToCharge != null && !sensorsToCharge.isEmpty()) {
                 for (Map.Entry<String, Integer> entry : sensorsToCharge.entrySet()) {
                     PropertyWithData brother = helper.getAllProperties().stream()
                             .filter(property -> property.getName().equals(entry.getKey()))
