@@ -180,9 +180,8 @@ public class DBA extends SmartHomeAgentBehaviour{
 
             }
             else{
-                //take prev schedule
-                resetToPrevIterationData(helperBackup, prevIterData, prevCollectedData, prevCurrIterData,
-                        prevAgentPriceSum, prevIterPowerConsumption, max.getImprevedSched(), max.getPrevSched());
+                //take new schedule
+                takeNewSched(newPrice, actualEpeak);
             }
         }
     }
