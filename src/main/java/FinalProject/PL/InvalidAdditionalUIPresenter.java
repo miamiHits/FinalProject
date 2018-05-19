@@ -1,5 +1,6 @@
 package FinalProject.PL;
 
+import FinalProject.VaadinWebServlet;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -30,9 +31,12 @@ public class InvalidAdditionalUIPresenter extends Panel implements View {
         closeAllUIs.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
+                VaadinWebServlet.clearAllOtherSessionButOne(getSession());
                 Collection<UI> UIs = getSession().getUIs();
                 for (UI ui: UIs ) {
+                    ui.access(() -> {
                         ui.close();
+                    });
                 }
                 Page.getCurrent().reload();
             }

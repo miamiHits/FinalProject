@@ -132,8 +132,11 @@ public class Experiment implements ExperimentInterface {
     @Override
     public void stopExperiment()
     {
-        experimentRunStoppedByUser.set(true);
-        this.waitingBarrier.reset();
+        if (!experimentRunStoppedWithError.get() && !experimentRunStoppedByUser.get() && !experimentCompleted)
+        {//stop the experiment only when is running
+            experimentRunStoppedByUser.set(true);
+            this.waitingBarrier.reset();
+        }
     }
 
     private Experiment getCurrentInstance()

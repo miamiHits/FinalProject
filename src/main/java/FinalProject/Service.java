@@ -81,7 +81,10 @@ public class Service {
     public void stopExperiment()
     {
         logger.info("experiment was stopped");
-        this.currExperiment.stopExperiment();
+        if (this.currExperiment != null)
+        {
+            this.currExperiment.stopExperiment();
+        }
     }
 
     public void experimentEnded(List<AlgorithmProblemResult> results, Map<String, Map<Integer, Long>>  probToAlgoTotalTime)

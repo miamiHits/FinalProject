@@ -7,9 +7,11 @@ import FinalProject.BL.DataCollection.StatisticsHandler;
 import FinalProject.Config;
 import FinalProject.DAL.*;
 import FinalProject.Service;
+import FinalProject.VaadinWebServlet;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.server.ClientConnector;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
 import org.apache.log4j.Logger;
@@ -27,7 +29,7 @@ import java.util.regex.Matcher;
 
 @Push
 @Theme("mytheme")
-public class UiHandler extends UI implements UiHandlerInterface {
+public class UiHandler extends UI implements UiHandlerInterface, ClientConnector.DetachListener {
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static Service service;
@@ -71,10 +73,10 @@ public class UiHandler extends UI implements UiHandlerInterface {
 
         Config.loadConfig();
         getPage().setTitle(Config.getStringPropery(Config.TITLE));
-
+        addDetachListener(this);
         navigator = new Navigator(this, this);
 
-        if (getSession().getUIs().size() > 0)
+        if (getSession().getUIs().size() > 0 || !(Boolean)getSession().getAttribute(VaadinWebServlet.IS_SESSION_VALID))
         {
             navigator.addView("", new InvalidAdditionalUIPresenter(navigator));
             return;
@@ -160,8 +162,6 @@ public class UiHandler extends UI implements UiHandlerInterface {
         } catch (IOException e) {
             logger.error("failed saving results to csv with exception ", e);
         }
-
-
     }
 
     @Override
@@ -188,4 +188,8 @@ public class UiHandler extends UI implements UiHandlerInterface {
         }
     }
 
+    @Override
+    public void detach(DetachEvent event) {
+        service.stopExperiment();
+    }
 }
