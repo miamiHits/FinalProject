@@ -698,9 +698,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     //-------------PRIVATE METHODS:-------------------
 
     private List<Integer> generateRandomTicksForProp(PropertyWithData prop, double ticksToWork) {
-        if (ticksToWork > prop.getTargetTick()){
+        if (ticksToWork > prop.getTargetTick()&& (prop.getPrefix()== Prefix.BEFORE || prop.getPrefix()== Prefix.AT)){
             ticksToWork = prop.getTargetTick();
         }
+
         List<Integer> myTicks = new ArrayList<>();
         //generate random schedule based on prop's rules
         int randomNum = 0;
