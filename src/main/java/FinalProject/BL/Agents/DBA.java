@@ -28,6 +28,14 @@ public class DBA extends SmartHomeAgentBehaviour{
         super();
     }
 
+    public DBA(SmartHomeAgent agent)
+    {
+        super(agent);
+        this.currentNumberOfIter = 0;
+        this.FINAL_TICK = agent.getAgentData().getBackgroundLoad().length;
+        this.helper = new AlgorithmDataHelper(agent);
+    }
+
 
     @Override
     protected void doIteration() {
