@@ -17,4 +17,6 @@ public interface UiHandlerInterface {
     void notifyError(String msg);
 
     void algorithmProblemIterEnded(String algo, String problem, float changePercentage);
+
+    void algorithmProbleComboRunEnded(String algorithm, String problem);
 }

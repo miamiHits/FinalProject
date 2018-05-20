@@ -105,4 +105,8 @@ public class Service {
     public AlgoAddResult addNewAlgo(String path, String fileName){
         return dalController.addAlgorithmToSystem(path, fileName);
     }
+
+    public void algorithmProbleComboRunEnded(String algorithm, String problem) {
+        observer.algorithmProbleComboRunEnded(algorithm, problem);
+    }
 }

@@ -189,6 +189,18 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
     }
 
     @Override
+    public void algorithmProbleComboRunEnded(String algorithm, String problem) {
+        if (experimentRunningPresenter != null) {
+            experimentRunningPresenter.setProgressBarValue(problem, algorithm, 1f);
+        }
+        else
+        {
+            logger.warn("experimentRunningPresenter is null");
+        }
+
+    }
+
+    @Override
     public void detach(DetachEvent event) {
         service.stopExperiment();
     }

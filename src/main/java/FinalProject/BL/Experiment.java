@@ -101,6 +101,7 @@ public class Experiment implements ExperimentInterface {
         this.counter = 0;
         this.iter2Time = new HashMap<>();
         this.runningTime = System.currentTimeMillis();
+        service.algorithmProbleComboRunEnded(result.getAlgorithm(), result.getProblem());
         (new Thread(() ->
         {
             try
