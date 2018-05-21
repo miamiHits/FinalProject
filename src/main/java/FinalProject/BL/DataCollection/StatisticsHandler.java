@@ -1,6 +1,5 @@
 package FinalProject.BL.DataCollection;
 
-import FinalProject.BL.Experiment;
 import org.apache.log4j.Logger;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
@@ -201,7 +200,7 @@ public class StatisticsHandler {
     public DefaultCategoryDataset messageSendPerIteration()
     {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        Map<String, Integer> messagesToAlgo = new HashMap<>();
+        Map<String, Long> messagesToAlgo = new HashMap<>();
         Map<String, Integer> problemsToAlgo = new HashMap<>();
         calcNumOfProblems(messagesToAlgo, problemsToAlgo);
 
@@ -215,15 +214,15 @@ public class StatisticsHandler {
                  {
                      total+= res.getTotalMessagesInIter(i).getMsgsNum();
                  }
-                  int currTotalMessages = messagesToAlgo.get(entry.getKey());
+                  long currTotalMessages = messagesToAlgo.get(entry.getKey());
                  currTotalMessages+=total;
                  messagesToAlgo.put(entry.getKey(), currTotalMessages);
             }
         }
 
-        for(Map.Entry<String, Integer> entry : messagesToAlgo.entrySet())
+        for(Map.Entry<String, Long> entry : messagesToAlgo.entrySet())
         {
-            int totalMessages = entry.getValue();
+            long totalMessages = entry.getValue();
             int totalProblems = problemsToAlgo.get(entry.getKey());
             dataset.addValue(totalProblems!=0? totalMessages/totalProblems : totalMessages, entry.getKey(), "Messages Per Iteration");
         }
@@ -234,7 +233,7 @@ public class StatisticsHandler {
     public DefaultCategoryDataset messagesSize()
     {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        Map<String, Integer> messagesToAlgo = new HashMap<>();
+        Map<String, Long> messagesToAlgo = new HashMap<>();
         Map<String, Integer> problemsToAlgo = new HashMap<>();
 
         calcNumOfProblems(messagesToAlgo, problemsToAlgo);
@@ -247,29 +246,29 @@ public class StatisticsHandler {
                 {
                     total+= res.getTotalMessagesInIter(i).getMsgsSize();
                 }
-                int currTotalMessages = messagesToAlgo.get(entry.getKey());
+                long currTotalMessages = messagesToAlgo.get(entry.getKey());
                 currTotalMessages+=total;
                 messagesToAlgo.put(entry.getKey(), currTotalMessages);
             }
         }
 
-        for(Map.Entry<String, Integer> entry : messagesToAlgo.entrySet())
+        for(Map.Entry<String, Long> entry : messagesToAlgo.entrySet())
         {
-            int totalMessages = entry.getValue();
+            Long totalMessages = entry.getValue();
             int totalProblems = problemsToAlgo.get(entry.getKey());
             dataset.addValue(totalProblems!=0? totalMessages/totalProblems : totalMessages, entry.getKey(), "Messages Per Iteration");
         }
         return dataset;
     }
 
-    private void calcNumOfProblems(Map<String, Integer> messagesToAlgo, Map<String, Integer> problemsToAlgo)
+    private void calcNumOfProblems(Map<String, Long> messagesToAlgo, Map<String, Integer> problemsToAlgo)
     {
         for(int j=0; j< experimentResultsNotSort.size(); j++)
         {
             String name= experimentResultsNotSort.get(j).getAlgorithm();
             if (!messagesToAlgo.containsKey(name))
             {
-                messagesToAlgo.put(name, 0);
+                messagesToAlgo.put(name, 0L);
             }
             if (!problemsToAlgo.containsKey(name))
             {
