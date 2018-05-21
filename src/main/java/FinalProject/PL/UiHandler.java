@@ -191,7 +191,7 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
     @Override
     public void algorithmProbleComboRunEnded(String algorithm, String problem) {
         if (experimentRunningPresenter != null) {
-            experimentRunningPresenter.setProgressBarValue(problem, algorithm, 1f);
+            experimentRunningPresenter.setProgressBarValue(problem, algorithm, 1f, false);
         }
         else
         {
