@@ -165,7 +165,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
         }
     }
 
-    public void setProgressBarValue(String problemId, String algorithmId, float newValue) {
+    public void setProgressBarValue(String problemId, String algorithmId, float newValue, boolean applyOnGlobalProgressBar) {
         this.currentRunningActualProgress = newValue;
         ProblemAlgoPair problemAlgoPair = pairToProgressBarMap.keySet().stream()
                 .filter(pair -> pair.getAlgorithm().equals(algorithmId) && pair.getProblemId().equals(problemId))
@@ -175,15 +175,18 @@ public class ExperimentRunningPresenter extends Panel implements View{
             getUI().access(() -> {
                 logger.debug(String.format("increasing progress bar for problem: %s algorithm: %s to %f", problemId, algorithmId, newValue));
                 progressBar.setValue(this.currentRunningActualProgress);
-                float mainBarNewVal = (float) (pairToProgressBarMap.values().stream()
-                        .mapToDouble(ProgressBar::getValue)
-                        .sum() / pairToProgressBarMap.values().size());
-                mainProgBar.setValue(mainBarNewVal);
+                if (applyOnGlobalProgressBar)
+                {
+                    float mainBarNewVal = (float) (pairToProgressBarMap.values().stream()
+                            .mapToDouble(ProgressBar::getValue)
+                            .sum() / pairToProgressBarMap.values().size());
+                    mainProgBar.setValue(mainBarNewVal);
+                }
             });
         }
         else
         {
-            logger.warn(String.format("could not find progress bor instance for problem - %s algorithm - %s", problemId, algorithmId));
+            logger.warn(String.format("could not find progress bar instance for problem - %s algorithm - %s", problemId, algorithmId));
         }
     }
 }
