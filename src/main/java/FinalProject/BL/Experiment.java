@@ -107,6 +107,7 @@ public class Experiment implements ExperimentInterface {
             try
             {
                 this.waitingBarrier.await();
+                logger.debug("waiting barrier released");
             }
             catch (InterruptedException e)
             {
@@ -262,6 +263,7 @@ public class Experiment implements ExperimentInterface {
                                 try
                                 {
                                     waitingBarrier.await();
+                                    logger.debug("waiting barrier released");
                                 }
                                 catch (InterruptedException e)
                                 {//error
@@ -449,6 +451,7 @@ public class Experiment implements ExperimentInterface {
                     try
                     {
                         waitingBarrier.await();
+                        logger.debug("waiting barrier released");
                     }
                     catch (InterruptedException e)
                     {//error

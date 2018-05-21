@@ -22,7 +22,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
 
     private Grid<ProblemAlgoPair> problemAlgoPairGrid;
     private Map<ProblemAlgoPair, ProgressBar> pairToProgressBarMap = new HashMap<>();
-    private float currentRunningActualProgress = 0; //will contain the actual progress value of the current experiment since progress bar is updated on big milestones
+    public volatile float currentRunningActualProgress = 0; //will contain the actual progress value of the current experiment since progress bar is updated on big milestones
     private ProgressBar mainProgBar = new ProgressBar(0.0f);
     private Button goToResScreenBtn;
     private Button stopBtn;
@@ -90,13 +90,17 @@ public class ExperimentRunningPresenter extends Panel implements View{
             if (this.currentRunningActualProgress - currentProgressBarValue >= 0.01) //update only when progressed 0.01
             {
                 getUI().access(() -> {
-                    logger.debug(String.format("increasing progress bar for problem: %s algorithm: %s by %f to %f", problemId, algoId, toIncBy, currentProgressBarValue + toIncBy));
+                    logger.debug(String.format("increasing progress bar for problem: %s algorithm: %s by %f to %f", problemId, algoId, toIncBy, this.currentRunningActualProgress));
                     progressBar.setValue(this.currentRunningActualProgress);
                     float mainBarNewVal = (float) (pairToProgressBarMap.values().stream()
                             .mapToDouble(ProgressBar::getValue)
                             .sum() / pairToProgressBarMap.values().size());
                     mainProgBar.setValue(mainBarNewVal);
                 });
+            }
+            else
+            {
+                logger.trace(String.format("did not increase progress bar for problem: %s algorithm: %s by %f to %f", problemId, algoId, toIncBy, this.currentRunningActualProgress));
             }
         }
         else
