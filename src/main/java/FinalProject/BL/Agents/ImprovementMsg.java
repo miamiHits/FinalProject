@@ -71,12 +71,6 @@ public class ImprovementMsg implements Serializable, Comparable {
 
         if (other instanceof ImprovementMsg) {
             ImprovementMsg otherCast = (ImprovementMsg) other;
-            if (improvement < 0) {
-                logger.info(agentName + "'s impro is: NEGATIVE!! " + improvement);
-            }
-            else if (otherCast.improvement < 0) {
-                logger.info("OTHER: " + otherCast.getAgentName() + "'s impro is: NEGATIVE!! " + otherCast.improvement);
-            }
             double compare = this.improvement - otherCast.improvement;
             if (compare == 0) {
                 final int strCompare = this.agentName.compareTo(otherCast.agentName);
