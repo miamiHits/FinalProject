@@ -220,10 +220,9 @@ public class ExperimentResultsPresenter extends Panel implements View{
         double lowerBound = dataset.getRangeBounds(false).getLowerBound();
         //if there are error bars, we need to adjust the low bound to contain them
         if (withErrBars) {
-            boolean hasStdDev = true;
             double stdDev = 0;
 
-            for (int row = 0; hasStdDev && row < dataset.getRowCount(); row++) {
+            for (int row = 0; row < dataset.getRowCount(); row++) {
                 for (int col = 0; col < dataset.getColumnCount(); col++) {
                     Number currStdDev = dataset.getStdDevValue(row, col);
                     if (currStdDev != null && currStdDev.doubleValue() > stdDev) {
@@ -231,9 +230,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
                     }
                 }
             }
-            if (hasStdDev) {
-                lowerBound -= stdDev;
-            }
+            lowerBound -= stdDev;
         }
         //add 5% padding below
         lowerBound -= lowerBound / 20;
