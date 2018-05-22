@@ -192,6 +192,7 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
     public void algorithmProbleComboRunEnded(String algorithm, String problem) {
         if (experimentRunningPresenter != null) {
             experimentRunningPresenter.setProgressBarValue(problem, algorithm, 1f, false);
+            this.experimentRunningPresenter.currentRunningActualProgress = 0;
         }
         else
         {
