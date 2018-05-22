@@ -109,4 +109,9 @@ public class Service {
     public void algorithmProbleComboRunEnded(String algorithm, String problem) {
         observer.algorithmProbleComboRunEnded(algorithm, problem);
     }
+
+    public boolean isExperientRunning()
+    {
+        return this.currExperiment != null && this.currExperiment.isExperimentRunning();
+    }
 }

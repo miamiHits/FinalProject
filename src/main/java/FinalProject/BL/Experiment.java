@@ -134,7 +134,7 @@ public class Experiment implements ExperimentInterface {
     @Override
     public void stopExperiment()
     {
-        if (!experimentRunStoppedWithError.get() && !experimentRunStoppedByUser.get() && !experimentCompleted)
+        if (isExperimentRunning())
         {//stop the experiment only when is running
             experimentRunStoppedByUser.set(true);
             this.waitingBarrier.reset();
@@ -179,6 +179,12 @@ public class Experiment implements ExperimentInterface {
         result = 31 * result + problems.hashCode();
         result = 31 * result + algorithms.hashCode();
         return result;
+    }
+
+    public boolean isExperimentRunning()
+    {
+        boolean isExperimentThreadAlive = this.experimentThread != null && this.experimentThread.isAlive();
+        return !experimentRunStoppedWithError.get() && !experimentRunStoppedByUser.get() && !experimentCompleted && isExperimentThreadAlive;
     }
 
 

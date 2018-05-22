@@ -37,10 +37,11 @@ public class ExperimentRunningPresenter extends Panel implements View{
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         logger.debug("enter");
-        mainProgBar.setValue(0);
+        mainProgBar.setValue(calculateMainProgressBarValue());
 
         goToResScreenBtn = new Button("Go to results screen!", clickEvent -> {
             logger.debug("clicked on \"Go to results screen!\" button");
+            UiHandler.currentRunningPresenter = null;
             getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RESULTS);
         });
         goToResScreenBtn.addStyleName(ValoTheme.BUTTON_FRIENDLY);
@@ -67,7 +68,8 @@ public class ExperimentRunningPresenter extends Panel implements View{
         });
         stopBtn.addStyleName(ValoTheme.BUTTON_DANGER);
 
-        goToResScreenBtn.setVisible(false);
+        stopBtn.setVisible(UiHandler.service.isExperientRunning());
+        goToResScreenBtn.setVisible(!UiHandler.service.isExperientRunning());
 
         mainProgBar.setSizeFull();
         Label dataLbl = new Label("Number of iterations: " + numOfIter + ", Number of problems: "
@@ -77,6 +79,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
         layout.setComponentAlignment(stopBtn, Alignment.MIDDLE_CENTER);
         setContent(layout);
 
+        UiHandler.currentRunningPresenter = this;
     }
 
     public void incProgBar(String problemId, String algoId, float toIncBy) {
@@ -87,14 +90,12 @@ public class ExperimentRunningPresenter extends Panel implements View{
             ProgressBar progressBar = pairToProgressBarMap.get(problemAlgoPair);
             float currentProgressBarValue = progressBar.getValue();
             this.currentRunningActualProgress += toIncBy;
-            if (this.currentRunningActualProgress - currentProgressBarValue >= 0.01) //update only when progressed 0.01
+            if (this.currentRunningActualProgress - currentProgressBarValue >= 0.01 && getUI().isAttached()) //update only when progressed 0.01
             {
                 getUI().access(() -> {
                     logger.debug(String.format("increasing progress bar for problem: %s algorithm: %s by %f to %f", problemId, algoId, toIncBy, this.currentRunningActualProgress));
                     progressBar.setValue(this.currentRunningActualProgress);
-                    float mainBarNewVal = (float) (pairToProgressBarMap.values().stream()
-                            .mapToDouble(ProgressBar::getValue)
-                            .sum() / pairToProgressBarMap.values().size());
+                    float mainBarNewVal = calculateMainProgressBarValue();
                     mainProgBar.setValue(mainBarNewVal);
                 });
             }
@@ -111,16 +112,19 @@ public class ExperimentRunningPresenter extends Panel implements View{
 
     public void enableGoToResScreenBtn()
     {
-        getUI().access(() -> {
-            stopBtn.setVisible(false);
-            goToResScreenBtn.setVisible(true);
+        if (getUI().isAttached())
+        {
+            getUI().access(() -> {
+                stopBtn.setVisible(false);
+                goToResScreenBtn.setVisible(true);
 
-            Notification notification = new Notification("Experiment Done!", "You can now view the results");
-            notification.setPosition(Position.TOP_CENTER);
-            notification.setStyleName(ValoTheme.NOTIFICATION_SUCCESS);
-            notification.show(UI.getCurrent().getPage());
+                Notification notification = new Notification("Experiment Done!", "You can now view the results");
+                notification.setPosition(Position.TOP_CENTER);
+                notification.setStyleName(ValoTheme.NOTIFICATION_SUCCESS);
+                notification.show(UI.getCurrent().getPage());
 
-        });
+            });
+        }
     }
 
     public void setStopExperimentCallable(Callable<Boolean> callable) {
@@ -174,23 +178,30 @@ public class ExperimentRunningPresenter extends Panel implements View{
         ProblemAlgoPair problemAlgoPair = pairToProgressBarMap.keySet().stream()
                 .filter(pair -> pair.getAlgorithm().equals(algorithmId) && pair.getProblemId().equals(problemId))
                 .findFirst().orElse(null);
-        if (problemAlgoPair != null) {
+        if (problemAlgoPair != null && getUI().isAttached()) {
             ProgressBar progressBar = pairToProgressBarMap.get(problemAlgoPair);
-            getUI().access(() -> {
+            getUI().access(() -> {//TODO UI
                 logger.debug(String.format("increasing progress bar for problem: %s algorithm: %s to %f", problemId, algorithmId, newValue));
                 progressBar.setValue(this.currentRunningActualProgress);
                 if (applyOnGlobalProgressBar)
                 {
-                    float mainBarNewVal = (float) (pairToProgressBarMap.values().stream()
-                            .mapToDouble(ProgressBar::getValue)
-                            .sum() / pairToProgressBarMap.values().size());
+                    float mainBarNewVal = calculateMainProgressBarValue();
                     mainProgBar.setValue(mainBarNewVal);
                 }
             });
         }
-        else
+        else if (problemAlgoPair == null)
         {
             logger.warn(String.format("could not find progress bar instance for problem - %s algorithm - %s", problemId, algorithmId));
         }
+    }
+
+    private float calculateMainProgressBarValue()
+    {
+        float result = (float) (pairToProgressBarMap.values().stream()
+                .mapToDouble(ProgressBar::getValue)
+                .sum() / pairToProgressBarMap.values().size());
+        logger.trace("calculated " + result);
+        return result;
     }
 }
