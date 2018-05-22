@@ -17,8 +17,10 @@ import com.vaadin.ui.themes.ValoTheme;
 import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.StatisticalLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -194,6 +196,8 @@ public class ExperimentResultsPresenter extends Panel implements View{
         plot.getCategoryPlot().setRenderer(statisticalRenderer);
         plot.setBackgroundPaint(Color.white);
 
+        double lowerBound = getLowerBound(dataset, true);
+        plot.getCategoryPlot().getRangeAxis().setLowerBound(lowerBound);
 
         // get a reference to the plot for further customisation...
         CategoryPlot plot1 = (CategoryPlot) plot.getPlot();
@@ -212,9 +216,38 @@ public class ExperimentResultsPresenter extends Panel implements View{
         return new JFreeChartWrapper(plot);
     }
 
+    private double getLowerBound(DefaultStatisticalCategoryDataset dataset, boolean withErrBars) {
+        double lowerBound = dataset.getRangeBounds(false).getLowerBound();
+        //if there are error bars, we need to adjust the low bound to contain them
+        if (withErrBars) {
+            boolean hasStdDev = true;
+            double stdDev = 0;
+
+            for (int row = 0; hasStdDev && row < dataset.getRowCount(); row++) {
+                for (int col = 0; col < dataset.getColumnCount(); col++) {
+                    Number currStdDev = dataset.getStdDevValue(row, col);
+                    if (currStdDev != null && currStdDev.doubleValue() > stdDev) {
+                        stdDev = currStdDev.doubleValue();
+                    }
+                }
+            }
+            if (hasStdDev) {
+                lowerBound -= stdDev;
+            }
+        }
+        //add 5% padding below
+        lowerBound -= lowerBound / 20;
+
+        return lowerBound;
+    }
+
     private Component generateLineGraphWithoutErrorBars(String title, String xAxisLabel, String yAxisLabel, DefaultStatisticalCategoryDataset dataset, boolean shapesIsVisible) {
         JFreeChart plot = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);
         plot.setBackgroundPaint(Color.white);
+
+        double lowerBound = getLowerBound(dataset, false);
+        plot.getCategoryPlot().getRangeAxis().setLowerBound(lowerBound);
+
         // get a reference to the plot for further customisation...
         CategoryPlot plot1 = (CategoryPlot) plot.getPlot();
         plot1.setBackgroundPaint(Color.white);
