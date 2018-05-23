@@ -210,9 +210,7 @@ public class DBA extends SmartHomeAgentBehaviour{
     protected List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets) {
         List<Integer> newTicks = new ArrayList<>();
         double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        List<double[]> allScheds = agent.getMyNeighborsShed().stream()
-                .map(AgentIterationData::getPowerConsumptionPerTick)
-                .collect(Collectors.toList());
+        List<double[]> allScheds = getNeighbourScheds();
         int index = allScheds.size();
         List<Integer> prevTicks = getTicksForProp(prop);
         if (prevTicks == null) {

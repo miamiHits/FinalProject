@@ -16,22 +16,27 @@ import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPea
  *
  * The following is pseudo-code for the algorithm (including actions that are necessary for the work
  * of the system but are not part of the algorithm per say, such as sending messages to the data collector):
+ * <code>
+     * init: (iteration 0):
+         * generate a random schedule satisfying the constraints
+         * send iteration data to collector
+         * send schedule to all neighbours
+     *
+     * iterations (iteration > 0):
+         * receive schedule from all neighbours
+         * build tick subsets for all properties (if not built already)
+         * pick a random subset for each property
+         * if the new schedule improves the total grade (calculation including Csum and Epeak, see calcImproveOptionGrade):
+         *      switch to new schedule
+         * else:
+         *      switch to the new schedule with probability 1 - (current number of iteration / total number of iterations)
+         * send iteration data to collector
+         * send schedule to all neighbours
+ * </code>
  *
- * init: (iteration 0):
- * generate a random schedule satisfying the constraints
- * send iteration data to collector
- * send schedule to all neighbours
  *
- * iterations (iteration > 0):
- * receive schedule from all neighbours
- * build tick subsets for all properties (if not built already)
- * pick a random subset for each property
- * if the new schedule improves the total grade (calculation including Csum and Epeak, see calcImproveOptionGrade):
- *      switch to new schedule
- * else:
- *      switch to the new schedule with probability 1 - (current number of iteration / total number of iterations)
- * send iteration data to collector
- * send schedule to all neighbours
+ * Please bear in mind, as opposed to other algorithms supplied as part of this system,
+ * SA calculates an option for a new schedule for <b>all {@link FinalProject.BL.DataObjects.Device}s at once</b>.
  */
 public class SA extends SmartHomeAgentBehaviour{
 
@@ -45,19 +50,25 @@ public class SA extends SmartHomeAgentBehaviour{
      */
     @Override
     protected void doIteration() {
+        //iteration 0: init and build a random schedule that satisfies all of the constraints
         if (agent.isZEROIteration()) {
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
             agent.setPriceSum(calcCsum(iterationPowerConsumption));
         }
+        //iterations > 0: SA specific logic (as described at the top of this class)
         else {
+            //reset all of this agents PropertyWithData to their starting values
             helper.resetProperties();
+            //receive the neighbours messages sent in previous iteration
             receiveAllMessagesAndHandleThem();
             //only sets up for the build, prop by prop
             buildScheduleBasic(false); //randomize sched is ignored
-            //do actual build for all devices at once (Roi asked for it to be this way)
+            //do actual build for all devices at once
             pickAndApplyRandomSched();
         }
+        //fill fields in agentIterationData (sent to neighbours)
+        // and agentIterationCollected (sent to collector)
         beforeIterationIsDone();
         this.currentNumberOfIter++;
     }
@@ -80,9 +91,7 @@ public class SA extends SmartHomeAgentBehaviour{
      * Switch to the new schedule if it is better than previous schedule, or with probability (current number of iteration / total number of iterations)
      */
     private void pickAndApplyRandomSched() {
-        List<double[]> allScheds = agent.getMyNeighborsShed().stream()
-                .map(AgentIterationData::getPowerConsumptionPerTick)
-                .collect(Collectors.toList());
+        List<double[]> allScheds = getNeighbourScheds();
 
         Map<PropertyWithData, Set<Integer>> prevSchedForAllProps = new HashMap<>(propToSubsetsMap.size());
         propToSubsetsMap.keySet().forEach(prop -> {
@@ -114,8 +123,6 @@ public class SA extends SmartHomeAgentBehaviour{
         if (newGrade < prevGrade || shouldTakeNewSched()) {
             helper.totalPriceConsumption = newGrade;
             helper.ePeak = calculateEPeak(allScheds);
-            //TODO commented out because updateTotals adds the ticks to iterationPowerConsumption
-//            iterationPowerConsumption = randSched;
             randomSchedForAllProps.forEach((prop, ticks) ->
                     updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
         }
@@ -124,8 +131,6 @@ public class SA extends SmartHomeAgentBehaviour{
             allScheds.remove(randSched);
             allScheds.add(prevSched);
             helper.ePeak = calculateEPeak(allScheds);
-            //TODO commented out because updateTotals adds the ticks to iterationPowerConsumption
-//            iterationPowerConsumption = prevSched;
             prevSchedForAllProps.forEach((prop, ticks) ->
                     updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
         }
@@ -205,6 +210,7 @@ public class SA extends SmartHomeAgentBehaviour{
     }
 
     /**
+     * Overridden from {@link SmartHomeAgentBehaviour}.
      * Count the number and total size of messages sent by this agent
      * during this iteration. This is important for data collection
      * and not for the actual run of the algorithm.
@@ -234,6 +240,7 @@ public class SA extends SmartHomeAgentBehaviour{
     }
 
     /**
+     * Overridden from {@link SmartHomeAgentBehaviour}.
      * @return A deep copy of this instance.
      */
     @Override
@@ -246,25 +253,18 @@ public class SA extends SmartHomeAgentBehaviour{
         return newInstance;
     }
 
+    /**
+     * Overridden from {@link SmartHomeAgentBehaviour}.
+     * The method used to calculate the grade of a given schedule.
+     * The calculation in this algorithm (and in DSA, DBA and SHMGM) is:
+     * ac * Csum + ae * Epeak.
+     * @param newPowerConsumption the option for a schedule
+     * @param allScheds a list of all schedules of neighbors and this agent
+     * @return The total grade of this iteration.
+     */
     @Override
     protected double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds) {
         double price = calcCsum(newPowerConsumption);
         return price + calculateEPeak(allScheds);
     }
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        if (!super.equals(o)) return false;
-//        SA sa = (SA) o;
-//        return Objects.equals(propToSubsetsMap, sa.propToSubsetsMap) &&
-//                Objects.equals(propToSensorsToChargeMap, sa.propToSensorsToChargeMap);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        int hash = super.hashCode();
-//        return Objects.hash(propToSubsetsMap, propToSensorsToChargeMap, hash);
-//    }
 }
