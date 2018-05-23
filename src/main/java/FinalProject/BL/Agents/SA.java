@@ -1,12 +1,10 @@
 package FinalProject.BL.Agents;
 
-import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.Utils;
 import jade.lang.acl.ACLMessage;
 import org.apache.log4j.Logger;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
 
@@ -93,21 +91,26 @@ public class SA extends SmartHomeAgentBehaviour{
     private void pickAndApplyRandomSched() {
         List<double[]> allScheds = getNeighbourScheds();
 
+        //calculate previous iteration grade:
+        //create a map holding the ticks worked in the previous iteration by each property
         Map<PropertyWithData, Set<Integer>> prevSchedForAllProps = new HashMap<>(propToSubsetsMap.size());
         propToSubsetsMap.keySet().forEach(prop -> {
             Set<Integer> prevTicks = new HashSet<>(getTicksForProp(prop));
             prevSchedForAllProps.put(prop, prevTicks);
         });
+        //we need to copy the array because we need to use it for calculating the new sched as well
         double[] prevSched = helper.cloneArray(iterationPowerConsumption); //already with background load!
         prevSchedForAllProps.forEach((prop, ticks) -> {
             double powerCons = prop.getPowerConsumedInWork();
             ticks.forEach(tick -> prevSched[tick] += powerCons);
         });
         allScheds.add(prevSched);
-        double prevGrade = calcImproveOptionGrade(prevSched, allScheds);
+        double prevGrade = calcImproveOptionGrade(prevSched, allScheds); //the grade for the previous iteration
 
-        allScheds.remove(prevSched);
+        //calculate a new random schedule (similar to above):
+        allScheds.remove(prevSched); //we want to use the same list later, clean it
         Map<PropertyWithData, Set<Integer>> randomSchedForAllProps = new HashMap<>(propToSubsetsMap.size());
+        //for each property, pick a random set of ticks (satisfying all constraints)
         propToSubsetsMap.keySet().forEach(prop -> {
             Set<Integer> randSubset = pickRandomSubsetForProp(prop);
             randomSchedForAllProps.put(prop, randSubset);
@@ -118,15 +121,16 @@ public class SA extends SmartHomeAgentBehaviour{
             ticks.forEach(tick -> randSched[tick] += powerCons);
         });
         allScheds.add(randSched);
-        double newGrade = calcImproveOptionGrade(randSched, allScheds);
+        double newGrade = calcImproveOptionGrade(randSched, allScheds); //the grade for this iteration
 
-        if (newGrade < prevGrade || shouldTakeNewSched()) {
+        //decide which of the 2 schedules to pick:
+        if (newGrade < prevGrade || shouldTakeNewSched()) { //pick the new schedule
             helper.totalPriceConsumption = newGrade;
             helper.ePeak = calculateEPeak(allScheds);
             randomSchedForAllProps.forEach((prop, ticks) ->
                     updateTotals(prop,new ArrayList<>(ticks), propToSensorsToChargeMap.get(prop)));
         }
-        else {
+        else { //pick the previous schedule
             helper.totalPriceConsumption = prevGrade;
             allScheds.remove(randSched);
             allScheds.add(prevSched);
@@ -187,10 +191,14 @@ public class SA extends SmartHomeAgentBehaviour{
      * @param randomSched ignored in this algorithm.
      */
     @Override
-    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched) {
+    protected void generateScheduleForProp(PropertyWithData prop, double ticksToWork,
+                                           Map<String, Integer> sensorsToCharge, boolean randomSched) {
+        //iteration 0, build a schedule for prop
         if (agent.isZEROIteration()) {
             startWorkZERO(prop, sensorsToCharge, ticksToWork);
         }
+        //non-zero iteration, just fill propToSubsetsMap if not already filled.
+        //the schedule for all of the properties together will be built later in pickAndApplyRandomSched
         else {
             if (!propToSubsetsMap.containsKey(prop)) {
                 getSubsetsForProp(prop, ticksToWork); //to put in map if absent
@@ -225,10 +233,13 @@ public class SA extends SmartHomeAgentBehaviour{
         totalSize *= neighboursSize;
 
         //calc messages to devices:
+        //iteration 0 and 1 are different in the num of messages sent to devices
+        //because in iteration 0 we build a whole sched and in iteration 1 we init propToSubsetsMap
         if (currentNumberOfIter == 0 || currentNumberOfIter == 1) {
             final int constantNumOfMsgs = currentNumberOfIter == 0 ? 3 : 2;
             addMessagesSentToDevicesAndSetInAgent(count + 1, totalSize, constantNumOfMsgs);
         }
+        //for each device we send only 1 message in iterations > 1
         else {
             final int size = helper.getAllProperties().size();
             totalSize += size * MSG_TO_DEVICE_SIZE;
@@ -264,7 +275,7 @@ public class SA extends SmartHomeAgentBehaviour{
      */
     @Override
     protected double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds) {
-        double price = calcCsum(newPowerConsumption);
-        return price + calculateEPeak(allScheds);
+        double price = calcCsum(newPowerConsumption); //takes into account ac
+        return price + calculateEPeak(allScheds); //takes into account ae
     }
 }
