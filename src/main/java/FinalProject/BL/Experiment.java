@@ -345,7 +345,7 @@ public class Experiment implements ExperimentInterface {
 
             // Create a default profile
             Profile profile = new ProfileImpl(true);
-            profile.setParameter("jade_core_messaging_MessageManager_poolsize", "15");
+            profile.setParameter("jade_core_messaging_MessageManager_poolsize", "30");
             profile.setParameter("jade_core_messaging_MessageManager_deliverytimethreshold", "7000");
             profile.setParameter("jade_core_messaging_MessageManager_deliveryStuckTime", "10000");
 
