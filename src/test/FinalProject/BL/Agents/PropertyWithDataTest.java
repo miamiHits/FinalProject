@@ -5,6 +5,7 @@ import org.junit.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class PropertyWithDataTest
 {
@@ -288,6 +289,7 @@ public class PropertyWithDataTest
         final double errorMargin = 0.0001;
         Assert.assertEquals(3, this.chargeProp.activeTicks.size());
         double[] consumption = new double[HORIZON_SIZE];
+        List<Integer> tempActiveTicks = new ArrayList<>();
         this.chargeProp.updateValueToSensor(consumption, 60, 2, 2, false, tempActiveTicks);
         Assert.assertEquals(5, this.chargeProp.activeTicks.size());
         Assert.assertEquals(100, this.chargeProp.getSensor().getCurrentState(), errorMargin);
@@ -309,6 +311,7 @@ public class PropertyWithDataTest
         final double errorMargin = 0.0001;
         Assert.assertEquals(3, this.chargeProp.activeTicks.size());
         double[] consumption = new double[HORIZON_SIZE];
+        List<Integer> tempActiveTicks = new ArrayList<>();
         this.chargeProp.updateValueToSensor(consumption, 60, 0, 2, false, tempActiveTicks);
         Assert.assertEquals(3, this.chargeProp.activeTicks.size());
         Assert.assertEquals(60, this.chargeProp.getSensor().getCurrentState(), errorMargin);
