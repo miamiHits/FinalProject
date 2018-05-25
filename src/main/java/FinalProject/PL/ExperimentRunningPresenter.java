@@ -82,7 +82,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
         UiHandler.currentRunningPresenter = this;
     }
 
-    public void incProgBar(String problemId, String algoId, float toIncBy) {
+    public synchronized void incProgBar(String problemId, String algoId, float toIncBy) {
         ProblemAlgoPair problemAlgoPair = pairToProgressBarMap.keySet().stream()
                 .filter(pair -> pair.getAlgorithm().equals(algoId) && pair.getProblemId().equals(problemId))
                 .findFirst().orElse(null);
