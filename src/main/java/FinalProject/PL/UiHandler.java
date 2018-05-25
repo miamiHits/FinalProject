@@ -40,7 +40,7 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
 
     private Navigator  navigator;
     private ExperimentRunningPresenter experimentRunningPresenter;
-    private ExperimentResultsPresenter resultsPresenter;
+    private static ExperimentResultsPresenter resultsPresenter;
     private boolean isUIValid;
 
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
