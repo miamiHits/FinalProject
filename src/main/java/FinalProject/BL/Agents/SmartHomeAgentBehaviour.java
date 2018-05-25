@@ -445,10 +445,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 //            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
 //        }
 
-        if (subsets == null || subsets.size() == 0) {
-            logger.error("startWorkNonZeroIter: subset problem! prop: " + prop.getName() + " ticks: " + ticksToWork);
-        }
-
         if (!randomChoice) {
             lookForBestOptionAndApplyIt(prop, sensorsToCharge, subsets);
         }

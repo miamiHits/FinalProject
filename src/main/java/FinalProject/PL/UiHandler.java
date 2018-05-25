@@ -27,10 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 
 @Push
@@ -180,13 +177,20 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
 
         //just for check the csv - we can change it later
         csvHandler csv = new csvHandler(RESULTS_PATH + dateFormat.format(date)+"_results.csv", sth.getTotalPowerConsumption());
-        resultsPresenter.setPowerConsumptionGraph(sth.totalConsumption());
-        resultsPresenter.setHighestAgentGrapthGrapth(sth.highestAgent());
-        resultsPresenter.setLowestAgentGrapthGrapth(sth.lowestAgent());
-        resultsPresenter.setAverageExperimentTime(sth.averageTime());
+        Set<String> allAlgorithms = filterAlgoNames(experimentResults);
+        for (String algo : allAlgorithms)
+        {
+            resultsPresenter.addPowerConsumptionGraph(algo, sth.totalConsumption(algo));
+            resultsPresenter.addPowerConsumptionAnyTimeGraph(algo, sth.totalConsumptionAnyTime(algo));
+
+            resultsPresenter.addHighestAgentGrapthGrapth(algo, sth.highestAgent(algo));
+            resultsPresenter.addLowestAgentGrapthGrapth(algo, sth.lowestAgent(algo));
+            resultsPresenter.addAverageExperimentTime(algo, sth.averageTime());
+        }
+
         resultsPresenter.setMessagesSentPerIteration(sth.messageSendPerIteration());
         resultsPresenter.setMessagesSizePerAlgo(sth.messagesSize());
-
+        resultsPresenter.setNumOfAlgos(experimentResults);
         experimentRunningPresenter.enableGoToResScreenBtn();
 
         try {
@@ -194,6 +198,18 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
         } catch (IOException e) {
             logger.error("failed saving results to csv with exception ", e);
         }
+    }
+
+    private Set<String> filterAlgoNames(List<AlgorithmProblemResult> experimentResults) {
+        Set<String> results = new HashSet<>();
+        experimentResults.forEach(algo -> {
+            String algoName = algo.getAlgorithm();
+            if (!results.contains(algo)){
+                results.add(algoName);
+            }
+        });
+
+        return results;
     }
 
     @Override
