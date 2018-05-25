@@ -246,7 +246,6 @@ public class AlgorithmDataHelper
 
     public void calcPowerConsumptionForAllNeighbours() {
         neighboursPriceConsumption.clear();
-        logger.info("Saving all my neighbors sched - stage 1");
         List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
         for (AgentIterationData agentData : myNeighborsShed) {
             double [] neighbourConsumption = cloneArray(agentData.getPowerConsumptionPerTick());
@@ -256,12 +255,6 @@ public class AlgorithmDataHelper
 
     public void calcPowerConsumptionForAllNeighbours(List<double[]> allScheds) {
         neighboursPriceConsumption.clear();
-//        logger.info("Saving all my neighbors sched - stage 1");
-//        List<AgentIterationData> myNeighborsShed = agent.getMyNeighborsShed();
-//        for (AgentIterationData agentData : myNeighborsShed) {
-//            double [] neighbourConsumption = cloneArray(agentData.getPowerConsumptionPerTick());
-//            neighboursPriceConsumption.add(neighbourConsumption);
-//        }
         neighboursPriceConsumption.addAll(allScheds);
     }
 
