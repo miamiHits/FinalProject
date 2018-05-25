@@ -58,13 +58,15 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     //-------------ABSTRACT METHODS:-------------------
 
     /**
-     * Main method implemented by inheriting algos!!!
+     * Main method implemented by inheriting algos!!
+     * This method determines the algorithms' logic
      */
     protected abstract void doIteration();
 
 
     /**
-     * Called by {@code done()} when returning true
+     * Called by {@code done()} when the current pair
+     * of (algo, problem) is done. Used for cleaning and logging.
      */
     protected abstract void onTermination();
 
@@ -73,18 +75,17 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      * @param prop the property to which the schedule should be generated
      * @param ticksToWork number of active ticks needed
      * @param sensorsToCharge sensors affected
-     * @param randomSched
+     * @param randomSched flag to determine if the schedule for prop should be chosen at random (from legal ones)
      */
     protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched);
 
     /**
-     *
      * @return a deep copy of this {@link Behaviour}
      */
     public abstract SmartHomeAgentBehaviour cloneBehaviour();
 
     /**
-     * Used by calcBestPrice method to calculate the grade of a schedule option in order to decide
+     * Used to calculate the grade of a schedule option in order to decide
      * whether or not to choose it
      * @param newPowerConsumption the option for a schedule
      * @param allScheds a list of all schedules of neighbors and this agent
@@ -93,6 +94,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected abstract double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds);
 
     //-------------OVERRIDING METHODS:-------------------
+
+    /**
+     * JADE {@link Behaviour}'s main method.
+     * The Template design pattern is used here to combine algorithm specific actions (logic)
+     * together with actions such as sending data to {@link FinalProject.BL.DataCollection.DataCollector}.
+     */
     @Override
     public void action() {
         doIteration();
@@ -101,6 +108,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         logger.info("agent + " + agent.getName() + " FINISHED ITER " + (currentNumberOfIter - 1));
     }
 
+    /**
+     * JADE {@link Behaviour}'s method.
+     * @return true iff the run of this algorithm is done
+     */
     @Override
     public boolean done() {
         boolean agentFinishedExperiment = currentNumberOfIter > Experiment.maximumIterations;
@@ -122,12 +133,15 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     public double[] getPowerConsumption() { return this.iterationPowerConsumption;}
 
-    public void buildScheduleFromScratch() {
+    //-------------PROTECTED METHODS:-------------------
+
+    /**
+     * Init helper and build schedule
+     */
+    protected void buildScheduleFromScratch() {
         initHelper();
         buildScheduleBasic(false);
     }
-
-    //-------------PROTECTED METHODS:-------------------
 
     protected List<double[]> getNeighbourScheds() {
         return agent.getMyNeighborsShed().stream()
@@ -136,8 +150,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     /**
-     * @return the total size of messages send from an agent to it's
-     * neighbours + total size of messages send to it's devices.
+     * This is a <b>DEFAULT IMPLEMENTATION!</b> override it if it does not suit your needs.
+     * Fill the fields agent.iterationMessageCount and agent.iterationMessageSize.
+     * with the total size and number of messages send from an agent to it's
+     * neighbours and to it's devices.
      */
     protected void countIterationCommunication() {
         int count = 1;
@@ -162,6 +178,18 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         addMessagesSentToDevicesAndSetInAgent(count, totalSize, constantNumOfMsgs);
     }
 
+    /**
+     * Go back to the state the algorithm was before starting to calculate a schedule
+     * for this iteration.
+     * @param helperBackup helper's backup
+     * @param prevIterData agentIterationData's backup
+     * @param prevCollectedData agentIterationCollected's backup
+     * @param prevCurrIterData agent.getCurrIteration()'s backup
+     * @param prevPriceSum agent.getPriceSum()'s backup
+     * @param prevIterPowerConsumption iterationPowerConsumption's backup
+     * @param newBestSched the new best sched from all neighbours
+     * @param prevBestSched the previous sched from the agent who's new sched is the most improved
+     */
     protected void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
                                             AgentIterationData prevCurrIterData, double prevPriceSum,
                                             double[] prevIterPowerConsumption, double[] newBestSched, double[] prevBestSched) {
@@ -182,6 +210,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         iterationPowerConsumption = prevIterPowerConsumption;
     }
 
+    /**
+     * TODO
+     * @param count
+     * @param totalSize
+     * @param constantNumOfMsgs
+     */
     protected void addMessagesSentToDevicesAndSetInAgent(int count, long totalSize, int constantNumOfMsgs) {
         for (PropertyWithData prop : helper.getAllProperties()) {
             int numOfTimes = constantNumOfMsgs + prop.getRelatedSensorsDelta().size();
