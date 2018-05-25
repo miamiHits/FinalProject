@@ -12,10 +12,14 @@ import com.vaadin.ui.themes.ValoTheme;
 import org.apache.log4j.Logger;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class ExperimentRunningPresenter extends Panel implements View{
@@ -31,6 +35,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
     private int numOfProblems = -1;
     private int numOfAlgos = -1;
     private Callable<Boolean> stopExperimentCallable = null;
+    private ScheduledExecutorService pingingExecutor;
 
     private static final Logger logger = Logger.getLogger(ExperimentRunningPresenter.class);
 
@@ -41,6 +46,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
 
         goToResScreenBtn = new Button("Go to results screen!", clickEvent -> {
             logger.debug("clicked on \"Go to results screen!\" button");
+            pingingExecutor.shutdown();
             UiHandler.currentRunningPresenter = null;
             getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RESULTS);
         });
@@ -52,6 +58,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
                 if (confirmDialog.isConfirmed() && stopExperimentCallable != null) {
                     try {
                         if (stopExperimentCallable.call()) {
+                            pingingExecutor.shutdown();
                             getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
                         }
                         else {
@@ -80,6 +87,16 @@ public class ExperimentRunningPresenter extends Panel implements View{
         setContent(layout);
 
         UiHandler.currentRunningPresenter = this;
+
+        startPingThread();
+    }
+
+    private void startPingThread() {
+        pingingExecutor = Executors.newSingleThreadScheduledExecutor();
+        pingingExecutor.scheduleAtFixedRate(() -> {
+            Date now = new Date();
+            getUI().access(() -> JavaScript.getCurrent().execute("console.log(\"UI ping at: " + now + "\")"));
+        }, 60, 1, TimeUnit.SECONDS);
     }
 
     public synchronized void incProgBar(String problemId, String algoId, float toIncBy) {
@@ -112,8 +129,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
 
     public void enableGoToResScreenBtn()
     {
-        if (getUI().isAttached())
-        {
+        if (getUI().isAttached()) {
             getUI().access(() -> {
                 stopBtn.setVisible(false);
                 goToResScreenBtn.setVisible(true);
