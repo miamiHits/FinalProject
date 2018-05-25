@@ -64,33 +64,38 @@ public class StatisticsHandler {
         return res;
     }
 
-    public DefaultStatisticalCategoryDataset totalConsumption()
+    public DefaultStatisticalCategoryDataset totalConsumption(String algoName)
     {
         DefaultStatisticalCategoryDataset dataset = new DefaultStatisticalCategoryDataset();
-        calcDataSet(graphType.TotalConsumption, dataset);
+        calcDataSet(graphType.TotalConsumption, dataset, algoName);
         return dataset;
     }
 
-    public DefaultStatisticalCategoryDataset lowestAgent()
+    public DefaultStatisticalCategoryDataset totalConsumptionAnyTime(String algoName)
     {
         DefaultStatisticalCategoryDataset dataset = new DefaultStatisticalCategoryDataset();
-        calcDataSet(graphType.LowestPrice, dataset);
+        calcDataSet(graphType.TotalConsumptionAnyTime, dataset, algoName);
         return dataset;
     }
 
-    public DefaultStatisticalCategoryDataset highestAgent()
+    public DefaultStatisticalCategoryDataset lowestAgent(String algoName)
     {
         DefaultStatisticalCategoryDataset dataset = new DefaultStatisticalCategoryDataset();
-        calcDataSet(graphType.HighestPrice, dataset);
+        calcDataSet(graphType.LowestPrice, dataset, algoName);
+        return dataset;
+    }
+
+    public DefaultStatisticalCategoryDataset highestAgent(String algoName)
+    {
+        DefaultStatisticalCategoryDataset dataset = new DefaultStatisticalCategoryDataset();
+        calcDataSet(graphType.HighestPrice, dataset, algoName);
         return dataset;
     }
 
 
-    private void calcDataSet(graphType command, DefaultStatisticalCategoryDataset dataset)
+    private void calcDataSet(graphType command, DefaultStatisticalCategoryDataset dataset, String algoName)
    {
-       int switchErrorBar = ITER_NUM / experimentResults.keySet().size();
        experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
-           int whenToSwitch =0;
            int size = value.size();
            double total;
            double[] arr = new double[size];
@@ -108,52 +113,42 @@ public class StatisticsHandler {
                        case TotalConsumption:
                            arr[i] =  value.get(i).getTotalGradePerIteration().get(j);
                            break;
+                       case TotalConsumptionAnyTime:
+                           arr[i] = value.get(i).getBestTotalGradePerIter().get(j);
                    }
 
                    total += arr[i];
                }
+
                Number std = j < displayedErrorBarsCount || j % (ITER_NUM / displayedErrorBarsCount) == 0 ? calculateSD(arr) : null;
-
-               if (whenToSwitch <= switchErrorBar && key.equals("DSA"))
+               if (command ==graphType.TotalConsumptionAnyTime)
                {
-                  // logger.warn("YARDEN DEBUG: added data for DSA");
-                   dataset.add(total / size, std, key, j);
 
-               }
-               else if (whenToSwitch > switchErrorBar && key.equals("SHMGM")) {
-                   //logger.warn("YARDEN DEBUG: added data for SHMGM");
+                   if (key.equals(algoName))
+                   {
+                       dataset.add(total/ size, std, key + " anytime", j);
 
-                   dataset.add(total / size, std, key, j);
+                   }
+                   else{
+                       dataset.add(total/ size, null, key+ " anytime", j);
+                   }
                }
                else{
-                   dataset.add(total / size, null, key, j);
+                   if (key.equals(algoName))
+                   {
+                       dataset.add(total/ size, std, key, j);
+
+                   }
+                   else{
+                       dataset.add(total/ size, null, key, j);
+                   }
                }
-
-               whenToSwitch++;
-
-                if (command ==graphType.TotalConsumption)
-                {
-                   calcBestGrade(key, size, value, dataset);
-                }
 
            }
        });
    }
 
-    private void calcBestGrade(String algoName, int size, List<AlgorithmProblemResult> value, DefaultStatisticalCategoryDataset dataset)
-    {
-        double total;
-        for (int j = 0; j < ITER_NUM; j++) {
-            total =0;
-            for (int i = 0; i < size; i++) {
-                total += value.get(i).getBestTotalGradePerIter().get(j);
-            }
-           // logger.warn("YARDEN DEBUG: added data for " + algoName + "anytime");
 
-            dataset.add(total / size, null, algoName + "anytime", j);
-        }
-
-    }
 
     public static double calculateSD(double[] numArray)
     {
@@ -284,10 +279,12 @@ public class StatisticsHandler {
         }
     }
 
+
+
     private enum graphType{
         LowestPrice,
         HighestPrice,
-        TotalConsumption
+        TotalConsumptionAnyTime, TotalConsumption
 
     }
 

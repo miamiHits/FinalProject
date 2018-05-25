@@ -1,26 +1,22 @@
 package FinalProject.PL;
 
+import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import com.jarektoro.responsivelayout.ResponsiveLayout;
 import com.jarektoro.responsivelayout.ResponsiveRow;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.Resource;
 import com.vaadin.server.Responsive;
-import com.vaadin.shared.Registration;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.themes.ValoTheme;
 import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.StatisticalLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -28,21 +24,25 @@ import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
 import org.vaadin.addon.JFreeChartWrapper;
 
 import java.awt.*;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class ExperimentResultsPresenter extends Panel implements View{
 
     private final Navigator navigator;
 
-    private DefaultStatisticalCategoryDataset powerConsumptionGraph;
-    private DefaultStatisticalCategoryDataset highestAgentGraph;
-    private DefaultStatisticalCategoryDataset lowestAgentGraph;
-    private DefaultStatisticalCategoryDataset averageExperimentTime;
+    private Map<String, DefaultStatisticalCategoryDataset> powerConsumptionGraph = new HashMap<>();
+    private Map<String, DefaultStatisticalCategoryDataset> powerConsumptionAnyTimeGraph = new HashMap<>();
+    private Map<String, DefaultStatisticalCategoryDataset> highestAgentGraph = new HashMap<>();
+    private Map<String, DefaultStatisticalCategoryDataset> lowestAgentGraph = new HashMap<>();
+    private Map<String, DefaultStatisticalCategoryDataset> averageExperimentTime = new HashMap<>();
     private DefaultCategoryDataset messagesNumPerAlgo;
     private DefaultCategoryDataset messagesSizeAvePerAlgo;
-
+    private List<AlgorithmProblemResult> numOfAlgos;
+    private final String noErrorBars= "No Error Bars";
+    private Set<String> comboNames;
     private static final Logger logger = Logger.getLogger(ExperimentResultsPresenter.class);
 
     public ExperimentResultsPresenter(Navigator navigator)
@@ -56,48 +56,61 @@ public class ExperimentResultsPresenter extends Panel implements View{
         logger.debug("enter");
         getUI().access(() -> {
             try {
-                ResponsiveLayout resultsLayoutWithErrorsBars = createResultsLayoutWithErrorsBars();
-                ResponsiveLayout resultsLayoutWithoutErrorsBars = createResultsLayoutWithoutErrorsBars();
 
-                final boolean[] withErrorsBars = {true};
+                Map <String,ResponsiveLayout> algoToLayout = new HashMap<>();
+                this.comboNames = filterAlgoNames();
+
+                for(String algoName: comboNames)
+                {
+                    algoToLayout.put(algoName, createResultsLayoutWithErrorsBars(algoName));
+                }
+
+                algoToLayout.put(noErrorBars, createResultsLayoutWithoutErrorsBars());
+                comboNames.add(noErrorBars);
+
                 Button endExperimentBtn = new Button("End Experiment");
                 endExperimentBtn.addClickListener((Button.ClickListener) event1 -> getUI().access(() ->{
                    getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
                     }));
 
-                Button withoutErrorsBars = new Button("With/Without Errors Bars");
-                withoutErrorsBars.addClickListener((Button.ClickListener) event1 -> {
-                    getUI().access(() -> {
-                        if (withErrorsBars[0]) {
-                            resultsLayoutWithErrorsBars.setVisible(false);
-                            resultsLayoutWithoutErrorsBars.setVisible(true);
-                            withErrorsBars[0] = false;
-                        }
-                        else{
-                            resultsLayoutWithErrorsBars.setVisible(true);
-                            resultsLayoutWithoutErrorsBars.setVisible(false);
-                            withErrorsBars[0] = true;
-                        }
+                ComboBox<String> select =
+                        new ComboBox<>("Select error bars show");
+                select.setItems(comboNames);
 
-
-                    });
-                });
-
-                resultsLayoutWithoutErrorsBars.setVisible(false);
+                AtomicReference<ResponsiveLayout> runningLayout = new AtomicReference<>(algoToLayout.get(noErrorBars));
+                runningLayout.get().setVisible(true);
                 Label topLabel = new Label("Results:");
                 topLabel.addStyleName("v-label-h1");
                 topLabel.addStyleName("conf-title");
-
                 VerticalLayout mainLayout = new VerticalLayout();
 
-                mainLayout.addComponents(topLabel, resultsLayoutWithErrorsBars, resultsLayoutWithoutErrorsBars,
-                        endExperimentBtn, withoutErrorsBars);
+                mainLayout.addComponents(topLabel, select);
+                for(Map.Entry<String,ResponsiveLayout> entry: algoToLayout.entrySet()){
+                    mainLayout.addComponents(entry.getValue());
+                    if (!entry.getKey().equals(noErrorBars))
+                    {
+                        entry.getValue().setVisible(false);
+                    }
+                }
+                mainLayout.addComponents(endExperimentBtn);
                 mainLayout.setSizeUndefined();
+                mainLayout.setComponentAlignment(select, Alignment.TOP_CENTER);
                 mainLayout.setComponentAlignment(topLabel, Alignment.TOP_CENTER);
-                mainLayout.setComponentAlignment(endExperimentBtn, Alignment.TOP_CENTER);
-                mainLayout.setComponentAlignment(withoutErrorsBars, Alignment.TOP_CENTER);
+                mainLayout.setComponentAlignment(endExperimentBtn, Alignment.BOTTOM_CENTER);
 
                 Responsive.makeResponsive(mainLayout);
+
+
+                select.addValueChangeListener(event2 -> {
+                    if (event2.getSource().isEmpty()) {
+                        new Notification("You didn't choose nothing");
+                    } else {
+                        runningLayout.get().setVisible(false);
+                        runningLayout.set(algoToLayout.get(event2.getValue()));
+                        runningLayout.get().setVisible(true);
+
+                    }
+                });
 
                 setContent(mainLayout);
             }
@@ -109,12 +122,25 @@ public class ExperimentResultsPresenter extends Panel implements View{
         });
     }
 
-    private ResponsiveLayout createResultsLayoutWithErrorsBars() {
-        Component totalGradeWithErrorBar = generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph, false);
-        Component cheapestAgentWithErrorBar = generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph, false);
+    private Set<String> filterAlgoNames() {
+        Set<String> results = new HashSet<>();
+        this.numOfAlgos.forEach(algo -> {
+            String algoName = algo.getAlgorithm();
+            if (!results.contains(algo)){
+                results.add(algoName);
+            }
+        });
+
+        return results;
+    }
+
+    private ResponsiveLayout createResultsLayoutWithErrorsBars(String algoName) {
+        Component totalGradeWithErrorBar = generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph.get(algoName), false);
+        Component totalGradeWithErrorBarAnyTime = generateLineGraphWithErrorBars("Total BEST grade per iteration #", "Iteration #", "Average Cost", powerConsumptionAnyTimeGraph.get(algoName), false);
+        Component cheapestAgentWithErrorBar = generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph.get(algoName), false);
         Component avgMsgSize = generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo);
-        Component mostExpensiveAgentWithErrorBar = generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph, false);
-        Component avgRunTimeWithErrorBar = generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime, false);
+        Component mostExpensiveAgentWithErrorBar = generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph.get(algoName), false);
+        Component avgRunTimeWithErrorBar = generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime.get(algoName), false);
         Component avgNumMsgs = generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo);
 
         ResponsiveLayout resultsLayout = new ResponsiveLayout()
@@ -123,7 +149,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
         ResponsiveRow mainRow = resultsLayout.addRow()
                 .withVerticalSpacing(true)
                 .withAlignment(Alignment.MIDDLE_CENTER);
-        List<Component> graphsLst = Arrays.asList(totalGradeWithErrorBar, cheapestAgentWithErrorBar, mostExpensiveAgentWithErrorBar,
+        List<Component> graphsLst = Arrays.asList(totalGradeWithErrorBar, totalGradeWithErrorBarAnyTime, cheapestAgentWithErrorBar, mostExpensiveAgentWithErrorBar,
                 avgMsgSize, avgNumMsgs, avgRunTimeWithErrorBar);
         graphsLst.forEach(component -> {
             component.addStyleName("result-chart");
@@ -133,11 +159,14 @@ public class ExperimentResultsPresenter extends Panel implements View{
     }
 
     private ResponsiveLayout createResultsLayoutWithoutErrorsBars() {
-        Component totalGradeWithoutErrorBar = generateLineGraphWithoutErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph, false);
-        Component cheapestAgentWithoutErrorBar = generateLineGraphWithoutErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph, false);
+        Iterator iter = this.comboNames.iterator();
+        Object first = iter.next();
+        Component totalGradeWithoutErrorBar = generateLineGraphWithoutErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph.get(first), false);
+        Component totalGradeWithErrorBarAnyTime = generateLineGraphWithoutErrorBars("Total BEST grade per iteration #", "Iteration #", "Average Cost", powerConsumptionAnyTimeGraph.get(first), false);
+        Component cheapestAgentWithoutErrorBar = generateLineGraphWithoutErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph.get(first), false);
         Component avgMsgSize = generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo);
-        Component mostExpensiveAgentWithoutErrorBar = generateLineGraphWithoutErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph, false);
-        Component avgRunTimeWithoutErrorBar = generateLineGraphWithoutErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime, false);
+        Component mostExpensiveAgentWithoutErrorBar = generateLineGraphWithoutErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph.get(first), false);
+        Component avgRunTimeWithoutErrorBar = generateLineGraphWithoutErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime.get(first), false);
         Component avgNumMsgs = generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo);
 
 
@@ -147,7 +176,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
         ResponsiveRow mainRow = resultsLayout.addRow()
                 .withVerticalSpacing(true)
                 .withAlignment(Alignment.MIDDLE_CENTER);
-        List<Component> graphsLst = Arrays.asList(totalGradeWithoutErrorBar, cheapestAgentWithoutErrorBar, mostExpensiveAgentWithoutErrorBar,
+        List<Component> graphsLst = Arrays.asList(totalGradeWithoutErrorBar, totalGradeWithErrorBarAnyTime, cheapestAgentWithoutErrorBar, mostExpensiveAgentWithoutErrorBar,
                 avgMsgSize, avgNumMsgs, avgRunTimeWithoutErrorBar);
         graphsLst.forEach(component -> {
             component.addStyleName("result-chart");
@@ -156,24 +185,29 @@ public class ExperimentResultsPresenter extends Panel implements View{
         return resultsLayout;
     }
 
-    public void setPowerConsumptionGraph(DefaultStatisticalCategoryDataset powerCons)
+    public void addPowerConsumptionGraph(String algoName, DefaultStatisticalCategoryDataset powerCons)
     {
-        this.powerConsumptionGraph = powerCons;
+        this.powerConsumptionGraph.put(algoName,powerCons);
     }
 
-    public void setHighestAgentGrapthGrapth(DefaultStatisticalCategoryDataset highestAgent)
+    public void addPowerConsumptionAnyTimeGraph(String algoName, DefaultStatisticalCategoryDataset powerConsAnyTime)
     {
-        this.highestAgentGraph = highestAgent;
+        this.powerConsumptionAnyTimeGraph.put(algoName,powerConsAnyTime);
     }
 
-    public void setLowestAgentGrapthGrapth(DefaultStatisticalCategoryDataset lowestAgent)
+    public void addHighestAgentGrapthGrapth(String algoName, DefaultStatisticalCategoryDataset highestAgent)
     {
-        this.lowestAgentGraph = lowestAgent;
+        this.highestAgentGraph.put(algoName,highestAgent);
     }
 
-    public void setAverageExperimentTime(DefaultStatisticalCategoryDataset aveTime)
+    public void addLowestAgentGrapthGrapth(String algoName, DefaultStatisticalCategoryDataset lowestAgent)
     {
-        this.averageExperimentTime = aveTime;
+        this.lowestAgentGraph.put(algoName,lowestAgent);
+    }
+
+    public void addAverageExperimentTime(String algoName, DefaultStatisticalCategoryDataset aveTime)
+    {
+        this.averageExperimentTime.put(algoName,aveTime);
     }
 
     public void setMessagesSentPerIteration(DefaultCategoryDataset messagesSentPerIteration)
@@ -184,6 +218,11 @@ public class ExperimentResultsPresenter extends Panel implements View{
     public void setMessagesSizePerAlgo(DefaultCategoryDataset messagesSizeAvePerAlgo)
     {
         this.messagesSizeAvePerAlgo = messagesSizeAvePerAlgo;
+    }
+
+    public void setNumOfAlgos(List<AlgorithmProblemResult> algoNum)
+    {
+        this.numOfAlgos = algoNum;
     }
 
 
