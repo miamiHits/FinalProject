@@ -104,8 +104,8 @@ public class Experiment implements ExperimentInterface {
         service.algorithmProbleComboRunEnded(result.getAlgorithm(), result.getProblem());
         logger.debug(String.format("algorithmProblemComboRunEnded before thread. waitingBarrier: num waiting: %d, broken? %s, parties: %d",
                 waitingBarrier.getNumberWaiting(), waitingBarrier.isBroken(), waitingBarrier.getParties()));
-        (new Thread(() ->
-        {
+//        (new Thread(() ->
+//        {
             try
             {
                 this.waitingBarrier.await();
@@ -130,7 +130,7 @@ public class Experiment implements ExperimentInterface {
                     assert false : "barrier was broken without the user stopping the experiment or an error occoured";//the system reached a bad state - should fail the assertion test
                 }
             }
-        })).start();
+//        })).start();
     }
 
     @Override
@@ -304,6 +304,7 @@ public class Experiment implements ExperimentInterface {
                                     }
                                 }
                             }
+                            restartJade();
                     }
                 this.dataCollectorController.kill();
                 logger.info("experiment runner finished running");
@@ -334,6 +335,13 @@ public class Experiment implements ExperimentInterface {
             }
             assert !experimentConfigurationRunning.get() :
                     "experimentConfigurationRunning should be false when experiment has ended";
+        }
+
+        private void restartJade() throws ControllerException {
+            killAllAgents();
+            killJade();
+            initialize();
+            waitingBarrier.reset();
         }
 
         private void initialize() throws ControllerException {
