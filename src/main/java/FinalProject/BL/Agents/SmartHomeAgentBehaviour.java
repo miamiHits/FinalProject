@@ -135,23 +135,23 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             } catch (ControllerException e) {
                 logger.error("error killing agent " + agent.getLocalName() + " with container");
             }
-            try {
-                agent.getContentManager().registerLanguage(new SLCodec(), FIPANames.ContentLanguage.FIPA_SL);
-                agent.getContentManager().registerOntology(JADEManagementOntology.getInstance());
-
-                KillAgent killAgent = new KillAgent();
-                killAgent.setAgent(agent.getAID());
-                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-                msg.setOntology(JADEManagementOntology.NAME);
-                msg.setLanguage(FIPANames.ContentLanguage.FIPA_SL);
-                msg.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-                agent.getContentManager().fillContent(msg, new jade.content.onto.basic.Action(agent.getAMS(), killAgent));
-                msg.addReceiver(agent.getAMS());
-                agent.send(msg);
-                logger.debug(agent.getLocalName() + " send KILL msg to AMS");
-            } catch (Codec.CodecException | OntologyException e) {
-                logger.error("error killing agent " + agent.getLocalName() + " with AMS", e);
-            }
+//            try {
+//                agent.getContentManager().registerLanguage(new SLCodec(), FIPANames.ContentLanguage.FIPA_SL);
+//                agent.getContentManager().registerOntology(JADEManagementOntology.getInstance());
+//
+//                KillAgent killAgent = new KillAgent();
+//                killAgent.setAgent(agent.getAID());
+//                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+//                msg.setOntology(JADEManagementOntology.NAME);
+//                msg.setLanguage(FIPANames.ContentLanguage.FIPA_SL);
+//                msg.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+//                agent.getContentManager().fillContent(msg, new jade.content.onto.basic.Action(agent.getAMS(), killAgent));
+//                msg.addReceiver(agent.getAMS());
+//                agent.send(msg);
+//                logger.debug(agent.getLocalName() + " send KILL msg to AMS");
+//            } catch (Codec.CodecException | OntologyException e) {
+//                logger.error("error killing agent " + agent.getLocalName() + " with AMS", e);
+//            }
         }
         return agentFinishedExperiment;
     }
