@@ -102,6 +102,8 @@ public class Experiment implements ExperimentInterface {
         this.iter2Time = new HashMap<>();
         this.runningTime = System.currentTimeMillis();
         service.algorithmProbleComboRunEnded(result.getAlgorithm(), result.getProblem());
+        logger.debug(String.format("algorithmProblemComboRunEnded before thread. waitingBarrier: num waiting: %d, broken? %s, parties: %d",
+                waitingBarrier.getNumberWaiting(), waitingBarrier.isBroken(), waitingBarrier.getParties()));
         (new Thread(() ->
         {
             try
