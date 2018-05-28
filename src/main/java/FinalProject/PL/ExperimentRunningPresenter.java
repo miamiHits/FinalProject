@@ -9,6 +9,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.renderers.ComponentRenderer;
 import com.vaadin.ui.themes.ValoTheme;
+import de.codecamp.vaadin.webnotifications.WebNotifications;
 import org.apache.log4j.Logger;
 import org.vaadin.dialogs.ConfirmDialog;
 
@@ -141,6 +142,10 @@ public class ExperimentRunningPresenter extends Panel implements View{
 
             });
         }
+        WebNotifications.create("Experiment finished!")
+                .body("Your experiment finished running, you may now view the results.")
+                .closeOnClick(true)
+                .show();
     }
 
     public void setStopExperimentCallable(Callable<Boolean> callable) {
