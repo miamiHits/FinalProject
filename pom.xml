@@ -145,6 +145,12 @@
             <version>3.2.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>de.codecamp.vaadin</groupId>
+            <artifactId>web-notifications</artifactId>
+            <version>0.9.5</version>
+        </dependency>
+
 	</dependencies>
 
 	<build>

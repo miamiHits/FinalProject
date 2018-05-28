@@ -102,8 +102,10 @@ public class Experiment implements ExperimentInterface {
         this.iter2Time = new HashMap<>();
         this.runningTime = System.currentTimeMillis();
         service.algorithmProbleComboRunEnded(result.getAlgorithm(), result.getProblem());
-        (new Thread(() ->
-        {
+        logger.debug(String.format("algorithmProblemComboRunEnded before thread. waitingBarrier: num waiting: %d, broken? %s, parties: %d",
+                waitingBarrier.getNumberWaiting(), waitingBarrier.isBroken(), waitingBarrier.getParties()));
+//        (new Thread(() ->
+//        {
             try
             {
                 this.waitingBarrier.await();
@@ -128,13 +130,13 @@ public class Experiment implements ExperimentInterface {
                     assert false : "barrier was broken without the user stopping the experiment or an error occoured";//the system reached a bad state - should fail the assertion test
                 }
             }
-        })).start();
+//        })).start();
     }
 
     @Override
     public void stopExperiment()
     {
-        if (!experimentRunStoppedWithError.get() && !experimentRunStoppedByUser.get() && !experimentCompleted)
+        if (isExperimentRunning())
         {//stop the experiment only when is running
             experimentRunStoppedByUser.set(true);
             this.waitingBarrier.reset();
@@ -179,6 +181,12 @@ public class Experiment implements ExperimentInterface {
         result = 31 * result + problems.hashCode();
         result = 31 * result + algorithms.hashCode();
         return result;
+    }
+
+    public boolean isExperimentRunning()
+    {
+        boolean isExperimentThreadAlive = this.experimentThread != null && this.experimentThread.isAlive();
+        return !experimentRunStoppedWithError.get() && !experimentRunStoppedByUser.get() && !experimentCompleted && isExperimentThreadAlive;
     }
 
 
@@ -296,6 +304,7 @@ public class Experiment implements ExperimentInterface {
                                     }
                                 }
                             }
+                            restartJade();
                     }
                 this.dataCollectorController.kill();
                 logger.info("experiment runner finished running");
@@ -328,6 +337,13 @@ public class Experiment implements ExperimentInterface {
                     "experimentConfigurationRunning should be false when experiment has ended";
         }
 
+        private void restartJade() throws ControllerException {
+            killAllAgents();
+            killJade();
+            initialize();
+            waitingBarrier.reset();
+        }
+
         private void initialize() throws ControllerException {
             logger.info("initialized jade infrastructure");
             // Get a hold on JADE runtime
@@ -339,6 +355,10 @@ public class Experiment implements ExperimentInterface {
 
             // Create a default profile
             Profile profile = new ProfileImpl(true);
+            profile.setParameter("jade_core_messaging_MessageManager_poolsize", "30"); //size of jade MessageManager's thread pool. default: 5
+            profile.setParameter("jade_core_messaging_MessageManager_deliverytimethreshold", "7000"); //jade MessageManager's max time to deliver a message: default: 1000
+            profile.setParameter("jade_core_messaging_MessageManager_deliveryStuckTime", "10000"); //jade MessageManager's time after which a message is considered stuck: default: 5000
+
 
             //has to be created even if not used
             this.mainContainer = rt.createMainContainer(profile);

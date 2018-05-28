@@ -4,6 +4,7 @@ import FinalProject.BL.DataObjects.Action;
 import FinalProject.BL.DataObjects.Actuator;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
+import FinalProject.Utils;
 import jade.lang.acl.MessageTemplate;
 import org.apache.log4j.Logger;
 
@@ -210,9 +211,7 @@ public class DBA extends SmartHomeAgentBehaviour{
     protected List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets) {
         List<Integer> newTicks = new ArrayList<>();
         double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        List<double[]> allScheds = agent.getMyNeighborsShed().stream()
-                .map(AgentIterationData::getPowerConsumptionPerTick)
-                .collect(Collectors.toList());
+        List<double[]> allScheds = getNeighbourScheds();
         int index = allScheds.size();
         List<Integer> prevTicks = getTicksForProp(prop);
         if (prevTicks == null) {
@@ -292,7 +291,7 @@ public class DBA extends SmartHomeAgentBehaviour{
 
     @Override
     protected void onTermination() {
-        logger.info(agent.getName() + " for problem " + agent.getProblemId() + "and algo SH-MGM is TERMINATING!");
+        logger.info(agent.getName() + " for problem " + agent.getProblemId() + " and algo DBA is TERMINATING!");
     }
 
 
@@ -322,6 +321,5 @@ public class DBA extends SmartHomeAgentBehaviour{
         return price + calculateEPeak(allScheds);
 
     }
-
 
 }

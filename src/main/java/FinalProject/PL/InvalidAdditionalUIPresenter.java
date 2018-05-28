@@ -31,6 +31,8 @@ public class InvalidAdditionalUIPresenter extends Panel implements View {
         closeAllUIs.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
+                UiHandler.service.stopExperiment();
+                UiHandler.currentRunningPresenter = null;
                 VaadinWebServlet.clearAllOtherSessionButOne(getSession());
                 Collection<UI> UIs = getSession().getUIs();
                 for (UI ui: UIs ) {
