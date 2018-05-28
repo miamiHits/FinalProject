@@ -26,6 +26,9 @@ import org.vaadin.addon.JFreeChartWrapper;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -57,13 +60,12 @@ public class ExperimentResultsPresenter extends Panel implements View{
         getUI().access(() -> {
             try {
 
-                Map <String,ResponsiveLayout> algoToLayout = new HashMap<>();
+                Map<String,ResponsiveLayout> algoToLayout = new ConcurrentHashMap<>();
                 this.comboNames = filterAlgoNames();
 
-                for(String algoName: comboNames)
-                {
-                    algoToLayout.put(algoName, createResultsLayoutWithErrorsBars(algoName));
-                }
+                //create graphs in parallel
+                comboNames.parallelStream().forEach(algoName ->
+                        algoToLayout.put(algoName, createResultsLayoutWithErrorsBars(algoName)));
 
                 algoToLayout.put(noErrorBars, createResultsLayoutWithoutErrorsBars());
                 comboNames.add(noErrorBars);
@@ -147,27 +149,49 @@ public class ExperimentResultsPresenter extends Panel implements View{
         return results;
     }
 
+    private void addStyleToChartAndAddToMainRow(Component component, ResponsiveRow mainRow) {
+        component.addStyleName("result-chart");
+        mainRow.addComponent(component);
+    }
+    
     private ResponsiveLayout createResultsLayoutWithErrorsBars(String algoName) {
-        Component totalGradeWithErrorBar = generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph.get(algoName), false);
-        Component totalGradeWithErrorBarAnyTime = generateLineGraphWithErrorBars("Total BEST grade per iteration #", "Iteration #", "Average Cost", powerConsumptionAnyTimeGraph.get(algoName), false);
-        Component cheapestAgentWithErrorBar = generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph.get(algoName), false);
-        Component avgMsgSize = generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo);
-        Component mostExpensiveAgentWithErrorBar = generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph.get(algoName), false);
-        Component avgRunTimeWithErrorBar = generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime.get(algoName), false);
-        Component avgNumMsgs = generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo);
-
         ResponsiveLayout resultsLayout = new ResponsiveLayout()
                 .withSpacing()
                 .withFullSize();
         ResponsiveRow mainRow = resultsLayout.addRow()
                 .withVerticalSpacing(true)
                 .withAlignment(Alignment.MIDDLE_CENTER);
-        List<Component> graphsLst = Arrays.asList(totalGradeWithErrorBar, totalGradeWithErrorBarAnyTime, cheapestAgentWithErrorBar, mostExpensiveAgentWithErrorBar,
-                avgMsgSize, avgNumMsgs, avgRunTimeWithErrorBar);
-        graphsLst.forEach(component -> {
-            component.addStyleName("result-chart");
-            mainRow.addComponent(component);
-        });
+        
+        CompletableFuture totalGradeWithErrorBar = CompletableFuture.supplyAsync(() ->
+                generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph.get(algoName), false))
+                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
+        CompletableFuture totalGradeWithErrorBarAnyTime = CompletableFuture.supplyAsync(() ->
+                generateLineGraphWithErrorBars("Total BEST grade per iteration #", "Iteration #", "Average Cost", powerConsumptionAnyTimeGraph.get(algoName), false))
+                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
+        CompletableFuture cheapestAgentWithErrorBar = CompletableFuture.supplyAsync(() ->
+                generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph.get(algoName), false))
+                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
+        CompletableFuture avgMsgSize = CompletableFuture.supplyAsync(() ->
+                generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo))
+                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
+        CompletableFuture mostExpensiveAgentWithErrorBar = CompletableFuture.supplyAsync(() ->
+                generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph.get(algoName), false))
+                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
+        CompletableFuture avgRunTimeWithErrorBar = CompletableFuture.supplyAsync(() ->
+                generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime.get(algoName), false))
+                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
+        CompletableFuture avgNumMsgs = CompletableFuture.supplyAsync(() ->
+                generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo))
+                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
+
+        CompletableFuture allDone = CompletableFuture.allOf(totalGradeWithErrorBar, totalGradeWithErrorBarAnyTime, cheapestAgentWithErrorBar,
+                avgMsgSize, mostExpensiveAgentWithErrorBar, avgRunTimeWithErrorBar, avgNumMsgs);
+        try {
+            allDone.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("error creating charts!");
+        }
+
         return resultsLayout;
     }
 

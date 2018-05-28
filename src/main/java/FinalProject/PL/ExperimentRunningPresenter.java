@@ -115,10 +115,6 @@ public class ExperimentRunningPresenter extends Panel implements View{
                     progressBar.setValue(this.currentRunningActualProgress);
                     float mainBarNewVal = calculateMainProgressBarValue();
                     mainProgBar.setValue(mainBarNewVal);
-
-                    if (mainBarNewVal == 1) {
-                        Notification.show("Algorithms finished running, calculating the results.");
-                    }
                 });
             }
             else
