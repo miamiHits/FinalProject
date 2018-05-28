@@ -38,7 +38,7 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
     public static Service service;
     public static ExperimentRunningPresenter currentRunningPresenter;
 
-    private Navigator  navigator;
+    private static Navigator navigator;
     private ExperimentRunningPresenter experimentRunningPresenter;
     private static ExperimentResultsPresenter resultsPresenter;
     private boolean isUIValid;
@@ -79,7 +79,9 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
         Config.loadConfig();
         getPage().setTitle(Config.getStringPropery(Config.TITLE));
         addDetachListener(this);
-        navigator = new Navigator(this, this);
+//        if (navigator == null) {
+            navigator = new Navigator(this, this);
+//        }
         String initialNavigation = EXPERIMENT_CONFIGURATION;
         if (isUnwantedUI())
         {
@@ -112,7 +114,9 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
 
         // Create and register the views
         ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter(experimentRunningPresenter);
-        resultsPresenter = new ExperimentResultsPresenter(navigator);
+        if (resultsPresenter == null) {
+            resultsPresenter = new ExperimentResultsPresenter(navigator);
+        }
 //        navigator.addView("", experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RUNNING, experimentRunningPresenter);
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);

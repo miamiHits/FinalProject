@@ -38,11 +38,11 @@ public class ExperimentResultsPresenter extends Panel implements View{
     private Map<String, DefaultStatisticalCategoryDataset> highestAgentGraph = new HashMap<>();
     private Map<String, DefaultStatisticalCategoryDataset> lowestAgentGraph = new HashMap<>();
     private Map<String, DefaultStatisticalCategoryDataset> averageExperimentTime = new HashMap<>();
-    private DefaultCategoryDataset messagesNumPerAlgo;
-    private DefaultCategoryDataset messagesSizeAvePerAlgo;
-    private List<AlgorithmProblemResult> numOfAlgos;
+    private static DefaultCategoryDataset messagesNumPerAlgo;
+    private static DefaultCategoryDataset messagesSizeAvePerAlgo;
+    private static List<AlgorithmProblemResult> numOfAlgos;
     private final String noErrorBars= "No Error Bars";
-    private Set<String> comboNames;
+    private static Set<String> comboNames;
     private static final Logger logger = Logger.getLogger(ExperimentResultsPresenter.class);
 
     public ExperimentResultsPresenter(Navigator navigator)
@@ -71,7 +71,8 @@ public class ExperimentResultsPresenter extends Panel implements View{
                 Button endExperimentBtn = new Button("End Experiment");
                 endExperimentBtn.addClickListener((Button.ClickListener) event1 -> getUI().access(() ->{
                    getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
-                    }));
+                   reset();
+                }));
 
                 ComboBox<String> select =
                         new ComboBox<>("Select error bars show");
@@ -122,6 +123,18 @@ public class ExperimentResultsPresenter extends Panel implements View{
         });
     }
 
+    private void reset() {
+        powerConsumptionGraph = new HashMap<>();
+        powerConsumptionAnyTimeGraph = new HashMap<>();
+        highestAgentGraph = new HashMap<>();
+        lowestAgentGraph = new HashMap<>();
+        averageExperimentTime = new HashMap<>();
+        messagesNumPerAlgo = null;
+        messagesSizeAvePerAlgo = null;
+        numOfAlgos = null;
+        comboNames = null;
+    }
+    
     private Set<String> filterAlgoNames() {
         Set<String> results = new HashSet<>();
         this.numOfAlgos.forEach(algo -> {

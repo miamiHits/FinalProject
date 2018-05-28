@@ -181,7 +181,7 @@ public class StatisticsHandler {
                 int counter=0;
                 long totalTime = 0;
                 for (Map.Entry<String, Map<Integer, Long>> entry : probNAlgToTotalTime.entrySet()) {
-                    if (entry.getKey().contains(name) && entry.getValue().size() > j) {
+                    if (entry.getKey().contains(name) && entry.getValue().containsKey(j)) {
                         counter++;
                         totalTime += entry.getValue().get(j);
                     }
