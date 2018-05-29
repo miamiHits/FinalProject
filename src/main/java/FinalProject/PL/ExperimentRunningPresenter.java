@@ -145,7 +145,8 @@ public class ExperimentRunningPresenter extends Panel implements View{
         WebNotifications.create(this, "Experiment finished!")
                 .body("Your experiment finished running, you may now view the results.")
                 .closeOnClick(true)
-                .timeout(5000)
+                .timeout(5)
+                .requireInteraction(false)
                 .show();
     }
 
