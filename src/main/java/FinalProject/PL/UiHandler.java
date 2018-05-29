@@ -12,8 +12,14 @@ import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.ClientConnector;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
+import com.vaadin.server.communication.UIInitHandler;
+import com.vaadin.ui.JavaScript;
+import com.vaadin.ui.JavaScriptFunction;
 import com.vaadin.ui.UI;
+import elemental.json.JsonArray;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -30,10 +36,12 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
 
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     public static Service service;
+    public static ExperimentRunningPresenter currentRunningPresenter;
 
-    private Navigator  navigator;
+    private static Navigator navigator;
     private ExperimentRunningPresenter experimentRunningPresenter;
-    private ExperimentResultsPresenter resultsPresenter;
+    private static ExperimentResultsPresenter resultsPresenter;
+    private boolean isUIValid;
 
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
@@ -71,23 +79,51 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
         Config.loadConfig();
         getPage().setTitle(Config.getStringPropery(Config.TITLE));
         addDetachListener(this);
-        navigator = new Navigator(this, this);
-
-        if (getSession().getUIs().size() > 0 || !(Boolean)getSession().getAttribute(VaadinWebServlet.IS_SESSION_VALID))
+//        if (navigator == null) {
+            navigator = new Navigator(this, this);
+//        }
+        String initialNavigation = EXPERIMENT_CONFIGURATION;
+        if (isUnwantedUI())
         {
             navigator.addView("", new InvalidAdditionalUIPresenter(navigator));
             return;
         }
+        else if (UiHandler.currentRunningPresenter != null)
+        {
+            initialNavigation = EXPERIMENT_RUNNING;
+            experimentRunningPresenter = UiHandler.currentRunningPresenter;
+        }
+        else
+        {
+            experimentRunningPresenter = new ExperimentRunningPresenter();
+        }
+
+        ////////////////////////////////////
+
+        JavaScript.getCurrent().addFunction("browserIsLeaving", new JavaScriptFunction() {
+            @Override
+            public void call(JsonArray arguments) {
+                logger.debug("browserIsLeaving");
+                isUIValid = false;
+            }
+        });
+        Page.getCurrent().getJavaScript().execute("window.onbeforeunload = function (e) { var e = e || window.event; browserIsLeaving(); return; };");
+
+        ////////////////////////////////////
+
 
         // Create and register the views
-        experimentRunningPresenter = new ExperimentRunningPresenter();
         ExperimentConfigurationPresenter experimentConfigurationPresenter = new ExperimentConfigurationPresenter(experimentRunningPresenter);
-        resultsPresenter = new ExperimentResultsPresenter(navigator);
-        navigator.addView("", experimentConfigurationPresenter);
+        if (resultsPresenter == null) {
+            resultsPresenter = new ExperimentResultsPresenter(navigator);
+        }
+//        navigator.addView("", experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RUNNING, experimentRunningPresenter);
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RESULTS, resultsPresenter);
         setMobileHtml5DndEnabled(true);
+        this.isUIValid = true;
+        navigator.navigateTo(initialNavigation);
     }
 
     @Override
@@ -219,6 +255,18 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
 
     @Override
     public void detach(DetachEvent event) {
-        service.stopExperiment();
+//        service.stopExperiment();
+        isUIValid = false;
+    }
+
+    private void recoverExistingExperiment() {
+    }
+
+    public boolean isUnwantedUI() {
+        boolean isSessionValid = (Boolean)getSession().getAttribute(VaadinWebServlet.IS_SESSION_VALID);
+        boolean isSingularUI = getSession().getUIs()
+                .stream()
+                .allMatch(ui -> ui instanceof UiHandler && !((UiHandler) ui).isUIValid);
+        return !isSessionValid || !isSingularUI;
     }
 }

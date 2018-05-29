@@ -152,22 +152,24 @@ public class StatisticsHandler {
 
     public static double calculateSD(double[] numArray)
     {
-        if (numArray.length == 1)
+        if (numArray.length == 1) {
             return 0.0;
+        }
         
-        double sum = 0.0, standardDeviation = 0.0;
+        double sum = 0.0;
+        double standardDeviation = 0.0;
 
         for(double num : numArray) {
             sum += num;
         }
 
-        double mean = sum/10;
+        double mean = sum/numArray.length;
 
         for(double num: numArray) {
             standardDeviation += Math.pow(num - mean, 2);
         }
 
-        return Math.sqrt(standardDeviation/10);
+        return Math.sqrt(standardDeviation/numArray.length);
     }
 
     public DefaultStatisticalCategoryDataset averageTime()
@@ -179,7 +181,7 @@ public class StatisticsHandler {
                 int counter=0;
                 long totalTime = 0;
                 for (Map.Entry<String, Map<Integer, Long>> entry : probNAlgToTotalTime.entrySet()) {
-                    if (entry.getKey().contains(name)) {
+                    if (entry.getKey().contains(name) && entry.getValue().containsKey(j)) {
                         counter++;
                         totalTime += entry.getValue().get(j);
                     }

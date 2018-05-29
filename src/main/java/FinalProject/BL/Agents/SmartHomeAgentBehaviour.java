@@ -7,15 +7,22 @@ import FinalProject.BL.Experiment;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
 import FinalProject.Utils;
+import jade.content.lang.Codec;
+import jade.content.lang.sl.SLCodec;
+import jade.content.onto.OntologyException;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.domain.FIPANames;
+import jade.domain.JADEAgentManagement.JADEManagementOntology;
+import jade.domain.JADEAgentManagement.KillAgent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
+import jade.wrapper.ControllerException;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -58,34 +65,34 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     //-------------ABSTRACT METHODS:-------------------
 
     /**
-     * Main method implemented by inheriting algos!!!
+     * Main method implemented by inheriting algos!!
+     * This method determines the algorithms' logic
      */
     protected abstract void doIteration();
 
 
     /**
-     * Called by {@code done()} when returning true
+     * Called by {@code done()} when the current pair
+     * of (algo, problem) is done. Used for cleaning and logging.
      */
     protected abstract void onTermination();
-
 
     /**
      * generate schedule for the {@code prop} and update the sensors
      * @param prop the property to which the schedule should be generated
      * @param ticksToWork number of active ticks needed
      * @param sensorsToCharge sensors affected
-     * @param randomSched
+     * @param randomSched flag to determine if the schedule for prop should be chosen at random (from legal ones)
      */
     protected abstract void generateScheduleForProp(PropertyWithData prop, double ticksToWork, Map<String, Integer> sensorsToCharge, boolean randomSched);
 
     /**
-     *
      * @return a deep copy of this {@link Behaviour}
      */
     public abstract SmartHomeAgentBehaviour cloneBehaviour();
 
     /**
-     * Used by calcBestPrice method to calculate the grade of a schedule option in order to decide
+     * Used to calculate the grade of a schedule option in order to decide
      * whether or not to choose it
      * @param newPowerConsumption the option for a schedule
      * @param allScheds a list of all schedules of neighbors and this agent
@@ -94,6 +101,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     protected abstract double calcImproveOptionGrade(double[] newPowerConsumption, List<double[]> allScheds);
 
     //-------------OVERRIDING METHODS:-------------------
+
+    /**
+     * JADE {@link Behaviour}'s main method.
+     * The Template design pattern is used here to combine algorithm specific actions (logic)
+     * together with actions such as sending data to {@link FinalProject.BL.DataCollection.DataCollector}.
+     */
     @Override
     public void action() {
         doIteration();
@@ -102,6 +115,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         logger.info("agent + " + agent.getName() + " FINISHED ITER " + (currentNumberOfIter - 1));
     }
 
+    /**
+     * JADE {@link Behaviour}'s method.
+     * @return true iff the run of this algorithm is done
+     */
     @Override
     public boolean done() {
         boolean agentFinishedExperiment = currentNumberOfIter > Experiment.maximumIterations;
@@ -111,26 +128,63 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             onTermination();
 
             this.agent.doDelete();
+
+            try {
+                agent.getContainerController().getAgent(agent.getLocalName()).kill();
+                logger.debug(agent.getLocalName() + " called kill from container");
+            } catch (ControllerException e) {
+                logger.error("error killing agent " + agent.getLocalName() + " with container");
+            }
+//            try {
+//                agent.getContentManager().registerLanguage(new SLCodec(), FIPANames.ContentLanguage.FIPA_SL);
+//                agent.getContentManager().registerOntology(JADEManagementOntology.getInstance());
+//
+//                KillAgent killAgent = new KillAgent();
+//                killAgent.setAgent(agent.getAID());
+//                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+//                msg.setOntology(JADEManagementOntology.NAME);
+//                msg.setLanguage(FIPANames.ContentLanguage.FIPA_SL);
+//                msg.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+//                agent.getContentManager().fillContent(msg, new jade.content.onto.basic.Action(agent.getAMS(), killAgent));
+//                msg.addReceiver(agent.getAMS());
+//                agent.send(msg);
+//                logger.debug(agent.getLocalName() + " send KILL msg to AMS");
+//            } catch (Codec.CodecException | OntologyException e) {
+//                logger.error("error killing agent " + agent.getLocalName() + " with AMS", e);
+//            }
         }
         return agentFinishedExperiment;
     }
 
-    //-------------PROTECTED METHODS:-------------------
 
+    //-------------PUBLIC METHODS:-------------------
     public AlgorithmDataHelper getHelper() {
         return helper;
     }
 
     public double[] getPowerConsumption() { return this.iterationPowerConsumption;}
 
-    public void buildScheduleFromScratch() {
+    //-------------PROTECTED METHODS:-------------------
+
+    /**
+     * Init helper and build schedule
+     */
+    protected void buildScheduleFromScratch() {
         initHelper();
         buildScheduleBasic(false);
     }
 
+    protected List<double[]> getNeighbourScheds() {
+        return agent.getMyNeighborsShed().stream()
+                .map(AgentIterationData::getPowerConsumptionPerTick)
+                .collect(Collectors.toList());
+    }
+
     /**
-     * @return the total size of messages send from an agent to it's
-     * neighbours + total size of messages send to it's devices.
+     * This is a <b>DEFAULT IMPLEMENTATION!</b> override it if it does not suit your needs.
+     * Fill the fields agent.iterationMessageCount and agent.iterationMessageSize.
+     * with the total size and number of messages send from an agent to it's
+     * neighbours and to it's devices.
      */
     protected void countIterationCommunication() {
         int count = 1;
@@ -155,6 +209,18 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         addMessagesSentToDevicesAndSetInAgent(count, totalSize, constantNumOfMsgs);
     }
 
+    /**
+     * Go back to the state the algorithm was before starting to calculate a schedule
+     * for this iteration.
+     * @param helperBackup helper's backup
+     * @param prevIterData agentIterationData's backup
+     * @param prevCollectedData agentIterationCollected's backup
+     * @param prevCurrIterData agent.getCurrIteration()'s backup
+     * @param prevPriceSum agent.getPriceSum()'s backup
+     * @param prevIterPowerConsumption iterationPowerConsumption's backup
+     * @param newBestSched the new best sched from all neighbours
+     * @param prevBestSched the previous sched from the agent who's new sched is the most improved
+     */
     protected void resetToPrevIterationData(AlgorithmDataHelper helperBackup, AgentIterationData prevIterData, IterationCollectedData prevCollectedData,
                                             AgentIterationData prevCurrIterData, double prevPriceSum,
                                             double[] prevIterPowerConsumption, double[] newBestSched, double[] prevBestSched) {
@@ -175,6 +241,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         iterationPowerConsumption = prevIterPowerConsumption;
     }
 
+    /**
+     * Add the number and size of messages to devices and put in appropriate fields in agent.
+     * @param count num of messages count to add to
+     * @param totalSize total size of messages to add to
+     * @param constantNumOfMsgs a constant num of messages to add for each device
+     */
     protected void addMessagesSentToDevicesAndSetInAgent(int count, long totalSize, int constantNumOfMsgs) {
         for (PropertyWithData prop : helper.getAllProperties()) {
             int numOfTimes = constantNumOfMsgs + prop.getRelatedSensorsDelta().size();
@@ -191,7 +263,8 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     /**
      * Go through all properties and generate schedule for them
-     * @param randomizeSched
+     * @param randomizeSched flag to determine if the schedule for prop
+     *                       should be chosen at random (from legal ones)
      */
     protected void buildScheduleBasic(boolean randomizeSched) {
         tempBestPriceConsumption = helper.totalPriceConsumption;
@@ -214,56 +287,25 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
     }
 
-     private void makeSurePropBetweenRange(PropertyWithData prop)
-    {
-        switch (prop.getPrefix())
-        {
-            case BEFORE: //NOT Include the hour
-                //logger.warn("YARDEN DEBUG agent " +agent.getAgentData().getName() + "is about to enter calcAndUpdateCurrState, active ticks are: " + prop.activeTicks);
-                prop.calcAndUpdateCurrState(FINAL_TICK, iterationPowerConsumption, false);
-                break;
-            case AFTER:
-                //logger.warn("YARDEN DEBUG agent " +agent.getAgentData().getName() + "is about to enter calcAndUpdateCurrState, active ticks are: " + prop.activeTicks);
-                prop.calcAndUpdateCurrState(START_TICK, iterationPowerConsumption, true);
-                break;
-            case AT:
-                //TODO
-               break;
-        }
-    }
-
-    private Map<String, Integer> getSensorsToChargeForProp(PropertyWithData prop, double ticksToWork) {
-        if (propToSensorsToChargeMap.containsKey(prop)) {
-            return propToSensorsToChargeMap.get(prop);
-        }
-        Map<String, Integer> sensorsToCharge = new HashMap<>();
-        //check if there is sensor in the same ACT who's delta is negative (has an offline effect, usually related to charge)
-        prop.getRelatedSensorsDelta().forEach((sensorPropName, delta) -> {
-            if (delta < 0) {
-                int ticksNeedToCharge = calcHowManyTicksNeedToCharge(sensorPropName, delta, ticksToWork);
-                if (ticksNeedToCharge > 0) {
-                    sensorsToCharge.put(sensorPropName, ticksNeedToCharge);
-                }
-            }
-        });
-        propToSensorsToChargeMap.put(prop, sensorsToCharge);
-        return sensorsToCharge;
-    }
-
     protected void receiveNeighboursIterDataAndHandleIt() {
         List<ACLMessage> messageList = waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
         readNeighboursMsgs(messageList);
-        List<double[]> neighboursSched = agent.getMyNeighborsShed().stream()
-                .map(AgentIterationData::getPowerConsumptionPerTick)
-                .collect(Collectors.toList());
+        List<double[]> neighboursSched = getNeighbourScheds();
         helper.calcPowerConsumptionForAllNeighbours(neighboursSched);
     }
 
 
+    /**
+     * Calculate how many ticks a device needs to be charged in order to
+     * work ticksToWork ticks.
+     * @param key the name of the {@link PropertyWithData}
+     * @param delta delta when charged
+     * @param ticksToWork number of ticks the device needs to work
+     * @return Number of ticks the device needs to be charged
+     */
     protected int calcHowManyTicksNeedToCharge(String key, double delta, double ticksToWork) {
         int ticks = 0;
-        PropertyWithData prop;
-        prop = helper.getAllProperties().stream()
+        PropertyWithData prop = helper.getAllProperties().stream()
                 .filter(x -> x.getName().equals(key))
                 .findFirst()
                 .orElse(null);
@@ -277,7 +319,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
             if (currState < prop.getMin()) {
                 currState += delta;
                 ticks++;
-//                currState = prop.getMax();
             }
         }
         if (currState < prop.getMin()) {
@@ -292,6 +333,9 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         improvementTemplate = MessageTemplate.and(MessageTemplate.MatchOntology(gainMsgOntology), noAms);
     }
 
+    /**
+     * Send the current iteration's data for this agent to the {@link FinalProject.BL.DataCollection.DataCollector}
+     */
     protected void sendIterationToCollector() {
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
@@ -326,6 +370,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     }
 
+    /**
+     * Wait for and receive {@link ImprovementMsg}s from all neighbours.
+     * Used in algorithms such as {@link SHMGM}
+     * @return a list of all the messages
+     */
     protected List<ImprovementMsg> receiveImprovementMsgs() {
 
         List<ACLMessage> receivedMsgs = waitForNeighbourMessages(improvementTemplate);
@@ -342,6 +391,13 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Send an {@link ImprovementMsg} to all the neighbours
+     * to advertise how much this agent is able to improve the current schedule.
+     * @param improvement improvement in total grade
+     * @param prevSched schedule in previous iteration
+     * @return the {@link ImprovementMsg} send.
+     */
     protected ImprovementMsg sendImprovementToNeighbours(double improvement, double[] prevSched) {
         ImprovementMsg improvementToSend = new ImprovementMsg(agent.getName(), improvement,
                 iterationPowerConsumption, prevSched);
@@ -349,6 +405,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return improvementToSend;
     }
 
+    /**
+     * Send a message to all of this agent's neighbours.
+     * @param msgContent the content of the message ({@link AgentIterationData} for example)
+     * @param ontology the ontology used. This field is used to distinguish between message types
+     *                 when reading them.
+     */
     protected void sendMsgToAllNeighbors(Serializable msgContent, String ontology) {
         ACLMessage aclMsg = new ACLMessage(ACLMessage.REQUEST);
         aclMsg.setOntology(ontology);
@@ -379,10 +441,22 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         helper.setActuatorsAndSensors();
     }
 
+    /**
+     * @param start min value
+     * @param last max value
+     * @return a random int between start and last
+     */
     protected int drawRandomNum(int start, int last) {
         return start + (int) (Math.random() * ((last - start) + 1));
     }
 
+    /**
+     * Work the device prop represents in ticks myTicks (update iterationPowerConsumption)
+     * and charge sensors sensorsToCharge.
+     * @param prop the property to work
+     * @param myTicks the ticks to work in
+     * @param sensorsToCharge map of <{@link Sensor}'s name, number of ticks to charge>
+     */
     protected void updateTotals(PropertyWithData prop, List<Integer> myTicks, Map<String, Integer> sensorsToCharge) {
         List<Integer> activeTicks = helper.cloneList(myTicks);
         findActionToTicksMapAndPutTicks(prop, activeTicks);
@@ -410,6 +484,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         prop.getActuator().act(sensorToStateMap);
     }
 
+    /**
+     * Create schedule for {@link PropertyWithData} prop <b>in iteration 0</b>.
+     * @param prop the property to which the schedule should be generated
+     * @param sensorsToCharge map of <{@link Sensor}'s name, number of ticks to charge>
+     * @param ticksToWork number of ticks the device needs to work
+     */
     protected void startWorkZERO(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork) {
         if (ticksToWork <= 0) {
             List<Integer> activeTicks = helper.cloneList(prop.activeTicks);
@@ -423,6 +503,14 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         updateTotals(prop, myTicks, sensorsToCharge);
     }
 
+    /**
+     * Create schedule for {@link PropertyWithData} prop <b>in iteration > 0</b>.
+     * @param prop the property to which the schedule should be generated
+     * @param sensorsToCharge map of <{@link Sensor}'s name, number of ticks to charge>
+     * @param ticksToWork number of ticks the device needs to work
+     * @param randomChoice flag to determine if the schedule for prop
+     *                       should be chosen at random (from legal ones)
+     */
     protected void startWorkNonZeroIter(PropertyWithData prop, Map<String, Integer> sensorsToCharge, double ticksToWork, boolean randomChoice) {
         prop.activeTicks.clear();
 
@@ -442,10 +530,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 //            subsets = helper.getSubsets(rangeForWork, (int) ticksToWork);
 //        }
 
-        if (subsets == null || subsets.size() == 0) {
-            logger.error("startWorkNonZeroIter: subset problem! prop: " + prop.getName() + " ticks: " + ticksToWork);
-        }
-
         if (!randomChoice) {
             lookForBestOptionAndApplyIt(prop, sensorsToCharge, subsets);
         }
@@ -454,11 +538,20 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
     }
 
+    /**
+     * @param probabilityForTrue the probability to return true
+     * @return true with probability probabilityForTrue, else false
+     */
     protected boolean flipCoin(float probabilityForTrue) {
         final boolean res = randGenerator.nextFloat() < probabilityForTrue;
         return res;
     }
 
+    /**
+     * Calculate the ticks the device represented by prop can work in
+     * @param prop the property to which the schedule should be generated
+     * @return A list of tick indexes prop can work in.
+     */
     protected List<Integer> calcRangeOfWork(PropertyWithData prop) {
         List<Integer> rangeForWork = new ArrayList<>();
 
@@ -470,8 +563,6 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 }
                 break;
             case AFTER:
-                //TODO changed from master!
-                //after the hour, for all of the ticks, the rule should apply.
                 for (int i = 0; i <= prop.getTargetTick(); ++i) {
                     rangeForWork.add(i);
                 }
@@ -485,12 +576,16 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return rangeForWork;
     }
 
+    /**
+     * Calculate the best option for a schedule from the options in subsets
+     * @param prop the property to which the best sched should be calculated
+     * @param subsets options for ticks
+     * @return a list of tick indexes for which the total grade is the lowest
+     */
     protected List<Integer> calcBestPrice(PropertyWithData prop, List<Set<Integer>> subsets) {
         List<Integer> newTicks = new ArrayList<>();
         double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        List<double[]> allScheds = agent.getMyNeighborsShed().stream()
-                .map(AgentIterationData::getPowerConsumptionPerTick)
-                .collect(Collectors.toList());
+        List<double[]> allScheds = getNeighbourScheds();
         int index = allScheds.size();
         List<Integer> prevTicks = getTicksForProp(prop);
         if (prevTicks == null) {
@@ -532,6 +627,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return newTicks;
     }
 
+    /**
+     * Calculate all possible sets of tick indexes for prop to work
+     * @param prop the property to which the ticks are calculated
+     * @return a {@link List} of {@link Set}s for all possible tick indexes
+     */
     protected List<Set<Integer>> checkAllSubsetOptions(PropertyWithData prop) {
         if (propToSubsetsMap.containsKey(prop)) {
             return propToSubsetsMap.get(prop);
@@ -579,6 +679,13 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return subsets;
     }
 
+    /**
+     * Get all subsets of tick indexes for {@link PropertyWithData} prop.
+     * Calculates them if not already cached.
+     * @param prop the property to which the ticks are calculated
+     * @param ticksToWork number of ticks the device needs to work
+     * @return a {@link List} of {@link Set}s for all possible tick indexes
+     */
     protected List<Set<Integer>> getSubsetsForProp(PropertyWithData prop, double ticksToWork) {
         if (propToSubsetsMap.containsKey(prop)) {
             return propToSubsetsMap.get(prop);
@@ -600,14 +707,21 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return subsets;
     }
 
+    /**
+     * Calculate Csum for schedule sched.
+     * @param sched schedule for this agent.
+     * @return Csum for sched.
+     */
     protected double calcCsum(double[] sched) {
-        List<double[]> scheds = agent.getMyNeighborsShed().stream()
-                .map(AgentIterationData::getPowerConsumptionPerTick)
-                .collect(Collectors.toList());
+        List<double[]> scheds = getNeighbourScheds();
         scheds.add(sched);
         return calculateCSum(scheds, agent.getAgentData().getPriceScheme());
     }
 
+    /**
+     * Fill data fields needed to send to {@link FinalProject.BL.DataCollection.DataCollector}
+     * and neighbours and other fields.
+     */
     protected void beforeIterationIsDone() {
         double price = calcPrice(this.iterationPowerConsumption);
         double[] arr = helper.cloneArray(this.iterationPowerConsumption);
@@ -622,12 +736,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         logger.info("before done: " + agent.getLocalName() + " iter: " + currentNumberOfIter + " epeak: " + helper.ePeak + " price: " + price);
     }
 
-
     /**
      *a blocking method that waits far receiving messages from all neighbours,
      * and and clears all AMS messages
      * @return List of messages from all neighbours
-     * @param msgTemplate
+     * @param msgTemplate the {@link MessageTemplate} for the messages to wait for
      */
     protected List<ACLMessage> waitForNeighbourMessages(MessageTemplate msgTemplate) {
         List<ACLMessage> messages = new ArrayList<>();
@@ -644,6 +757,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         return messages;
     }
 
+    /**
+     * Parse the messages and put them in agent.myNeighboursSched.
+     * @param messageList The messages to parse.
+     */
     protected void readNeighboursMsgs(List<ACLMessage> messageList) {
         List<AgentIterationData> neighbours = new ArrayList<>();
         messageList.forEach(msg -> {
@@ -657,6 +774,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         agent.setMyNeighborsShed(neighbours);
     }
 
+    /**
+     * Calculate the monetary cost of a schedule
+     * @param powerConsumption power consumption per tick
+     * @return the monetary cost for powerConsumption
+     */
     protected double calcPrice(double[] powerConsumption) {
         double res = 0 ;
         double [] priceScheme = agent.getAgentData().getPriceScheme();
@@ -669,7 +791,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     /**
      * used by the agent instance to complete the initialization of the behaviour
-     * @param agent
+     * @param agent the agent to initialize
      */
     protected void initializeBehaviourWithAgent(SmartHomeAgent agent) {
         this.agent = agent;
@@ -678,6 +800,10 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         this.helper = new AlgorithmDataHelper(agent);
     }
 
+    /**
+     * Add background load to an array of power consumption per tick
+     * @param powerConsumption the array to add to
+     */
     protected void addBackgroundLoadToPowerConsumption(double[] powerConsumption) {
         double [] backgroundLoad = agent.getAgentData().getBackgroundLoad();
         for (int i = 0 ; i < backgroundLoad.length; ++i) {
@@ -685,6 +811,11 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
     }
 
+    /**
+     * Get the ticks prop has worked in the previous iteration
+     * @param prop the property to which the ticks belong
+     * @return a list of tick indexes in which prop has worked in the previous iteration
+     */
     protected List<Integer> getTicksForProp(PropertyWithData prop) {
         Action actionForProp = getActionForProp(prop);
         if (actionForProp == null) {
@@ -696,6 +827,42 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
     }
 
     //-------------PRIVATE METHODS:-------------------
+
+    private void makeSurePropBetweenRange(PropertyWithData prop)
+    {
+        switch (prop.getPrefix())
+        {
+            case BEFORE: //NOT Include the hour
+                //logger.warn("YARDEN DEBUG agent " +agent.getAgentData().getName() + "is about to enter calcAndUpdateCurrState, active ticks are: " + prop.activeTicks);
+                prop.calcAndUpdateCurrState(FINAL_TICK, iterationPowerConsumption, false);
+                break;
+            case AFTER:
+                //logger.warn("YARDEN DEBUG agent " +agent.getAgentData().getName() + "is about to enter calcAndUpdateCurrState, active ticks are: " + prop.activeTicks);
+                prop.calcAndUpdateCurrState(START_TICK, iterationPowerConsumption, true);
+                break;
+            case AT:
+                //TODO
+                break;
+        }
+    }
+
+    private Map<String, Integer> getSensorsToChargeForProp(PropertyWithData prop, double ticksToWork) {
+        if (propToSensorsToChargeMap.containsKey(prop)) {
+            return propToSensorsToChargeMap.get(prop);
+        }
+        Map<String, Integer> sensorsToCharge = new HashMap<>();
+        //check if there is sensor in the same ACT who's delta is negative (has an offline effect, usually related to charge)
+        prop.getRelatedSensorsDelta().forEach((sensorPropName, delta) -> {
+            if (delta < 0) {
+                int ticksNeedToCharge = calcHowManyTicksNeedToCharge(sensorPropName, delta, ticksToWork);
+                if (ticksNeedToCharge > 0) {
+                    sensorsToCharge.put(sensorPropName, ticksNeedToCharge);
+                }
+            }
+        });
+        propToSensorsToChargeMap.put(prop, sensorsToCharge);
+        return sensorsToCharge;
+    }
 
     private List<Integer> generateRandomTicksForProp(PropertyWithData prop, double ticksToWork) {
         if (ticksToWork > prop.getTargetTick()&& (prop.getPrefix()== Prefix.BEFORE || prop.getPrefix()== Prefix.AT)){
@@ -792,9 +959,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     private List<Integer> pickRandomScheduleForProp(PropertyWithData prop, List<Set<Integer>> subsets) {
         double [] newPowerConsumption = helper.cloneArray(agent.getCurrIteration().getPowerConsumptionPerTick());
-        List<double[]> allScheds = agent.getMyNeighborsShed().stream()
-                .map(AgentIterationData::getPowerConsumptionPerTick)
-                .collect(Collectors.toList());
+        List<double[]> allScheds = getNeighbourScheds();
 //        List<Integer> prevTicks = helper.getDeviceToTicks().get(prop.getActuator());
         Action actionForProp = getActionForProp(prop);
         if (actionForProp == null) {
