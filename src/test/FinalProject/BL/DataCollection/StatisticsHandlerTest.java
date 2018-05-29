@@ -1,3 +1,4 @@
+/*
 package FinalProject.BL.DataCollection;
 
 import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
@@ -148,4 +149,4 @@ public class StatisticsHandlerTest {
     public void messageSendPerIteration() {
         //TODO
     }
-}
+}*/

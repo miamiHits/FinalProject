@@ -108,7 +108,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
             ProgressBar progressBar = pairToProgressBarMap.get(problemAlgoPair);
             float currentProgressBarValue = progressBar.getValue();
             this.currentRunningActualProgress += toIncBy;
-            if (this.currentRunningActualProgress - currentProgressBarValue >= 0.01 && getUI().isAttached()) //update only when progressed 0.01
+            if (this.currentRunningActualProgress - currentProgressBarValue >= 0.09 && getUI().isAttached()) //update only when progressed 0.01
             {
                 getUI().access(() -> {
                     logger.debug(String.format("increasing progress bar for problem: %s algorithm: %s by %f to %f", problemId, algoId, toIncBy, this.currentRunningActualProgress));
@@ -202,7 +202,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
                 .findFirst().orElse(null);
         if (problemAlgoPair != null && getUI().isAttached()) {
             ProgressBar progressBar = pairToProgressBarMap.get(problemAlgoPair);
-            getUI().access(() -> {//TODO UI
+            getUI().accessSynchronously(() -> {//TODO UI
                 logger.debug(String.format("increasing progress bar for problem: %s algorithm: %s to %f", problemId, algorithmId, newValue));
                 progressBar.setValue(this.currentRunningActualProgress);
                 if (applyOnGlobalProgressBar)
