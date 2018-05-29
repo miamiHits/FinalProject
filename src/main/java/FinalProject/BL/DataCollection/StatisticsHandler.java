@@ -53,8 +53,11 @@ public class StatisticsHandler {
             for (int j = 0; j < ITER_NUM; j++) {
                 total = 0;
                 for (int i = 0; i < size; i++) {
-                    arr[i] = value.get(i).getTotalGradePerIteration().get(j);
-                    total += arr[i];
+                    Map<Integer, Double> totalGradePerIteration = value.get(i).getTotalGradePerIteration();
+                    if (totalGradePerIteration.containsKey(j)) {
+                        arr[i] = totalGradePerIteration.get(j);
+                        total += arr[i];
+                    }
                 }
 
                 iterRes.add(total/size);
@@ -188,7 +191,13 @@ public class StatisticsHandler {
 
                }
                 //logger.info("DEBUG YARDEN: in stats class. iter " +j+ "took :" + totalTime + "there are " + counter+ " from " + name);
-                dataset.add((totalTime/counter), null, name, j);
+                if (counter > 0) {
+                    dataset.add((totalTime/counter), null, name, j);
+                }
+                else {
+                    dataset.add((totalTime), null, name, j);
+                    logger.warn("counter was 0!");
+                }
             }
         }
         return dataset;
