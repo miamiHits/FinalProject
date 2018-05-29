@@ -179,14 +179,14 @@ public class ExperimentResultsPresenter extends Panel implements View{
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[2] = chart;
                 });
-        CompletableFuture avgMsgSizeCf = CompletableFuture.supplyAsync(() ->
-                generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo))
+        CompletableFuture mostExpensiveAgentWithErrorBarCf = CompletableFuture.supplyAsync(() ->
+                generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph.get(algoName), false))
                 .thenAccept(chart -> {
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[3] = chart;
                 });
-        CompletableFuture mostExpensiveAgentWithErrorBarCf = CompletableFuture.supplyAsync(() ->
-                generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph.get(algoName), false))
+        CompletableFuture avgMsgSizeCf = CompletableFuture.supplyAsync(() ->
+                generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo))
                 .thenAccept(chart -> {
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[4] = chart;
@@ -250,14 +250,14 @@ public class ExperimentResultsPresenter extends Panel implements View{
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[2] = chart;
                 });
-        CompletableFuture avgMsgSizeCf = CompletableFuture.supplyAsync(() ->
-                generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo))
+        CompletableFuture mostExpensiveAgentWithoutErrorBarCf = CompletableFuture.supplyAsync(() ->
+                generateLineGraphWithoutErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph.get(first), false))
                 .thenAccept(chart -> {
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[3] = chart;
                 });
-        CompletableFuture mostExpensiveAgentWithoutErrorBarCf = CompletableFuture.supplyAsync(() ->
-                generateLineGraphWithoutErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph.get(first), false))
+        CompletableFuture avgMsgSizeCf = CompletableFuture.supplyAsync(() ->
+                generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo))
                 .thenAccept(chart -> {
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[4] = chart;
