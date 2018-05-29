@@ -88,6 +88,7 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
         else if (flipCoin(PROBABILITY)) {
             startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork, false);
+
         }
         else {
 

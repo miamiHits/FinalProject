@@ -483,7 +483,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
             numberOfIterationsTxt.setComponentError(null);
 
 
-            getUI().access(() -> {
+            getUI().accessSynchronously(() -> {
                 getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);
             });
 
