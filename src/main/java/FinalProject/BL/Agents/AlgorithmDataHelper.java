@@ -364,8 +364,18 @@ public class AlgorithmDataHelper
             prop.getSensor().setCurrentState(prop.getCachedSensorState());
     }
 
-    public void resetDeviceToTicks() {
-       this.deviceToTicks =  new HashMap<>();
+    public void resetDeviceToTicks(PropertyWithData prop) {
+        for (Map.Entry<Actuator, Map<Action, List<Integer>>> entry: deviceToTicks.entrySet())
+        {
+            if (entry.getKey().getName().equals(prop.getActuator().getName()))
+            {
+                for (Map.Entry<Action, List<Integer>> innerEntry : entry.getValue().entrySet())
+                {
+                    innerEntry.getValue().clear();
+                }
+            }
+
+        }
     }
 
     public void setAllProperties(List<PropertyWithData> allProperties) {

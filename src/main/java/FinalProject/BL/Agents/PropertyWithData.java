@@ -220,29 +220,19 @@ public class PropertyWithData {
             int size = tempActiveTicks.size();
             if (size > 0)
              {
-                 /*logger.warn(  "YARDEN DEBUG: power cons in work is: " +powerConsumedInWork);
-                 for (int i=0; i<powerConsumption.length; i++)
-                 {
-                     logger.warn(  "YARDEN DEBUG: before total power cons array is : at idx " + i + " "+ powerConsumption[i]);
-                 }*/
+
                  for (int i=0; i<size; i++)
                  {
                      powerConsumption[tempActiveTicks.get(i)]-= powerConsumedInWork;
                  }
                  Collections.shuffle(rangeTicks);
-                 /*logger.warn("YARDEN DEBUG: befor tempActiveTicks were: " + tempActiveTicks.toString() +
-                 "Active ticks were " + this.activeTicks.toString());*/
+
                  List<Integer> sublist = rangeTicks.subList(0, size);
                  for (int i=0; i<size; i++)
                  {
                      powerConsumption[sublist.get(i)]+= powerConsumedInWork;
                  }
-                 /*logger.warn("YARDEN DEBUG: new rangeTick after doin sub are: " + sublist.toString() );
 
-                 for (int i=0; i<powerConsumption.length; i++)
-                 {
-                     logger.warn(  "YARDEN DEBUG: AFTER total power cons array is : at idx " + i + " "+ powerConsumption[i]);
-                 }*/
                  this.activeTicks.addAll(sublist);
                  //logger.warn("YARDEN DEBUG: AFTER active ticks are: " + this.activeTicks.toString());
 
