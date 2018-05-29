@@ -151,7 +151,6 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
     private void addStyleToChartAndAddToMainRow(Component component, ResponsiveRow mainRow) {
         component.addStyleName("result-chart");
-        mainRow.addComponent(component);
     }
     
     private ResponsiveLayout createResultsLayoutWithErrorsBars(String algoName) {
@@ -161,36 +160,62 @@ public class ExperimentResultsPresenter extends Panel implements View{
         ResponsiveRow mainRow = resultsLayout.addRow()
                 .withVerticalSpacing(true)
                 .withAlignment(Alignment.MIDDLE_CENTER);
-        
-        CompletableFuture totalGradeWithErrorBar = CompletableFuture.supplyAsync(() ->
+        Component[] components = new Component[7];
+        CompletableFuture totalGradeWithErrorBarCf = CompletableFuture.supplyAsync(() ->
                 generateLineGraphWithErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph.get(algoName), false))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture totalGradeWithErrorBarAnyTime = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[0] = chart;
+                });
+        CompletableFuture totalGradeWithErrorBarAnyTimeCf = CompletableFuture.supplyAsync(() ->
                 generateLineGraphWithErrorBars("Total BEST grade per iteration #", "Iteration #", "Average Cost", powerConsumptionAnyTimeGraph.get(algoName), false))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture cheapestAgentWithErrorBar = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[1] = chart;
+                });
+        CompletableFuture cheapestAgentWithErrorBarCf = CompletableFuture.supplyAsync(() ->
                 generateLineGraphWithErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph.get(algoName), false))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture avgMsgSize = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[2] = chart;
+                });
+        CompletableFuture avgMsgSizeCf = CompletableFuture.supplyAsync(() ->
                 generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture mostExpensiveAgentWithErrorBar = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[3] = chart;
+                });
+        CompletableFuture mostExpensiveAgentWithErrorBarCf = CompletableFuture.supplyAsync(() ->
                 generateLineGraphWithErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph.get(algoName), false))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture avgRunTimeWithErrorBar = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[4] = chart;
+                });
+        CompletableFuture avgRunTimeWithErrorBarCf = CompletableFuture.supplyAsync(() ->
                 generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime.get(algoName), false))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture avgNumMsgs = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[5] = chart;
+                });
+        CompletableFuture avgNumMsgsCf = CompletableFuture.supplyAsync(() ->
                 generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[6] = chart;
+                });
 
-        CompletableFuture allDone = CompletableFuture.allOf(totalGradeWithErrorBar, totalGradeWithErrorBarAnyTime, cheapestAgentWithErrorBar,
-                avgMsgSize, mostExpensiveAgentWithErrorBar, avgRunTimeWithErrorBar, avgNumMsgs);
+        CompletableFuture allDone = CompletableFuture.allOf(totalGradeWithErrorBarCf, totalGradeWithErrorBarAnyTimeCf, cheapestAgentWithErrorBarCf,
+                avgMsgSizeCf, mostExpensiveAgentWithErrorBarCf, avgRunTimeWithErrorBarCf, avgNumMsgsCf);
         try {
             allDone.get();
         } catch (InterruptedException | ExecutionException e) {
             logger.error("error creating charts!");
         }
+
+        for (Component chart : components) {
+            mainRow.addComponent(chart);
+        }
+
 
         return resultsLayout;
     }
@@ -206,36 +231,62 @@ public class ExperimentResultsPresenter extends Panel implements View{
                 .withVerticalSpacing(true)
                 .withAlignment(Alignment.MIDDLE_CENTER);
 
-        CompletableFuture totalGradeWithoutErrorBar = CompletableFuture.supplyAsync(() ->
+        Component[] components = new Component[7];
+        CompletableFuture totalGradeWithoutErrorBarCf = CompletableFuture.supplyAsync(() ->
                 generateLineGraphWithoutErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph.get(first), false))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture totalGradeWithoutErrorBarAnyTime = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[0] = chart;
+                });
+        CompletableFuture totalGradeWithoutErrorBarAnyTimeCf = CompletableFuture.supplyAsync(() ->
                 generateLineGraphWithoutErrorBars("Total BEST grade per iteration #", "Iteration #", "Average Cost", powerConsumptionAnyTimeGraph.get(first), false))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture cheapestAgentWithoutErrorBar = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[1] = chart;
+                });
+        CompletableFuture cheapestAgentWithoutErrorBarCf = CompletableFuture.supplyAsync(() ->
                 generateLineGraphWithoutErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph.get(first), false))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture avgMsgSize = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[2] = chart;
+                });
+        CompletableFuture avgMsgSizeCf = CompletableFuture.supplyAsync(() ->
                 generateBarChart("Average messages size (Byte) per Algorithm #", null, null, messagesSizeAvePerAlgo))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture mostExpensiveAgentWithoutErrorBar = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[3] = chart;
+                });
+        CompletableFuture mostExpensiveAgentWithoutErrorBarCf = CompletableFuture.supplyAsync(() ->
                 generateLineGraphWithoutErrorBars("Most Expensive Agent By Iteration #", "Iteration #", "Most Expensive Agent", highestAgentGraph.get(first), false))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture avgRunTimeWithoutErrorBar = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[4] = chart;
+                });
+        CompletableFuture avgRunTimeWithoutErrorBarCf = CompletableFuture.supplyAsync(() ->
                 generateLineGraphWithoutErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime.get(first), false))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
-        CompletableFuture avgNumMsgs = CompletableFuture.supplyAsync(() ->
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[5] = chart;
+                });
+        CompletableFuture avgNumMsgsCf = CompletableFuture.supplyAsync(() ->
                 generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo))
-                .thenAccept(chart -> addStyleToChartAndAddToMainRow(chart, mainRow));
+                .thenAccept(chart -> {
+                    addStyleToChartAndAddToMainRow(chart, mainRow);
+                    components[6] = chart;
+                });
 
-        CompletableFuture allDone = CompletableFuture.allOf(totalGradeWithoutErrorBar, totalGradeWithoutErrorBarAnyTime, cheapestAgentWithoutErrorBar,
-                avgMsgSize, mostExpensiveAgentWithoutErrorBar, avgRunTimeWithoutErrorBar, avgNumMsgs);
+        CompletableFuture allDone = CompletableFuture.allOf(totalGradeWithoutErrorBarCf, totalGradeWithoutErrorBarAnyTimeCf, cheapestAgentWithoutErrorBarCf,
+                avgMsgSizeCf, mostExpensiveAgentWithoutErrorBarCf, avgRunTimeWithoutErrorBarCf, avgNumMsgsCf);
         try {
             allDone.get();
         } catch (InterruptedException | ExecutionException e) {
             logger.error("error creating charts!");
         }
-        
+
+        for (Component chart : components) {
+            mainRow.addComponent(chart);
+        }
+
 //        Component totalGradeWithoutErrorBar = generateLineGraphWithoutErrorBars("Total grade per iteration #", "Iteration #", "Average Cost", powerConsumptionGraph.get(first), false);
 //        Component totalGradeWithErrorBarAnyTime = generateLineGraphWithoutErrorBars("Total BEST grade per iteration #", "Iteration #", "Average Cost", powerConsumptionAnyTimeGraph.get(first), false);
 //        Component cheapestAgentWithoutErrorBar = generateLineGraphWithoutErrorBars("Cheapest Agent By Iteration #", "Iteration #", "Cheapest Agent", lowestAgentGraph.get(first), false);
