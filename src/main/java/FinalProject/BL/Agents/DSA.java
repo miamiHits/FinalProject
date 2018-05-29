@@ -86,7 +86,7 @@ public class DSA extends SmartHomeAgentBehaviour {
             startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork, false);
         }
         else {
-            updateTotals(prop, getTicksForProp(prop), sensorsToCharge);
+            updateTotals(prop, prop.activeTicks, sensorsToCharge);
         }
     }
 
