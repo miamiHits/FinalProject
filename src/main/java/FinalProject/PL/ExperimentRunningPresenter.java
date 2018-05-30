@@ -96,7 +96,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
         pingingExecutor = Executors.newSingleThreadScheduledExecutor();
         pingingExecutor.scheduleAtFixedRate(() -> {
             Date now = new Date();
-            getUI().access(() -> JavaScript.getCurrent().execute("console.log(\"UI ping at: " + now + "\")"));
+            getUI().accessSynchronously(() -> JavaScript.getCurrent().execute("console.log(\"UI ping at: " + now + "\")"));
         }, 60, 1, TimeUnit.SECONDS);
     }
 
@@ -108,9 +108,9 @@ public class ExperimentRunningPresenter extends Panel implements View{
             ProgressBar progressBar = pairToProgressBarMap.get(problemAlgoPair);
             float currentProgressBarValue = progressBar.getValue();
             this.currentRunningActualProgress += toIncBy;
-            if (this.currentRunningActualProgress - currentProgressBarValue >= 0.09 && getUI().isAttached()) //update only when progressed 0.01
+            if (this.currentRunningActualProgress - currentProgressBarValue >= 0.07 && getUI().isAttached()) //update only when progressed 0.01
             {
-                getUI().access(() -> {
+                getUI().accessSynchronously(() -> {
                     logger.debug(String.format("increasing progress bar for problem: %s algorithm: %s by %f to %f", problemId, algoId, toIncBy, this.currentRunningActualProgress));
                     progressBar.setValue(this.currentRunningActualProgress);
                     float mainBarNewVal = calculateMainProgressBarValue();
@@ -196,7 +196,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
         }
     }
 
-    public void setProgressBarValue(String problemId, String algorithmId, float newValue, boolean applyOnGlobalProgressBar) {
+    public synchronized void setProgressBarValue(String problemId, String algorithmId, float newValue, boolean applyOnGlobalProgressBar) {
         this.currentRunningActualProgress = newValue;
         ProblemAlgoPair problemAlgoPair = pairToProgressBarMap.keySet().stream()
                 .filter(pair -> pair.getAlgorithm().equals(algorithmId) && pair.getProblemId().equals(problemId))

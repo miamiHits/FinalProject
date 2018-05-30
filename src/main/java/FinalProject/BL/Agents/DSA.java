@@ -32,12 +32,16 @@ public class DSA extends SmartHomeAgentBehaviour {
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
             logger.info("FINISH ITER 0");
+          //  logger.warn(agent.getAgentData().getName() + " ITER 0, DEBUG YARDEN: all ticks to work are: " + helper.getDeviceToTicks().toString());
+
         }
         else {
             receiveAllMessagesAndHandleThem();
             logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
             resetAndBuildSchedule();
             logger.info("FINISHed ITER " + currentNumberOfIter);
+            logger.warn(agent.getAgentData().getName() + " ITER " +currentNumberOfIter + " DEBUG YARDEN: all ticks to work are: " + helper.getDeviceToTicks().toString());
+
         }
         beforeIterationIsDone();
         this.currentNumberOfIter++;
@@ -84,8 +88,10 @@ public class DSA extends SmartHomeAgentBehaviour {
         }
         else if (flipCoin(PROBABILITY)) {
             startWorkNonZeroIter(prop, sensorsToCharge, ticksToWork, false);
+
         }
         else {
+
             updateTotals(prop, getTicksForProp(prop), sensorsToCharge);
         }
     }

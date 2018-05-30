@@ -57,7 +57,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
         logger.debug("enter");
-        getUI().access(() -> {
+        getUI().accessSynchronously(() -> {
             try {
 
                 Map<String,ResponsiveLayout> algoToLayout = new ConcurrentHashMap<>();

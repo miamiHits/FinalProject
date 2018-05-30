@@ -543,7 +543,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
      * @return true with probability probabilityForTrue, else false
      */
     protected boolean flipCoin(float probabilityForTrue) {
-        final boolean res = randGenerator.nextFloat() < probabilityForTrue;
+        final boolean res = randGenerator.nextFloat()  < probabilityForTrue;
         return res;
     }
 
@@ -828,7 +828,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     //-------------PRIVATE METHODS:-------------------
 
-    private void makeSurePropBetweenRange(PropertyWithData prop)
+    protected void makeSurePropBetweenRange(PropertyWithData prop)
     {
         switch (prop.getPrefix())
         {
@@ -841,7 +841,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
                 prop.calcAndUpdateCurrState(START_TICK, iterationPowerConsumption, true);
                 break;
             case AT:
-                //TODO
+
                 break;
         }
     }
