@@ -279,123 +279,123 @@ public class PropertyWithData {
     }
 
 
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-        {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass())
-        {
-            return false;
-        }
-
-        PropertyWithData that = (PropertyWithData) o;
-
-        if (Double.compare(that.getMin(), getMin()) != 0)
-        {
-            return false;
-        }
-        if (Double.compare(that.getMax(), getMax()) != 0)
-        {
-            return false;
-        }
-        if (Double.compare(that.getTargetValue(), getTargetValue()) != 0)
-        {
-            return false;
-        }
-        if (isPassiveOnly() != that.isPassiveOnly())
-        {
-            return false;
-        }
-        if (Double.compare(that.getTargetTick(), getTargetTick()) != 0)
-        {
-            return false;
-        }
-        if (Double.compare(that.getDeltaWhenWork(), getDeltaWhenWork()) != 0)
-        {
-            return false;
-        }
-        if (Double.compare(that.getPowerConsumedInWork(), getPowerConsumedInWork()) != 0)
-        {
-            return false;
-        }
-        if (Double.compare(that.getDeltaWhenWorkOffline(), getDeltaWhenWorkOffline()) != 0)
-        {
-            return false;
-        }
-        if (isLoaction() != that.isLoaction())
-        {
-            return false;
-        }
-        if (Double.compare(that.getCachedSensorState(), getCachedSensorState()) != 0)
-        {
-            return false;
-        }
-        if (getName() != null ? !getName().equals(that.getName()) : that.getName() != null)
-        {
-            return false;
-        }
-        if (getActuator() != null ? !getActuator().equals(that.getActuator()) : that.getActuator() != null)
-        {
-            return false;
-        }
-        if (getSensor() != null ? !getSensor().equals(that.getSensor()) : that.getSensor() != null)
-        {
-            return false;
-        }
-        if (getPrefix() != that.getPrefix())
-        {
-            return false;
-        }
-        if (getRt() != that.getRt())
-        {
-            return false;
-        }
-        if (getRelatedSensorsDelta() != null ? !getRelatedSensorsDelta().equals(that.getRelatedSensorsDelta()) : that.getRelatedSensorsDelta() != null)
-        {
-            return false;
-        }
-        if (getRelatedSensorsWhenWorkOfflineDelta() != null ? !getRelatedSensorsWhenWorkOfflineDelta().equals(that.getRelatedSensorsWhenWorkOfflineDelta()) : that.getRelatedSensorsWhenWorkOfflineDelta() != null)
-        {
-            return false;
-        }
-        return activeTicks != null ? activeTicks.equals(that.activeTicks) : that.activeTicks == null;
-
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int result;
-        long temp;
-        result = getName() != null ? getName().hashCode() : 0;
-        temp = Double.doubleToLongBits(getMin());
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(getMax());
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(getTargetValue());
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (getActuator() != null ? getActuator().hashCode() : 0);
-        result = 31 * result + (getSensor() != null ? getSensor().hashCode() : 0);
-        result = 31 * result + (isPassiveOnly() ? 1 : 0);
-        result = 31 * result + (getPrefix() != null ? getPrefix().hashCode() : 0);
-        result = 31 * result + (getRt() != null ? getRt().hashCode() : 0);
-        temp = Double.doubleToLongBits(getTargetTick());
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(getDeltaWhenWork());
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(getPowerConsumedInWork());
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(getDeltaWhenWorkOffline());
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (isLoaction() ? 1 : 0);
-        result = 31 * result + (getRelatedSensorsDelta() != null ? getRelatedSensorsDelta().hashCode() : 0);
-        result = 31 * result + (getRelatedSensorsWhenWorkOfflineDelta() != null ? getRelatedSensorsWhenWorkOfflineDelta().hashCode() : 0);
-        result = 31 * result + (activeTicks != null ? activeTicks.hashCode() : 0);
-        temp = Double.doubleToLongBits(getCachedSensorState());
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
-    }
+//    @Override
+//    public boolean equals(Object o)
+//    {
+//        if (this == o)
+//        {
+//            return true;
+//        }
+//        if (o == null || getClass() != o.getClass())
+//        {
+//            return false;
+//        }
+//
+//        PropertyWithData that = (PropertyWithData) o;
+//
+//        if (Double.compare(that.getMin(), getMin()) != 0)
+//        {
+//            return false;
+//        }
+//        if (Double.compare(that.getMax(), getMax()) != 0)
+//        {
+//            return false;
+//        }
+//        if (Double.compare(that.getTargetValue(), getTargetValue()) != 0)
+//        {
+//            return false;
+//        }
+//        if (isPassiveOnly() != that.isPassiveOnly())
+//        {
+//            return false;
+//        }
+//        if (Double.compare(that.getTargetTick(), getTargetTick()) != 0)
+//        {
+//            return false;
+//        }
+//        if (Double.compare(that.getDeltaWhenWork(), getDeltaWhenWork()) != 0)
+//        {
+//            return false;
+//        }
+//        if (Double.compare(that.getPowerConsumedInWork(), getPowerConsumedInWork()) != 0)
+//        {
+//            return false;
+//        }
+//        if (Double.compare(that.getDeltaWhenWorkOffline(), getDeltaWhenWorkOffline()) != 0)
+//        {
+//            return false;
+//        }
+//        if (isLoaction() != that.isLoaction())
+//        {
+//            return false;
+//        }
+//        if (Double.compare(that.getCachedSensorState(), getCachedSensorState()) != 0)
+//        {
+//            return false;
+//        }
+//        if (getName() != null ? !getName().equals(that.getName()) : that.getName() != null)
+//        {
+//            return false;
+//        }
+//        if (getActuator() != null ? !getActuator().equals(that.getActuator()) : that.getActuator() != null)
+//        {
+//            return false;
+//        }
+//        if (getSensor() != null ? !getSensor().equals(that.getSensor()) : that.getSensor() != null)
+//        {
+//            return false;
+//        }
+//        if (getPrefix() != that.getPrefix())
+//        {
+//            return false;
+//        }
+//        if (getRt() != that.getRt())
+//        {
+//            return false;
+//        }
+//        if (getRelatedSensorsDelta() != null ? !getRelatedSensorsDelta().equals(that.getRelatedSensorsDelta()) : that.getRelatedSensorsDelta() != null)
+//        {
+//            return false;
+//        }
+//        if (getRelatedSensorsWhenWorkOfflineDelta() != null ? !getRelatedSensorsWhenWorkOfflineDelta().equals(that.getRelatedSensorsWhenWorkOfflineDelta()) : that.getRelatedSensorsWhenWorkOfflineDelta() != null)
+//        {
+//            return false;
+//        }
+//        return activeTicks != null ? activeTicks.equals(that.activeTicks) : that.activeTicks == null;
+//
+//    }
+//
+//    @Override
+//    public int hashCode()
+//    {
+//        int result;
+//        long temp;
+//        result = getName() != null ? getName().hashCode() : 0;
+//        temp = Double.doubleToLongBits(getMin());
+//        result = 31 * result + (int) (temp ^ (temp >>> 32));
+//        temp = Double.doubleToLongBits(getMax());
+//        result = 31 * result + (int) (temp ^ (temp >>> 32));
+//        temp = Double.doubleToLongBits(getTargetValue());
+//        result = 31 * result + (int) (temp ^ (temp >>> 32));
+//        result = 31 * result + (getActuator() != null ? getActuator().hashCode() : 0);
+//        result = 31 * result + (getSensor() != null ? getSensor().hashCode() : 0);
+//        result = 31 * result + (isPassiveOnly() ? 1 : 0);
+//        result = 31 * result + (getPrefix() != null ? getPrefix().hashCode() : 0);
+//        result = 31 * result + (getRt() != null ? getRt().hashCode() : 0);
+//        temp = Double.doubleToLongBits(getTargetTick());
+//        result = 31 * result + (int) (temp ^ (temp >>> 32));
+//        temp = Double.doubleToLongBits(getDeltaWhenWork());
+//        result = 31 * result + (int) (temp ^ (temp >>> 32));
+//        temp = Double.doubleToLongBits(getPowerConsumedInWork());
+//        result = 31 * result + (int) (temp ^ (temp >>> 32));
+//        temp = Double.doubleToLongBits(getDeltaWhenWorkOffline());
+//        result = 31 * result + (int) (temp ^ (temp >>> 32));
+//        result = 31 * result + (isLoaction() ? 1 : 0);
+//        result = 31 * result + (getRelatedSensorsDelta() != null ? getRelatedSensorsDelta().hashCode() : 0);
+//        result = 31 * result + (getRelatedSensorsWhenWorkOfflineDelta() != null ? getRelatedSensorsWhenWorkOfflineDelta().hashCode() : 0);
+//        result = 31 * result + (activeTicks != null ? activeTicks.hashCode() : 0);
+//        temp = Double.doubleToLongBits(getCachedSensorState());
+//        result = 31 * result + (int) (temp ^ (temp >>> 32));
+//        return result;
+//    }
 }
