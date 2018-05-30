@@ -106,7 +106,7 @@ public class ExperimentResultsPresenter extends Panel implements View{
 
                 select.addValueChangeListener(event2 -> {
                     if (event2.getSource().isEmpty()) {
-                        new Notification("You didn't choose nothing");
+                        new Notification("You didn't choose anything");
                     } else {
                         runningLayout.get().setVisible(false);
                         runningLayout.set(algoToLayout.get(event2.getValue()));

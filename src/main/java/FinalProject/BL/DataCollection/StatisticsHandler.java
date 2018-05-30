@@ -188,7 +188,6 @@ public class StatisticsHandler {
                         counter++;
                         totalTime += entry.getValue().get(j);
                     }
-
                }
                 //logger.info("DEBUG YARDEN: in stats class. iter " +j+ "took :" + totalTime + "there are " + counter+ " from " + name);
                 if (counter > 0) {
