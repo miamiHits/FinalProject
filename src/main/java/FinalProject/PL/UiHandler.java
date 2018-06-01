@@ -16,7 +16,6 @@ import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.JavaScript;
 import com.vaadin.ui.JavaScriptFunction;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import org.apache.log4j.Logger;
 
@@ -43,8 +42,6 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
     protected static final String EXPERIMENT_CONFIGURATION = "EXPERIMENT_CONFIGURATION";
     protected static final String EXPERIMENT_RESULTS = "EXPERIMENT_RESULTS";
     protected static final String EXPERIMENT_RUNNING = "EXPERIMENT_RUNNING";
-
-    private static final String RESULTS_PATH = Config.getStringPropery(Config.REPORTS_OUT_DIR).replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
 
     private static final Logger logger = Logger.getLogger(UiHandler.class);
 
@@ -178,12 +175,8 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
         resultsPresenter.setNumOfAlgos(experimentResults);
         experimentRunningPresenter.enableGoToResScreenBtn();
 
-        try {
-            Date date = new Date();
-            csvHandler csv = new csvHandler(RESULTS_PATH + dateFormat.format(date)+"_results.csv", sth.getTotalPowerConsumption());
-            csv.saveExpirmentResult(experimentResults);
-        } catch (IOException e) {
-            logger.error("failed saving results to csv with exception ", e);
+        if (!service.saveResults(sth.getTotalPowerConsumption(), experimentResults)) {
+            logger.error("failed saving results to csv with exception ");
         }
     }
 

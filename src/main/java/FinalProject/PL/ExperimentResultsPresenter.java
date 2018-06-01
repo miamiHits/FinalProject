@@ -191,14 +191,14 @@ public class ExperimentResultsPresenter extends Panel implements View{
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[4] = chart;
                 });
-        CompletableFuture avgRunTimeWithErrorBarCf = CompletableFuture.supplyAsync(() ->
-                generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime.get(algoName), false))
+        CompletableFuture avgNumMsgsCf = CompletableFuture.supplyAsync(() ->
+                generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo))
                 .thenAccept(chart -> {
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[5] = chart;
                 });
-        CompletableFuture avgNumMsgsCf = CompletableFuture.supplyAsync(() ->
-                generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo))
+        CompletableFuture avgRunTimeWithErrorBarCf = CompletableFuture.supplyAsync(() ->
+                generateLineGraphWithErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime.get(algoName), false))
                 .thenAccept(chart -> {
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[6] = chart;
@@ -262,14 +262,14 @@ public class ExperimentResultsPresenter extends Panel implements View{
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[4] = chart;
                 });
-        CompletableFuture avgRunTimeWithoutErrorBarCf = CompletableFuture.supplyAsync(() ->
-                generateLineGraphWithoutErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime.get(first), false))
+        CompletableFuture avgNumMsgsCf = CompletableFuture.supplyAsync(() ->
+                generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo))
                 .thenAccept(chart -> {
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[5] = chart;
                 });
-        CompletableFuture avgNumMsgsCf = CompletableFuture.supplyAsync(() ->
-                generateBarChart("Average number of messages per Algorithm #", null, null, messagesNumPerAlgo))
+        CompletableFuture avgRunTimeWithoutErrorBarCf = CompletableFuture.supplyAsync(() ->
+                generateLineGraphWithoutErrorBars("Average run time per iteration #", "Iteration #", "ms", averageExperimentTime.get(first), false))
                 .thenAccept(chart -> {
                     addStyleToChartAndAddToMainRow(chart, mainRow);
                     components[6] = chart;
@@ -350,8 +350,6 @@ public class ExperimentResultsPresenter extends Panel implements View{
     {
         this.numOfAlgos = algoNum;
     }
-
-
 
     private Component generateLineGraphWithErrorBars(String title, String xAxisLabel, String yAxisLabel, DefaultStatisticalCategoryDataset dataset, boolean shapesIsVisible) {
         JFreeChart plot = ChartFactory.createLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);

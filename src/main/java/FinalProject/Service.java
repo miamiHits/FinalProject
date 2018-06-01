@@ -113,4 +113,9 @@ public class Service {
     {
         return this.currExperiment != null && this.currExperiment.isExperimentRunning();
     }
+
+    public boolean saveResults(Map<String, List<Double>> totalPowerConsumption, List<AlgorithmProblemResult> experimentResults) {
+        return dalController.saveResults(totalPowerConsumption, experimentResults);
+    }
+
 }

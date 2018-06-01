@@ -1,27 +1,39 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
+import FinalProject.Config;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
 
 
-public class csvHandler implements FileSaverInterface {
+public class CsvHandler implements FileSaverInterface {
 
-    private String filePathToSave;
     private Map<String, List<Double>> totalPowerConsumption;
     private int ITER_NUM;
+    private static final String RESULTS_PATH = Config.getStringPropery(Config.REPORTS_OUT_DIR).replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd--MM--yyyy_HH-mm");
 
-    public csvHandler(String filePath, Map<String, List<Double>> totalPowerConsumption)
+    public CsvHandler(Map<String, List<Double>> totalPowerConsumption)
     {
-        this.filePathToSave = filePath;
+        this.totalPowerConsumption = totalPowerConsumption;
+    }
+
+    public CsvHandler() {
+    }
+
+    public void setTotalPowerConsumption(Map<String, List<Double>> totalPowerConsumption) {
         this.totalPowerConsumption = totalPowerConsumption;
     }
 
     @Override
     public void saveExpirmentResult(List<AlgorithmProblemResult> problemResults) throws IOException {
-        FileWriter writer = new FileWriter(this.filePathToSave, true);
+        FileWriter writer = new FileWriter(RESULTS_PATH + dateFormat.format(new Date())+"_results.csv", true);
 
         for (AlgorithmProblemResult prob: problemResults)
         {
@@ -69,7 +81,7 @@ public class csvHandler implements FileSaverInterface {
                 toPrint.add(highestAgentPrice[i].toString());
                 toPrint.add(highestAgentNames[i]);
 
-                CSVUtils.writeLine(writer,toPrint);
+                writeLine(writer,toPrint);
             }
 
             writer.write("\n");
@@ -97,7 +109,7 @@ public class csvHandler implements FileSaverInterface {
                 toPrint.add(entry.getValue().get(i).toString());
             }
 
-            CSVUtils.writeLine(writer,toPrint);
+            writeLine(writer,toPrint);
 
         }
 
@@ -106,4 +118,50 @@ public class csvHandler implements FileSaverInterface {
         writer.flush();
         writer.close();
     }
+
+    private final char DEFAULT_SEPARATOR = ',';
+
+    private void writeLine(Writer w, List<String> values) throws IOException {
+        writeLine(w, values, DEFAULT_SEPARATOR, ' ');
+    }
+
+    private String followCVSformat(String value) {
+
+        String result = value;
+        if (result.contains("\"")) {
+            result = result.replace("\"", "\"\"");
+        }
+        return result;
+
+    }
+
+    private void writeLine(Writer w, List<String> values, char separators, char customQuote) throws IOException {
+
+        boolean first = true;
+
+        //default customQuote is empty
+
+        if (separators == ' ') {
+            separators = DEFAULT_SEPARATOR;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (String value : values) {
+            if (!first) {
+                sb.append(separators);
+            }
+            if (customQuote == ' ') {
+                sb.append(followCVSformat(value));
+            } else {
+                sb.append(customQuote).append(followCVSformat(value)).append(customQuote);
+            }
+
+            first = false;
+        }
+        sb.append("\n");
+        w.append(sb.toString());
+
+
+    }
+
 }
