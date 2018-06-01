@@ -9,6 +9,7 @@ public interface ExperimentInterface {
     // resulted from the algorithm-problem configuration run was fully processed
     // IMPORTANT - operation is non-blocking
     void algorithmProblemComboRunEnded(AlgorithmProblemResult result);
+    void algorithmProblemIterEnded(String algo, String problem);
 
     void stopExperiment();
 }

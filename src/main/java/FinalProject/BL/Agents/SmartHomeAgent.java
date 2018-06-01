@@ -19,13 +19,12 @@ import java.util.Objects;
 
 public class SmartHomeAgent extends Agent implements Serializable{
     public static final String SERVICE_TYPE = "ACCESS_FOR_ALL_AGENTS";
-    public static final String SERVICE_NAME = "AGENT";//TODO gal consider this one to be the agent's name(not static)
+    public static final String SERVICE_NAME = "AGENT";
     public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR;
     public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_AMS;
     public static MessageTemplate MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR;
 
     private AgentData agentData;
-    private AgentIterationData bestIteration; //TODO: maybe can be removed
     private AgentIterationData currIteration;
     private SmartHomeAgentBehaviour algorithm;
     private boolean isZEROIteration;
@@ -64,14 +63,6 @@ public class SmartHomeAgent extends Agent implements Serializable{
 
     public void setAgentData(AgentData agentData) {
         this.agentData = agentData;
-    }
-
-    public AgentIterationData getBestIteration() {
-        return bestIteration;
-    }
-
-    public void setBestIteration(AgentIterationData bestIteration) {
-        this.bestIteration = bestIteration;
     }
 
     public AgentIterationData getCurrIteration() {
@@ -219,7 +210,6 @@ public class SmartHomeAgent extends Agent implements Serializable{
                 iterationMessageSize == that.iterationMessageSize &&
                 iterationMessageCount == that.iterationMessageCount &&
                 agentData.equals(that.agentData) &&
-                bestIteration.equals(that.bestIteration) &&
                 currIteration.equals(that.currIteration) &&
                 myNeighborsShed.equals(that.myNeighborsShed) &&
                 problemId.equals(that.problemId) &&
@@ -229,6 +219,6 @@ public class SmartHomeAgent extends Agent implements Serializable{
     @Override
     public int hashCode() {
 
-        return Objects.hash(agentData, bestIteration, currIteration, algorithm, isZEROIteration, iterationNum, myNeighborsShed, stop, priceSum, problemId, algoId, iterationMessageSize, iterationMessageCount);
+        return Objects.hash(agentData, currIteration, algorithm, isZEROIteration, iterationNum, myNeighborsShed, stop, priceSum, problemId, algoId, iterationMessageSize, iterationMessageCount);
     }
 }

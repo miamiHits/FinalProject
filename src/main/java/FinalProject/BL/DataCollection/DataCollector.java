@@ -17,8 +17,8 @@ public class DataCollector {
     public DataCollector(Map<String, Integer> numOfAgentsInProblems, Map<String, double[]> prices) {
         this.numOfAgentsInProblems = numOfAgentsInProblems;
         this.probToPriceScheme = prices;
-        this.probAlgoToItAgentPrice = new HashMap<ProblemAlgorithm, IterationAgentsPrice>();
-        this.probAlgoToResult = new HashMap<ProblemAlgorithm, AlgorithmProblemResult>();
+        this.probAlgoToItAgentPrice = new HashMap<>();
+        this.probAlgoToResult = new HashMap<>();
     }
 
     public double addData (IterationCollectedData data) {
@@ -156,8 +156,6 @@ public class DataCollector {
         return PowerConsumptionUtils.calculateCSum(agentPrices, priceScheme);
     }
 
-
-
     private boolean isIterationFinished(ProblemAlgorithm PA, IterationAgentsPrice IAP,
                                         IterationCollectedData data) {
         if(IAP == null) {return false;}
@@ -169,7 +167,6 @@ public class DataCollector {
         }
         return false;
     }
-
 
     //if first then create new probResult
     private void addProbResult(ProblemAlgorithm PA, IterationAgentsPrice IAP,

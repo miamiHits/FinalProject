@@ -115,7 +115,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         setSizeFull();
     }
 
-
     private void generateAlgorithmsSection(ResponsiveRow row) {
         algorithmSelector = new TwinColSelect<>();
         algorithmSelector.setLeftColumnCaption("Available Algorithms");
@@ -205,7 +204,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 .withComponent(problemsLayout);
         row.addColumn(problemCol);
     }
-
 
     private void initGrid() {
         selectedProblemGrid.setCaption("Selected Problems");
@@ -333,7 +331,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         return availableAlgorithms;
     }
 
-    public static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {
+    private static void setAlignemntToAllComponents(AbstractOrderedLayout layout, Alignment alignment) {
         Iterator<Component> componentIterator = layout.iterator();
         while (componentIterator.hasNext()) {
             Component currentComponent = componentIterator.next();
@@ -498,7 +496,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         experimentRunningPresenter.setAlgorithmProblemPairs(problemAlgoPairs, selectedAlgorithms.size(), selectedProblems.size());
     }
-
 
     @Override
     public void valueChange(HasValue.ValueChangeEvent<String> event) {

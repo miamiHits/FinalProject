@@ -8,8 +8,8 @@ import java.util.List;
 public class PowerConsumptionUtils {
 
     private static final Logger logger = Logger.getLogger(PowerConsumptionUtils.class);
-    private static final double AC = 1; //TODO: change to correct val
-    private static final double AE = 1; //TODO: change to correct val
+    private static final double AC = 1;
+    private static final double AE = 1;
 
     public static double getAC()
     {
@@ -44,7 +44,6 @@ public class PowerConsumptionUtils {
         return cSum + calculateEPeak(schedules);
     }
 
-    //TODO used only in tests -> maybe delete
     public static double calculateTotalConsumptionWithPenalty(double cSum, double[] newSchedule, double[] oldSchedule,
                                                               List<double[]> otherSchedules, double[] priceScheme)
     {

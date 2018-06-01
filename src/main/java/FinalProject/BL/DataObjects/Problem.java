@@ -11,9 +11,7 @@ public class Problem implements Serializable
 {
 
     private String id;
-
     private Map<Integer, List<Device>> allDevices;
-//    @SerializedName("agents")
     private List<AgentData> allHomes;
     @SerializedName("horizon")
     private int horizon;

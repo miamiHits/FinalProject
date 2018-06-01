@@ -28,7 +28,6 @@ public class PropertyWithData {
     public  Map<String,Double> relatedSensorsDelta = new HashMap<>();
     public  Map<String,Double> relatedSensorsWhenWorkOfflineDelta = new HashMap<>();
     public List<Integer> activeTicks = new ArrayList<>();
-    private final static Logger logger = Logger.getLogger(PropertyWithData.class);
     private double cachedSensorState;
 
     public double getCachedSensorState() {
@@ -221,8 +220,7 @@ public class PropertyWithData {
             if (size > 0)
              {
 
-                 for (int i=0; i<size; i++)
-                 {
+                 for (int i=0; i<size; i++) {
                      powerConsumption[tempActiveTicks.get(i)]-= powerConsumedInWork;
                  }
                  Collections.shuffle(rangeTicks);
@@ -234,8 +232,6 @@ public class PropertyWithData {
                  }
 
                  this.activeTicks.addAll(sublist);
-                 //logger.warn("YARDEN DEBUG: AFTER active ticks are: " + this.activeTicks.toString());
-
              }
 
             //update the curr state now

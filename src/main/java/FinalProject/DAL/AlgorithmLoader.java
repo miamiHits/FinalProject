@@ -29,7 +29,6 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     private final static String UNCOMPILED_FILE_TYPE = ".java";
     private final static String COMPILED_FILE_TYPE = ".class";
     private final static String ADDED_ALGORITHMS_PATH = Config.getStringPropery(Config.ADDED_ALGORITHMS_PACKAGE_DIR).replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
-    private final static String COMPILED_PACKAGE_NAME = "/FinalProject/BL/Agents/";
     private File addedAlgorithmsDir;
     private File compiledBaseDir;
 

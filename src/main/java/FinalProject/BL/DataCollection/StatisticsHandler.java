@@ -8,8 +8,7 @@ import java.util.*;
 
 public class StatisticsHandler {
 
-    public static int displayedErrorBarsCount = 10;
-
+    private static final int displayedErrorBarsCount = 10;
     private List<AlgorithmProblemResult> experimentResultsNotSort;
     private Map<String, Map<Integer, Long>> probNAlgToTotalTime;
     private Map<String, List<AlgorithmProblemResult>> experimentResults = new HashMap<>();
@@ -95,7 +94,6 @@ public class StatisticsHandler {
         return dataset;
     }
 
-
     private void calcDataSet(graphType command, DefaultStatisticalCategoryDataset dataset, String algoName)
    {
        experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
@@ -150,8 +148,6 @@ public class StatisticsHandler {
            }
        });
    }
-
-
 
     public static double calculateSD(double[] numArray)
     {
@@ -289,13 +285,10 @@ public class StatisticsHandler {
         }
     }
 
-
-
     private enum graphType{
         LowestPrice,
         HighestPrice,
         TotalConsumptionAnyTime, TotalConsumption
 
     }
-
 }
