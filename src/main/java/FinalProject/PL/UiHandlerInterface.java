@@ -8,8 +8,6 @@ import java.util.Map;
 public interface UiHandlerInterface {
     void showMainScreen();
 
-    void showExperimentRunningScreen();
-
     void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Map<Integer, Long>>  probToAlgoTotalTime);
 
     void notifyExperimentEnded(List<AlgorithmProblemResult> results,Map<String, Map<Integer, Long>>  probToAlgoTotalTime);

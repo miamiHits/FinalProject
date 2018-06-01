@@ -14,12 +14,9 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.server.ClientConnector;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.server.communication.UIInitHandler;
 import com.vaadin.ui.JavaScript;
 import com.vaadin.ui.JavaScriptFunction;
 import com.vaadin.ui.UI;
-import elemental.json.JsonArray;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -38,7 +35,6 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
     public static Service service;
     public static ExperimentRunningPresenter currentRunningPresenter;
 
-    private static Navigator navigator;
     private ExperimentRunningPresenter experimentRunningPresenter;
     private static ExperimentResultsPresenter resultsPresenter;
     private boolean isUIValid;
@@ -79,9 +75,7 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
         Config.loadConfig();
         getPage().setTitle(Config.getStringPropery(Config.TITLE));
         addDetachListener(this);
-//        if (navigator == null) {
-            navigator = new Navigator(this, this);
-//        }
+        Navigator navigator = new Navigator(this, this);
         String initialNavigation = EXPERIMENT_CONFIGURATION;
         if (isUnwantedUI())
         {
@@ -100,12 +94,10 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
 
         ////////////////////////////////////
 
-        JavaScript.getCurrent().addFunction("browserIsLeaving", new JavaScriptFunction() {
-            @Override
-            public void call(JsonArray arguments) {
-                logger.debug("browserIsLeaving");
-                isUIValid = false;
-            }
+        JavaScript.getCurrent().addFunction("browserIsLeaving",
+                (JavaScriptFunction) arguments -> {
+            logger.debug("browserIsLeaving");
+            isUIValid = false;
         });
         Page.getCurrent().getJavaScript().execute("window.onbeforeunload = function (e) { var e = e || window.event; browserIsLeaving(); return; };");
 
@@ -117,7 +109,6 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
         if (resultsPresenter == null) {
             resultsPresenter = new ExperimentResultsPresenter(navigator);
         }
-//        navigator.addView("", experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RUNNING, experimentRunningPresenter);
         navigator.addView(EXPERIMENT_CONFIGURATION, experimentConfigurationPresenter);
         navigator.addView(EXPERIMENT_RESULTS, resultsPresenter);
@@ -126,9 +117,11 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
         navigator.navigateTo(initialNavigation);
     }
 
+    /**
+     * Used for CLI testing only.
+     */
     @Override
     public void showMainScreen() {
-
         System.out.println("Showing main screen!");
         int numOfIter = -1;
         while (numOfIter < 0)
@@ -138,11 +131,8 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
                 System.out.println("Please enter num of iterations");
                 String input = reader.readLine();
                 numOfIter = Integer.parseInt(input);
-            } catch (IOException ignored)
-            {
-            }
-            catch (NumberFormatException e)
-            {
+            } catch (IOException ignored) { }
+            catch (NumberFormatException e) {
                 System.out.println("Number of iterations must be a NUMBER!");
             }
         }
@@ -158,29 +148,19 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
 
         System.out.println("Starting Experiment!");
         service.runExperiment();
-        showExperimentRunningScreen();
     }
 
     @Override
-    public void showExperimentRunningScreen() {
-        System.out.println("Experiment it running");
-    }
-
-    @Override
-    public void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Map<Integer, Long>>  probToAlgoTotalTime) {
-
+    public void showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Map<Integer, Long>> probToAlgoTotalTime) {
         logger.debug("applying experiment into results to graphs and csv");
         for (AlgorithmProblemResult res : experimentResults)
         {
             logger.info(res.toString() + "\n\n");
         }
 
-        Date date = new Date() ;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd--MM--yyyy_HH-mm") ;
         StatisticsHandler sth = new StatisticsHandler(experimentResults, probToAlgoTotalTime);
 
-        //just for check the csv - we can change it later
-        csvHandler csv = new csvHandler(RESULTS_PATH + dateFormat.format(date)+"_results.csv", sth.getTotalPowerConsumption());
         Set<String> allAlgorithms = filterAlgoNames(experimentResults);
         for (String algo : allAlgorithms)
         {
@@ -198,6 +178,8 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
         experimentRunningPresenter.enableGoToResScreenBtn();
 
         try {
+            Date date = new Date();
+            csvHandler csv = new csvHandler(RESULTS_PATH + dateFormat.format(date)+"_results.csv", sth.getTotalPowerConsumption());
             csv.saveExpirmentResult(experimentResults);
         } catch (IOException e) {
             logger.error("failed saving results to csv with exception ", e);
@@ -224,18 +206,14 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
     }
 
     @Override
-    public void notifyError(String msg)
-    {//TODO gal display error message
-        System.out.println(msg);
-    }
+    public void notifyError(String msg) { logger.error(msg); }
 
     @Override
     public void algorithmProblemIterEnded(String algo, String problem, float changePercentage) {
         if (experimentRunningPresenter != null) {
             experimentRunningPresenter.incProgBar(problem, algo, changePercentage);
         }
-        else
-        {
+        else {
             logger.warn("experimentRunningPresenter is null");
         }
     }
@@ -255,14 +233,10 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
 
     @Override
     public void detach(DetachEvent event) {
-//        service.stopExperiment();
         isUIValid = false;
     }
 
-    private void recoverExistingExperiment() {
-    }
-
-    public boolean isUnwantedUI() {
+    private boolean isUnwantedUI() {
         boolean isSessionValid = (Boolean)getSession().getAttribute(VaadinWebServlet.IS_SESSION_VALID);
         boolean isSingularUI = getSession().getUIs()
                 .stream()
