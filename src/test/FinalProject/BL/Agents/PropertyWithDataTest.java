@@ -291,7 +291,7 @@ public class PropertyWithDataTest
         double[] consumption = new double[HORIZON_SIZE];
         List<Integer> tempActiveTicks = new ArrayList<>();
         this.chargeProp.updateValueToSensor(consumption, 60, 2, 2, false, tempActiveTicks);
-        Assert.assertEquals(5, this.chargeProp.activeTicks.size());
+        Assert.assertEquals(3, this.chargeProp.activeTicks.size());
         Assert.assertEquals(100, this.chargeProp.getSensor().getCurrentState(), errorMargin);
         double consumptionSum = 0;
         for (double d : consumption)

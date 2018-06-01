@@ -227,8 +227,8 @@ public class PropertyWithData {
                  }
                  Collections.shuffle(rangeTicks);
 
-                 List<Integer> sublist = rangeTicks.subList(0, size);
-                 for (int i=0; i<size; i++)
+                 List<Integer> sublist = rangeTicks.subList(0, size + 1);
+                 for (int i=0; i<size && i < sublist.size(); i++)
                  {
                      powerConsumption[sublist.get(i)]+= powerConsumedInWork;
                  }

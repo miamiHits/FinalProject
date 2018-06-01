@@ -117,23 +117,22 @@ public class DSATest {
 
     @Test
     public void buildScheduleFromScratchPropertiesTestSpecialCase() {
-        this.props.clear();
-        this.props = new ArrayList<>();
         prepareGround();
         AlgoTestUtils.makeProp(props);
         this.dsa.getHelper().setAllProperties(this.props);
         this.dsa.buildScheduleFromScratch();
         for(Entry<Actuator, Map<Action, List<Integer>>> entry: dsa.getHelper().getDeviceToTicks().entrySet()) {
             for (Entry<Action, List<Integer>> res: entry.getValue().entrySet()) {
-                if (entry.getKey().getName().equals("GE_WSM2420D3WW_wash")){ // need to work only 1 Tick.
-                    Assert.assertTrue(res.getValue().size()==1);
-                }
-                else if (entry.getKey().getName().equals("Tesla_S")) // need to work 3 Ticks.
-                {
-                    Assert.assertTrue(res.getValue().size()==3);
-                }
-                else if (entry.getKey().getName().equals("Roomba")) {
-                    Assert.assertTrue(res.getValue().contains(0) || res.getValue().contains(1) || res.getValue().contains(2));
+                switch (entry.getKey().getName()) {
+                    case "GE_WSM2420D3WW_wash":
+                        Assert.assertTrue(res.getValue().size() == 1 || res.getValue().size() == 0);
+                        break;
+                    case "Tesla_S":
+                        Assert.assertTrue(res.getValue().size() == 3 || res.getValue().size() == 0);
+                        break;
+                    case "Roomba":
+                        Assert.assertTrue(res.getValue().contains(0) || res.getValue().contains(1) || res.getValue().contains(2));
+                        break;
                 }
             }
         }

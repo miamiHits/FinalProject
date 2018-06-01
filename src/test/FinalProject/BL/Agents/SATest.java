@@ -53,10 +53,10 @@ public class SATest {
         sa.generateScheduleForProp(prop, 10, sensorsToCharge, false);
 
         Assert.assertEquals(1, propToSubsetsMap.size());
-        Assert.assertEquals(1, propToSensorsToChargeMap.size());
-        Assert.assertTrue(propToSensorsToChargeMap.containsValue(sensorsToCharge));
+        Assert.assertEquals(0, propToSensorsToChargeMap.size());
+        Assert.assertFalse(propToSensorsToChargeMap.containsValue(sensorsToCharge));
         Assert.assertTrue(propToSubsetsMap.containsKey(prop));
-        Assert.assertTrue(propToSensorsToChargeMap.containsKey(prop));
+        Assert.assertFalse(propToSensorsToChargeMap.containsKey(prop));
     }
 
     private PropertyWithData getPropertyWithData() {

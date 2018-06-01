@@ -37,7 +37,6 @@ public class JsonLoaderTest {
         Assert.assertEquals(expected, actual);
     }
 
-    //TODO fix
     @Test
     public void loadProblemsManyProblemsDm_7_1_2Good() throws Exception
     {
@@ -54,7 +53,7 @@ public class JsonLoaderTest {
         List<Problem> actual = loader.loadProblems(lst);
         long end = Calendar.getInstance().getTime().getTime();
         System.out.println("time: " + (end - start) + " milliseconds");
-        Assert.assertEquals(new HashSet<>(expected), new HashSet<>(actual));
+        Assert.assertEquals(expected, actual);
     }
 
     @Test
