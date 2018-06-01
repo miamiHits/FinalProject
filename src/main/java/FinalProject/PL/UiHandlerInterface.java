@@ -12,9 +12,7 @@ public interface UiHandlerInterface {
 
     void notifyExperimentEnded(List<AlgorithmProblemResult> results,Map<String, Map<Integer, Long>>  probToAlgoTotalTime);
 
-    void notifyError(String msg);
-
     void algorithmProblemIterEnded(String algo, String problem, float changePercentage);
 
-    void algorithmProbleComboRunEnded(String algorithm, String problem);
+    void algorithmProblemComboRunEnded(String algorithm, String problem);
 }

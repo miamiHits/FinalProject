@@ -74,7 +74,6 @@ public class Service {
         } catch (RuntimeException e)
         {
             logger.error("runtime expection was cought", e);
-            observer.notifyError(e.getMessage());
         }
     }
 
@@ -107,7 +106,7 @@ public class Service {
     }
 
     public void algorithmProbleComboRunEnded(String algorithm, String problem) {
-        observer.algorithmProbleComboRunEnded(algorithm, problem);
+        observer.algorithmProblemComboRunEnded(algorithm, problem);
     }
 
     public boolean isExperientRunning()

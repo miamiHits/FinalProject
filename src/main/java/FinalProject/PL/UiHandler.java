@@ -16,6 +16,7 @@ import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.JavaScript;
 import com.vaadin.ui.JavaScriptFunction;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import org.apache.log4j.Logger;
 
@@ -206,9 +207,6 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
     }
 
     @Override
-    public void notifyError(String msg) { logger.error(msg); }
-
-    @Override
     public void algorithmProblemIterEnded(String algo, String problem, float changePercentage) {
         if (experimentRunningPresenter != null) {
             experimentRunningPresenter.incProgBar(problem, algo, changePercentage);
@@ -219,7 +217,7 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
     }
 
     @Override
-    public void algorithmProbleComboRunEnded(String algorithm, String problem) {
+    public void algorithmProblemComboRunEnded(String algorithm, String problem) {
         if (experimentRunningPresenter != null) {
             experimentRunningPresenter.setProgressBarValue(problem, algorithm, 1f, false);
             this.experimentRunningPresenter.currentRunningActualProgress = 0;
