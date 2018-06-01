@@ -92,7 +92,7 @@ public class PropertyWithDataTest
 
         double[] consumption = new double[HORIZON_SIZE];
         chargeProp.activeTicks = activeTicks;
-        chargeProp.calcAndUpdateCurrState(HORIZON_SIZE, consumption, IS_FROM_START);
+        chargeProp.calcAndUpdateCurrState(HORIZON_SIZE-1, consumption, IS_FROM_START);
         assertPropertyState(chargeProp, 0 , HORIZON_SIZE, ON_DELTA, OFF_DELTA);
     }
 
@@ -161,7 +161,7 @@ public class PropertyWithDataTest
         chargeProp.setActuator(tesla_s);
         double[] consumption = new double[HORIZON_SIZE];
         chargeProp.activeTicks = activeTicks;
-        chargeProp.calcAndUpdateCurrState(HORIZON_SIZE, consumption, IS_FROM_START);
+        chargeProp.calcAndUpdateCurrState(HORIZON_SIZE-1, consumption, IS_FROM_START);
         double currentCharge = chargeProp.getCachedSensorState();
         for (int i = 0; i < 11; i++)
         {
@@ -211,13 +211,13 @@ public class PropertyWithDataTest
 
     private void calcAndUpdateCurrState_minimalPassiveValueIsKeptBetweenActivations(boolean bottomPivotSelected)
     {
-        final double TARGET_TICK = 10;
+        final double TARGET_TICK = 8;
         final double ON_DELTA = 20;
         final double OFF_DELTA = -10;
         final ArrayList<Integer> activeTicks = new ArrayList<>();
         activeTicks.add(1);
-        activeTicks.add(8);
-        activeTicks.add(9);
+        activeTicks.add(3);
+        activeTicks.add(5);
 
         chargeProp.setTargetTick(TARGET_TICK);
         chargeProp.setDeltaWhenWork(ON_DELTA);
@@ -230,12 +230,12 @@ public class PropertyWithDataTest
         chargeProp.setActuator(tesla_s);
         double[] consumption = new double[HORIZON_SIZE];
         chargeProp.activeTicks = activeTicks;
+        chargeProp.setPrefix(Prefix.AFTER);
+        chargeProp.calcAndUpdateCurrState(HORIZON_SIZE-1, consumption, bottomPivotSelected);
 
-        double targetTickToCount = 9;
-        chargeProp.calcAndUpdateCurrState(targetTickToCount, consumption, bottomPivotSelected);
         Assert.assertTrue(chargeProp.getSensor().getCurrentState() <= chargeProp.getMax());
         Assert.assertTrue(chargeProp.getSensor().getCurrentState() >= chargeProp.getMin());
-        Assert.assertTrue(chargeProp.getSensor().getCurrentState() >= chargeProp.getTargetValue());
+        Assert.assertTrue(chargeProp.getSensor().getCurrentState() <= chargeProp.getTargetValue());
 
 
     }

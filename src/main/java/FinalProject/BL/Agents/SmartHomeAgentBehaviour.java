@@ -828,7 +828,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
 
     //-------------PRIVATE METHODS:-------------------
 
-    protected void makeSurePropBetweenRange(PropertyWithData prop)
+    private void makeSurePropBetweenRange(PropertyWithData prop)
     {
         switch (prop.getPrefix())
         {
