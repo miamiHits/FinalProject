@@ -1,6 +1,7 @@
 package FinalProject.BL.Agents;
 
 import FinalProject.BL.DataCollection.DataCollectionCommunicator;
+import FinalProject.BL.DataCollection.PowerConsumptionUtils;
 import FinalProject.BL.DataObjects.*;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
@@ -15,6 +16,7 @@ import org.junit.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class DBATest {
 
@@ -22,8 +24,10 @@ public class DBATest {
     private DBA dba;
     private SmartHomeAgent agent;
     private List<PropertyWithData> props;
-
-
+    private double oldPrice2;
+    private double newPrice2;
+    private int [] ticksBag = new int [12];
+    private int [] newTicksbags = new int[12];
     @Before
     public void setup() {
         Config.loadTestConfig();
@@ -35,6 +39,10 @@ public class DBATest {
         agent = ReflectiveUtils.initSmartHomeAgentForTest(dm_7_1_2);
         dba = new TestDBA(agent, 6);
         props = new ArrayList<>(2);
+        dba.initializeBehaviourWithAgent(agent);
+        this.oldPrice2 =0;
+        this.newPrice2 =0;
+        cleanBagsBackToOne();
     }
 
     @After
@@ -43,6 +51,16 @@ public class DBATest {
         dba = null;
         agent = null;
         props = null;
+        cleanBagsBackToOne();
+    }
+
+    private void cleanBagsBackToOne()
+    {
+        for(int i=0; i<ticksBag.length; i++)
+        {
+            ticksBag[i] = 1;
+            newTicksbags[i] = 1;
+        }
     }
 
     public void prepareGround()
@@ -184,30 +202,6 @@ public class DBATest {
     }
 
     @Test
-    public void dsaIterBuildSched(){
-        this.props.clear();
-        this.props = new ArrayList<>();
-        this.dba.agent.setPriceSum(1000);
-        prepareGround();
-        try
-        {
-            ReflectiveUtils.invokeMethod(dba, "buildScheduleFromScratch");
-            this.dba.agent.setZEROIteration(false);
-            ReflectiveUtils.invokeMethod(dba, "improveSchedule");
-            Assert.assertTrue(props.get(0).getSensor().getCurrentState()> props.get(0).getMin());
-            Assert.assertTrue(props.get(0).getSensor().getCurrentState()<= props.get(0).getMax());
-            Assert.assertTrue(props.get(1).getSensor().getCurrentState()> props.get(1).getMin());
-            Assert.assertTrue(props.get(1).getSensor().getCurrentState()<= props.get(1).getMax());
-
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
-        {
-            e.printStackTrace();
-        }
-
-    }
-
-
-    @Test
     public void countIterationCommunicationTest() {
         try {
             this.dba = new DBA(agent);
@@ -231,34 +225,92 @@ public class DBATest {
         }
     }
 
+    @Test
+    public void checkMainLogicDBA() {
+        dba.buildScheduleBasic(false);
+        double[] prevIterPowerConsumption = dba.helper.cloneArray(dba.iterationPowerConsumption); //equals to agent.getCurrIteration().powerConsumptionPerTick
+        this.oldPrice2 = dba.calcCsum(prevIterPowerConsumption);
+        dba.mainLogicDBA();
+        Assert.assertTrue(oldPrice2 <= newPrice2);
+    }
+
+    @Test
+    public void bagsArr() {
+        dba.buildScheduleBasic(false);
+        double[] prevIterPowerConsumption = dba.helper.cloneArray(dba.iterationPowerConsumption); //equals to agent.getCurrIteration().powerConsumptionPerTick
+        this.oldPrice2 = dba.calcCsum(prevIterPowerConsumption);
+        dba.mainLogicDBA();
+        for (int i =0 ; i<this.ticksBag.length; i++)
+        {
+            Assert.assertTrue(this.ticksBag[i] <= this.newTicksbags[i]);
+        }
+    }
+
+
     private class TestDBA extends DBA
     {
-        //used for affecting the behaviour of DSA, creating scenarios with expected behaviour without involving jade
+        //used for affecting the behaviour of DBA, creating scenarios with expected behaviour without involving jade
 
         public int currentNeighbourCount;
         public int expectedImprovementFromAllNeighbours;
+
 
         public TestDBA(SmartHomeAgent agent, int currentNeighbourCount)
         {
             super(agent);
             this.currentNeighbourCount = currentNeighbourCount;
+
+
         }
-        public List<ImprovementMsg> expectedImprovementMessages;
 
         // returns
         @Override
         protected List<ImprovementMsg> receiveImprovementMsgs() {
-            if (expectedImprovementMessages == null)
+            List<ImprovementMsg> fakeMessages = new ArrayList<>();
+            for (int i = 0; i < currentNeighbourCount; i++)
             {
-                List<ImprovementMsg> fakeMessages = new ArrayList<>();
-                for (int i = 0; i < currentNeighbourCount; i++)
+                ImprovementMsg message = new ImprovementMsg("bla",this.expectedImprovementFromAllNeighbours, new double[12], new double[12]);
+                fakeMessages.add(message);
+            }
+
+            return fakeMessages;
+        }
+
+        // returns
+        @Override
+        protected void mainLogicDBA()
+        {
+            boolean[] bitMapBags = new boolean[12];
+            Map<Actuator, Map<Action, List<Integer>>> helperTicksToDevice = helper.getDeviceToTicks();
+
+            // add bags
+            for (Map.Entry<Actuator, Map<Action, List<Integer>>> entry: helperTicksToDevice.entrySet())
+            {
+                for (Map.Entry<Action, List<Integer>> innerEntry : entry.getValue().entrySet())
                 {
-                    ImprovementMsg message = new ImprovementMsg("bla",this.expectedImprovementFromAllNeighbours, new double[12], new double[12]);
-                    fakeMessages.add(message);
+                    for (int tick: innerEntry.getValue())
+                    {
+                        bitMapBags[tick] = true;
+                    }
                 }
             }
 
-            return this.expectedImprovementMessages;
+            IntStream.range(0, ticksBag.length).filter(i -> bitMapBags[i]).forEach(i -> ticksBag[i]++);
+            IntStream.range(0, ticksBag.length).filter(i -> bitMapBags[i]).forEach(i -> newTicksbags[i]++);
+
+            dba.setInImprovementRound(true);
+
+            //reset fields
+            // double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice, iterationPowerConsumption); //also sets helper's epeak
+            agent.setPriceSum(oldPrice2);
+            helper.resetProperties();
+            //calc new sched according to new bags
+            buildScheduleBasic(false);
+
+            //build new sched according to new bags
+            newPrice2 = calcCsum(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
+            dba.setInImprovementRound(false);
+
         }
     }
 }

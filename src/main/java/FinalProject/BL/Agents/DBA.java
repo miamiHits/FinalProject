@@ -4,25 +4,21 @@ import FinalProject.BL.DataObjects.Action;
 import FinalProject.BL.DataObjects.Actuator;
 import FinalProject.BL.IterationData.AgentIterationData;
 import FinalProject.BL.IterationData.IterationCollectedData;
-import FinalProject.Utils;
-import jade.lang.acl.MessageTemplate;
 import org.apache.log4j.Logger;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static FinalProject.BL.DataCollection.PowerConsumptionUtils.calculateEPeak;
 
 public class DBA extends SmartHomeAgentBehaviour{
 
     private final static Logger logger = Logger.getLogger(DBA.class);
-    private final String gainMsgOntology = "GAIN_MSG";
-    private MessageTemplate improvementTemplate;
     /* will tell about the "bags" the agent will have on specific ticks
        according to DBA logic
     */
     private int[] ticksBag;
-    private boolean inImprovmentRound = false;
+    private boolean inImprovementRound = false;
     private double oldPrice;
 
     public DBA() {
@@ -120,7 +116,6 @@ public class DBA extends SmartHomeAgentBehaviour{
                 }
             }
         }
-
         else
         {
             allDidntImproved = false;
@@ -150,14 +145,10 @@ public class DBA extends SmartHomeAgentBehaviour{
         }
     }
 
-    private void mainLogicDBA()
+    protected void mainLogicDBA()
     {
         Map<Actuator, Map<Action, List<Integer>>> helperTicksToDevice = helper.getDeviceToTicks();
         boolean[] bitMapBags = new boolean[this.ticksBag.length];
-        //for DEBUG propuse ONLY
-        for(int i=0; i<ticksBag.length; i++)
-            logger.warn(agent.getAgentData().getName() + " YARDEN DEBUG: prev bags are: " + ticksBag[i]);
-
         // add bags
         for (Map.Entry<Actuator, Map<Action, List<Integer>>> entry: helperTicksToDevice.entrySet())
         {
@@ -170,16 +161,13 @@ public class DBA extends SmartHomeAgentBehaviour{
             }
         }
 
-        for(int i=0; i<ticksBag.length; i++)
-            ticksBag[i]++;
+        //add bags according to bit map (only 1 bag, even if the tick showed twice in 2 diff devices)
+        IntStream.range(0, ticksBag.length).filter(i -> bitMapBags[i]).forEach(i -> ticksBag[i]++);
 
-
-        logger.warn("YARDEN DEBUG:prev ticks was: "+ helperTicksToDevice.entrySet().toString());
-
-        inImprovmentRound = true;
+        inImprovementRound = true;
 
         //reset fields
-        double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice, iterationPowerConsumption); //also sets helper's epeak
+       // double prevTotalCost = helper.calcTotalPowerConsumption(oldPrice, iterationPowerConsumption); //also sets helper's epeak
         agent.setPriceSum(oldPrice);
         helper.resetProperties();
         //calc new sched according to new bags
@@ -188,16 +176,8 @@ public class DBA extends SmartHomeAgentBehaviour{
         //build new sched according to new bags
         double newPrice = calcCsum(iterationPowerConsumption); //iterationPowerConsumption changed by buildScheduleBasic
         double actualEpeak = tempBestPriceConsumption - newPrice;
-        logger.warn(agent.getAgentData().getName() + " YARDEN DEBUG: prev CSUM " + oldPrice + "New CSUM" + newPrice +
-                "YARDEN DEBUG: new ticks are:" + helper.getDeviceToTicks().entrySet().toString()
-                +  "prev total " + prevTotalCost
-                +  "new total " + tempBestPriceConsumption);
-        //for DEBUG ONLY
-        for(int i=0; i<ticksBag.length; i++)
-            logger.warn(agent.getAgentData().getName() + " YARDEN DEBUG: NEW bags are: " + ticksBag[i]);
-
         takeNewSched(newPrice, actualEpeak);
-        inImprovmentRound = false;
+        inImprovementRound = false;
     }
 
     private void takeNewSched(double newPrice, double actualEpeak) {
@@ -241,7 +221,7 @@ public class DBA extends SmartHomeAgentBehaviour{
 
             double res;
             //we're in improvments round, will look only on our self CSUM.
-             if(inImprovmentRound)
+             if(inImprovementRound)
              {
                  res = calcCsum(newPowerConsumption);
                  if (res <= oldPrice)
@@ -320,6 +300,10 @@ public class DBA extends SmartHomeAgentBehaviour{
         double price = calcCsum(newPowerConsumption);
         return price + calculateEPeak(allScheds);
 
+    }
+
+    public void setInImprovementRound(boolean inImprovementRound) {
+        this.inImprovementRound = inImprovementRound;
     }
 
 }
