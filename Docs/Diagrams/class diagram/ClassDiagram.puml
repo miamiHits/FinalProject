@@ -1,12 +1,13 @@
 @startuml
 scale 0.5
 skinparam linetype ortho
-skinparam dpi 900
+skinparam pageExternalColor white
+' skinparam dpi 90
+left to right direction
 
+package BL #efefef{
 
-package BL {
-
-	package JADE <<External library>> {
+	package JADE <<External library>> #c7cced{
 
 		abstract class Agent <<Abstract, JADE>> {
 		    {abstract} #Setup() : void
@@ -19,8 +20,7 @@ package BL {
 		class DFAgentDescription
 	}
 
-	package DataObjects{
-		
+	package DataObjects #c7cced{
 		together {
 			class Device {
 				+name : String
@@ -35,7 +35,6 @@ package BL {
 			}
 
 			class Actuator {
-				+actions : List<Action>
 				+act(Map<Sensor, double>) : void
 			}
 		}
@@ -72,7 +71,6 @@ package BL {
 				+property : String
 				+ruleValue : double
 				+relationValue : double
-				+device : Device
 				+location : String
 				+prefixType : PrefixType
 				+prefix : Prefix
@@ -89,10 +87,6 @@ package BL {
 				+numOfIterations : int
 				+priceScheme : double[]
 				+granularity : int
-				+neighbors : List<AgentData>
-				+rules : List<Rule>
-				+actuators : List<Actuator>
-				+sensors : List<Sensor>
 			}
 
 			class Problem {
@@ -107,22 +101,22 @@ package BL {
 		Device <|- Sensor
 		Device <|-- Actuator
 
-		Actuator o-- Action
-		Action o-- Effect
+		Action *-down- Effect
+		Actuator *-down- Action
 
 		Problem *-- AgentData
 		Problem *-- Device
-		AgentData o-- Sensor
-		AgentData o-- Actuator
-		AgentData -- AgentData
-		AgentData o- Rule
+		AgentData *-- Sensor
+		AgentData *-- Actuator
+		AgentData *-down- AgentData
+		AgentData *- Rule
 
 		Prefix <-- Rule
 		RelationType <-- Rule
 		Rule o-- Device
 	}
 
-	package Agents {
+	package Agents #c7cced{
 
 		'helpers'
 		together {
@@ -130,8 +124,6 @@ package BL {
 				+totalPriceConsumption : double
 				+ePeak : double
 				+DeviceToTicks : Map<Actuator, Map<Action, List<Integer>>>
-				+allProperties : List<PropertyWithData>
-				+agent : SmartHomeAgent
 				+neighboursPriceConsumption : List<double[]>
 				
 				+buildNewPropertyData(Rule, boolean) : void
@@ -164,8 +156,6 @@ package BL {
 				+isLocation : boolean
 				+relatedSensorsDelta : Map<String,Double>
 				+relatedSensorsWhenWorkOfflineDelta : Map<String,Double>
-				+actuator : Actuator
-				+sensor : Sensor
 				+prefix : Prefix
 				+rt : RelationType
 				+activeTicks : List<int>
@@ -179,13 +169,13 @@ package BL {
 		'agent'
 		together {
 			class SmartHomeAgent {
+				..static fields..
 				+{static} SERVICE_TYPE : String
 				+{static} SERVICE_NAME : String
 				+{static} MESSAGE_TEMPLATE_SENDER_IS_COLLECTOR : MessageTemplate
 				+{static} MESSAGE_TEMPLATE_SENDER_IS_AMS : MessageTemplate
 				+{static} MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR : MessageTemplate
-
-				+agentdata : AgentData
+				..
 				+currIteration : AgentIterationData
 				+iterationNum : int
 				+isZEROIteration : boolean
@@ -195,37 +185,33 @@ package BL {
 				+iterationMessageSize : long
 				+iterationMessageCount : int
 
+				..inharited from Jade..
 				#setup() : void
 				#takeDown() : void
 			}
 
 
-			abstract class SmartHomeAgentBehaviour <<Abstract>> {
-				+agent : SmartHomeAgent
+			abstract class SmartHomeAgentBehaviour {
+				#{static} FINAL_TICK : int
 				#currentNumberOfIter: int
-				#helper: AlgorithmDataHelper
-				#agentIterationData: AgentIterationData
-				#agentIterationCollected: IterationCollectedData
 				#iterationPowerConsumption: double[]
 				#tempPriceConsumption: double
-				#{static} FINAL_TICK : int
-				#maxImprovementMsg : ImprovementMsg
 				#improvementTemplate : MessageTemplate
 				#propToSubsetsMap : Map<PropertyWithData, List<Set<Integer>>>
 				#propToSensorsToChargeMap : Map<PropertyWithData, Map<String,Integer>>
-
-				+cloneBehaviour() : SmartHomeAgentBehaviour
-				+buildScheduleFromScratch() : void
-
+				--
+				..inharited from Jade..
 				+action() : void
 				+done() : boolean
-
+				..abstract methods..
+				+{abstract} cloneBehaviour() : SmartHomeAgentBehaviour
 				#{abstract} doIteration() : void
 				#{abstract} onTermination() : void
 				#{abstract} generateScheduleForProp(PropertyWithData, double, Map<String, Integer>, boolean) : void
 				#{abstract} cloneBehaviour() : SmartHomeAgentBehaviour
 				#{abstract} calcImprveOptionGrade(double[], List<double[]>) : double
-				
+				..non-abstract methods..
+				+buildScheduleFromScratch() : void
 				#getNeighbourScheds : List<double[]>
 				#resetToPrevIterationData(...) : void
 				#countIterationCommunication() : void
@@ -260,7 +246,7 @@ package BL {
 			}
 		}
 
-		Note "action(){\n\tdoIteration();\n\tsendIterationToCollector();\n\tsendIterationToNeighbrs();\n\t..\n\t}\n}" as smabNote
+		Note "action(){\n\tdoIteration();\n\tsendIterationToCollector();\n\tsendIterationToNeighbrs();}\n}" as smabNote
 		
 		'algos:'
 		together {
@@ -301,10 +287,17 @@ package BL {
 			}
 		}
 
+		class ImprovementMsg {
+			+agentName : String
+			+improvement : double
+			+imprevedSched : double[]
+			+prevSched : double[]
+		}
+
 
 		Agent <|-- SmartHomeAgent
 		SmartHomeAgentBehaviour --|> Behaviour
-		SmartHomeAgent -- SmartHomeAgentBehaviour
+		SmartHomeAgent --> SmartHomeAgentBehaviour
 
 		SmartHomeAgentBehaviour . smabNote
 
@@ -313,14 +306,21 @@ package BL {
 		SmartHomeAgentBehaviour <|-- SA
 		SmartHomeAgentBehaviour <|-- DBA
 
+		SmartHomeAgentBehaviour o-- SmartHomeAgent
+		SmartHomeAgentBehaviour o-- AlgorithmDataHelper
+		SmartHomeAgentBehaviour o-- ImprovementMsg
+
 		DSA --> AlgorithmDataHelper
 		DSA --> PropertyWithData
 
-		AlgorithmDataHelper --> PropertyWithData
-		AlgorithmDataHelper --> SmartHomeAgent
+		AlgorithmDataHelper o- PropertyWithData
+		AlgorithmDataHelper o-- SmartHomeAgent
+
+		PropertyWithData *-up- Sensor
+		PropertyWithData *- Actuator
 	}
 
-	package IterationData {
+	package IterationData #c7cced{
 
 		class AgentIterationData {
 			+iterNum : int
@@ -341,7 +341,7 @@ package BL {
 		AgentIterationData <|-- IterationCollectedData
 	}
 
-	package DataCollection {
+	package DataCollection #c7cced{
 
 		class PowerConsumptionUtils <<Static>> {
 			+{static} AE : double
@@ -374,7 +374,6 @@ package BL {
 			}
 
 			class DataCollectionCommunicatorBehaviour {
-			    -agent : DataCollectorCommunicator
 				+action() : void
 			}
 		}
@@ -411,26 +410,28 @@ package BL {
 			+msgsSize : long
 		}
 
-		AlgorithmProblemResult --> MsgInfo
+		AlgorithmProblemResult --* MsgInfo
 
-		DataCollector --o DataCollectionCommunicator
+		DataCollector --* DataCollectionCommunicator
 		DataCollector o-- IterationCollectedData
 		DataCollectionCommunicatorBehaviour --|> Behaviour
 		DataCollectionCommunicatorBehaviour --o DataCollectionCommunicator
+		DataCollectionCommunicatorBehaviour o-- DataCollectionCommunicator
 		DataCollector --> StatisticsHandler
 		
 		DataCollector -> PowerConsumptionUtils
 	}
 
-	interface ExperimentBuilderInterface {
-		+setNumOfIterations(int) : void
-		+setAlgorithms(List<SmartHomeAgentBehaviour>) : void
-		+setProblems(List<Problem>) : void
-		+createExperiment() : Experiment
-	}
 
 	'experiment'
 	together {
+		interface ExperimentBuilderInterface {
+			+setNumOfIterations(int) : void
+			+setAlgorithms(List<SmartHomeAgentBehaviour>) : void
+			+setProblems(List<Problem>) : void
+			+createExperiment() : Experiment
+		}
+
 		class ExperimentBuilder {
 			+setNumOfIterations(int) : void
 			+setAlgorithms(List<SmartHomeAgentBehaviour>) : void
@@ -454,13 +455,12 @@ package BL {
 			+algorithmProblemComboRunEnded(AlgorithmProblemResult) : void
 			+algorithmProblemIterEnded(String, String) : void
 		}
-
 	}
 
 	ExperimentInterface <|-- Experiment
 	ExperimentBuilderInterface <|-- ExperimentBuilder
 
-	ExperimentBuilder --> Experiment : creates
+	ExperimentBuilder --> Experiment : creates >
 	Experiment o-- DataCollectionCommunicator
 	Experiment *-- Problem
 	SmartHomeAgent *- AgentData
@@ -469,7 +469,7 @@ package BL {
 
 	Experiment o-- AlgorithmProblemResult
 
-	DataCollectionCommunicator "1" -- "1...*" SmartHomeAgentBehaviour
+	DataCollectionCommunicator --  SmartHomeAgentBehaviour
 	DataCollectionCommunicator --> AgentIterationData
 	DataCollector --> AgentIterationData
 	DataCollectionCommunicatorBehaviour --> DFAgentDescription
@@ -485,7 +485,7 @@ package BL {
 	AlgorithmDataHelper --> Sensor
 }
 
-package PL {
+package PL #efefef{
 
 	interface UiHandlerInterface {
 		+showMainScreen() : void
@@ -532,13 +532,13 @@ package PL {
     }
 
 	UiHandlerInterface <|-- UiHandler
-	UiHandler *-- ExperimentRunningPresenter
-	UiHandler *-- ExperimentResultsPresenter
-	UiHandler *-- ExperimentConfigurationPresenter
+	UiHandler o-- ExperimentRunningPresenter
+	UiHandler o-- ExperimentResultsPresenter
+	UiHandler o-- ExperimentConfigurationPresenter
 
 }
 
-package DAL {
+package DAL #efefef{
 
     interface FileSaverInterface {
     	+saveExpirimentResult(List<AlgorithmProblemResult>) : void
@@ -623,11 +623,6 @@ together {
         +{static} getDoubleProperty(String) : double
         +{static} getBooleanProperty(String) : boolean
     }
-
-    class VaadinWebServlet {
-        +init() : void
-    }
-
 }
 
 class SmartHomeAlgorithm <<Not Implemented>> {
@@ -652,9 +647,15 @@ CsvHandler -> AlgorithmProblemResult : saves
 
 SmartHomeAlgorithm --|> SmartHomeAgentBehaviour
 
-UiHandler *-- Service
-ExperimentRunningPresenter *-- Service
-ExperimentResultsPresenter *-- Service
+UiHandler o-- Service
 ExperimentConfigurationPresenter *-- Service
+
+SmartHomeAgentBehaviour *-- AgentIterationData
+SmartHomeAgentBehaviour *-- IterationCollectedData
+
+UiHandler --> Config
+AlgorithmLoader --> Config
+JsonsLoader --> Config
+CsvHandler --> Config
 
 @enduml
