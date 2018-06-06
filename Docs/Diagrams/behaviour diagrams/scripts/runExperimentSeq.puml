@@ -4,14 +4,22 @@ collections Agent
 participant DataAccessController as DAC
 participant DataControllerCommunicator as DCC
 participant DataControllerCommunicatorAgentBehaviour as DCCB
+participant ExperimentConfigurationPresenter as ConfP
+participant ExperimentRunningPresenter as RunP
+
+note over u, Experiment #aqua
+    please note: this is a (relatively accurate) abstraction of the UseCase due the high complexity of the use case's implementation
+end note
 
 activate u
 activate UiHandler
+activate ConfP
 activate Service
 activate Agent
 activate AgentBehaviour
 activate Problem
 activate ExperimentBuilder
+activate RunP
 
 note right of Jade
     This is an abstraction
@@ -20,22 +28,22 @@ note right of Jade
     jade class as a participant
 end note
 
-u -> UiHandler : [clicks "Start Experiment"]
+u -> ExperimentConfigurationPresenter : [clicks "Start Experiment"]
 
 alt user selected a set of algorithm and problems
 
     ref over u : algorithms selection use case
     ref over u : problems selection use case
 
-    UiHandler -> Service : runExperiment()
+    ExperimentConfigurationPresenter -> Service : runExperiment()
     Service -> ExperimentBuilder : createExperiment()
     ExperimentBuilder -> Experiment : <<create>>
     activate Experiment
     ExperimentBuilder --> Service : Experiment
     Service -> Experiment : runExperiment()
 
-    Service -> UiHandler : notifyObserver()
-    UiHandler --> u : [show message indicating the experiment started]
+    ConfP -> RunP : [navigate to experiment progress view]
+
 
     Experiment -> Jade : getInstance()
     activate Jade
@@ -58,7 +66,7 @@ alt user selected a set of algorithm and problems
 
                 '/////////run agents
                 loop for each agent
-                    Experiment -> AgentBehaviour : clone()
+                    Experiment -> AgentBehaviour : cloneBehavior()
                     AgentBehaviour --> Experiment : [AgentBehaviour]
                     Experiment -> Jade : createAgent(AgentBehaviour)
                     Jade --> Experiment : [Agent]
@@ -115,14 +123,16 @@ alt user selected a set of algorithm and problems
 
                 DCCB -> Experiment : algorithmProblemComboRunEnded(AlgorithmProblemResult)
             end
+
+            Experiment -> Experiment : restartJade()
         end
 
         Experiment ->x Jade : <<terminate>>
         deactivate Jade
 
-        Experiment -> Service : experimentEnded(List<AlgorithmProblemResult>)
+        Experiment -> Service : experimentEnded(List<AlgorithmProblemResult> results, Map<String, Map<Integer, Long>>  probToAlgoTotalTime)
 
-        Service -> UiHandler : showResultScreen(List<AlgorithmProblemResult>)
+        Service -> UiHandler : showResultScreen(List<AlgorithmProblemResult> experimentResults, Map<String, Map<Integer, Long>> probToAlgoTotalTime)
 
         ref over UiHandler : show results use case
 
@@ -131,7 +141,8 @@ alt user selected a set of algorithm and problems
         activate Problem
         activate Jade
 
-        u -> Service : stopExperiment()
+        u -> RunP : [clicks on "stop experiment" button]
+        RunP -> Service : stopExperiment()
         note left
             this alternative is identical
             to the one above, only the
@@ -147,14 +158,15 @@ alt user selected a set of algorithm and problems
         deactivate Agent
         Experiment ->x Jade : <<terminate>>
         deactivate Jade
+
+        RunP -> ConfP : [vavigate to the Main Window]
     end
 
     deactivate Problem
 
 else user did not select a set of problems or a set of algorithms
 
-    Service --> UiHandler : showErrorMessage(msg: String)
-    UiHandler --> u : [shows a descriptive error message]
+    ConfP --> u : [shows a descriptive error message over the relevant UI component]
 
 end
 @enduml

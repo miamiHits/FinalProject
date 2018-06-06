@@ -1,13 +1,16 @@
 @startuml
 actor User as u
 participant StatisticsHandler as sth
-participant ExperimentResultsPresenter as res
+participant ExperimentResultsPresenter as resP
 participant UiHandler as ui
 participant CsvHandler as csv
+participant ExperimentRunningPresenter as RunP
 
 activate UiHandler
 activate Service
-activate res
+activate resP
+activate csv
+activate DataAccessController
 
 
 
@@ -17,22 +20,21 @@ UiHandler -> sth : <<create>>
 activate sth
 group for each chart
     ui -> sth : <<calculateChart>>
-    sth -> res : [graph dataset]
+    sth --> resP : [graph dataset]
 end group
 
-ui -> csv : <<create>>
-activate csv
-ui -> csv : saveExpirmentResult(experimentResults)
+ui -> DataAccessController : saveResults(Map<String, List<Double>> totalPowerConsumption, List<AlgorithmProblemResult> experimentResults)
+DataAccessController -> csv : saveExpirmentResult(List<AlgorithmProblemResult> problemResults)
 
-ui -> ui : [enables "Go to Results Screen" button]
-u-> UiHandler : [clicks "Go to Results Screen" button]
+ui -> RunP : [enables "Go to Results Screen" button]
+u-> RunP : [clicks "Go to Results Screen" button]
 
-ui -> res : <<display>>
+RunP -> resP : [navigate to the results view]
 
-res -> u : [shows graph describing the results of the experiment]
+resP -> u : [shows graphs describing the results of the experiment]
 
-u -> ui : [clicks "End Experiment" button]
+u -> resP : [clicks "End Experiment" button]
 
-UiHandler -> u : [displays the main screen]
+resP -> ExperimentConfigurationPresenter : [navigate to the main screen]
 
 @enduml

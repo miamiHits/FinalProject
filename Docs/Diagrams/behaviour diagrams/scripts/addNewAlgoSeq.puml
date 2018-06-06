@@ -4,48 +4,52 @@ participant DataAccessController as DAC
 
 activate u
 activate DAC
-activate UiHandler
+activate ExperimentConfigurationPresenter
 activate Service
 activate AlgorithmLoader
 
-u -> UiHandler : add new algorithm
-UiHandler --> u : [opens a drag and drop dialog]
+u -> ExperimentConfigurationPresenter : add new algorithm
+ExperimentConfigurationPresenter --> u : [opens a drag and drop dialog]
 alt
-    u -> UiHandler : [algorithm's implementation file]
+    u -> ExperimentConfigurationPresenter : [algorithm's implementation file]
     note left
         user selects the file
         containing the algorithm
         implementation using the
         file explorer dialog
     end note
-    UiHandler -> Service : addAlgorithm(String : selectedFilePath, String fileName)
+    ExperimentConfigurationPresenter -> Service : addAlgorithm(String : selectedFilePath, String fileName)
     Service -> DAC : addAlgorithmToSystem(String : selectedFilePath, String fileName)
+
+    DAC -> AlgorithmLoader : addNewAlgo(String: selectedFilePath, String: fileName)
 
     alt algorithm successfully verified and loaded
 
-        DAC -> AlgorithmLoader : addAlgoToSystem(String: selectedFilePath, String: fileName)
+        note right
+            if there is already an algorithm
+            in the system with the same name
+            as the file the user chose the
+            new algorithm will replace the
+            current one
+        end note
 
-        opt there is already an algorithm in the system with the same name as the file the user chose
-            AlgorithmLoader -> AlgorithmLoader : replaceExistingAlgorithm(SmartHomeAgentBehaviour: newAlgorithm)
-        end
-
-        Service --> UiHandler : showSuccessMsg(msg: String)
-        UiHandler --> u : [shows a success message]
+        Service --> ExperimentConfigurationPresenter : [success]
+        ExperimentConfigurationPresenter --> u : [shows a success message]
 
     else the selected file did not meet the requirements of algorithm implementation
 
-        AlgorithmLoader -> Service : [InstantiationException or IllegalAccessException]
-        Service --> UiHandler : showErrorMessage(msg: String)
-        UiHandler --> u : [shows a descriptive error message]
+        AlgorithmLoader -> Service : [failure message, success = false]
+        Service --> ExperimentConfigurationPresenter : showErrorMessage(msg: String)
+        ExperimentConfigurationPresenter --> u : [shows a descriptive error message]
 
     end
 
 else user canceled the file selection operation
 
-    u -> UiHandler : cancel
+    u -> ExperimentConfigurationPresenter : cancel
 end
 
-    UiHandler --> u : [displays the main screen]
+    ExperimentConfigurationPresenter --> u : [displays the main screen]
 
 
 @enduml

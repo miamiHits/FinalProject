@@ -4,68 +4,61 @@ participant DataAccessController as DAC
 participant ExperimentBuilder as EB
 
 activate u
-activate UiHandler
+activate ExperimentConfigurationPresenter
 activate Service
 activate EB
+activate JsonLoader
 
 
-UiHandler -> UiHandler : [displays the available algorithms in the list builder element]
-u -> UiHandler : [clicks "Start Experiment"]
+ExperimentConfigurationPresenter -> ExperimentConfigurationPresenter : [displays the available algorithms in the list builder element]
+u -> ExperimentConfigurationPresenter : [clicks "Start Experiment"]
+
+note left
+    user selected the desired
+    problems in the list
+    builder GUI element
+end note
 
 alt Json files describing problems are available in the system
 
-    note left
-        user selected the desired
-        problems in the list
-        builder GUI element
-    end note
+    ref over Service : Choosing Algorithms UseCase
 
-    UiHandler -> Service : loadProblems(List<problemNames: String>)
+    ExperimentConfigurationPresenter -> Service : setProblemsToExperiment(List<problemNames: String>)
 
     activate DAC
     Service -> DAC : getProblems(List<problemNames: String>)
 
-    loop for each problem name
-        activate JsonLoader
-        DAC -> JsonLoader : loadProblem(String problemName)
-        JsonLoader -> JsonLoader : verifyJson(String problemName)
-        JsonLoader --> DAC : [Problem]
-    end
+    DAC -> JsonLoader : getProblems(List<problemNames: String>)
 
-    DAC -> JsonLoader : loadDevices(String devicesFileName)
-    JsonLoader -> JsonLoader : verifyJson(String devicesFileName)
-    JsonLoader --> DAC : [Devices]
+    JsonLoader -> JsonLoader : loadDevices()
+
+    JsonLoader --> DAC : [List<Problem>]
 
     DAC -->Service : [List<Problem>]
-    Service -> EB : addProblems(List<Problem>)
-    Service --> UiHandler : showSuccessMsg(msg: String)
-    UiHandler --> u : [shows a success message]
+    Service -> EB : setProblems(List<Problem>)
+    Service --> ExperimentConfigurationPresenter
+
+    ref over ExperimentConfigurationPresenter : Run Experiment UseCase
 
 else no available Json files describing problems in the system
 
-    UiHandler --> u : [shows a descriptive error message]
+    ExperimentConfigurationPresenter --> u : [the list of available algorithms will be empty]
 
 else one or more of the Json files is not a valid problem
 
-    UiHandler -> UiHandler : [displays the available algorithms in the list builder element]
-    u -> UiHandler : [clicks "Load"]
-    note left
-        user selects the desired
-        algorithms in the list
-        builder GUI element
-        and inserted number of
-        iterations
-    end note
+    ref over Service : Choosing Algorithms UseCase
 
-    UiHandler -> Service : loadProblems(List<problemNames: String>)
+    ExperimentConfigurationPresenter -> Service : setProblemsToExperiment(List<problemNames: String>)
 
+    activate DAC
     Service -> DAC : getProblems(List<problemNames: String>)
 
-    DAC -> JsonLoader : loadProblem(String problemName)
-    JsonLoader -> JsonLoader : verifyJson(String problemName)
-    JsonLoader -> Service : [ParseException]
-    Service --> UiHandler : showErrorMessage(msg: String)
-    UiHandler --> u : [shows a descriptive error message]
+    DAC -> JsonLoader : getProblems(List<problemNames: String>)
+
+    JsonLoader -> JsonLoader : loadDevices()
+
+    JsonLoader -> ExperimentConfigurationPresenter : [throws an exception]
+    ExperimentConfigurationPresenter --> u : [shows an error message]
 end
 
 

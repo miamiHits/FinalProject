@@ -5,13 +5,13 @@ participant ExperimentBuilder as EB
 
 activate u
 activate Service
-activate UiHandler
+activate ExperimentConfigurationPresenter
 activate DAC
 activate EB
 
 
-UiHandler -> UiHandler : [displays the available algorithms in the list builder element]
-u -> UiHandler : [clicks "Start Experiment"]
+ExperimentConfigurationPresenter -> ExperimentConfigurationPresenter : [displays the available algorithms in the list builder element]
+u -> ExperimentConfigurationPresenter : [clicks "Start Experiment"]
 note left
     user selected the desired
     algorithms in the list
@@ -21,26 +21,27 @@ note left
 end note
 
 alt user selected at least one algorithm and inserted valid # of iterations
-    UiHandler -> Service : getAlgorithms(List<algorithmNames: String>)
+    ExperimentConfigurationPresenter -> Service : setAlgorithmsToExperiment(List<String> algorithmNames, int iterationNumber)
 
     Service -> DAC : getAlgorithms(List<algorithmNames: String>)
 
-    loop for each Algorithm name
-        activate AlgorithmLoader
-        DAC -> AlgorithmLoader : loadAlgorithm(String algorithmName)
-        AlgorithmLoader --> DAC : [SmartHomeAgentBehaviour]
-    end
+    DAC -> AlgorithmLoader : loadAlgorithm(List<algorithmNames: String>)
+
+    AlgorithmLoader --> DAC : [List<SmartHomeAgentBehaviour>]
 
     DAC --> Service : [List<SmartHomeAgentBehaviour>]
-    Service -> EB : addAlgorithms(List<SmartHomeAgentBehaviour>)
-    Service -> EB : setNumOfIter(int)
-    Service --> UiHandler : showSuccessMsg(msg: String)
-    UiHandler --> u : [shows a success message]
+    Service -> EB : setAlgorithms(List<SmartHomeAgentBehaviour>)
+    Service -> EB : setNumOfIterations(int)
+    ref over Service : Choosing Problems UseCase
+
+    Service --> ExperimentConfigurationPresenter
+
+    ref over ExperimentConfigurationPresenter : Run Experiment UseCase
 else # of iteration field input is not a number / input <= 0 / empty
-    UiHandler --> u : [shows a validation error message]
+    ExperimentConfigurationPresenter --> u : [shows a validation error message]
 
 else no algorithms were selected
-    UiHandler --> u : [shows a validation error message]
+    ExperimentConfigurationPresenter --> u : [shows a validation error message]
 
 end
 @enduml
