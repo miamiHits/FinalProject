@@ -20,7 +20,7 @@
         </WhenTestPass>
     </Test>
 
-    <Test name="Test Agents Waiting For Neighbours when neighbour message delayed" skip="false">
+    <Test name="Test Agents Waiting For Neighbours when neighbour message delayed" skip="true">
         <TestClassName>
             FinalProjectTests.Experiment.TestAgentsWaitingNeighboursNeighbourMessageDelayed.TestAgentsWaitingNeighboursNeighbourMessageDelayed
         </TestClassName>
