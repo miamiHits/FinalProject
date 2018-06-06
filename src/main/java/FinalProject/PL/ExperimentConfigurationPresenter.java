@@ -343,7 +343,16 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     public void buttonClick(Button.ClickEvent event) {
         Button clickedButton = event.getButton();
         if (clickedButton.equals(startExperimentBtn)) {
-            startExperimentClicked();
+            try
+            {
+                startExperimentClicked();
+            }
+            catch(Exception e)
+            {
+                logger.error("failed starting an experiment with an exception", e);
+                new Notification("Failed Starting an Experiment",
+                        Notification.Type.ERROR_MESSAGE).show(Page.getCurrent());
+            }
         } else if (clickedButton.equals(addNewAlgorithmBtn)) {
             addNewAlgoClicked();
         }
