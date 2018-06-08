@@ -142,7 +142,7 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
         service.setAlgorithmsToExperiment(algoList, numOfIter);
         List<String> problem = new ArrayList<>();
         problem.add("dm_7_1_3");
-        service.setProblemsToExperiment(problem);
+        service.loadProblems(problem);
 
         System.out.println("Starting Experiment!");
         service.runExperiment();

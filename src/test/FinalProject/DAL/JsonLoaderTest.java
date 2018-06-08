@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.DataObjects.*;
+import FinalProject.BL.ProblemLoadResult;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,8 +34,9 @@ public class JsonLoaderTest {
         List<String> lst = Collections.singletonList("dm_7_1_2");
         Problem dm_7_1_2 = DalTestUtils.getProblemDm_7_1_2();
         List<Problem> expected = Collections.singletonList(dm_7_1_2);
-        List<Problem> actual = loader.loadProblems(lst);
-        Assert.assertEquals(expected, actual);
+        ProblemLoadResult result = loader.loadProblems(lst);
+        Assert.assertFalse(result.hasErrors());
+        Assert.assertEquals(expected, result.getProblems());
     }
 
     @Test
@@ -49,46 +51,54 @@ public class JsonLoaderTest {
         for (int i = 0; i <= NUM_PROBLEMS; i++) {
             expected.add(DalTestUtils.getProblemDm_7_1_2());
         }
-        long start = Calendar.getInstance().getTime().getTime();
-        List<Problem> actual = loader.loadProblems(lst);
-        long end = Calendar.getInstance().getTime().getTime();
-        System.out.println("time: " + (end - start) + " milliseconds");
-        Assert.assertEquals(expected, actual);
+        ProblemLoadResult result = loader.loadProblems(lst);
+        Assert.assertFalse(result.hasErrors());
+        Assert.assertEquals(expected, result.getProblems());
     }
 
     @Test
     public void loadProblemsNullPathBad() throws Exception
     {
-        List<Problem> actual = loader.loadProblems(null);
-        Assert.assertNull(actual);
+        ProblemLoadResult result = loader.loadProblems(null);
+        Assert.assertNull(result);
     }
 
     @Test
     public void loadProblemsNoFileBad() throws Exception
     {
-        List<Problem> actual = loader.loadProblems(Collections.singletonList("some\\path\\to\\nowhere"));
-        Assert.assertTrue(actual.isEmpty());
+        ProblemLoadResult result = loader.loadProblems(Collections.singletonList("some\\path\\to\\nowhere"));
+        Assert.assertTrue(result.hasErrors());
+        Assert.assertEquals(1, result.getErrors().size());
+        Assert.assertTrue(result.getErrors().get(0).contains("IO Exception"));
+        Assert.assertTrue(result.getProblems().isEmpty());
     }
 
     @Test
     public void loadProblemsBadJsonNoHorizon() throws Exception
     {
-        List<Problem> actual = loader.loadProblems(Collections.singletonList("badJson_noHorizon"));
-        Assert.assertTrue(actual.isEmpty());
+        ProblemLoadResult result = loader.loadProblems(Collections.singletonList("badJson_noHorizon"));
+        Assert.assertTrue(result.hasErrors());
+        Assert.assertEquals(1, result.getErrors().size());
+        Assert.assertTrue(result.getErrors().get(0).contains("IO Exception"));
+        Assert.assertTrue(result.getProblems().isEmpty());
     }
 
     @Test
     public void loadProblemsBadJsonNoAgents() throws Exception
     {
-        List<Problem> actual = loader.loadProblems(Collections.singletonList("badJson_noAgents"));
-        Assert.assertTrue(actual.isEmpty());
+        ProblemLoadResult result = loader.loadProblems(Collections.singletonList("badJson_noAgents"));
+        Assert.assertTrue(result.hasErrors());
+        Assert.assertEquals(1, result.getErrors().size());
+        Assert.assertTrue(result.getProblems().isEmpty());
     }
 
     @Test
     public void loadProblemsBadJsonNoNeighborsInOneAgent() throws Exception
     {
-        List<Problem> actual = loader.loadProblems(Collections.singletonList("badJson_noNeighborsInOneAgent"));
-        Assert.assertTrue(actual.isEmpty());
+        ProblemLoadResult result = loader.loadProblems(Collections.singletonList("badJson_noNeighborsInOneAgent"));
+        Assert.assertTrue(result.hasErrors());
+        Assert.assertEquals(1, result.getErrors().size());
+        Assert.assertTrue(result.getProblems().isEmpty());
     }
 
 

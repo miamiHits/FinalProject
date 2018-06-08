@@ -112,9 +112,11 @@ public class JsonLoader implements JsonLoaderInterface {
         } catch (UnsupportedEncodingException e)
         {
             logger.warn("Problem " + problemName + FILE_TYPE + "'s encoding caused a problem", e);
+            result.addError(problemName + " has bad encoding! " + e.getMessage());
         } catch (IOException e)
         {
             logger.warn("IOException while parsing Problem " + problemName + FILE_TYPE, e);
+            result.addError("IO Exception while parsing " + problemName + ". " + e.getMessage());
         }
     }
 

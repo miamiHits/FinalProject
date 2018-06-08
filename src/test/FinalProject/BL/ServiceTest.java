@@ -77,12 +77,13 @@ public class ServiceTest {
     @Test
     public void addProblemsToExperimentGood() throws Exception
     {
-        when(accessController.getProblems(new ArrayList<>()))
-                .thenReturn(Collections.singletonList(problem));
+        ProblemLoadResult result = new ProblemLoadResult();
+        result.addProblem(problem);
+        when(accessController.getProblems(Collections.singletonList(problem.getId())))
+                .thenReturn(result);
 
-        service.setProblemsToExperiment(new ArrayList<>());
-        Assert.assertEquals(service.getExperimentBuilder().getProblems(),
-                            Collections.singletonList(problem));
+        ProblemLoadResult actual = service.loadProblems(Collections.singletonList(problem.getId()));
+        Assert.assertEquals(result, actual);
     }
 
     @Test

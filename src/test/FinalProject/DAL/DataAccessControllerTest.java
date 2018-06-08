@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.DataObjects.Problem;
+import FinalProject.BL.ProblemLoadResult;
 import FinalProject.Config;
 import org.junit.After;
 import org.junit.Assert;
@@ -35,8 +36,9 @@ public class DataAccessControllerTest {
     {
         List<String> lst = Collections.singletonList("dm_7_1_2");
         List<Problem> expected = Collections.singletonList(DalTestUtils.getProblemDm_7_1_2());
-        List<Problem> actual = accessController.getProblems(lst);
-        Assert.assertEquals(expected, actual);
+        ProblemLoadResult result = accessController.getProblems(lst);
+        Assert.assertFalse(result.hasErrors());
+        Assert.assertEquals(expected, result.getProblems());
     }
 
 

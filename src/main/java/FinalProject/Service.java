@@ -59,7 +59,7 @@ public class Service {
         this.experimentBuilder.setNumOfIterations(iterationNumber);
     }
 
-    public ProblemLoadResult setProblemsToExperiment(List<String> problemNames)
+    public ProblemLoadResult loadProblems(List<String> problemNames)
     {
         logger.info("problems added: " + problemNames.toString());
         return dalController.getProblems(problemNames);

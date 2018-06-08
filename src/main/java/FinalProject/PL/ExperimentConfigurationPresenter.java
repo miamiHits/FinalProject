@@ -480,7 +480,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
             });
 
             service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
-            ProblemLoadResult problemLoadResult = service.setProblemsToExperiment(selectedProblems.stream()
+            ProblemLoadResult problemLoadResult = service.loadProblems(selectedProblems.stream()
                     .map(SelectedProblem::getName)
                     .collect(Collectors.toList()));
             if (!problemLoadResult.hasErrors() && !problemLoadResult.getProblems().isEmpty()) {

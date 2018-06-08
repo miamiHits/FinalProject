@@ -67,7 +67,7 @@ public abstract class AbstractJadeIntegrationTest extends Test
         AlgoLoaderInterface algorithmLoader = new AlgorithmLoader(algorithmsPath);
         DataAccessController dal = new DataAccessController(jsonLoader, algorithmLoader);
         algorithm =  dal.getAlgorithms(algoNameList).get(0);
-        problem = dal.getProblems(problemNameList).get(0);
+        problem = dal.getProblems(problemNameList).getProblems().get(0);
         Experiment.maximumIterations = MAXIMUM_ITERATIONS;
     }
 
