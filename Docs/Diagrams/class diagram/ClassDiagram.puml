@@ -461,6 +461,19 @@ package BL #efefef{
 		}
 	}
 
+	class AlgoAddResult {
+		+success: boolean
+		+errorMsg: String
+	}
+
+	class ProblemLoadResult {
+		-errors : List<String>
+
+		+getErrors() : List<String>
+		+addError(String) : void
+		+addProblem(Problem) : void
+	}
+
 	ExperimentInterface <|-- Experiment
 	ExperimentBuilderInterface <|-- ExperimentBuilder
 
@@ -487,6 +500,8 @@ package BL #efefef{
 	PropertyWithData --> RelationType
 	AlgorithmDataHelper -> Actuator
 	AlgorithmDataHelper --> Sensor
+
+	ProblemLoadResult --o Problem
 }
 
 package PL #efefef{
@@ -610,7 +625,7 @@ together {
 	class Service <<Observable>> {
 		+setObserver(UiHandler) : void
 		+addAlgorithmsToExperiment(List<SmartHomeAgentBehaviour>, int) : void
-		+addProblemsToExperiment(List<Problem>) : void
+		+loadProblems(List<Problem>) : ProblemLoadResult
 		+runExperimrent() : void
 		+stopExperiment() : void
 		+getExperimentResults() : List<AlgorithmProblemResult>
@@ -638,6 +653,7 @@ Service --> ExperimentInterface
 Experiment --> Service
 Service --> AlgorithmProblemResult
 Service --> ExperimentBuilderInterface
+Service --> AlgoAddResult
 
 JsonsLoader --> Device : creates >
 JsonsLoader -> Problem : creates >
@@ -656,6 +672,17 @@ ExperimentConfigurationPresenter *-- Service
 
 SmartHomeAgentBehaviour *-- AgentIterationData
 SmartHomeAgentBehaviour *-- IterationCollectedData
+
+ExperimentConfigurationPresenter --> AlgoAddResult
+
+AlgoLoaderInterface --> AlgoAddResult
+DataAccessControllerInterface --> AlgoAddResult
+DataAccessControllerInterface --> ProblemLoadResult
+JsonLoaderInterface --> ProblemLoadResult
+
+Service --> ProblemLoadResult
+
+
 
 UiHandler --> Config
 AlgorithmLoader --> Config

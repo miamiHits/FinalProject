@@ -21,9 +21,9 @@ end note
 
 alt Json files describing problems are available in the system
 
-    ref over Service : Choosing Algorithms UseCase
+    ref over Service : Choosing Problem UseCase
 
-    ExperimentConfigurationPresenter -> Service : setProblemsToExperiment(List<problemNames: String>)
+    ExperimentConfigurationPresenter -> Service : loadProblems(List<problemNames: String>)
 
     activate DAC
     Service -> DAC : getProblems(List<problemNames: String>)
@@ -32,33 +32,43 @@ alt Json files describing problems are available in the system
 
     JsonLoader -> JsonLoader : loadDevices()
 
-    JsonLoader --> DAC : [List<Problem>]
+    JsonLoader --> DAC : [ProblemLoadResult]
 
-    DAC -->Service : [List<Problem>]
-    Service -> EB : setProblems(List<Problem>)
-    Service --> ExperimentConfigurationPresenter
+    DAC -->Service : [ProblemLoadResult]
+    Service --> ExperimentConfigurationPresenter : [ProblemLoadResult]
 
-    ref over ExperimentConfigurationPresenter : Run Experiment UseCase
+    alt There is a problem with the Json files
+
+        ExperimentConfigurationPresenter --> u : [Displays error message]
+
+    else All Json files are good
+
+        ExperimentConfigurationPresenter -> Service : setProblemsForExperiment(List<Problem>)
+
+        Service -> EB : setProblems(List<Problem>)
+
+        ref over ExperimentConfigurationPresenter : Run Experiment UseCase
+    end
 
 else no available Json files describing problems in the system
 
     ExperimentConfigurationPresenter --> u : [the list of available algorithms will be empty]
 
-else one or more of the Json files is not a valid problem
+' else one or more of the Json files is not a valid problem
 
-    ref over Service : Choosing Algorithms UseCase
+'     ref over Service : Choosing Algorithms UseCase
 
-    ExperimentConfigurationPresenter -> Service : setProblemsToExperiment(List<problemNames: String>)
+'     ExperimentConfigurationPresenter -> Service : loadProblems(List<problemNames: String>)
 
-    activate DAC
-    Service -> DAC : getProblems(List<problemNames: String>)
+'     activate DAC
+'     Service -> DAC : getProblems(List<problemNames: String>)
 
-    DAC -> JsonLoader : getProblems(List<problemNames: String>)
+'     DAC -> JsonLoader : getProblems(List<problemNames: String>)
 
-    JsonLoader -> JsonLoader : loadDevices()
+'     JsonLoader -> JsonLoader : loadDevices()
 
-    JsonLoader -> ExperimentConfigurationPresenter : [throws an exception]
-    ExperimentConfigurationPresenter --> u : [shows an error message]
+'     JsonLoader -> ExperimentConfigurationPresenter : [throws an exception]
+'     ExperimentConfigurationPresenter --> u : [shows an error message]
 end
 
 
