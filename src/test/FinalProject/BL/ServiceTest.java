@@ -2,6 +2,7 @@ package FinalProject.BL;
 
 import FinalProject.BL.Agents.DSA;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
+import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.DataObjects.Problem;
 import FinalProject.DAL.DataAccessController;
 import FinalProject.DAL.DataAccessControllerInterface;
@@ -92,27 +93,14 @@ public class ServiceTest {
 
     }
 
-    //TODO commented: not compiling
-//    @Test
-//    public void experimentEnded() throws Exception
-//    {
-//        List<AlgorithmProblemResult> someList = new ArrayList<>();
-//        Map<String, Long> probToAlgoTotalTime = new HashMap<>();
-//        service.experimentEnded(someList, probToAlgoTotalTime);
-//        verify(ui).notifyExperimentEnded(someList, probToAlgoTotalTime);
-//    }
-
     @Test
-    public void experimentEndedWithError() throws Exception
+    public void experimentEnded() throws Exception
     {
-        //TODO
+        List<AlgorithmProblemResult> someList = new ArrayList<>();
+        Map<String, Map<Integer, Long>> probToAlgoTotalTime = new HashMap<>();
+        service.experimentEnded(someList, probToAlgoTotalTime);
+        verify(ui).notifyExperimentEnded(someList, probToAlgoTotalTime);
     }
 
-    @Test
-    public void saveExperimentResult() throws Exception
-    {
-        //TODO
-        //not implemented yet
-    }
 
 }
