@@ -1,6 +1,7 @@
 package FinalProject.DAL;
 
 import FinalProject.BL.DataObjects.*;
+import FinalProject.BL.ProblemLoadResult;
 import FinalProject.Config;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
@@ -59,20 +60,14 @@ public class JsonLoader implements JsonLoaderInterface {
     }
 
     @Override
-    public List<Problem> loadProblems(List<String> problemNames)
+    public ProblemLoadResult loadProblems(List<String> problemNames)
     {
         loadDevices();
-        if (problemNames != null)
-        {
-            List<Problem> result = new ArrayList<>(problemNames.size());
-
+        if (problemNames != null) {
             //load file and add to list if not null
+            ProblemLoadResult result = new ProblemLoadResult();
             problemNames.parallelStream().forEach(name -> {
-                final Problem problem = loadSingleProblem(name);
-                if (problem != null)
-                {
-                    result.add(problem);
-                }
+                loadSingleProblem(name, result);
             });
             return result;
         }
@@ -80,9 +75,9 @@ public class JsonLoader implements JsonLoaderInterface {
         return null;
     }
 
-    private Problem loadSingleProblem(String problemName)
+    private void loadSingleProblem(String problemName, ProblemLoadResult result)
     {
-        Problem problem = null;
+        Problem problem;
 //        final String filePath = problemName + FILE_TYPE;
         final String filePath = jsonsDir.getPath() + Matcher.quoteReplacement(File.separator) + problemName + FILE_TYPE;
         try(Reader reader = new BufferedReader(new FileReader(filePath)))
@@ -96,12 +91,14 @@ public class JsonLoader implements JsonLoaderInterface {
                 problem = gson.fromJson(fullJsonObj, Problem.class);
             } catch (JsonSyntaxException e)
             {
-                logger.error("Problem file " + problemName + "'s syntax is wrong.", e);
-                return null;
+                logger.warn("Problem file " + problemName + "'s syntax is wrong.");
+                result.addError(problemName + "'s syntax is wrong. " + e.getMessage());
+                return;
             } catch (JsonParseException e)
             {
-                logger.error("Problem file " + problemName + " is missing a field.", e);
-                return null;
+                logger.warn("Problem file " + problemName + " is missing a field.");
+                result.addError(problemName + " is missing a field. " + e.getMessage());
+                return;
             }
             problem.setId(problemName);
 
@@ -111,6 +108,7 @@ public class JsonLoader implements JsonLoaderInterface {
             JsonObject agentsObj = fullJsonObj.get("agents").getAsJsonObject();
             List<AgentData> agents = parseAgentDataObjects(agentsObj, problem.getPriceScheme(), problem.getGranularity());
             problem.setAllHomes(agents);
+            result.addProblem(problem);
         } catch (UnsupportedEncodingException e)
         {
             logger.warn("Problem " + problemName + FILE_TYPE + "'s encoding caused a problem", e);
@@ -118,7 +116,6 @@ public class JsonLoader implements JsonLoaderInterface {
         {
             logger.warn("IOException while parsing Problem " + problemName + FILE_TYPE, e);
         }
-        return problem;
     }
 
     private void validateJson(JsonObject jsonObject) throws JsonParseException
@@ -130,10 +127,8 @@ public class JsonLoader implements JsonLoaderInterface {
                 "actuators", "sensors");
 
         //validate problem fields
-        for (String fieldName : requiredProblemFields)
-        {
-            if (jsonObject.get(fieldName) == null)
-            {
+        for (String fieldName : requiredProblemFields) {
+            if (jsonObject.get(fieldName) == null) {
                 throw new JsonParseException("Required Field Not Found: " + fieldName);
             }
         }

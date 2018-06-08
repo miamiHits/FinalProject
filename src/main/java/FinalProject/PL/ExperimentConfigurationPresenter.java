@@ -1,6 +1,7 @@
 package FinalProject.PL;
 
 import FinalProject.BL.AlgoAddResult;
+import FinalProject.BL.ProblemLoadResult;
 import FinalProject.Config;
 import FinalProject.PL.UIEntities.ProblemAlgoPair;
 import FinalProject.PL.UIEntities.SelectedProblem;
@@ -26,14 +27,12 @@ import com.vaadin.ui.dnd.FileDropTarget;
 import com.vaadin.ui.themes.ValoTheme;
 import org.apache.log4j.Logger;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 public class ExperimentConfigurationPresenter extends Panel implements View, Button.ClickListener, HasValue.ValueChangeListener<String> {
@@ -319,7 +318,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
     }
 
     private void refreshGrid() {
-        logger.debug("refreshing problems grid");
         this.selectedProblemGrid.getDataProvider().refreshAll();
         this.selectedProblemGrid.sort("size", SortDirection.ASCENDING);
     }
@@ -482,17 +480,26 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
             });
 
             service.setAlgorithmsToExperiment(selectedAlgorithms, numberOfIterations);
-            service.setProblemsToExperiment(selectedProblems.stream().map(SelectedProblem::getName).collect(Collectors.toList()));
-            service.runExperiment();
-            selectedAlgorithms.clear();
-            algorithmSelector.clear();
-            numberOfIterationsTxt.clear();
-            numberOfIterationsTxt.setComponentError(null);
+            ProblemLoadResult problemLoadResult = service.setProblemsToExperiment(selectedProblems.stream()
+                    .map(SelectedProblem::getName)
+                    .collect(Collectors.toList()));
+            if (!problemLoadResult.hasErrors() && !problemLoadResult.getProblems().isEmpty()) {
+                service.setProblemsForExperiment(problemLoadResult.getProblems());
+                service.runExperiment();
+                selectedAlgorithms.clear();
+                algorithmSelector.clear();
+                numberOfIterationsTxt.clear();
+                numberOfIterationsTxt.setComponentError(null);
+                getUI().accessSynchronously(() -> {
+                    getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);
+                });
+            }
+            else {
+                StringBuilder builder = new StringBuilder("The selected problem files were corrupted:");
+                problemLoadResult.getErrors().forEach(error -> builder.append("\n\t").append(error));
+                Notification.show(builder.toString(), Notification.Type.ERROR_MESSAGE);
+            }
 
-
-            getUI().accessSynchronously(() -> {
-                getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_RUNNING);
-            });
 
         }
     }

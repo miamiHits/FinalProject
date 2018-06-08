@@ -3,7 +3,7 @@ package FinalProject.DAL;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.AlgoAddResult;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
-import FinalProject.BL.DataObjects.Problem;
+import FinalProject.BL.ProblemLoadResult;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,7 +43,7 @@ public class DataAccessController implements DataAccessControllerInterface{
     }
 
     @Override
-    public List<Problem> getProblems(List<String> problemNames)
+    public ProblemLoadResult getProblems(List<String> problemNames)
     {
         return jsonLoader.loadProblems(problemNames);
     }

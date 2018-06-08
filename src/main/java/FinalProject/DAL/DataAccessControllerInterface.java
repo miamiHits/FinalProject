@@ -3,14 +3,14 @@ package FinalProject.DAL;
 import FinalProject.BL.Agents.SmartHomeAgentBehaviour;
 import FinalProject.BL.AlgoAddResult;
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
-import FinalProject.BL.DataObjects.Problem;
+import FinalProject.BL.ProblemLoadResult;
 
 import java.util.List;
 import java.util.Map;
 
 public interface DataAccessControllerInterface {
 
-    List<Problem> getProblems(List<String> problemNames);
+    ProblemLoadResult getProblems(List<String> problemNames);
     List<String> getAvailableAlgorithms();
     List<String> getAvailableProblems();
     List<SmartHomeAgentBehaviour> getAlgorithms(List<String> algoNames);

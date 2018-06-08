@@ -6,6 +6,7 @@ import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.BL.Experiment;
 import FinalProject.BL.ExperimentBuilder;
 import FinalProject.BL.DataObjects.Problem;
+import FinalProject.BL.ProblemLoadResult;
 import FinalProject.DAL.DataAccessControllerInterface;
 import FinalProject.PL.UiHandlerInterface;
 import org.apache.log4j.Logger;
@@ -58,11 +59,14 @@ public class Service {
         this.experimentBuilder.setNumOfIterations(iterationNumber);
     }
 
-    public void setProblemsToExperiment(List<String> problemNames)
+    public ProblemLoadResult setProblemsToExperiment(List<String> problemNames)
     {
         logger.info("problems added: " + problemNames.toString());
-        List<Problem> loadedProblems = this.dalController.getProblems(problemNames);
-        this.experimentBuilder.setProblems(loadedProblems);
+        return dalController.getProblems(problemNames);
+    }
+
+    public void setProblemsForExperiment(List<Problem> problems) {
+        experimentBuilder.setProblems(problems);
     }
 
     public void runExperiment()
