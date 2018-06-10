@@ -7,8 +7,10 @@ import com.vaadin.server.VaadinService;
 import org.apache.log4j.Logger;
 
 import javax.tools.*;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -148,7 +150,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
             fileName = fileName.substring(0, fileName.indexOf(UNCOMPILED_FILE_TYPE));
         }
 
-        String pathStr = Paths.get(Config.getStringPropery(Config.ADDED_ALGORITHMS_DIR), fileName + ".java").toAbsolutePath().toString();
+        String pathStr = Paths.get(Config.getStringPropery(Config.ADDED_ALGORITHMS_PACKAGE_DIR), fileName + ".java").toAbsolutePath().toString();
         File file = new File(pathStr);
         if (!file.exists() || !file.delete()) {
             logger.warn("could not delete java file " + pathStr);
@@ -209,20 +211,29 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
     }
 
     private AlgoAddResult compile(String pathStr) throws IOException {
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<>();
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticsCollector,  null, null);
-        Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Collections.singletonList(pathStr));
-        String classPathStr = getClassPathStr();
-        List<String> options = Arrays.asList("-d", Config.getStringPropery(Config.ADDED_ALGORITHMS_DIR), "-classpath", classPathStr);
-        JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, options, null, compilationUnits);
-        boolean success = task.call();
-        fileManager.close();
-        String errorMsg = null;
-        if (diagnosticsCollector.getDiagnostics().size() > 0) {
-            errorMsg = diagnosticsCollector.getDiagnostics().get(0).getMessage(Locale.ENGLISH);
+        String javaFilePath = Paths.get(pathStr).toAbsolutePath().toString();
+        String classpath = getClassPathStr();
+        classpath = classpath.replaceAll("file:/", "");
+        String javacPath = Config.getStringPropery(Config.JAVAC_PATH);
+        String command = javacPath + " " + javaFilePath + " -cp " + classpath;
+        Process pro = Runtime.getRuntime().exec(command);
+        String line = null;
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(pro.getErrorStream()));
+        while ((line = in.readLine()) != null) {
+            logger.info(line);
         }
-        return new AlgoAddResult(success, errorMsg);
+        boolean success = false;
+        String errorMessage = "";
+        if (pro.exitValue() == 0)
+        {
+            success = true;
+        }
+        else
+        {//TODO the output parsed above should contain the compilation errors
+            errorMessage = "compilation failed";
+        }
+        return new AlgoAddResult(success, errorMessage);
     }
 
     private String getClassPathStr() {

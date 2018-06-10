@@ -362,7 +362,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         dropArea.setSizeUndefined();
         dropArea.addStyleNames(ValoTheme.LABEL_HUGE, ValoTheme.LABEL_BOLD);
 
-        final String ADDED_ALGORITHMS_DIR = Config.getStringPropery(Config.ADDED_ALGORITHMS_DIR);
+        final String ADDED_ALGORITHMS_DIR = Config.getStringPropery(Config.ADDED_ALGORITHMS_PACKAGE_DIR);
         VerticalLayout layout = new VerticalLayout(dropArea);
         layout.addStyleNames(ValoTheme.DRAG_AND_DROP_WRAPPER_NO_HORIZONTAL_DRAG_HINTS, ValoTheme.LAYOUT_WELL);
         layout.setComponentAlignment(dropArea, Alignment.MIDDLE_CENTER);

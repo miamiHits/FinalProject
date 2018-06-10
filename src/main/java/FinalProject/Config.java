@@ -18,6 +18,7 @@ public class Config {
     public static final String PROBLEMS_DIR = "problems_dir";
     public static final String REPORTS_OUT_DIR = "reports_out_dir";
     public static final String TITLE = "page_title";
+    public static final String JAVAC_PATH = "javac_path";
 
     public static void loadConfig()
     {
