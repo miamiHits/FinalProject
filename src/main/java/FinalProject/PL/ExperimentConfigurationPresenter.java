@@ -449,26 +449,28 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
     private void startExperimentClicked() {
 
-        UserError algorithmSelectorError =
-                selectedAlgorithms.isEmpty() ?
-                        new UserError("Please Select at Least One Algorithm") :
-                        null;
-        algorithmSelector.setComponentError(algorithmSelectorError);
+        if (selectedAlgorithms.isEmpty()) {
+            UserError algorithmSelectorError = new UserError("Please Select at Least One Algorithm");
+            algorithmSelector.setComponentError(algorithmSelectorError);
 
-        UserError problemSelectorError =
-                selectedProblems.isEmpty() ?
-                        new UserError("Please Select at Least One Problem") :
-                        null;
-        selectedProblemGrid.setComponentError(problemSelectorError);
+            Notification.show("Please Select at Least One Algorithm", Notification.Type.ERROR_MESSAGE);
+        }
 
-        UserError numberIterationError =
-                numberOfIterationsTxt.isEmpty() ?
-                        new UserError("Please Provide the Required Number of Iterations") :
-                        null;
-        numberOfIterationsTxt.setComponentError(numberIterationError);
+        else if (selectedProblems.isEmpty()) {
+            UserError problemSelectorError = new UserError("Please Select at Least One Problem");
+            selectedProblemGrid.setComponentError(problemSelectorError);
 
+            Notification.show("Please Select at Least One Problem", Notification.Type.ERROR_MESSAGE);
+        }
 
-        if (numberOfIterations > 0 &&
+        else if (numberOfIterationsTxt.isEmpty()) {
+            UserError numberIterationError = new UserError("Please Provide the Required Number of Iterations");
+            numberOfIterationsTxt.setComponentError(numberIterationError);
+
+            Notification.show("Please Provide the Required Number of Iterations", Notification.Type.ERROR_MESSAGE);
+        }
+
+        else if (numberOfIterations > 0 &&
                 !selectedAlgorithms.isEmpty() &&
                 !selectedProblems.isEmpty())
         {
