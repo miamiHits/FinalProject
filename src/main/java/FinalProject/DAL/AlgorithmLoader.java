@@ -124,7 +124,7 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         AlgoAddResult compiRes;
         try {
             compiRes = compile(path + fileName + UNCOMPILED_FILE_TYPE);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             return new AlgoAddResult(false, e.getMessage());
         }
         if (!compiRes.isSuccess()) {
@@ -210,10 +210,14 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         return toReturn;
     }
 
-    private AlgoAddResult compile(String pathStr) throws IOException {
+    private AlgoAddResult compile(String pathStr) throws IOException, InterruptedException {
         String javaFilePath = Paths.get(pathStr).toAbsolutePath().toString();
         String classpath = getClassPathStr();
-        classpath = classpath.replaceAll("file:/", "");
+        String currentOS = System.getProperty("os.name").toLowerCase();
+        if (currentOS.contains("windows"))
+        {
+            classpath = classpath.replaceAll("file:/", "");
+        }
         String javacPath = Config.getStringPropery(Config.JAVAC_PATH);
         String command = javacPath + " " + javaFilePath + " -cp " + classpath;
         Process pro = Runtime.getRuntime().exec(command);
@@ -225,7 +229,8 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         }
         boolean success = false;
         String errorMessage = "";
-        if (pro.exitValue() == 0)
+        int exitCode = pro.waitFor();
+        if (exitCode == 0)
         {
             success = true;
         }
