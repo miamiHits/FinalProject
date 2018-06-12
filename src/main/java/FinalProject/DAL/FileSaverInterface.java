@@ -11,4 +11,6 @@ public interface FileSaverInterface {
 
     void saveExpirmentResult(List<AlgorithmProblemResult> problemResults) throws IOException;
     void setTotalPowerConsumption(Map<String, List<Double>> totalPowerConsumption);
+
+    void setAverageTimePerIter(Map<String,List<Long>> averageTimePerIter);
 }

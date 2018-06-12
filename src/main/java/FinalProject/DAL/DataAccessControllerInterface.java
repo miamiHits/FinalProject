@@ -15,5 +15,5 @@ public interface DataAccessControllerInterface {
     List<String> getAvailableProblems();
     List<SmartHomeAgentBehaviour> getAlgorithms(List<String> algoNames);
     AlgoAddResult addAlgorithmToSystem(String path, String name);
-    boolean saveResults(Map<String, List<Double>> totalPowerConsumption, List<AlgorithmProblemResult> experimentResults);
+    boolean saveResults(Map<String, List<Double>> powerConsumption, Map<String, List<Double>> totalPowerConsumptionAnyTime, Map<String, List<Double>> highestAgent, Map<String, List<Double>> totalPowerConsumption, Map<String, List<Long>> averageTimePerIter, List<AlgorithmProblemResult> experimentResults);
 }

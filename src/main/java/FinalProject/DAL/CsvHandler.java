@@ -2,6 +2,8 @@ package FinalProject.DAL;
 
 import FinalProject.BL.DataCollection.AlgorithmProblemResult;
 import FinalProject.Config;
+import FinalProject.Service;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,8 +15,11 @@ import java.util.regex.Matcher;
 
 
 public class CsvHandler implements FileSaverInterface {
+    private final static Logger logger = Logger.getLogger(Service.class);
 
     private Map<String, List<Double>> totalPowerConsumption;
+    private Map<String, List<Long>> averageTimePerIter;
+
     private int ITER_NUM;
     private static final String RESULTS_PATH = Config.getStringPropery(Config.REPORTS_OUT_DIR).replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd--MM--yyyy_HH-mm");
@@ -29,6 +34,10 @@ public class CsvHandler implements FileSaverInterface {
 
     public void setTotalPowerConsumption(Map<String, List<Double>> totalPowerConsumption) {
         this.totalPowerConsumption = totalPowerConsumption;
+    }
+
+    public void setAverageTimePerIter(Map<String, List<Long>> averageTimePerIter) {
+        this.averageTimePerIter = averageTimePerIter;
     }
 
     @Override
@@ -105,6 +114,32 @@ public class CsvHandler implements FileSaverInterface {
             toPrint.clear();
             toPrint.add(String.valueOf(i));
             for(Map.Entry<String, List<Double>> entry : this.totalPowerConsumption.entrySet())
+            {
+                toPrint.add(entry.getValue().get(i).toString());
+            }
+
+            writeLine(writer,toPrint);
+
+        }
+        writer.write("\n");
+        writer.write("\n");
+        writer.write("\n");
+
+        writer.write(" Average time per algorithm per iteration");
+        writer.write("\n");
+        writer.write("\n");
+        writer.write("Iteration number,");
+        for(String algoName : this.averageTimePerIter.keySet())
+        {
+            writer.write(algoName+",");
+        }
+        writer.write("\n");
+        toPrint = new ArrayList<>();
+        for( int i =0; i<ITER_NUM; i++)
+        {
+            toPrint.clear();
+            toPrint.add(String.valueOf(i));
+            for(Map.Entry<String, List<Long>> entry : this.averageTimePerIter.entrySet())
             {
                 toPrint.add(entry.getValue().get(i).toString());
             }

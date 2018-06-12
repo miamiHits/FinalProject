@@ -66,6 +66,120 @@ public class StatisticsHandler {
         return res;
     }
 
+    public Map<String, List<Double>> getTotalPowerConsumptionAnyTime()
+    {
+        Map<String, List<Double>> res = new HashMap<>();
+
+        experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
+            List<Double> iterRes = new ArrayList<>();
+            int size = value.size();
+            double total;
+            double[] arr = new double[size];
+            for (int j = 0; j < ITER_NUM; j++) {
+                total = 0;
+                for (int i = 0; i < size; i++) {
+                    Map<Integer, Double> totalGradePerIteration = value.get(i).getBestTotalGradePerIter();
+                    if (totalGradePerIteration.containsKey(j)) {
+                        arr[i] = totalGradePerIteration.get(j);
+                        total += arr[i];
+                    }
+                }
+
+                iterRes.add(total/size);
+            }
+            res.put(key, iterRes);
+        });
+        return res;
+    }
+
+    public Map<String, List<Double>> getHighestAgent()
+    {
+        Map<String, List<Double>> res = new HashMap<>();
+
+        experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
+            List<Double> iterRes = new ArrayList<>();
+            int size = value.size();
+            double total;
+            double[] arr = new double[size];
+            for (int j = 0; j < ITER_NUM; j++) {
+                total = 0;
+                for (int i = 0; i < size; i++) {
+                    Map<Integer, Double> totalGradePerIteration = value.get(i).getHighestCostForAgentInBestIteration();
+                    if (totalGradePerIteration.containsKey(j)) {
+                        arr[i] = totalGradePerIteration.get(j);
+                        total += arr[i];
+                    }
+                }
+
+                iterRes.add(total/size);
+            }
+            res.put(key, iterRes);
+        });
+        return res;
+    }
+
+    public Map<String, List<Double>> getLowestAgent()
+    {
+        Map<String, List<Double>> res = new HashMap<>();
+
+        experimentResults.forEach((String key, List<AlgorithmProblemResult> value) -> {
+            List<Double> iterRes = new ArrayList<>();
+            int size = value.size();
+            double total;
+            double[] arr = new double[size];
+            for (int j = 0; j < ITER_NUM; j++) {
+                total = 0;
+                for (int i = 0; i < size; i++) {
+                    Map<Integer, Double> totalGradePerIteration = value.get(i).getLowestCostForAgentInBestIteration();
+                    if (totalGradePerIteration.containsKey(j)) {
+                        arr[i] = totalGradePerIteration.get(j);
+                        total += arr[i];
+                    }
+                }
+
+                iterRes.add(total/size);
+            }
+            res.put(key, iterRes);
+        });
+        return res;
+    }
+
+
+    public Map<String, List<Long>> getAverageTimePerIteration()
+    {
+        Map<String, List<Long>> res = new HashMap<>();
+        List<Long> iterRes ;
+
+        Set<String> algoNames = experimentResults.keySet();
+        for (String name : algoNames) {
+            iterRes = new ArrayList<>();
+            for (int j = 0; j < ITER_NUM; j++) {
+                int counter=0;
+                long totalTime = 0;
+                for (Map.Entry<String, Map<Integer, Long>> entry : probNAlgToTotalTime.entrySet()) {
+                    if (entry.getKey().contains(name) && entry.getValue().containsKey(j)) {
+                        counter++;
+                        totalTime += entry.getValue().get(j);
+                    }
+                }
+                if (counter > 0) {
+                    iterRes.add((totalTime/counter));
+                    logger.debug("YARDEN DEBUG : --STAS-- for algo "+ name+ " time is: " + totalTime/counter+" for iter "+ j);
+                }
+                else {
+                    iterRes.add(totalTime);
+                    logger.warn("counter was 0!");
+                }
+            }
+            logger.debug("YARDEN DEBUG : --STAS-- about to add " + iterRes.toString() + " for algo: "+ name);
+
+            res.put(name, iterRes);
+
+        }
+
+        return res;
+    }
+
     public DefaultStatisticalCategoryDataset totalConsumption(String algoName)
     {
         DefaultStatisticalCategoryDataset dataset = new DefaultStatisticalCategoryDataset();
@@ -175,7 +289,7 @@ public class StatisticsHandler {
     {
         DefaultStatisticalCategoryDataset dataset = new DefaultStatisticalCategoryDataset();
         Set<String> algoNames = experimentResults.keySet();
-        for (int j = 0; j < ITER_NUM; j++) {
+        for (int j = 1; j < ITER_NUM; j++) {
             for (String name : algoNames) {
                 int counter=0;
                 long totalTime = 0;
@@ -185,7 +299,6 @@ public class StatisticsHandler {
                         totalTime += entry.getValue().get(j);
                     }
                }
-                //logger.info("DEBUG YARDEN: in stats class. iter " +j+ "took :" + totalTime + "there are " + counter+ " from " + name);
                 if (counter > 0) {
                     dataset.add((totalTime/counter), null, name, j);
                 }
@@ -197,6 +310,7 @@ public class StatisticsHandler {
         }
         return dataset;
     }
+
 
     public DefaultCategoryDataset messageSendPerIteration()
     {
