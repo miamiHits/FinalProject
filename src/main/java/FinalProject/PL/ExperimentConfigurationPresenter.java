@@ -70,7 +70,6 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
 
         selectedProblems.clear();
         VerticalLayout mainLayout = new VerticalLayout();
-        //TODO uncomment to add background image!
         mainLayout.setStyleName("with-bg-image");
 
         ResponsiveLayout configurationLayout = new ResponsiveLayout(ResponsiveLayout.ContainerType.FLUID)
@@ -99,12 +98,12 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         mainLayout.addComponent(configurationLayout);
 
         startExperimentBtn.addClickListener(this);
-        startExperimentBtn.addStyleName("conf-start-btn");
+        startExperimentBtn.addStyleName(ValoTheme.BUTTON_FRIENDLY);
         addNewAlgorithmBtn.addClickListener(this);
         numberOfIterationsTxt.addValueChangeListener(this);
 
         mainLayout.addComponent(numberOfIterationsTxt);
-        mainLayout.addComponent(addNewAlgorithmBtn);
+//        mainLayout.addComponent(addNewAlgorithmBtn);
         mainLayout.addComponent(startExperimentBtn);
         setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
         mainLayout.addStyleName("conf-main-layout");
@@ -142,7 +141,7 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
                 .withAlignment(Alignment.TOP_RIGHT);
         topRow.setDefaultRules(COL_SIZE, COL_SIZE, COL_SIZE, COL_SIZE);
         ResponsiveRow bottomRow = new ResponsiveRow()
-                .withComponents(addAllAlgorithmsBtn)
+                .withComponents(addAllAlgorithmsBtn, addNewAlgorithmBtn)
                 .withSpacing(true)
                 .withAlignment(Alignment.BOTTOM_LEFT);
         bottomRow.setDefaultRules(COL_SIZE, COL_SIZE, COL_SIZE, COL_SIZE);
