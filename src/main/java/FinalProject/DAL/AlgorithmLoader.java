@@ -222,10 +222,12 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
         String command = javacPath + " " + javaFilePath + " -cp " + classpath;
         Process pro = Runtime.getRuntime().exec(command);
         String line = null;
+        StringBuilder javacOutput = new StringBuilder();
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(pro.getErrorStream()));
         while ((line = in.readLine()) != null) {
-            logger.info(line);
+            logger.info("javac output line: " + line);
+            javacOutput.append(line);
         }
         boolean success = false;
         String errorMessage = "";
@@ -235,8 +237,10 @@ public class AlgorithmLoader implements AlgoLoaderInterface {
             success = true;
         }
         else
-        {//TODO the output parsed above should contain the compilation errors
-            errorMessage = "compilation failed";
+        {
+            errorMessage = "compilation failed with the following output(available in the log file):\n" +
+                    javacOutput.toString();
+            logger.warn(errorMessage);
         }
         return new AlgoAddResult(success, errorMessage);
     }
