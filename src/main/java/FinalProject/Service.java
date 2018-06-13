@@ -9,6 +9,8 @@ import FinalProject.BL.DataObjects.Problem;
 import FinalProject.BL.ProblemLoadResult;
 import FinalProject.DAL.DataAccessControllerInterface;
 import FinalProject.PL.UiHandlerInterface;
+import com.vaadin.server.Page;
+import com.vaadin.ui.Notification;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -95,10 +97,10 @@ public class Service {
         observer.notifyExperimentEnded(results, probToAlgoTotalTime);
     }
 
-    public void experimentEndedWithError(Exception e)
+    public void experimentEndedWithError()
     {
-        //TODO gal notify the ui
-        logger.error("error", e);
+        observer.notifyExperimentEnded(null, null);
+        logger.error("experimentEndedWithError");
     }
 
     public void algorithmProblemIterEnded(String algo, String problem, float changePercentage) {

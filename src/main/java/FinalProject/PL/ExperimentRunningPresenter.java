@@ -31,6 +31,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
     private ProgressBar mainProgBar = new ProgressBar(0.0f);
     private Button goToResScreenBtn;
     private Button stopBtn;
+    private Button endUnsuccessfulExperimant;
     private boolean gridWasSet = false;
     private int numOfIter = -1;
     private int numOfProblems = -1;
@@ -76,15 +77,23 @@ public class ExperimentRunningPresenter extends Panel implements View{
         });
         stopBtn.addStyleName(ValoTheme.BUTTON_DANGER);
 
+        endUnsuccessfulExperimant = new Button("Experiment Failed With Error, Go Back", clickEvent -> {
+            logger.debug("clicked endUnsuccessfulExperimant");
+            getUI().getNavigator().navigateTo(UiHandler.EXPERIMENT_CONFIGURATION);
+        });
+        endUnsuccessfulExperimant.addStyleName(ValoTheme.BUTTON_DANGER);
+        endUnsuccessfulExperimant.setVisible(false);
+
         stopBtn.setVisible(UiHandler.service.isExperientRunning());
         goToResScreenBtn.setVisible(!UiHandler.service.isExperientRunning());
 
         mainProgBar.setSizeFull();
         Label dataLbl = new Label("Number of iterations: " + numOfIter + ", Number of problems: "
                 + numOfProblems + ", Number of Algorithms: " + numOfAlgos);
-        VerticalLayout layout = new VerticalLayout(dataLbl, problemAlgoPairGrid, mainProgBar, goToResScreenBtn, stopBtn);
+        VerticalLayout layout = new VerticalLayout(dataLbl, problemAlgoPairGrid, mainProgBar, goToResScreenBtn, stopBtn, endUnsuccessfulExperimant);
         layout.setComponentAlignment(goToResScreenBtn, Alignment.MIDDLE_CENTER);
         layout.setComponentAlignment(stopBtn, Alignment.MIDDLE_CENTER);
+        layout.setComponentAlignment(endUnsuccessfulExperimant, Alignment.MIDDLE_CENTER);
         setContent(layout);
 
         UiHandler.currentRunningPresenter = this;
@@ -226,5 +235,27 @@ public class ExperimentRunningPresenter extends Panel implements View{
                 .sum() / pairToProgressBarMap.values().size());
         logger.trace("calculated " + result);
         return result;
+    }
+
+    public void stopWithError() {
+        if (getUI().isAttached()) {
+            getUI().access(() -> {
+                stopBtn.setVisible(false);
+                endUnsuccessfulExperimant.setVisible(true);
+
+                Notification notification = new Notification("Experiment Failed!", "Experiment Failed Due to Internal Error");
+                notification.setPosition(Position.TOP_CENTER);
+                notification.setStyleName(ValoTheme.NOTIFICATION_ERROR);
+                notification.show(UI.getCurrent().getPage());
+
+            });
+        }
+        WebNotifications.create(this, "Experiment Ended With Error!")
+                .body("Your experiment was stopped due to an internal error.")
+                .closeOnClick(true)
+                .timeout(0)
+                .requireInteraction(true)
+                .show();
+
     }
 }
