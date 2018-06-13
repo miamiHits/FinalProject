@@ -80,7 +80,6 @@ public class Experiment implements ExperimentInterface {
 
     // gal: this one should be invoked by the data collection agent notifying all data
     // resulted from the algorithm-problem configuration run was fully processed
-    // IMPORTANT - operation is non blocking
     @Override
     public void algorithmProblemComboRunEnded(AlgorithmProblemResult result)
     {
@@ -96,16 +95,12 @@ public class Experiment implements ExperimentInterface {
         iter2Time.put(counter, (System.currentTimeMillis() - this.runningTime));
         algorithmProblemResults.add(result);
         this.probToAlgoTotalTime.put(result.getProblem()+"_"+result.getAlgorithm(), this.iter2Time);
-       // for(int i=0; i<counter; i++)
-           // logger.debug("iteration " + i + " took :" + iter2Time.get(i));
         this.counter = 0;
         this.iter2Time = new HashMap<>();
         this.runningTime = System.currentTimeMillis();
         service.algorithmProbleComboRunEnded(result.getAlgorithm(), result.getProblem());
         logger.debug(String.format("algorithmProblemComboRunEnded before thread. waitingBarrier: num waiting: %d, broken? %s, parties: %d",
                 waitingBarrier.getNumberWaiting(), waitingBarrier.isBroken(), waitingBarrier.getParties()));
-//        (new Thread(() ->
-//        {
             try
             {
                 this.waitingBarrier.await();
@@ -122,7 +117,6 @@ public class Experiment implements ExperimentInterface {
             {
                 logger.warn("got BrokenBarrierException while waiting on algorithmProblemComboRunEnded",
                         e);
-                //TODO gal is there anything to do here?
                 if (!experimentRunStoppedWithError.get() &&
                         !experimentRunStoppedByUser.get())
                 {
@@ -130,7 +124,6 @@ public class Experiment implements ExperimentInterface {
                     assert false : "barrier was broken without the user stopping the experiment or an error occoured";//the system reached a bad state - should fail the assertion test
                 }
             }
-//        })).start();
     }
 
     @Override
@@ -312,20 +305,19 @@ public class Experiment implements ExperimentInterface {
             catch (ControllerException e)
             {
                 // end the experiment
+                experimentRunStoppedWithError.set(true);
                 stopRun();
-                service.experimentEndedWithError(e);
             }
             if (experimentRunStoppedByUser.get())
             {
                 logger.info("Experiment stopped by user");
                 killJade();
-                //TODO gal discard results
             }
             else if (experimentRunStoppedWithError.get())
             {
                 logger.info("Experiment stopped with Error!");
                 killJade();
-                //TODO gal display error message
+                service.experimentEndedWithError();
             }
             else
             {

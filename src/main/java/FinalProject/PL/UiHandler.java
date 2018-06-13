@@ -196,8 +196,16 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
     @Override
     public void notifyExperimentEnded(List<AlgorithmProblemResult> results, Map<String, Map<Integer, Long>>  probToAlgoTotalTime)
     {
-        logger.debug("Experiment Ended!");
-        showResultScreen(results, probToAlgoTotalTime);
+        if (results == null || probToAlgoTotalTime == null)
+        {
+            logger.warn("Experiment ended with error");
+            experimentRunningPresenter.stopWithError();
+        }
+        else
+        {
+            logger.debug("Experiment Ended!");
+            showResultScreen(results, probToAlgoTotalTime);
+        }
     }
 
     @Override
