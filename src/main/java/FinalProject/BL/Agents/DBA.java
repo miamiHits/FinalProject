@@ -226,7 +226,6 @@ public class DBA extends SmartHomeAgentBehaviour{
                  res = calcCsum(newPowerConsumption);
                  if (res <= oldPrice)
                  {
-                    logger.warn(agent.getAgentData().getName() + "DEBUG YARDEN: res <= oldPrice");
                     updateValueWithoutBags(newPowerConsumption, allScheds, ticks);
                     newTicks.clear();
                     newTicks.addAll(ticks);

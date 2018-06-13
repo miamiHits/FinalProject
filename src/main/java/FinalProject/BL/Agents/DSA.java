@@ -28,20 +28,17 @@ public class DSA extends SmartHomeAgentBehaviour {
     @Override
     public void doIteration() {
         if (agent.isZEROIteration()) {
-            logger.info("Starting work on Iteration: 0");
+            //logger.info("Starting work on Iteration: 0");
             buildScheduleFromScratch();
             agent.setZEROIteration(false);
-            logger.info("FINISH ITER 0");
-          //  logger.warn(agent.getAgentData().getName() + " ITER 0, DEBUG YARDEN: all ticks to work are: " + helper.getDeviceToTicks().toString());
+            //logger.info("FINISH ITER 0");
 
         }
         else {
             receiveAllMessagesAndHandleThem();
-            logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
+            //logger.info("Starting work on Iteration: " + this.currentNumberOfIter);
             resetAndBuildSchedule();
-            logger.info("FINISHed ITER " + currentNumberOfIter);
-            logger.warn(agent.getAgentData().getName() + " ITER " +currentNumberOfIter + " DEBUG YARDEN: all ticks to work are: " + helper.getDeviceToTicks().toString());
-
+            //logger.info("FINISHed ITER " + currentNumberOfIter);
         }
         beforeIterationIsDone();
         this.currentNumberOfIter++;

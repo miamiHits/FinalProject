@@ -833,15 +833,12 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         switch (prop.getPrefix())
         {
             case BEFORE: //NOT Include the hour
-                //logger.warn("YARDEN DEBUG agent " +agent.getAgentData().getName() + "is about to enter calcAndUpdateCurrState, active ticks are: " + prop.activeTicks);
                 prop.calcAndUpdateCurrState(FINAL_TICK, iterationPowerConsumption, false);
                 break;
             case AFTER:
-                //logger.warn("YARDEN DEBUG agent " +agent.getAgentData().getName() + "is about to enter calcAndUpdateCurrState, active ticks are: " + prop.activeTicks);
                 prop.calcAndUpdateCurrState(START_TICK, iterationPowerConsumption, true);
                 break;
             case AT:
-
                 break;
         }
     }

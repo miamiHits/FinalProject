@@ -203,7 +203,7 @@ public class ExperimentRunningPresenter extends Panel implements View{
                 .findFirst().orElse(null);
         if (problemAlgoPair != null && getUI().isAttached()) {
             ProgressBar progressBar = pairToProgressBarMap.get(problemAlgoPair);
-            getUI().accessSynchronously(() -> {//TODO UI
+            getUI().accessSynchronously(() -> {
                 logger.debug(String.format("increasing progress bar for problem: %s algorithm: %s to %f", problemId, algorithmId, newValue));
                 progressBar.setValue(this.currentRunningActualProgress);
                 if (applyOnGlobalProgressBar)

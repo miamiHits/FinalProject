@@ -135,7 +135,6 @@ public class DBATest {
         }
     }
 
-    @Test//TODO gal understand with yarden why this test fails when applied with other tests but pass when applied alone (both DSA and DBA)
     public void buildScheduleFromScratchPropertiesTestSpecialCase() {
         this.props.clear();
         this.props = new ArrayList<>();

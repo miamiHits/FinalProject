@@ -1,4 +1,4 @@
-/*
+
 package FinalProject.BL.DataCollection;
 
 import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
@@ -107,19 +107,19 @@ public class StatisticsHandlerTest {
 
     @Test
     public void totalConsumption() {
-        DefaultStatisticalCategoryDataset data = statisticsHandler.totalConsumption();
+        DefaultStatisticalCategoryDataset data = statisticsHandler.totalConsumption("DSA");
         Assert.assertTrue(data.getRowCount() == 1);
         Assert.assertTrue(data.getValue(0,0).equals(7.5));
         Assert.assertTrue(data.getValue(0,1).equals(15.0));
         Assert.assertTrue(data.getValue(0,2).equals(25.0));
-        Assert.assertTrue(data.getStdDevValue(0,0).equals(2.9068883707497264));
-        Assert.assertTrue(data.getStdDevValue(0,1).equals(5.813776741499453));
-        Assert.assertTrue(data.getStdDevValue(0,2).equals(9.219544457292887));
+        Assert.assertTrue(data.getStdDevValue(0,0).equals(2.5));
+        Assert.assertTrue(data.getStdDevValue(0,1).equals(5.0));
+        Assert.assertTrue(data.getStdDevValue(0,2).equals(5.0));
     }
 
     @Test
     public void lowestAgent() {
-        DefaultStatisticalCategoryDataset data = statisticsHandler.lowestAgent();
+        DefaultStatisticalCategoryDataset data = statisticsHandler.lowestAgent("DSA");
         Assert.assertTrue(data.getRowCount() == 1);
         Assert.assertTrue(data.getValue(0,0).equals(300.0));
         Assert.assertTrue(data.getValue(0,1).equals(55.0));
@@ -128,7 +128,7 @@ public class StatisticsHandlerTest {
 
     @Test
     public void highestAgent() {
-        DefaultStatisticalCategoryDataset data = statisticsHandler.highestAgent();
+        DefaultStatisticalCategoryDataset data = statisticsHandler.highestAgent("DSA");
         Assert.assertTrue(data.getRowCount() == 1);
         Assert.assertTrue(data.getValue(0,0).equals(600.0));
         Assert.assertTrue(data.getValue(0,1).equals(110.0));
@@ -140,13 +140,9 @@ public class StatisticsHandlerTest {
     public void averageTime() {
         DefaultStatisticalCategoryDataset data = statisticsHandler.averageTime();
         Assert.assertTrue(data.getRowCount() == 1);
-        Assert.assertTrue(data.getValue(0, 0).doubleValue() == 100.0);
-        Assert.assertTrue(data.getValue(0, 1).doubleValue() == 20.0);
-        Assert.assertTrue(data.getValue(0, 2).doubleValue() == 1.0);
+        Assert.assertTrue(data.getValue(0, 0).doubleValue() == 20.0);
+        Assert.assertTrue(data.getValue(0, 1).doubleValue() == 1.0);
     }
 
-    @Test
-    public void messageSendPerIteration() {
-        //TODO
-    }
-}*/
+
+}
