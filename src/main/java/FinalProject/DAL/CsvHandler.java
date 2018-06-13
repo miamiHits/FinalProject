@@ -18,7 +18,12 @@ public class CsvHandler implements FileSaverInterface {
     private final static Logger logger = Logger.getLogger(Service.class);
 
     private Map<String, List<Double>> totalPowerConsumption;
+    private Map<String, List<Double>> totalPowerConsumptionAnyTime;
+    private Map<String, List<Double>> highestAgent;
+    private Map<String, List<Double>> lowestAgent;
     private Map<String, List<Long>> averageTimePerIter;
+    private Map<String, Long> totalMessagesSize;
+    private Map<String, Long> totalAverageMessages;
 
     private int ITER_NUM;
     private static final String RESULTS_PATH = Config.getStringPropery(Config.REPORTS_OUT_DIR).replaceAll("/", Matcher.quoteReplacement(Matcher.quoteReplacement(File.separator)));
@@ -36,8 +41,28 @@ public class CsvHandler implements FileSaverInterface {
         this.totalPowerConsumption = totalPowerConsumption;
     }
 
+    public void setTotalPowerConsumptionAnyTime(Map<String, List<Double>> totalPowerConsumptionAnyTime) {
+        this.totalPowerConsumptionAnyTime = totalPowerConsumptionAnyTime;
+    }
+
+    public void setHighestAgent(Map<String, List<Double>> highestAgent) {
+        this.highestAgent = highestAgent;
+    }
+
+    public void setLowestAgent(Map<String, List<Double>> lowestAgent) {
+        this.lowestAgent = lowestAgent;
+    }
+
     public void setAverageTimePerIter(Map<String, List<Long>> averageTimePerIter) {
         this.averageTimePerIter = averageTimePerIter;
+    }
+
+    public void setTotalMessagesSize(Map<String, Long> totalMessagesSize) {
+        this.totalMessagesSize = totalMessagesSize;
+    }
+
+    public void setTotalAverageMessages(Map<String, Long> totalAverageMessages) {
+        this.totalAverageMessages = totalAverageMessages;
     }
 
     @Override
@@ -98,7 +123,7 @@ public class CsvHandler implements FileSaverInterface {
             writer.write("\n");
         }
 
-        writer.write("Avergae total power consumption per algorithm per iteration");
+        writer.write("Average total power consumption per algorithm per iteration");
         writer.write("\n");
         writer.write("\n");
         writer.write("Iteration number,");
@@ -121,8 +146,85 @@ public class CsvHandler implements FileSaverInterface {
             writeLine(writer,toPrint);
 
         }
+
+        writer.write("\n");
+
+        writer.write(" Average BEST total power consumption per algorithm per iteration");
         writer.write("\n");
         writer.write("\n");
+        writer.write("Iteration number,");
+        for(String algoName : this.totalPowerConsumptionAnyTime.keySet())
+        {
+            writer.write(algoName+",");
+        }
+
+        writer.write("\n");
+        toPrint = new ArrayList<>();
+        for( int i =0; i<ITER_NUM; i++)
+        {
+            toPrint.clear();
+            toPrint.add(String.valueOf(i));
+            for(Map.Entry<String, List<Double>> entry : this.totalPowerConsumptionAnyTime.entrySet())
+            {
+                toPrint.add(entry.getValue().get(i).toString());
+            }
+
+            writeLine(writer,toPrint);
+
+        }
+
+        writer.write("\n");
+
+        writer.write("Highest Agent per algorithm per iteration");
+        writer.write("\n");
+        writer.write("\n");
+        writer.write("Iteration number,");
+        for(String algoName : this.highestAgent.keySet())
+        {
+            writer.write(algoName+",");
+        }
+
+        writer.write("\n");
+        toPrint = new ArrayList<>();
+        for( int i =0; i<ITER_NUM; i++)
+        {
+            toPrint.clear();
+            toPrint.add(String.valueOf(i));
+            for(Map.Entry<String, List<Double>> entry : this.highestAgent.entrySet())
+            {
+                toPrint.add(entry.getValue().get(i).toString());
+            }
+
+            writeLine(writer,toPrint);
+
+        }
+
+        writer.write("\n");
+
+        writer.write("Lowest Agent per algorithm per iteration");
+        writer.write("\n");
+        writer.write("\n");
+        writer.write("Iteration number,");
+        for(String algoName : this.lowestAgent.keySet())
+        {
+            writer.write(algoName+",");
+        }
+
+        writer.write("\n");
+        toPrint = new ArrayList<>();
+        for( int i =0; i<ITER_NUM; i++)
+        {
+            toPrint.clear();
+            toPrint.add(String.valueOf(i));
+            for(Map.Entry<String, List<Double>> entry : this.lowestAgent.entrySet())
+            {
+                toPrint.add(entry.getValue().get(i).toString());
+            }
+
+            writeLine(writer,toPrint);
+
+        }
+
         writer.write("\n");
 
         writer.write(" Average time per algorithm per iteration");
@@ -148,7 +250,44 @@ public class CsvHandler implements FileSaverInterface {
 
         }
 
+        writer.write("\n");
 
+        writer.write(" Average Messages Number per algorithm over all iterations");
+        writer.write("\n");
+        writer.write("\n");
+        writer.write("Algo Name,");
+
+        for(Map.Entry<String, Long> entry : this.totalAverageMessages.entrySet())
+        {
+            writer.write(entry.getKey()+",");
+        }
+        writer.write("\n");
+        writer.write("Number of average massages,");
+
+        for(Map.Entry<String, Long> entry : this.totalAverageMessages.entrySet())
+        {
+            writer.write(entry.getValue().toString()+",");
+        }
+
+        writer.write("\n");
+
+        writer.write(" Average Messages size per algorithm over all iterations");
+        writer.write("\n");
+        writer.write("\n");
+        writer.write("Algo Name,");
+
+        for(Map.Entry<String, Long> entry : this.totalMessagesSize.entrySet())
+        {
+            writer.write(entry.getKey()+",");
+        }
+        writer.write("\n");
+        writer.write("size (bytes) of massages,");
+
+        for(Map.Entry<String, Long> entry : this.totalMessagesSize.entrySet())
+        {
+            writer.write(entry.getValue().toString()+",");
+
+        }
 
         writer.flush();
         writer.close();

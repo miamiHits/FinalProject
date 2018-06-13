@@ -176,7 +176,7 @@ public class UiHandler extends UI implements UiHandlerInterface, ClientConnector
         experimentRunningPresenter.enableGoToResScreenBtn();
 
         if (!service.saveResults(sth.getTotalPowerConsumption(), sth.getTotalPowerConsumptionAnyTime(), sth.getHighestAgent(),
-                sth.getLowestAgent(), sth.getAverageTimePerIteration(), experimentResults)) {
+                sth.getLowestAgent(), sth.getAverageTimePerIteration(), sth.getTotalMessagesSize(), sth.getTotalAverageMessages(),experimentResults)) {
             logger.error("failed saving results to csv with exception ");
         }
     }

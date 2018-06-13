@@ -164,20 +164,88 @@ public class StatisticsHandler {
                 }
                 if (counter > 0) {
                     iterRes.add((totalTime/counter));
-                    logger.debug("YARDEN DEBUG : --STAS-- for algo "+ name+ " time is: " + totalTime/counter+" for iter "+ j);
                 }
                 else {
                     iterRes.add(totalTime);
                     logger.warn("counter was 0!");
                 }
             }
-            logger.debug("YARDEN DEBUG : --STAS-- about to add " + iterRes.toString() + " for algo: "+ name);
-
             res.put(name, iterRes);
 
         }
 
         return res;
+    }
+
+    public Map<String, Long> getTotalAverageMessages()
+    {
+        Map<String, Long> toRet = new HashMap<>();
+
+
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        Map<String, Long> messagesToAlgo = new HashMap<>();
+        Map<String, Integer> problemsToAlgo = new HashMap<>();
+        calcNumOfProblems(messagesToAlgo, problemsToAlgo);
+
+
+        for(Map.Entry<String, List<AlgorithmProblemResult>> entry : experimentResults.entrySet())
+        {
+            for (AlgorithmProblemResult res : entry.getValue())
+            {
+                int total = 0;
+                for(int i=0; i<ITER_NUM; i++)
+                {
+                    total+= res.getTotalMessagesInIter(i).getMsgsNum();
+                }
+                long currTotalMessages = messagesToAlgo.get(entry.getKey());
+                currTotalMessages+=total;
+                messagesToAlgo.put(entry.getKey(), currTotalMessages);
+            }
+        }
+
+        for(Map.Entry<String, Long> entry : messagesToAlgo.entrySet())
+        {
+            long totalMessages = entry.getValue();
+            int totalProblems = problemsToAlgo.get(entry.getKey());
+            Long valToPut = totalProblems!=0? totalMessages/totalProblems : totalMessages;
+            toRet.put(entry.getKey(),valToPut);
+            dataset.addValue(totalProblems!=0? totalMessages/totalProblems : totalMessages, entry.getKey(), "Messages Per Iteration");
+        }
+        return toRet;
+
+    }
+
+    public Map<String, Long> getTotalMessagesSize()
+    {
+        Map<String, Long> toRet = new HashMap<>();
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        Map<String, Long> messagesToAlgo = new HashMap<>();
+        Map<String, Integer> problemsToAlgo = new HashMap<>();
+
+        calcNumOfProblems(messagesToAlgo, problemsToAlgo);
+        for(Map.Entry<String, List<AlgorithmProblemResult>> entry : experimentResults.entrySet())
+        {
+            for (AlgorithmProblemResult res : entry.getValue())
+            {
+                long total = 0;
+                for(int i=0; i<ITER_NUM; i++)
+                {
+                    total+= res.getTotalMessagesInIter(i).getMsgsSize();
+                }
+                long currTotalMessages = messagesToAlgo.get(entry.getKey());
+                currTotalMessages+=total;
+                messagesToAlgo.put(entry.getKey(), currTotalMessages);
+            }
+        }
+
+        for(Map.Entry<String, Long> entry : messagesToAlgo.entrySet())
+        {
+            Long totalMessages = entry.getValue();
+            int totalProblems = problemsToAlgo.get(entry.getKey());
+            Long val = totalProblems!=0? totalMessages/totalProblems : totalMessages;
+            toRet.put(entry.getKey(), val);
+        }
+        return toRet;
     }
 
     public DefaultStatisticalCategoryDataset totalConsumption(String algoName)

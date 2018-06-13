@@ -72,10 +72,16 @@ public class DataAccessController implements DataAccessControllerInterface{
     }
 
     @Override
-    public boolean saveResults(Map<String, List<Double>> powerConsumption, Map<String, List<Double>> totalPowerConsumptionAnyTime, Map<String, List<Double>> highestAgent, Map<String, List<Double>> totalPowerConsumption, Map<String, List<Long>> averageTimePerIter, List<AlgorithmProblemResult> experimentResults) {
-        fileSaver.setTotalPowerConsumption(totalPowerConsumption);
+    public boolean saveResults(Map<String, List<Double>> powerConsumption, Map<String, List<Double>> totalPowerConsumptionAnyTime, Map<String, List<Double>> highestAgent, Map<String, List<Double>> lowestAgent, Map<String, List<Long>> averageTimePerIter, Map<String, Long> totalMessagesSize, Map<String, Long> totalAverageMessages, List<AlgorithmProblemResult> experimentResults) {
+        fileSaver.setTotalPowerConsumption(powerConsumption);
         fileSaver.setAverageTimePerIter(averageTimePerIter);
-       // fileSaver.setTotalHighestAgent()
+        fileSaver.setTotalPowerConsumptionAnyTime(totalPowerConsumptionAnyTime);
+        fileSaver.setHighestAgent(highestAgent);
+        fileSaver.setLowestAgent(lowestAgent);
+        fileSaver.setTotalMessagesSize(totalMessagesSize);
+        fileSaver.setTotalAverageMessages(totalAverageMessages);
+
+
         try {
             fileSaver.saveExpirmentResult(experimentResults);
             return true;

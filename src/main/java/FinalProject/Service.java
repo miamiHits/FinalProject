@@ -118,9 +118,9 @@ public class Service {
         return this.currExperiment != null && this.currExperiment.isExperimentRunning();
     }
 
-    public boolean saveResults(Map<String, List<Double>> totalPowerConsumption, Map<String, List<Double>> totalPowerConsumptionAnyTime, Map<String, List<Double>> highestAgent, Map<String, List<Double>> lowestAgent, Map<String, List<Long>> averageTimePerIter, List<AlgorithmProblemResult> experimentResults) {
+    public boolean saveResults(Map<String, List<Double>> totalPowerConsumption, Map<String, List<Double>> totalPowerConsumptionAnyTime, Map<String, List<Double>> highestAgent, Map<String, List<Double>> lowestAgent, Map<String, List<Long>> averageTimePerIter, Map<String, Long> totalMessagesSize, Map<String, Long> totalAverageMessages, List<AlgorithmProblemResult> experimentResults) {
         return dalController.saveResults(totalPowerConsumption, totalPowerConsumptionAnyTime, highestAgent, lowestAgent
-                ,averageTimePerIter, experimentResults);
+                ,averageTimePerIter, totalMessagesSize, totalAverageMessages, experimentResults);
     }
 
 }
