@@ -258,7 +258,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
         {
             logger.info("test home agent sends fake iteration data to its neighbours");
             ACLMessage aclmsg = new ACLMessage(ACLMessage.REQUEST);
-            aclmsg.setOntology("");//TODO gal convert into constant
+            aclmsg.setOntology("");
             agent.getAgentData().getNeighbors().stream()
                     .map(neighbor -> new AID(neighbor.getName(), AID.ISLOCALNAME))
                     .forEach(aclmsg::addReceiver);

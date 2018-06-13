@@ -26,8 +26,6 @@ import java.awt.*;
 
 public class JFreeChartUtils {
 
-    //TODO gal in more advanced stage - remove unused
-
     public static int ALGORITHM_COUNT = 1;
 
     /**

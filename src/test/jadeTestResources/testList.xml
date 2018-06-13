@@ -40,11 +40,7 @@
         </WhenTestPass>
     </Test>
 
-
-
-    <!--deprecated!!!-->
     <Test name="Test Agents Waiting For DataCollector" skip="true">
-        <!--TODO gal delete in the future, test case not valid anymore, the agents dont wait for the data collector anymore-->
         <TestClassName>FinalProjectTests.Experiment.DeprecatedTests.TestAgentsWaitingForDataCollector</TestClassName>
         <WhatTest> Test that non of the agents starts an iteration before the data collector sent them the end of iteration message.</WhatTest>
         <HowWorkTest>the test will simulate an agent and the data collector,
@@ -54,7 +50,6 @@
     </Test>
 
     <Test name="Test Agent Receiving Messages From Data Collector" skip="true">
-        <!--TODO gal delete in the future, test case not valid anymore, the agents calculate the epeak themseves and dont get it from the data collector-->
         <TestClassName>FinalProjectTests.Experiment.DeprecatedTests.TestAgentReceivingMessagesFromDataCollector</TestClassName>
         <WhatTest>verify that the data collector sends its messages</WhatTest>
         <HowWorkTest>

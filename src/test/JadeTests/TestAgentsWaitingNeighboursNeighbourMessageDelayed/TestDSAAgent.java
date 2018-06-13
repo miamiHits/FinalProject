@@ -36,7 +36,7 @@ public class TestDSAAgent extends DSA{
 
         if (this.currentIterationNumber > 0)
         {
-            waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);//TODO gal perhaps verify the messages?
+            waitForNeighbourMessages(SmartHomeAgent.MESSAGE_TEMPLATE_SENDER_IS_NEIGHBOUR);
         }
 
         logger.info("started iteration #" + this.currentIterationNumber);
