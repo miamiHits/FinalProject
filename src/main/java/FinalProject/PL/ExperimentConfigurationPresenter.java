@@ -92,6 +92,9 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         Label subtitleLbl = new Label("Smart Home Agent Simulator");
         subtitleLbl.addStyleName(ValoTheme.LABEL_LARGE);
 
+        Label emptyLabel = new Label("");
+        emptyLabel.setHeight("5em");
+
         mainLayout.addComponent(mainTitleLbl);
         mainLayout.addComponent(subtitleLbl);
 
@@ -102,8 +105,8 @@ public class ExperimentConfigurationPresenter extends Panel implements View, But
         addNewAlgorithmBtn.addClickListener(this);
         numberOfIterationsTxt.addValueChangeListener(this);
 
+        mainLayout.addComponent(emptyLabel);
         mainLayout.addComponent(numberOfIterationsTxt);
-//        mainLayout.addComponent(addNewAlgorithmBtn);
         mainLayout.addComponent(startExperimentBtn);
         setAlignemntToAllComponents(mainLayout, Alignment.MIDDLE_CENTER);
         mainLayout.addStyleName("conf-main-layout");

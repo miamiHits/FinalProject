@@ -36,7 +36,6 @@ public class DataCollectionCommunicatorBehaviour extends CyclicBehaviour {
                     IterationCollectedData ICD = (IterationCollectedData) msg.getContentObject();
                     if (ICD.getAgentName().startsWith("h1")){
                         logger.info("H1, ITER: " + ICD.getIterNum() + " powerCons: " + Arrays.toString(ICD.getPowerConsumptionPerTick()));
-                        logger.info("H1, ITER: " + ICD.getIterNum() + " powerCons sum: " + Arrays.stream(ICD.getPowerConsumptionPerTick()).sum());
                     }
                     cSumReturned = agent.getCollector().addData(ICD);
                     if(cSumReturned == -1.0){ //iteration finished
