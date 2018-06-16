@@ -88,12 +88,6 @@ public class ServiceTest {
     }
 
     @Test
-    public void stopExperiment() throws Exception
-    {
-
-    }
-
-    @Test
     public void experimentEnded() throws Exception
     {
         List<AlgorithmProblemResult> someList = new ArrayList<>();
