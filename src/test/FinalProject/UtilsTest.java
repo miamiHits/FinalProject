@@ -20,10 +20,6 @@ public class UtilsTest {
         org.apache.log4j.BasicConfigurator.configure();
     }
 
-    @After
-    public void tearDown() throws Exception {
-    }
-
     @Test
     public void parseAgentNameStrTest() {
         String fullName = "blabla@blabla:192.0.0.1";

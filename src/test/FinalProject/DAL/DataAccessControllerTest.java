@@ -41,8 +41,6 @@ public class DataAccessControllerTest {
         Assert.assertEquals(expected, result.getProblems());
     }
 
-
-
     @Test
     public void getAvailableAlgorithms() throws Exception
     {
@@ -50,17 +48,4 @@ public class DataAccessControllerTest {
         List<String> actual = accessController.getAvailableAlgorithms();
         Assert.assertEquals(expected, new HashSet<>(actual));
     }
-
-    @Test
-    public void getAlgorithms() throws Exception
-    {
-
-    }
-
-    @Test
-    public void addAlgorithmToSystem() throws Exception
-    {
-
-    }
-
 }
