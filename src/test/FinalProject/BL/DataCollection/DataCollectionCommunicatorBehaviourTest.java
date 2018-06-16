@@ -29,19 +29,5 @@ public class DataCollectionCommunicatorBehaviourTest {
         sd.setName(SERVICE_NAME);
         sd.addOntologies(ONTOLOGY);
         dfd.addServices(sd);
-        /*try {
-            DFService.register(new Agent(), dfd);
-        }
-        catch (FIPAException fe) {
-            fe.printStackTrace();
-        }*/
-
     }
-
-    @Test
-    public void findAgents() throws Exception {
-        //Assert.assertTrue(behaviour.findAgents(ONTOLOGY).length == 1);
-
-    }
-
 }
