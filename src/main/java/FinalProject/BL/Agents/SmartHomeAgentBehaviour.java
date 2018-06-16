@@ -621,7 +621,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         }
 
         if(!improved) {
-            newTicks = getTicksForProp(prop); //TODO: can optimize this call and save to var once
+            newTicks = getTicksForProp(prop);
         }
 
         return newTicks;

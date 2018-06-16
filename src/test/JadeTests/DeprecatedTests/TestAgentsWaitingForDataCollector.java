@@ -315,7 +315,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
                     agent.getProblemId(),
                     agent.getAlgoId(),
                     (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())),
-                    0, 1, 1); //TODO: set real messageSize, count
+                    0, 1, 1);
 
             this.sendFakeIterationToNeighbors();
             this.verifyNeighboursDidNotStartNewIteration();
@@ -334,7 +334,7 @@ public class TestAgentsWaitingForDataCollector extends AbstractJadeIntegrationTe
                     agent.getProblemId(),
                     agent.getAlgoId(),
                     (agent.getAgentData().getNeighbors().stream().map(AgentData::getName).collect(Collectors.toSet())),
-                    12, 1, 1); //TODO: set real messageSize, count
+                    12, 1, 1);
             this.sendFakeIterationToNeighbors();
             this.verifyNeighboursDidNotStartNewIteration();
             this.sendFakeIterationToCollector();
