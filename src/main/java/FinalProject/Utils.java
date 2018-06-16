@@ -14,7 +14,6 @@ public class Utils {
 
     public static long getSizeOfObj(Object object){
         if (object == null) {
-            logger.info("getSizeOfObj: obj is null! Returning 0");
             return 0;
         }
 
@@ -25,7 +24,7 @@ public class Utils {
             out.close();
             return out.getByteCount();
         }catch (IOException e){
-            logger.info("Could not count size of object " + object.toString());
+            logger.warn("Could not count size of object " + object.toString());
             return -1;
         }
     }

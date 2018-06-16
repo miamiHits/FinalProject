@@ -71,7 +71,7 @@ public class Experiment implements ExperimentInterface {
     }
 
     public void algorithmProblemIterEnded(String algo, String problem) {
-        logger.info("Iter ended in <" + algo + "," + problem + ">. Updating with " + (1.0 / maximumIterations) + "%");
+        logger.debug("Iter ended in <" + algo + "," + problem + ">. Updating with " + (1.0 / maximumIterations) + "%");
         iter2Time.put(this.counter, (System.currentTimeMillis() - this.runningTime));
         counter++;
         this.runningTime = System.currentTimeMillis();

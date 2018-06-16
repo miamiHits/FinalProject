@@ -112,7 +112,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         doIteration();
         sendIterationToCollector();
         sendMsgToAllNeighbors(agent.getCurrIteration(), "");
-        logger.info("agent + " + agent.getName() + " FINISHED ITER " + (currentNumberOfIter - 1));
+        logger.debug("agent " + agent.getName() + " FINISHED ITER " + (currentNumberOfIter - 1));
     }
 
     /**
@@ -733,7 +733,7 @@ public abstract class SmartHomeAgentBehaviour extends Behaviour implements Seria
         countIterationCommunication();
         agentIterationCollected = new IterationCollectedData(currentNumberOfIter, agent.getName(),price, arr, agent.getProblemId(),
                 agent.getAlgoId(), neighboursNames, helper.ePeak, agent.getIterationMessageSize(), agent.getIterationMessageCount());
-        logger.info("before done: " + agent.getLocalName() + " iter: " + currentNumberOfIter + " epeak: " + helper.ePeak + " price: " + price);
+        logger.debug("before done: " + agent.getLocalName() + " iter: " + currentNumberOfIter + " epeak: " + helper.ePeak + " price: " + price);
     }
 
     /**
